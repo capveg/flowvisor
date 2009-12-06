@@ -38,7 +38,7 @@
                 <attribute name="Main-Class" value="org.openflow.OFMessage"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${dist}" excludes="openflow-${DSTAMP}.jar"/>
+            <fileset dir="${of_build}" excludes="openflow-${DSTAMP}.jar"/>
         </jar>
         <!-- Put everything in ${fv_build} into the flowvisor-${DSTAMP}.jar file -->
         <jar destfile="${dist}/flowvisor-${DSTAMP}.jar" filesetmanifest="mergewithoutmain">
@@ -46,7 +46,7 @@
                 <attribute name="Main-Class" value="org.flowvisor.Flowvisor"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${dist}" excludes="flowvisor-${DSTAMP}.jar"/>
+            <fileset dir="${fv_build}" excludes="flowvisor-${DSTAMP}.jar"/>
         </jar>
 
     </target>
