@@ -6,12 +6,16 @@
 
     <!-- set global properties for this build -->
 
-    <property name="of_src" location="of_src"/>
-    <property name="fv_src" location="fv_src"/>
     <property name="build" location="build"/>
-    <property name="of_build" location="build/of_build"/>
-    <property name="fv_build" location="build/fv_build"/>
     <property name="dist"  location="dist"/>
+    <property name="of_src" location="of_src"/>
+    <property name="of_build" location="build/of_build"/>
+    <property name="of_jar" location="${dist}/openflow.jar"/>
+    <property name="of_main" location="org.openflow.OFMessage"/>
+    <property name="fv_src" location="fv_src"/>
+    <property name="fv_build" location="build/fv_build"/>
+    <property name="fv_main" location="org.flowvisor.Flowvisor"/>
+    <property name="fv_jar" location="${dist}/flowvisor.jar"/>
 
     <target name="init">
         <!-- Create the time stamp -->
@@ -32,21 +36,21 @@
         description="generate the distribution" >
         <!-- Create the distribution directory -->
         <mkdir dir="${dist}"/>
-        <!-- Put everything in ${of_build} into the openflow-${DSTAMP}.jar file -->
-        <jar destfile="${dist}/openflow-${DSTAMP}.jar" filesetmanifest="mergewithoutmain">
+        <!-- Put everything in ${of_build} into the ${of_jar} file -->
+        <jar destfile="${of_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="org.openflow.OFMessage"/>
+                <attribute name="Main-Class" value="${of_main}"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${of_build}" excludes="openflow-${DSTAMP}.jar"/>
+            <fileset dir="${of_build}" excludes="${of_jar}"/>
         </jar>
-        <!-- Put everything in ${fv_build} into the flowvisor-${DSTAMP}.jar file -->
-        <jar destfile="${dist}/flowvisor-${DSTAMP}.jar" filesetmanifest="mergewithoutmain">
+        <!-- Put everything in ${fv_build} into the ${fv_jar} file -->
+        <jar destfile="${fv_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="org.flowvisor.Flowvisor"/>
+                <attribute name="Main-Class" value="${fv_main}"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="${fv_build}" excludes="flowvisor-${DSTAMP}.jar"/>
+            <fileset dir="${fv_build}" excludes="${fv_jar}"/>
         </jar>
 
     </target>
@@ -56,10 +60,20 @@
         <!-- Delete the ${build} and ${dist} directory trees -->
         <delete dir="${fv_build}"/>
         <delete dir="${fv_dist}"/>
-        <delete dir="${of_build}"/>
-        <delete dir="${of_dist}"/>
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
     </target>
+
+    <target name="run" depends="dist">
+        <java fork="true" jar="${fv_jar}">
+            
+            <classpath>
+                <!-- <pathelement path="${fv_jar}:${of_jar}"/> -->
+                <pathelement location="${fv_jar}"/>
+                <pathelement location="${of_jar}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
 
