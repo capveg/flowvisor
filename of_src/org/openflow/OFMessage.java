@@ -1,8 +1,6 @@
 package org.openflow;
 
-import org.openflow.*;
-
-class OFMessage extends OFHeader
+public class OFMessage extends OFHeader
 {
 
 }

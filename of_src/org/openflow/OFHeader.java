@@ -2,7 +2,6 @@
 package org.openflow;
 
 import java.nio.ByteBuffer;
-import org.openflow.*;
 
 class OFHeader 
 {

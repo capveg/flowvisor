@@ -3,7 +3,12 @@ package org.openflow;
 
 class OFException extends Exception
 {
-    public OFException(String err)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6600006993032042440L;
+
+	public OFException(String err)
     {
         super(err);
     }

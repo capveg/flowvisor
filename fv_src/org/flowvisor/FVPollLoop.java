@@ -1,26 +1,36 @@
 package org.flowvisor;
 
-import java.nio.*;
+import java.nio.channels.*;
+import org.flowvisor.events.*;
 import java.io.*;
 
-class FVPollLoop 
+public class FVPollLoop 
 {
 
     Selector selector;
 
-    public FVPollLoop()
+    public FVPollLoop() throws IOException
     {
-        selector = Selector.open();
+    		selector = Selector.open();
+   
     }
 
 
     public void register(SelectableChannel ch, int ops, FVMod mod)
     {
-        ch.register(selector, ops, h);
+    	try 
+    	{
+    		ch.register(selector, ops, mod);
+    	}
+    	catch (ClosedChannelException e)
+    	{
+    		// FIXME : log an error?
+    	}
     }
 
-    public int addTimer(FVMod mod, FVTimerEvent t)
+    public void addTimer(FVMod mod, FVTimerEvent t)
     {
+    
     }
 
     public void doPollLoop()
