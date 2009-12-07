@@ -5,16 +5,17 @@ import org.flowvisor.*;
 
 public class FVIOEvent extends FVEvent
 {
-    int op;
     SelectionKey sk;
-
-    public FVIOEvent(FVMod src, int type, int code, int op,SelectionKey sk)
+    /****
+     * Signal to an FVMod that someIO they've selected() for is ready
+     * @param src The source 
+     * @param sk
+     */
+    public FVIOEvent(FVMod src,SelectionKey sk)
     {
-        super(src,type,code);
-        this.op=op;
+        super(src,FVET_IO,sk.readyOps());  
         this.sk = sk;
     }
 
     public SelectionKey getSelectionKey() { return this.sk; }
-    public int getOp() { return this.op; } 
 }

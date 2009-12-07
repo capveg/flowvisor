@@ -57,4 +57,9 @@ abstract public class FVMod
     }
     
     public String getName() { return this.name; }
+
+    public void cleanup() 
+    {
+    	// NOOP by default
+    }
 }

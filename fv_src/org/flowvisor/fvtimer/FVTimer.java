@@ -1,10 +1,11 @@
-package org.flowvisor.timer;
+package org.flowvisor.fvtimer;
 
 import org.flowvisor.events.*;
 import org.flowvisor.exceptions.*;
 
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.sql.Time;
 
 /***
  * A priority queue of timer events
@@ -18,17 +19,21 @@ import java.util.PriorityQueue;
  * @author capveg
  *
  */
-public class Timer {
+public class FVTimer {
 	public static final long MAX_TIMEOUT = 1000;
 	
 	PriorityQueue<FVTimerEvent> pq;
-	public Timer()
+	public FVTimer()
 	{
 		pq = new PriorityQueue<FVTimerEvent>();
+		if(pq == null)
+			throw new NullPointerException();
 	}
-	
-	void addTimer(FVTimerEvent e)
+	 
+	public void addTimer(FVTimerEvent e)
 	{
+		System.err.println("Scheduleing event at t=" + new Time(System.currentTimeMillis()) +
+					" to happen at " + new Time(e.getExpireTime()));
 		pq.add(e);
 	}
 	/***
@@ -37,7 +42,7 @@ public class Timer {
 	 * If the time for this event has passed, process it (only one event per call) and return 0
 	 * Else, return the time in milliseconds until the next event
 	 */
-	long processEvent() throws UnhandledEvent
+	public long processEvent() throws UnhandledEvent
 	{
 		long now = System.currentTimeMillis();
 		FVTimerEvent e = this.pq.peek();
@@ -48,7 +53,7 @@ public class Timer {
 		if(now >= expire)
 		{
 			pq.remove();
-			e.getFVMod().handleEvent(e);
+			e.getSrc().handleEvent(e);
 			return 0;
 		}
 		else
