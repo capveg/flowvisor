@@ -29,7 +29,7 @@
         description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${of_src}" destdir="${of_build}"/>
-        <javac srcdir="${fv_src}" classpath="${of_jar}" destdir="${fv_build}"/>
+        <javac srcdir="${fv_src}" classpath="${of_build}" destdir="${fv_build}"/>
     </target>
 
     <target name="dist" depends="compile"
@@ -74,6 +74,25 @@
             </classpath>
         </java>
     </target>
+
+    <target name="javadoc">
+        <javadoc access="protected"
+        author="true"
+        classpath="${fv_jar}:${of_jar}"
+        destdir="doc"
+        doctitle="FlowVisor"
+        nodeprecated="false"
+        nodeprecatedlist="false"
+        noindex="false"
+        nonavbar="false"
+        notree="false"
+        source="1.6"
+        sourcepath="${fv_src}:${of_src}"
+        splitindex="true"
+        use="true"
+        version="true"/>
+    </target>
+
 
 </project>
 
