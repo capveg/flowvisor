@@ -1,5 +1,6 @@
 package org.flowvisor.ofswitch;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.*;
 import java.net.*;
@@ -21,7 +22,8 @@ public class OFSwitch extends FVMod
 	boolean identified;
 	long dpid;
 	SocketChannel sock;
-	LinkedList<OFMessage> outgoing;
+	LinkedList<OFMessage> 	outgoing;
+	ByteBuffer				incoming;
 	
 	public OFSwitch(SocketChannel sock, FVPollLoop pollLoop)
 	{
@@ -42,6 +44,7 @@ public class OFSwitch extends FVMod
 		}
 
 		this.outgoing = new LinkedList<OFMessage>();
+		this.incoming = ByteBuffer.allocate(4096);
 		
 		this.send(new OFHello());			// this implicitly registers with pollLoop
 		this.send(new OFFeaturesRequest()); // FIXME: should negotiate first
@@ -63,6 +66,8 @@ public class OFSwitch extends FVMod
 	{
 		OFFlowMod flush = new OFFlowMod();
 		flush.setXID(0xcafedeadbeefbeefl);
+		flush.setCommand(OFFlowMod.OFPFC_DELETE);
+		flush.setMatch(OFMatch.makeMatchAll());
 		return flush;
 	}
 	

@@ -96,6 +96,7 @@ public class OFMessage
     {
         this.data = ByteBuffer.allocate(len);
         this.setVersion(OFP_VERSION);
+        // type defaults to 0 which is Hello
         this.setLength(len);
         this.setXID(XID++);
     }
@@ -138,6 +139,7 @@ public class OFMessage
     public OFMessage setLength(int length)
     {
         LameUnsigned.putUnsignedShort(data,OFFSET_TYPE, length);
+        data.position(length);
         return this;
     }
 
