@@ -2,9 +2,10 @@ package org.openflow;
 
 class OFStatsRequest extends OFMessage
 {
+	public static int DEFAULT_CAPACITY=4096;
     public OFStatsRequest()
     {
-        super();
+        super(DEFAULT_CAPACITY);
         setType(OFPT_STATS_REQUEST);
     }
     public static void main(String args[])

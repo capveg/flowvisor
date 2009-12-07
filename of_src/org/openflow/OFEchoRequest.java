@@ -4,7 +4,7 @@ class OFEchoRequest extends OFMessage
 {
     public OFEchoRequest()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_ECHO_REQUEST);
     }
     public static void main(String args[])

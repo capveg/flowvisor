@@ -4,7 +4,7 @@ class OFEchoReply extends OFMessage
 {
     public OFEchoReply()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_ECHO_REPLY);
     }
     public static void main(String args[])

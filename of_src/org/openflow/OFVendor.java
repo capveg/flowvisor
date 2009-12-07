@@ -2,9 +2,10 @@ package org.openflow;
 
 class OFVendor extends OFMessage
 {
+	public static int DEFAULT_CAPACITY = 4096;
     public OFVendor()
     {
-        super();
+        super(DEFAULT_CAPACITY);
         setType(OFPT_VENDOR);
     }
     public static void main(String args[])

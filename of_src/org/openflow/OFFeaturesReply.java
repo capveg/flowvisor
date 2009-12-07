@@ -4,7 +4,7 @@ class OFFeaturesReply extends OFMessage
 {
     public OFFeaturesReply()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_FEATURES_REPLY);
     }
     public static void main(String args[])

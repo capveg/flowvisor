@@ -4,7 +4,7 @@ class OFBarrierReply extends OFMessage
 {
     public OFBarrierReply()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_BARRIER_REPLY);
     }
     public static void main(String args[])

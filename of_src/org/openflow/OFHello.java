@@ -1,7 +1,10 @@
 
 package org.openflow;
 
-class OFHello extends OFMessage
+public class OFHello extends OFMessage
 {
-
+	public OFHello()
+	{
+		super(OF_HEADER_SIZE);
+	}
 }

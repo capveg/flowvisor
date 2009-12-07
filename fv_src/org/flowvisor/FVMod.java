@@ -1,6 +1,5 @@
 package org.flowvisor;
 
-import java.nio.channels.*;
 import org.flowvisor.events.*;
 import org.flowvisor.exceptions.*;
 
@@ -13,19 +12,13 @@ import org.flowvisor.exceptions.*;
 abstract public class FVMod 
 {
 	String name;
-	FVPollLoop pollLoop;
-	SocketChannel sock;
+	protected FVPollLoop pollLoop;
 	public FVMod(String name, FVPollLoop pollLoop)
 	{
 		this.name = name;
 		this.pollLoop = pollLoop;
 	}
-	
-	public void setSocketChannel(SocketChannel sock)
-	{
-		this.sock = sock;
-	}
-	
+		
     public void handleEvent(FVEvent event) throws UnhandledEvent
     {
     	switch(event.getType())
@@ -60,6 +53,6 @@ abstract public class FVMod
 
     public void cleanup() 
     {
-    	// NOOP by default
+    	System.err.println("Cleaning up " + this.name);
     }
 }

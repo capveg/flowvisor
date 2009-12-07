@@ -2,9 +2,10 @@ package org.openflow;
 
 class OFPacketOut extends OFMessage
 {
+	public static int DEFAULT_CAPACITY=4096;
     public OFPacketOut()
     {
-        super();
+        super(DEFAULT_CAPACITY);
         setType(OFPT_PACKET_OUT);
     }
     public static void main(String args[])

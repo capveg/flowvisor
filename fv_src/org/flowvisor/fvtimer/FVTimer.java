@@ -20,7 +20,8 @@ import java.sql.Time;
  *
  */
 public class FVTimer {
-	public static final long MAX_TIMEOUT = 1000;
+	public static final long MAX_TIMEOUT = 5000;
+	public static final long MIN_TIMEOUT = 1;
 	
 	PriorityQueue<FVTimerEvent> pq;
 	public FVTimer()
@@ -39,7 +40,8 @@ public class FVTimer {
 	/***
 	 * Compare the current wall clock time to the next event in the queue.
 	 * If there is nothing in the queue, return MAX_TIMEOUT
-	 * If the time for this event has passed, process it (only one event per call) and return 0
+	 * If the time for this event has passed, process it (only one event per call) 
+	 * 	and return MIN_TIMEOUT
 	 * Else, return the time in milliseconds until the next event
 	 */
 	public long processEvent() throws UnhandledEvent
@@ -54,7 +56,7 @@ public class FVTimer {
 		{
 			pq.remove();
 			e.getSrc().handleEvent(e);
-			return 0;
+			return MIN_TIMEOUT;
 		}
 		else
 			return expire - now;

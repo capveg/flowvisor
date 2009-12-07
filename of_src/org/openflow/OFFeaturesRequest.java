@@ -1,10 +1,10 @@
 package org.openflow;
 
-class OFFeaturesRequest extends OFMessage
+public class OFFeaturesRequest extends OFMessage
 {
     public OFFeaturesRequest()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_FEATURES_REQUEST);
     }
     public static void main(String args[])

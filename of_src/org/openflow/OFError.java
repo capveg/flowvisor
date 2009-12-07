@@ -2,9 +2,10 @@ package org.openflow;
 
 class OFError extends OFMessage
 {
+	public static int DEFAULT_CAPACITY = 4096;
     public OFError()
     {
-        super();
+        super(DEFAULT_CAPACITY);
         setType(OFPT_ERROR);
     }
     public static void main(String args[])

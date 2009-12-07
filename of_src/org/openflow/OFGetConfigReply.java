@@ -4,7 +4,7 @@ class OFGetConfigReply extends OFMessage
 {
     public OFGetConfigReply()
     {
-        super();
+        super(OF_HEADER_SIZE);
         setType(OFPT_GET_CONFIG_REPLY);
     }
     public static void main(String args[])

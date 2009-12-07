@@ -4,8 +4,8 @@ class OFBarrierRequest extends OFMessage
 {
     public OFBarrierRequest()
     {
-        super();
-            setType(OFPT_BARRIER_REQUEST);
+        super(OF_HEADER_SIZE);
+        setType(OFPT_BARRIER_REQUEST);
     }
     public static void main(String args[])
     {
