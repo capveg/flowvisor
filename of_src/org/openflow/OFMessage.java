@@ -98,17 +98,21 @@ public class OFMessage
         this.setVersion(OFP_VERSION);
         // type defaults to 0 which is Hello
         this.setLength(len);
-        this.setXID(XID++);
+        this.setXID(createXID());
     }
 
-    public OFMessage(ByteBuffer msg) throws OFException
+    public OFMessage(ByteBuffer msg)
     {
         data = msg;
         if(sanityCheck)
         {
             if(data.limit() < OF_HEADER_SIZE)
-                throw new OFException("malformed openflow message: too short");
+                throw new IllegalArgumentException("malformed openflow message: too short");
         }
+    }
+
+    private static synchronized long createXID() {
+        return XID++;
     }
 
     public OFMessage setVersion(int version)
@@ -172,7 +176,10 @@ public class OFMessage
 		int limit = this.data.limit();
 		int position = this.data.position();
 		this.data.flip(); // mess the state variables up for the write
+
+        // FIXME this does not necessarily write all the data in the buffer - won't work when the socket blocks
 		int count = sock.write(this.data);
+
 		// and put them back like we weren't here -- horrible
 		this.data.limit(limit);
 		this.data.position(position);
