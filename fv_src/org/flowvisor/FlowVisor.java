@@ -7,7 +7,7 @@ import org.flowvisor.exceptions.*;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.events.*;
 
-class Flowvisor
+class FlowVisor
 {
     public static void main(String args[]) throws IOException,UnhandledEvent
     {

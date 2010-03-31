@@ -8,9 +8,10 @@
 
     <property name="build" location="build"/>
     <property name="dist"  location="dist"/>
+    <property name="docs"  location="doc"/>
     <property name="of_jar" location="lib/openflow.jar"/>
-    <property name="fv_src" location="fv_src"/>
-    <property name="fv_build" location="build/fv_build"/>
+    <property name="fv_src" location="src"/>
+    <property name="fv_build" location="build/"/>
     <property name="fv_main" location="org.flowvisor.Flowvisor"/>
     <property name="fv_jar" location="${dist}/flowvisor.jar"/>
 
@@ -34,10 +35,10 @@
         <!-- Put everything in ${fv_build} into the ${fv_jar} file -->
         <jar destfile="${fv_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
-                <attribute name="Main-Class" value="${fv_main}"/>
-                <attribute name="Class-Path" value="."/>
+                <attribute name="Main-Class" value="org.flowvisor.FlowVisor"/>
+                <attribute name="Class-Path" value="${mf.classpath}"/>
             </manifest>
-            <fileset dir="${fv_build}" excludes="${fv_jar}"/>
+            <fileset dir="${fv_build}"/>
         </jar>
 
     </target>
@@ -49,11 +50,15 @@
         <delete dir="${fv_dist}"/>
         <delete dir="${build}"/>
         <delete dir="${dist}"/>
+        <delete dir="${docs}"/>
     </target>
 
     <target name="run" depends="dist">
         <java fork="true" jar="${fv_jar}">
-            
+            <jvmarg value="-server"/>
+            <jvmarg value="-Xms512M"/>
+            <jvmarg value="-Xmx512M"/>
+            <arg line="${args}"/>
             <classpath>
                 <pathelement location="${fv_jar}"/>
                 <pathelement location="${of_jar}"/>
@@ -65,7 +70,7 @@
         <javadoc access="protected"
         author="true"
         classpath="${fv_jar}:${of_jar}"
-        destdir="doc"
+        destdir="${docs}"
         doctitle="FlowVisor"
         nodeprecated="false"
         nodeprecatedlist="false"
