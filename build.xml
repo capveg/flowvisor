@@ -8,10 +8,7 @@
 
     <property name="build" location="build"/>
     <property name="dist"  location="dist"/>
-    <property name="of_src" location="of_src"/>
-    <property name="of_build" location="build/of_build"/>
-    <property name="of_jar" location="${dist}/openflow.jar"/>
-    <property name="of_main" location="org.openflow.OFMessage"/>
+    <property name="of_jar" location="lib/openflow.jar"/>
     <property name="fv_src" location="fv_src"/>
     <property name="fv_build" location="build/fv_build"/>
     <property name="fv_main" location="org.flowvisor.Flowvisor"/>
@@ -21,29 +18,19 @@
         <!-- Create the time stamp -->
         <tstamp/>
         <!-- Create the build directory structure used by compile -->
-        <mkdir dir="${of_build}"/>
         <mkdir dir="${fv_build}"/>
     </target>
 
     <target name="compile" depends="init"
         description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${of_src}" destdir="${of_build}"/>
-        <javac srcdir="${fv_src}" classpath="${of_build}" destdir="${fv_build}"/>
+        <javac srcdir="${fv_src}" classpath="${of_jar}" destdir="${fv_build}"/>
     </target>
 
     <target name="dist" depends="compile"
         description="generate the distribution" >
         <!-- Create the distribution directory -->
         <mkdir dir="${dist}"/>
-        <!-- Put everything in ${of_build} into the ${of_jar} file -->
-        <jar destfile="${of_jar}" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="${of_main}"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${of_build}" excludes="${of_jar}"/>
-        </jar>
         <!-- Put everything in ${fv_build} into the ${fv_jar} file -->
         <jar destfile="${fv_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
@@ -68,7 +55,6 @@
         <java fork="true" jar="${fv_jar}">
             
             <classpath>
-                <!-- <pathelement path="${fv_jar}:${of_jar}"/> -->
                 <pathelement location="${fv_jar}"/>
                 <pathelement location="${of_jar}"/>
             </classpath>
@@ -87,7 +73,7 @@
         nonavbar="false"
         notree="false"
         source="1.6"
-        sourcepath="${fv_src}:${of_src}"
+        sourcepath="${fv_src}"
         splitindex="true"
         use="true"
         version="true"/>
