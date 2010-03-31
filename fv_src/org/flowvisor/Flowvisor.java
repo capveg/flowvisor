@@ -3,34 +3,35 @@ package org.flowvisor;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.flowvisor.exceptions.*;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
+import org.flowvisor.events.*;
 
 class Flowvisor
 {
     public static void main(String args[]) throws IOException,UnhandledEvent
     {
-    	ArrayList<FVMod> fvmods = new ArrayList<FVMod>();
+    	ArrayList<FVEventHandler> handlers = new ArrayList<FVEventHandler>();
 
     	// init polling loop
-    	FVPollLoop pollLoop			= new FVPollLoop();
-    	fvmods.add(pollLoop);	// collect these up for now...
-    	
+    	FVEventLoop pollLoop = new FVEventLoop();
+
     	// init switchAcceptor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
     										"ofswitchAcceptor",
     										pollLoop, 
     										6633, 
     										16);
-    	fvmods.add(acceptor);
+    	handlers.add(acceptor);				
     	
     	// start event processing
-    	pollLoop.doPollLoop();
+    	pollLoop.doEventLoop();
     	
+    	/** 
+    	 * FIXME add a cleanup call to event handlers
     	// now shut everything down
-    	for(Iterator<FVMod> i = fvmods.iterator(); i.hasNext(); i.next())
-    		i.next().cleanup();
+    	for (FVEventHandler fvh : handlers)
+    		fvh.cleanup();
+    	*/
     }
 }

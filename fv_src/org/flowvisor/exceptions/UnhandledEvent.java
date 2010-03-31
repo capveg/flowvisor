@@ -1,5 +1,7 @@
 package org.flowvisor.exceptions;
 
+import org.flowvisor.events.FVEvent;
+
 public class UnhandledEvent extends FVException {
 
 	/**
@@ -10,6 +12,10 @@ public class UnhandledEvent extends FVException {
 	public UnhandledEvent(String err) {
 		super(err);
 		// TODO Auto-generated constructor stub
+	}
+	
+	public UnhandledEvent(FVEvent e) {
+		super ("Unhandled event: " + e.toString());
 	}
 
 }

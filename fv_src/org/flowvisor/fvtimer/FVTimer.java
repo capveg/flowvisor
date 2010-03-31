@@ -10,7 +10,7 @@ import java.sql.Time;
 /***
  * A priority queue of timer events
  * 	does NOT actually call events directly.
- * External callers (e.g., pollLoop) do
+ * External callers (e.g., eventLoop) do
  * 			addTimer()
  * and repeated call processTimer()
  * 

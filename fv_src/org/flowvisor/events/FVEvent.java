@@ -1,25 +1,50 @@
+/**
+ * 
+ */
 package org.flowvisor.events;
 
-import org.flowvisor.FVMod;
-
-public class FVEvent
-{
-    int type;
-    int code;
-    FVMod src;
-
-    public final static int FVET_IO        = 0;
-    public final static int FVET_OF_MSG    = 1;
-    public final static int FVET_TIMER     = 2;
-
-    public FVEvent(FVMod src, int type, int code)
-    {
-        this.src=src;
-        this.type=type;
-        this.code=code;
-    }
-
-    public FVMod getSrc() { return this.src; }
-    public int getType() { return this.type; } 
-    public int getCode() { return this.code; } 
+/**
+ * Basic unit of information passed between FV's logical units
+ * Derived classes express the specific msg information
+ * @author capveg
+ *
+ */
+public class FVEvent {
+	private FVEventHandler src, dst;
+	
+	public FVEvent(FVEventHandler src, FVEventHandler dst) {
+		this.src = src;
+		this.dst = dst;
+	}
+	
+	/**
+	 * Get the sending msg handler (could be null) 
+	 * @return
+	 */
+	public FVEventHandler getSrc() {
+		return src;
+	}
+	
+	/**
+	 * Set the sending Event handler
+	 * @param src could be null
+	 */
+	public void setSrc(FVEventHandler src) {
+		this.src = src;
+	}
+	
+	/**
+	 * Get the destination of this message
+	 * @return dst dst reference
+	 */
+	public FVEventHandler getDst() {
+		return dst;
+	}
+	/**
+	 * Set the destination Event handler
+	 * @param dst
+	 */
+	public void setDst(FVEventHandler dst) {
+		this.dst = dst;
+	}
 }
