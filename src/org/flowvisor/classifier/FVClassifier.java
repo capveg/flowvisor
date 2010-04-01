@@ -5,10 +5,12 @@ import org.flowvisor.exceptions.UnhandledEvent;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.*;
 import org.openflow.protocol.factory.*;
+//import org.openflow.protocol.statistics.OFStatisticsType;
 import org.flowvisor.log.*;
 
 import java.io.IOException;
 import java.nio.channels.*;
+import java.util.List;
 /** 
  * Map OF messages from the switch to the appropriate slice
  *   
@@ -22,11 +24,11 @@ public class FVClassifier implements FVEventHandler {
 	String switchName;
 	boolean doneID;
 	OFMessageAsyncStream msgStream;
+	OFFeaturesReply switchInfo;
 	
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
 		this.switchName = "unidentified:"+sock.toString();
-		this.doneID = false;
 		try {
 			this.msgStream = new OFMessageAsyncStream(sock, new BasicFactory());
 		} catch (IOException e) {
@@ -34,10 +36,22 @@ public class FVClassifier implements FVEventHandler {
 			e.printStackTrace();
 		}
 		this.sock = sock;
+		this.switchInfo = null;
+		this.doneID = false;
 	}
+
+	/** 
+	 * on init, send HELLO, delete all flow entries, and send features request
+	 * @throws IOException
+	 */
 	
 	public void init() throws IOException {
 		msgStream.write(new OFHello());
+		OFMatch match = new OFMatch();
+		match.setWildcards(OFMatch.OFPFW_ALL);
+		OFFlowMod fm = new OFFlowMod();
+		fm.setMatch(match);
+		msgStream.write(fm);
 		msgStream.write(new OFFeaturesRequest());
 		msgStream.flush();
 		int ops = SelectionKey.OP_READ;
@@ -48,7 +62,7 @@ public class FVClassifier implements FVEventHandler {
 	
 	@Override
 	public String getName() {
-		return "classifier:" + switchName;
+		return switchName+ "-classifier";
 	}
 
 	@Override
@@ -74,14 +88,18 @@ public class FVClassifier implements FVEventHandler {
 	
 		try {
 			// read stuff, if need be
-			if (( ops & SelectionKey.OP_READ) != 0)
-				for(OFMessage m : msgStream.read())
-				{
-					if (doneID)
-						classifyOFMessage(m);
-					else 
-						handleOFMessage_unidenitified(m);
+			if (( ops & SelectionKey.OP_READ) != 0) {
+			    List<OFMessage> newMsgs = msgStream.read();
+				if (newMsgs != null ) { 
+				    for(OFMessage m : newMsgs) {
+	                    FVLog.log(LogLevel.DEBUG, this, "read " + m);
+				        if (switchInfo != null)
+							classifyOFMessage(m);
+						else 
+							handleOFMessage_unidenitified(m);
+					}
 				}
+			}
 			// write stuff if need be
 			if ((ops & SelectionKey.OP_WRITE) != 0 )
 				msgStream.flush();
@@ -123,30 +141,36 @@ public class FVClassifier implements FVEventHandler {
 	 */
 	private void handleOFMessage_unidenitified(OFMessage m) {
 		switch(m.getType()) {
-			case HELLO:
-				if(m.getVersion() != OFMessage.OFP_VERSION)
-				{
+			case HELLO:  // aleady sent our hello; just NOOP here
+				if(m.getVersion() != OFMessage.OFP_VERSION) {
 					FVLog.log(LogLevel.ALERT, this, "Mismatched version from switch " + 
 							sock + " Got: "+ m.getVersion() + " Wanted: " + OFMessage.OFP_VERSION);
 					this.tearDown();
-					return;
+	                   throw new RuntimeException("!!!");
 				}
+				break;
 			case ECHO_REQUEST:
 				OFMessage echo_reply = new OFEchoReply();
 				echo_reply.setXid(m.getXid());
 				msgStream.write(echo_reply);
 				break;
 			case FEATURES_REPLY:
-				identifySwitch(m);
+				switchInfo = (OFFeaturesReply) m;
+				/*
+				OFStatisticsRequest stats = new OFStatisticsRequest();
+				stats.setStatisticType(OFStatisticsType.DESC);
+				*/
+				switchName = "dpid:" + String.format("%1$016x", switchInfo.getDatapathId());
+				FVLog.log(LogLevel.INFO, this, 
+				        	"identified switch as " + 
+				        	switchName + " on " + 
+				        	this.sock);
+				
+				doneID = true;
 				break;
 			default : 
 				// FIXME add logging
 				FVLog.log(LogLevel.WARN, this, "Got unknown message type " + m + " to unidentified switch");
 		}
-	}
-
-	private void identifySwitch(OFMessage m) {
-		// TODO Auto-generated method stub
-		
 	}
 }
