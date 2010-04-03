@@ -19,7 +19,7 @@ import java.util.*;
  *
  */
 public class FVConfig {
-	static ConfDirEntry root = new ConfDirEntry(".");  // base of all config info
+	static ConfDirEntry root = new ConfDirEntry("");  // base of all config info
 	
 	/** 
 	 * Return the config entry specific in name
@@ -27,7 +27,7 @@ public class FVConfig {
 	 * @return null if not found
 	 */
 	static private ConfigEntry lookup(String name) {
-		List<String> parts = Arrays.asList(name.split("."));
+		List<String> parts = Arrays.asList(name.split("\\."));
 		ConfigEntry ret = null;
 		ConfDirEntry base = FVConfig.root;
 		for(String part: parts) {
@@ -44,8 +44,8 @@ public class FVConfig {
 		return ret;
 	}
 	
-	static private ConfigEntry create(String name, ConfigType type) throws ConfigError {
-		String[] parts = name.split(".");
+	static protected ConfigEntry create(String name, ConfigType type) throws ConfigError {
+		String[] parts = name.split("\\.");
 		int i;
 		ConfDirEntry base = FVConfig.root;
 		
@@ -69,7 +69,7 @@ public class FVConfig {
 		Class<? extends ConfigEntry> c = type.toClass();
 		ConfigEntry entry;
 		try {
-			entry = c.getConstructor(new Class[]{String.class}).newInstance();
+			entry = c.getConstructor(new Class[]{String.class}).newInstance(parts[parts.length-1]);
 		} catch (Exception e) {
 			throw new ConfigCantCreateError(e.toString());
 		}
