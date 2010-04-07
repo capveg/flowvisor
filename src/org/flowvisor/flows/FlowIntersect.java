@@ -18,11 +18,13 @@ public class FlowIntersect {
 	MatchType matchType;
 	long dpid;
 	OFMatch match;
+	FlowEntry flowEntry;
 	
-	public FlowIntersect() {
+	public FlowIntersect(FlowEntry flowEntry) {
 		this.dpid = FlowEntry.ALL_DPIDS;
-		this.match = new OFMatch();
+		this.match =  (OFMatch) flowEntry.getMatch().clone();
 		this.matchType = MatchType.NONE;
+		this.flowEntry = flowEntry;
 	}
 	
 	public long getDPID() {
@@ -45,5 +47,21 @@ public class FlowIntersect {
 	}
 	public void setMatch(OFMatch match) {
 		this.match = match;
+	}
+
+	public long getDpid() {
+		return dpid;
+	}
+
+	public void setDpid(long dpid) {
+		this.dpid = dpid;
+	}
+
+	public FlowEntry getFlowEntry() {
+		return flowEntry;
+	}
+
+	public void setFlowEntry(FlowEntry flowEntry) {
+		this.flowEntry = flowEntry;
 	}
 }

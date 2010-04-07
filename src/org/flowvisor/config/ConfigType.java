@@ -9,11 +9,13 @@ package org.flowvisor.config;
  */
 public enum ConfigType {
 	
-	DIR(ConfDirEntry.class),		// directory
-	STR(ConfigEntry.class),		// string
-	INT(ConfIntEntry.class),		// integer
-	REAL(ConfigEntry.class),		// real
-	FLOWMAP(ConfigEntry.class);		// flowmap
+	DIR(ConfDirEntry.class),			// directory
+	STR(ConfStrEntry.class),			// string
+	INT(ConfIntEntry.class),			// integer
+	REAL(ConfRealEntry.class),			// real
+	FLOWMAP(ConfFlowMapEntry.class),	// flowmap
+	FLOWENTRY(ConfigEntry.class);		// flow rule/flow entry
+	
 
 	protected Class<? extends ConfigEntry> clazz;
 

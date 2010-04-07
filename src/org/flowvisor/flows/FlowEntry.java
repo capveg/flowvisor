@@ -13,7 +13,7 @@ import org.openflow.protocol.action.*;
  * In addition to normal openflow flow entry symantics, this flow entry also
  * matches on dpid
  */
-public class FlowEntry implements FlowMatches {
+public class FlowEntry {
 	public static final long ALL_DPIDS = Long.MIN_VALUE;
 	OFMatch ruleMatch;
 	List<OFAction> actionsList;
@@ -139,6 +139,34 @@ public class FlowEntry implements FlowMatches {
 					Byte.valueOf(x), 
 					Byte.valueOf(y))).byteValue();
 		}
+		// see if ip prefix x/masklenX intersects with y/masklenY (CIDR-style)
+		int testFieldMask(TestResult result, int maskShift,
+				int masklenX, int masklenY,
+				int x, int y) {
+			int min = Math.min(masklenX, masklenY);  // get the less specific address
+			if (min >= 32) {  // silly work around to deal with lack of unsigned
+				if (x == y) 
+					result.setTestResult(0, Integer.valueOf(x), MatchType.EQUAL);
+				else
+					result.setTestResult(0, Integer.valueOf(x), MatchType.NONE);
+				return x;
+			}
+					 
+			int mask = (1 << min) -1;	// min < 32, so no signed issues
+			int min_encoded = 32-min;	// because OpenFlow does it backwards... grr
+			if ((x & mask) != (y & mask))
+				result.setTestResult(0, Integer.valueOf(x), MatchType.NONE);
+			// else there is some overlap
+			if (masklenX < masklenY ) 
+				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.SUPERSET);
+			else if (masklenX > masklenY )
+				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.SUBSET);
+			else
+				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.EQUAL);
+			// note that b/c of how CIDR addressing works, there is no overlap that is not a SUB or SUPERSET
+			
+			return (x & mask);
+		}
 
 	}
 	
@@ -163,14 +191,16 @@ public class FlowEntry implements FlowMatches {
 	 * @return An FlowIntersect struture that describes the match
 	 */
 	public FlowIntersect matches(long dpid, OFMatch argMatch) {
-		FlowIntersect intersection = new FlowIntersect();
+		FlowIntersect intersection = new FlowIntersect(this);
 		int argWildcards = argMatch.getWildcards();
 		int ruleWildcards = this.ruleMatch.getWildcards();
 		
 		/**
-		 * NOTE: the logic here is protracted and convoluted.. and I can't think of a better
+		 * NOTE: the logic here is protracted and error prone...but I can't think of a better
 		 * way to do this... :-(
 		 */
+		
+		// FIXME: lots of untested code
 		
 		TestField tester = new TestField();
 		TestResult result = new TestResult();
@@ -183,6 +213,16 @@ public class FlowEntry implements FlowMatches {
 		);
 		if (! result.matchFound) 
 			return intersection.setMatchType(MatchType.NONE);
+		
+		// test in_port
+		interMatch.setInputPort(
+				tester.testFieldShort(result, OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards, 
+						argMatch.getInputPort(),
+						ruleMatch.getInputPort())
+		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
+		
 		
 		// test ether_dst
 		interMatch.setDataLayerDestination( (byte[])
@@ -226,7 +266,57 @@ public class FlowEntry implements FlowMatches {
 						argMatch.getDataLayerVirtualLanPriorityCodePoint(), 
 						ruleMatch.getDataLayerVirtualLanPriorityCodePoint())
 		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
 		
+		// test ip_dst
+		interMatch.setNetworkDestination(
+				tester.testFieldMask(result, OFMatch.OFPFW_NW_DST_SHIFT, 
+						argMatch.getNetworkDestinationMaskLen(),
+						ruleMatch.getNetworkDestinationMaskLen(),
+						argMatch.getNetworkDestination(), 
+						ruleMatch.getNetworkDestination())
+		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
+		
+		// test ip_src
+		interMatch.setNetworkSource(
+				tester.testFieldMask(result, OFMatch.OFPFW_NW_SRC_SHIFT, 
+						argMatch.getNetworkSourceMaskLen(),
+						ruleMatch.getNetworkSourceMaskLen(),
+						argMatch.getNetworkSource(), 
+						ruleMatch.getNetworkSource())
+		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
+		
+		
+		
+		// test ip_proto
+		interMatch.setNetworkProtocol(
+				tester.testFieldByte(result, OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards, 
+						argMatch.getNetworkProtocol(), 
+						ruleMatch.getNetworkProtocol())
+		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
+		
+		// test tp_src
+		interMatch.setTransportSource(
+				tester.testFieldShort(result, OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards, 
+						argMatch.getTransportSource(), 
+						ruleMatch.getTransportSource())
+		);
+		if (! result.matchFound) 
+			return intersection.setMatchType(MatchType.NONE);
+		
+		// test tp_dst
+		interMatch.setTransportDestination(
+				tester.testFieldShort(result, OFMatch.OFPFW_TP_DST, argWildcards, ruleWildcards, 
+						argMatch.getTransportDestination(), 
+						ruleMatch.getTransportDestination())
+		);
 		if (! result.matchFound) 
 			return intersection.setMatchType(MatchType.NONE);
 		

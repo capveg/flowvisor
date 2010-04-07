@@ -2,11 +2,12 @@ package org.flowvisor.config;
 
 public class ConfIntEntry extends ConfigEntry {
 	
+	int val;
+	
 	public ConfIntEntry(String name) {
 		super(name, ConfigType.INT);
 	}
 
-	int val;
 	
 	/** 
 	 * Get the node's value
