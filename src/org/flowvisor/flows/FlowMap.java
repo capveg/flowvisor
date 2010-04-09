@@ -50,7 +50,8 @@ public interface FlowMap {
 	
 	/**
 	 * Return the same information as matches(), except with more explicit information
-	 * on the type of match (SUBSET, SUPERSET, etc) of each FlowEntry
+	 * on the type of match (SUBSET, SUPERSET, etc) of each FlowEntry and the extent of 
+	 * the overlap, i.e., the actual intersection
 	 * 
 	 * Used for computing logical intersections when rewriting flowmods
 	 * 
@@ -92,6 +93,10 @@ public interface FlowMap {
 	
 	/**
 	 * Returns the current FlowMap rules in List<> form
+	 * 
+	 * Add() directly to this list will not necessarily add() 
+	 * to the flowmap.
+	 *  
 	 * @return list of FlowEntry's
 	 */
 	

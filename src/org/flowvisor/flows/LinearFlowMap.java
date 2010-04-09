@@ -104,13 +104,14 @@ public class LinearFlowMap implements FlowMap {
 	 * Step through all of the partially computed results, compute the intersections
 	 * and remove the intersections by priority.
 	 * 
-	 * Could be O(n^2) in worst case, but we expect that intersetions are rare (?)
-	 * @param mergeList List of all FlowEntry's from matches(), including overlaps.
+	 * Could be O(n^2) in worst case, but we expect that intersections are rare (?)
+	 * 
 	 * 
 	 * Uses the fact that the order of the list is also the priority order
 	 *  
 	 *  FIXME :: come back and make this faster
 	 *  
+	 * @param mergeList List of all FlowEntry's from matches(), including overlaps. 
 	 * @return A pruned list of just the non-completely-overlapping matches
 	 */
 	

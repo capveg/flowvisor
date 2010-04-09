@@ -8,8 +8,12 @@ import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.events.*;
 import org.flowvisor.config.*;
 
-class FlowVisor
+public class FlowVisor
 {
+	// VENDOR EXTENSION ID
+	public final static int FLOWVISOR_VENDOR_EXTENSION = 0x80000001;
+	
+	
     public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
     {
     	ArrayList<FVEventHandler> handlers = new ArrayList<FVEventHandler>();
