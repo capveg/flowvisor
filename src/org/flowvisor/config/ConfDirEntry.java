@@ -5,6 +5,7 @@ package org.flowvisor.config;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -57,5 +58,9 @@ public class ConfDirEntry extends ConfigEntry {
 	 */
 	public List<String> list() {
 		return new ArrayList<String>(entries.keySet());
+	}
+	
+	public Collection<ConfigEntry> listEntries() {
+		return entries.values();
 	}
 }

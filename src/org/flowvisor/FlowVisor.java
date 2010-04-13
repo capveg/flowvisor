@@ -28,7 +28,7 @@ public class FlowVisor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
     										"ofswitchAcceptor",
     										pollLoop, 
-    										FVConfig.getInt(DefaultConfig.LISTEN_PORT), 
+    										FVConfig.getInt(FVConfig.LISTEN_PORT), 
     										16);
     	handlers.add(acceptor);				
     	

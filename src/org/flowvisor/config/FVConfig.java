@@ -3,6 +3,7 @@
  */
 package org.flowvisor.config;
 
+import org.flowvisor.flows.*;
 import java.util.*;
 
 /**
@@ -19,6 +20,13 @@ import java.util.*;
  *
  */
 public class FVConfig {
+	final static public String LISTEN_PORT 		= "flowvisor.listen_port";
+	final static public String SLICES 			= "slices";
+	final static public String SWITCHES 		= "switches";
+	final static public String FLOWSPACE		= "flowspace";
+	final static public int	   OFP_TCP_PORT	    = 6633;	
+	
+	
 	static ConfDirEntry root = new ConfDirEntry("");  // base of all config info
 	
 	/** 
@@ -113,6 +121,37 @@ public class FVConfig {
 	}
 	
 	/**
+	 * Return the flowmap associated with this node
+	 * @param node
+	 * @return
+	 * @throws ConfigError
+	 */
+	static public FlowMap getFlowMap(String node) throws ConfigError {
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null)
+			throw new ConfigNotFoundError("node " + node + " does not exist");
+		if (entry.getType() != ConfigType.FLOWMAP)
+			throw new ConfigWrongTypeError("tried to get a flowmap but got a " +  entry.getType());
+		return ((ConfFlowMapEntry)entry).getFlowMap();
+	}
+	
+	/**
+	 * Set the flowmap at this entry, creating it if it does not exist
+	 * @param node
+	 * @param val
+	 * @throws ConfigError
+	 */
+	static public void setFlowMap(String node, FlowMap val) throws ConfigError {
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null ) 
+			entry = create(node, ConfigType.FLOWMAP);
+		else 
+			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to a FlowMap");
+		ConfFlowMapEntry efm = (ConfFlowMapEntry)entry;
+		efm.setFlowMap(val);
+	}
+	
+	/**
 	 * Returns a list of nodes at this subdirectory 
 	 * @param base
 	 * @return List of nodes
@@ -126,6 +165,31 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("node " + base + " is a "  +
 					e.getType() + ", not a DIR");
 		return ((ConfDirEntry)e).list();
+		
+	}
+	/**
+	 * Recusively step through the config tree from the root
+	 * and call walker on each non-directory node 
+	 * @param walker
+	 */
+	
+	static public void walk(ConfigIterator walker) {
+		walksubdir("", root, walker);
+	}
+
+	static public void walksubdir(String base, ConfigIterator walker) {
+		ConfigEntry e = lookup(base);
+		walksubdir(base,e,walker);
+	}
+	
+	static private void walksubdir(String base, ConfigEntry e, ConfigIterator walker) {
+		if (e.getType() == ConfigType.DIR) {
+			ConfDirEntry dir = (ConfDirEntry) e;
+			for(ConfigEntry entry : dir.listEntries()) 
+				walksubdir(base + "." + entry.getName(), entry, walker);
+		}
+		else 
+			walker.visit(base,e);
 		
 	}
 }

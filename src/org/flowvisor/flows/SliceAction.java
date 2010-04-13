@@ -4,7 +4,7 @@
 package org.flowvisor.flows;
 
 import java.nio.*;
-import org.openflow.protocol.action.OFActionVendor;
+import org.openflow.protocol.action.*;
 import org.flowvisor.*;
 
 
@@ -39,13 +39,15 @@ public class SliceAction extends OFActionVendor {
 		return "Slice:" + sliceName + "="+ slicePerms;
 	}
 
-	public static SliceAction fromString(String str) {
+	
+	public static OFAction fromString(String str) {
 		String[] list  = str.split("[:=]");
 		if ((list.length != 3) || (!list[0].equals("Slice")))
-			return null;	// not validly formated
-		
+			return OFAction.fromString(str);	// format not recognized; default to OFAction
 		return  new SliceAction(list[1],Integer.parseInt(list[2]));
 	}
+	
+	
 	
 	@Override
 	public void readFrom(ByteBuffer buf) {

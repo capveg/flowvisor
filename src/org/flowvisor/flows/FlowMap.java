@@ -8,7 +8,8 @@ import java.util.List;
  * 
  * FlowSpace rules are described via a strict priority list, e.g., 
  * 
- * RULE 0: FlowEntry 0: if RULE 0, then ACTIONS LIST 0
+ * RULE 0: FlowEntry 0: if 
+, then ACTIONS LIST 0
  * RULE 1: FlowEntry 1: if RULE 1, then ACTIONS LIST 1
  * .
  * .

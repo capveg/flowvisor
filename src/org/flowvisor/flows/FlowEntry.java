@@ -3,9 +3,11 @@
  */
 package org.flowvisor.flows;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.*;
+import org.openflow.util.HexString;
 
 /**
  * @author capveg
@@ -14,7 +16,10 @@ import org.openflow.protocol.action.*;
  * matches on dpid
  */
 public class FlowEntry {
-	public static final long ALL_DPIDS = Long.MIN_VALUE;
+
+	public static final long ALL_DPIDS 		= Long.MIN_VALUE;
+	public static final String ALL_DPIDS_STR 	= "all_dpids"; 
+
 	OFMatch ruleMatch;
 	List<OFAction> actionsList;
 	long dpid;
@@ -30,10 +35,24 @@ public class FlowEntry {
 		this.actionsList = 	actionsList;
 	}
 	
+	public FlowEntry(long dpid, OFMatch match, OFAction action) {
+		this.dpid = dpid;
+		this.ruleMatch = match;
+		this.actionsList = new ArrayList<OFAction>();
+		this.actionsList.add(action);
+	}
+	
 	public FlowEntry(OFMatch match, List<OFAction> actionsList) {
 		this.dpid = ALL_DPIDS;
 		this.ruleMatch = match;
 		this.actionsList = actionsList;
+	}
+
+	public FlowEntry(OFMatch match, OFAction action) {
+		this.dpid = ALL_DPIDS;
+		this.ruleMatch = match;
+		this.actionsList = new ArrayList<OFAction>();
+		this.actionsList.add(action);
 	}
 	
 	public OFMatch getMatch() {
@@ -340,5 +359,58 @@ public class FlowEntry {
 		return intersection;
 		
 	}
+
+	@Override
+	public String toString() {
+		String actions = "";
+		for(OFAction action : actionsList) 
+			actions += action.toString() +",";
+		String dpid_str;
+		if(this.dpid == ALL_DPIDS)
+			dpid_str = ALL_DPIDS_STR;
+		else
+			dpid_str = HexString.toHexString(this.dpid);
+		
+		return "FlowEntry[actionsList=[" + actions + "], dpid=[" + dpid_str
+				+ "], ruleMatch=[" + this.ruleMatch + "]]";
+	}
+
+	/**
+	 * Parse the output from this.toString() and return a matching
+	 * FlowEntry
+	 * 
+	 * Minimal error checking
+	 * 
+	 * @param string
+	 * @return an initialized flowentry
+	 */
+	public static FlowEntry fromString(String string) {
+		String[] tokens = string.split("[]");
+		List<OFAction> actionsList = new ArrayList<OFAction>();
+		long dpid;
+		OFMatch rule ;
+		if (!tokens[0].equals("FlowEntry"))
+			throw new IllegalArgumentException("expected FlowEntry, got '" + tokens[0]+ "'");
+		if (!tokens[1].equals("actionsList="))
+			throw new IllegalArgumentException("expected actionsList=, got '" + tokens[1]+ "'");
+		int i;
+		String [] actions = tokens[2].split(",");
+		for (i=0; i < actions.length ; i++ )
+			if(! actions[i].equals(""))
+				actionsList.add(OFAction.fromString(actions[i]));
+		// translate dpid
+		if (tokens[4].equals(ALL_DPIDS_STR))
+			dpid = ALL_DPIDS;
+		else
+			dpid = HexString.toLong(tokens[4]);
+		rule = new OFMatch();
+		rule.fromString(tokens[6]);
+		return new FlowEntry(dpid, rule, actionsList);
+	}
+	
+	
+	
+	
+
 	
 }
