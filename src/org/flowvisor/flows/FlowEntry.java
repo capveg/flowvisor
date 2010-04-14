@@ -144,19 +144,31 @@ public class FlowEntry {
 			return result.result;
 		}
 		short testFieldShort(TestResult result, int wildIndex, int wildX, int wildY, short x, short y) {
-			return ((Short)testField(result, wildIndex, wildX, wildY, 
+			Short s = ((Short)testField(result, wildIndex, wildX, wildY, 
 					Short.valueOf(x), 
-					Short.valueOf(y))).shortValue();
+					Short.valueOf(y)));
+			if (s != null)
+				return s.shortValue();
+			else 
+				return -1;
 		}
 		long testFieldLong(TestResult result, int wildIndex, int wildX, int wildY, long x, long y) {
-			return ((Long)testField(result, wildIndex, wildX, wildY, 
+			Long l =  ((Long)testField(result, wildIndex, wildX, wildY, 
 					Long.valueOf(x), 
-					Long.valueOf(y))).longValue();
+					Long.valueOf(y)));
+			if (l != null)
+				return l.longValue();
+			else 
+				return -1;
 		}
 		byte testFieldByte(TestResult result, int wildIndex, int wildX, int wildY, byte x, byte y) {
-			return ((Byte)testField(result, wildIndex, wildX, wildY, 
+			Byte b = (Byte)testField(result, wildIndex, wildX, wildY, 
 					Byte.valueOf(x), 
-					Byte.valueOf(y))).byteValue();
+					Byte.valueOf(y));
+			if (b != null) 
+				return b.byteValue();
+			else 
+				return -1;
 		}
 		// see if ip prefix x/masklenX intersects with y/masklenY (CIDR-style)
 		int testFieldMask(TestResult result, int maskShift,
@@ -371,8 +383,8 @@ public class FlowEntry {
 		else
 			dpid_str = HexString.toHexString(this.dpid);
 		
-		return "FlowEntry[actionsList=[" + actions + "], dpid=[" + dpid_str
-				+ "], ruleMatch=[" + this.ruleMatch + "]]";
+		return "FlowEntry[dpid=[" + dpid_str +
+				"],ruleMatch=[" + this.ruleMatch + "],actionsList=[" + actions + "],]";
 	}
 
 	/**
@@ -391,20 +403,21 @@ public class FlowEntry {
 		OFMatch rule ;
 		if (!tokens[0].equals("FlowEntry"))
 			throw new IllegalArgumentException("expected FlowEntry, got '" + tokens[0]+ "'");
-		if (!tokens[1].equals("actionsList="))
-			throw new IllegalArgumentException("expected actionsList=, got '" + tokens[1]+ "'");
+		if (!tokens[1].equals("dpid="))
+			throw new IllegalArgumentException("expected dpid=, got '" + tokens[1]+ "'");
 		int i;
-		String [] actions = tokens[2].split(",");
+		// translate dpid
+		if (tokens[2].equals(ALL_DPIDS_STR))
+			dpid = ALL_DPIDS;
+		else
+			dpid = HexString.toLong(tokens[2]);
+		rule = new OFMatch();
+		rule.fromString(tokens[4]);
+		String [] actions = tokens[6].split(",");
 		for (i=0; i < actions.length ; i++ )
 			if(! actions[i].equals(""))
 				actionsList.add(OFAction.fromString(actions[i]));
-		// translate dpid
-		if (tokens[4].equals(ALL_DPIDS_STR))
-			dpid = ALL_DPIDS;
-		else
-			dpid = HexString.toLong(tokens[4]);
-		rule = new OFMatch();
-		rule.fromString(tokens[6]);
+		
 		return new FlowEntry(dpid, rule, actionsList);
 	}
 	

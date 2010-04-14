@@ -14,12 +14,22 @@ public class ConfStrEntry extends ConfigEntry {
 	}
 	
 	@Override
-	public String getValue() {
-		return val;	
+	public String[] getValue() {
+		String ret[] = new String[1];
+		ret[0] = this.val;
+		return ret;
 	}
 	
 	@Override
 	public void setValue(String val) {
+		this.val = val;
+	}
+
+	public String getString() {
+		return val;
+	}
+
+	public void setString(String val) {
 		this.val = val;
 	}
 }

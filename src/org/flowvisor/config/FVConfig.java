@@ -21,6 +21,7 @@ import java.util.*;
  */
 public class FVConfig {
 	final static public String LISTEN_PORT 		= "flowvisor.listen_port";
+	final static public String VERSION_STR		= "version";
 	final static public String SLICES 			= "slices";
 	final static public String SWITCHES 		= "switches";
 	final static public String FLOWSPACE		= "flowspace";
@@ -120,6 +121,42 @@ public class FVConfig {
 		return ((ConfIntEntry)entry).getInt();
 	}
 	
+	/** 
+	 * Sets an integer in the config
+	 * Will dynamically create the path if it does not exist
+	 * @param node e.g., "path.to.configname"
+	 * @param val any integer
+	 * @throws ConfigError If trying to create the path conflicted with existing config
+	 */
+	
+	static public void setString(String node, String val) throws ConfigError {
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null ) 
+			entry = create(node, ConfigType.STR);
+		else 
+			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to string");
+		ConfStrEntry ei = (ConfStrEntry)entry;
+		ei.setString(val);
+	}
+	
+	/** 
+	 * Return the integer associated with this node
+	 * 
+	 * @param node Full path to node
+	 * @return integer
+	 * @throws ConfigError If entry not found or if not an int
+	 */
+	static public String getString(String node) throws ConfigError {
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null)
+			throw new ConfigNotFoundError("node " + node + " does not exist");
+		if (entry.getType() != ConfigType.STR)
+			throw new ConfigWrongTypeError("tried to get a string but got a " +  entry.getType());
+		return ((ConfStrEntry)entry).getString();
+	}
+	
+	
+	
 	/**
 	 * Return the flowmap associated with this node
 	 * @param node
@@ -133,6 +170,16 @@ public class FVConfig {
 		if (entry.getType() != ConfigType.FLOWMAP)
 			throw new ConfigWrongTypeError("tried to get a flowmap but got a " +  entry.getType());
 		return ((ConfFlowMapEntry)entry).getFlowMap();
+	}
+	
+	static public FlowMap getFlowSpaceFlowMap() {
+		FlowMap flowMap;
+		try {
+			flowMap = FVConfig.getFlowMap(FVConfig.FLOWSPACE);
+		} catch (ConfigError e) {
+			throw new RuntimeException("WTF!?!  No FlowSpace defined!?!");
+		}
+		return flowMap;
 	}
 	
 	/**

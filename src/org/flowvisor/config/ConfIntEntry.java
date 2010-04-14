@@ -37,7 +37,9 @@ public class ConfIntEntry extends ConfigEntry {
 	/**
 	 * @return an string representation of value
 	 */
-	public String getValue() {
-		return Integer.toString(this.val);
+	public String[] getValue() {
+		String[] ret = new String[1];
+		ret[0] = Integer.toString(this.val);
+		return ret ;
 	}
 }

@@ -23,12 +23,12 @@ public class ConfFlowMapEntry extends ConfigEntry {
 	}
 	
 	@Override
-	public String getValue() {
-		String ret = "";
+	public String[] getValue() {
+		String[] ret = new String[flowMap.countRules()];
 		int i =0;
 		
 		for( FlowEntry rule: flowMap.getRules()) {
-			ret += "" + i + " " + rule.toString();
+			ret[i] = "" + i + " " + rule.toString();
 			i++;
 		}
 		return ret;

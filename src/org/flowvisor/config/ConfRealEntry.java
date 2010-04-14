@@ -23,8 +23,10 @@ public class ConfRealEntry extends ConfigEntry {
 	}
 	
 	@Override
-	public String getValue() {
-		return Double.toString(this.val);
+	public String[] getValue() {
+		String[] ret = new String[1];
+		ret[0] = Double.toString(this.val);
+		return ret;
 	}
 	
 	@Override 

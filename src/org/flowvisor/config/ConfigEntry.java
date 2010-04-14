@@ -67,8 +67,8 @@ public abstract class ConfigEntry {
 	 * Convert the node's value to a string
 	 * @return
 	 */
-	public String getValue() {
-		// FIXME: find the java way of doing this
+	public String[] getValue() {
+		// FIXME: find the compile-time java way of ensuring that this gets superclassed 
 		throw new RuntimeException("need to override this... ");
 	}
 	
