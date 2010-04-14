@@ -69,14 +69,14 @@ public class DefaultConfig {
 			// create alice slice
 			String aliceSlice = FVConfig.SLICES + ".alice";
 			FVConfig.create(aliceSlice, ConfigType.DIR);
-			FVConfig.setString(aliceSlice + ".contact_email", "alice@foo.com");
-			FVConfig.setString(aliceSlice + ".controller_hostname", "localhost");
-			FVConfig.setInt(aliceSlice + ".controller_port", 54321);
+			FVConfig.setString(aliceSlice + "." + FVConfig.SLICE_CONTACT_EMAIL, "alice@foo.com");
+			FVConfig.setString(aliceSlice + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, "localhost");
+			FVConfig.setInt(aliceSlice + "." + FVConfig.SLICE_CONTROLLER_PORT, 54321);
 			String bobSlice = FVConfig.SLICES + ".bob";
 			FVConfig.create(bobSlice, ConfigType.DIR);
-			FVConfig.setString(bobSlice + ".contact_email", "bob@foo.com");
-			FVConfig.setString(bobSlice + ".controller_hostname", "localhost");
-			FVConfig.setInt(bobSlice + ".controller_port", 54322);
+			FVConfig.setString(bobSlice + "." + FVConfig.SLICE_CONTACT_EMAIL, "bob@foo.com");
+			FVConfig.setString(bobSlice + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, "localhost");
+			FVConfig.setInt(bobSlice + "." + FVConfig.SLICE_CONTROLLER_PORT, 54322);
 			
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);

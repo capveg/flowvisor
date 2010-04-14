@@ -3,6 +3,7 @@
  */
 package org.flowvisor.config;
 
+import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.flows.*;
 import java.util.*;
 
@@ -25,6 +26,9 @@ public class FVConfig {
 	final static public String SLICES 			= "slices";
 	final static public String SWITCHES 		= "switches";
 	final static public String FLOWSPACE		= "flowspace";
+	final static public String SLICE_CONTROLLER_HOSTNAME = "controller_hostname";
+	final static public String SLICE_CONTROLLER_PORT = "controller_port";
+	final static public String SLICE_CONTACT_EMAIL	 = "contact_email";
 	final static public int	   OFP_TCP_PORT	    = 6633;	
 	
 	
@@ -238,5 +242,15 @@ public class FVConfig {
 		else 
 			walker.visit(base,e);
 		
+	}
+
+	public static void watch(FVEventHandler handler, String name)  throws ConfigError {
+		ConfigEntry e = lookup(name);
+		e.watch(handler);
+	}
+	
+	public static void unwatch(FVEventHandler handler, String name)  throws ConfigError {
+		ConfigEntry e = lookup(name);
+		e.unwatch(handler);
 	}
 }

@@ -35,5 +35,10 @@ public interface FVEventHandler {
 	 * @return String
 	 */
 	 public String getName(); 
+	 
+	 /**
+	  * Tell the Handler to stop what it's doing and clean up all of its state
+	  */
+	 public void tearDown();
 	
 }

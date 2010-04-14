@@ -13,6 +13,8 @@ import java.util.List;
 
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.fvtimer.FVTimer;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 import org.flowvisor.events.FVEvent;
 /**
  * @author capveg
@@ -40,7 +42,8 @@ public class FVEventLoop {
     	}
     	catch (ClosedChannelException e)
     	{
-    		// FIXME : log an error?
+    		FVLog.log(LogLevel.WARN, null, "Tried to register channel " + 
+    				ch + " but got :" + e);
     	}
     }
     

@@ -13,6 +13,7 @@ import org.flowvisor.exceptions.*;
  *
  */
 public class ExampleHandler implements FVEventHandler {
+
 	FVEventLoop loop;
 	
 	/** 
@@ -47,10 +48,21 @@ public class ExampleHandler implements FVEventHandler {
 		throw new UnhandledEvent(e);
 	}
 	
-	/* (non-Javadoc)
+	/** (non-Javadoc)
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	public String getName() {
 		return "ExampleHandler";
 	}
+
+	/**
+	 * @see org.flowvisor.events.FVEventHandler#tearDown()
+	 */
+	@Override
+	public void tearDown() {
+		// do nothing
+		
+	}
+
+
 }

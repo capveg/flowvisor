@@ -2,7 +2,9 @@ package org.flowvisor.classifier;
 
 import org.flowvisor.events.*;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowSpaceUtil;
 import org.openflow.io.OFMessageAsyncStream;
+import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.*;
 import org.openflow.protocol.factory.*;
 //import org.openflow.protocol.statistics.OFStatisticsType;
@@ -10,9 +12,15 @@ import org.flowvisor.log.*;
 
 import java.io.IOException;
 import java.nio.channels.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 /** 
  * Map OF messages from the switch to the appropriate slice
+ * 
+ * Also handles all of the switch-specific but slice-general state and 
+ * rewriting.
  *   
  * @author capveg
  *
@@ -25,6 +33,7 @@ public class FVClassifier implements FVEventHandler {
 	boolean doneID;
 	OFMessageAsyncStream msgStream;
 	OFFeaturesReply switchInfo;
+	Map<String,FVSlicer> slicerMap;
 	
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -38,6 +47,7 @@ public class FVClassifier implements FVEventHandler {
 		this.sock = sock;
 		this.switchInfo = null;
 		this.doneID = false;
+		this.slicerMap = new HashMap<String,FVSlicer>();
 	}
 
 	/** 
@@ -117,7 +127,8 @@ public class FVClassifier implements FVEventHandler {
 	/**
 	 * Close all slice connections and cleanup
 	 */
-	private void tearDown() {
+	@Override
+	public void tearDown() {
 		// TODO close all Slice connections
 		
 	}
@@ -127,9 +138,11 @@ public class FVClassifier implements FVEventHandler {
 	 * as defined by XID, FlowSpace, config, etc.
 	 * @param m
 	 */
-	private void classifyOFMessage(OFMessage m) {
-		// TODO Auto-generated method stub
-		
+	private void classifyOFMessage(OFMessage msg) {
+		// FIXME: do an actual classification
+		// FIXME: for now, just send on to all slices
+		for(FVSlicer fvSlicer: slicerMap.values())
+			fvSlicer.handleOFMsgFromSwitch(msg);
 	}
 
 	/** State machine for switches before we know
@@ -165,12 +178,68 @@ public class FVClassifier implements FVEventHandler {
 				        	"identified switch as " + 
 				        	switchName + " on " + 
 				        	this.sock);
-				
+				this.connectToControllers();  // connect to controllers
 				doneID = true;
 				break;
 			default : 
 				// FIXME add logging
 				FVLog.log(LogLevel.WARN, this, "Got unknown message type " + m + " to unidentified switch");
+		}
+	}
+
+	/**
+	 * Figure out which slice's have access to the switch and spawn an Slicer
+	 * EventHandler for each of them.  Also, close the connection to any
+	 * slice that is no longer listed
+	 * 
+	 * Assumes The switch is already been identified; 
+	 * 
+	 */
+	private void connectToControllers() {
+		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(this.switchInfo.getDatapathId());
+		// foreach slice, make sure it has access to this switch
+		for(String sliceName : newSlices ) {
+			if(! slicerMap.containsKey(sliceName)) {
+				FVSlicer newSlicer = new FVSlicer(this.loop, this, sliceName);
+				slicerMap.put(sliceName, newSlicer); // create new slicer in this same EventLoop
+				newSlicer.init();	// and start it up
+			}
+		}
+		// foreach slice with previous access, make sure it still has access
+		for(String sliceName: slicerMap.keySet()) {
+			if(!newSlices.contains(sliceName)) {
+				// this slice no longer has access to this switch
+				slicerMap.get(sliceName).tearDown();	
+				slicerMap.remove(sliceName);
+			}
+		}
+		
+	}
+
+	/**
+	 * Called by FVSlicer to tell us to forget about them
+	 * @param sliceName
+	 */
+	public void tearDown(String sliceName) {
+		slicerMap.remove(sliceName);
+		FVLog.log(LogLevel.INFO, this, "tore down slice " + sliceName + " on request");
+	}
+	
+	/**
+	 * FVSlicer calls this to pass messages from the controller to the switch
+	 * 
+	 * Here we do switch-specific but slice-agnostic rewriting
+	 * @param msg
+	 */
+	
+	public void handleOFMsgFromController(OFMessage msg, FVSlicer fvSlicer) {
+		if ( Thread.currentThread().getId() != this.getThreadContext())
+			// FIXME: implement cross-thread message passing
+			throw new RuntimeException("FIXME :: implement cross-thread message passing");
+		switch(msg.getType()) {
+			default:
+				// FIXME: give each msg their own handler
+				this.msgStream.write(msg);		// just pass on to switch
 		}
 	}
 }

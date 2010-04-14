@@ -42,6 +42,16 @@ public class OFSwitchAcceptor implements FVEventHandler
     }
  
     @Override
+	public void tearDown() {
+		
+    	try {
+			ssc.close();
+		} catch (IOException e) {
+			// ignore if shutting down throws an error... we're already shutting down
+		}		
+	}
+
+	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
 		if ( Thread.currentThread().getId() != this.getThreadContext() )	{
 			// this event was sent from a different thread context
