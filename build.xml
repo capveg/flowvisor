@@ -36,7 +36,7 @@
         <jar destfile="${fv_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="org.flowvisor.FlowVisor"/>
-                <attribute name="Class-Path" value="${mf.classpath}"/>
+                <attribute name="Class-Path" value="${of_jar}"/>
             </manifest>
             <fileset dir="${fv_build}"/>
         </jar>
