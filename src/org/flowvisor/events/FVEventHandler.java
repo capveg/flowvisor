@@ -41,4 +41,27 @@ public interface FVEventHandler {
 	  */
 	 public void tearDown();
 	
+	 /**
+	  * Return true if this Event handler wants read events
+	  * @return
+	  */
+	 public boolean needsRead();
+	 
+	 /**
+	  * Return true if this Event handler wants connect events
+	  * @return
+	  */
+	 public boolean needsConnect();
+	 
+	 /**
+	  * Return true if this Event handler wants write events
+	  * @return
+	  */
+	 public boolean needsWrite();
+	 
+	 /**
+	  * Return true if this Event handler wants accept events
+	  * @return
+	  */
+	 public boolean needsAccept();
 }

@@ -27,6 +27,7 @@ import java.util.Set;
  */
 
 public class FVClassifier implements FVEventHandler {
+
 	FVEventLoop loop;
 	SocketChannel sock;
 	String switchName;
@@ -49,6 +50,32 @@ public class FVClassifier implements FVEventHandler {
 		this.doneID = false;
 		this.slicerMap = new HashMap<String,FVSlicer>();
 	}
+
+	
+	@Override
+	public boolean needsConnect() {
+		return false;			// never want connect events
+	}
+
+	@Override
+	public boolean needsRead() {
+		return true;			// always want read events
+	}
+
+	@Override
+	public boolean needsWrite() {
+		if (this.msgStream == null) 
+			return false;
+		return this.msgStream.needsFlush();
+	}
+
+	
+	@Override
+	public boolean needsAccept() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 
 	/** 
 	 * on init, send HELLO, delete all flow entries, and send features request
@@ -122,11 +149,7 @@ public class FVClassifier implements FVEventHandler {
 			this.tearDown();
 			return;
 		}
-		// setup for next select
-		if (msgStream.needsFlush())
-			e.getSelectionKey().interestOps( SelectionKey.OP_READ + SelectionKey.OP_WRITE );
-		else
-			e.getSelectionKey().interestOps( SelectionKey.OP_READ);
+		// no need to setup for next select; done in eventloop
 	}
 
 	/**
@@ -138,8 +161,10 @@ public class FVClassifier implements FVEventHandler {
 		try {
 			this.sock.close();
 			// shutdown each of the connections to the controllers
-			for(FVSlicer fvSlicer : slicerMap.values()) 
-				fvSlicer.tearDown();
+			Map<String,FVSlicer> tmpMap= slicerMap;
+			slicerMap=null;		// to prevent tearDown(slice) corruption 
+			for(FVSlicer fvSlicer : tmpMap.values()) 
+					fvSlicer.tearDown();	
 		} catch (IOException e) {
 			// Silently ignore... already tearing down
 		}
@@ -153,8 +178,12 @@ public class FVClassifier implements FVEventHandler {
 	private void classifyOFMessage(OFMessage msg) {
 		// FIXME: do an actual classification
 		// FIXME: for now, just send on to all slices
-		for(FVSlicer fvSlicer: slicerMap.values())
+		for(FVSlicer fvSlicer: slicerMap.values()) {
+			FVLog.log(LogLevel.DEBUG, this, "sending to " + 
+					fvSlicer.getName() + " :" + msg);
 			fvSlicer.handleOFMsgFromSwitch(msg);
+		}
+			
 	}
 
 	/** State machine for switches before we know
@@ -233,8 +262,10 @@ public class FVClassifier implements FVEventHandler {
 	 * @param sliceName
 	 */
 	public void tearDown(String sliceName) {
-		slicerMap.remove(sliceName);
-		FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
+		if (slicerMap!=null) {
+			slicerMap.remove(sliceName);
+			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
+		}
 	}
 	
 	/**
@@ -248,9 +279,12 @@ public class FVClassifier implements FVEventHandler {
 		if ( Thread.currentThread().getId() != this.getThreadContext())
 			// FIXME: implement cross-thread message passing
 			throw new RuntimeException("FIXME :: implement cross-thread message passing");
+		FVLog.log(LogLevel.DEBUG, this, "received from " + 
+				fvSlicer.getName() + " :" + msg);
 		switch(msg.getType()) {
 			default:
 				// FIXME: give each msg their own handler
+				FVLog.log(LogLevel.DEBUG, this, "send to switch: " + msg);
 				this.msgStream.write(msg);		// just pass on to switch
 		}
 	}

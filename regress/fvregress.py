@@ -615,9 +615,9 @@ if __name__ == '__main__':
         h.doPause("start tests")
     h.runTest("config request test", [
             TestEvent( "send","guest",'alice', packet=config_request),
-            TestEvent( "recv","switch",'switch1', packet=config_request_translated,strict=True),
+            TestEvent( "recv","switch",'switch1', packet=config_request_translated),        # turn off strict xid checking
             TestEvent( "send","guest",'alice',actorID2='switch2', packet=config_request),
-            TestEvent( "recv","switch",'switch2', packet=config_request_translated2,strict=True),
+            TestEvent( "recv","switch",'switch2', packet=config_request_translated2),
             ])
 
     if debug:

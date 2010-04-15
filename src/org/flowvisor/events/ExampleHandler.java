@@ -64,5 +64,24 @@ public class ExampleHandler implements FVEventHandler {
 		
 	}
 
+	@Override
+	public boolean needsConnect() {
+		return false;		// this event never wants connect events
+	}
+	@Override
+	public boolean needsRead() {
+		return true;		// we always want read events
+	}
+	@Override
+	public boolean needsWrite() {
+		return false;		// never want write events
+	}
+	@Override
+	public boolean needsAccept() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
 
 }

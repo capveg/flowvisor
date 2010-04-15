@@ -37,7 +37,31 @@ public class OFSwitchAcceptor implements FVEventHandler
         pollLoop.register(ssc, SelectionKey.OP_ACCEPT, this);
     }
 
+    
+    
     @Override
+	public boolean needsConnect() {
+		return false;
+	}
+
+	@Override
+	public boolean needsRead() {
+		return false;
+	}
+
+	@Override
+	public boolean needsWrite() {
+		return false;
+	}
+
+	@Override
+	public boolean needsAccept() {
+		return true;
+	}
+
+
+
+	@Override
     public long getThreadContext() {
     	return pollLoop.getThreadContext();
     }

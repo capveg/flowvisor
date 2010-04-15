@@ -105,6 +105,25 @@ public class FVEventLoop {
         	// calc time until next timer event
         	nextTimerEvent = this.fvtimer.processEvent();  // this fires off a timer event if it's ready
     		
+        	// update the interested ops for each event handler
+        	int ops;
+        	FVEventHandler handler;
+        	for (SelectionKey sk : selector.keys()) {
+        		ops = 0;
+        		if(!sk.isValid())
+        			continue;
+        		handler = (FVEventHandler) sk.attachment();
+        		if (handler.needsRead())
+        			ops |= SelectionKey.OP_READ;
+        		if (handler.needsWrite())
+        			ops |= SelectionKey.OP_WRITE;
+        		if (handler.needsConnect())
+        			ops |= SelectionKey.OP_CONNECT;
+        		if (handler.needsAccept())
+        			ops |= SelectionKey.OP_ACCEPT;
+        		sk.interestOps(ops);
+        	}
+        	
         	// wait until next IO event or timer event
         	nEvents = selector.select(nextTimerEvent);
     		if(nEvents > 0)
@@ -112,7 +131,7 @@ public class FVEventLoop {
     			for (SelectionKey sk : selector.selectedKeys()) 
     			{
     				if(sk.isValid()) {  // skip any keys that have been canceled
-    					FVEventHandler handler = (FVEventHandler)sk.attachment(); 
+    					handler = (FVEventHandler)sk.attachment(); 
     					FVLog.log(LogLevel.MOBUG, null, "sending IO Event= "+sk.readyOps()+
     							" to " + handler.getName());
     					handler.handleEvent(new FVIOEvent(sk, null, handler));
