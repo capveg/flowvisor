@@ -1,0 +1,43 @@
+FlowVisor regression testing:
+
+
+
+
+Using FlowVisor's Test Suite:
+-------------------------------------------------------------------------
+FlowVisor ships with its own regression test suite:
+
+To us it, run `./tests.sh` out of this directory after you've built
+	the FlowVisor.   IF you run ./tests.sh with an extra arg, it will
+	pause after the FlowVisor starts, but before the tests start.
+	This is very useful when you would like to attach a debugger via
+	`gdb flowvisor <pid>`
+
+NOTES:
+1) The above script runs all tests.  Individual tests can be run as
+	`./tests-$type.py`
+2) By default, the tests run with valgrind.  Unfortunately, you currently
+	have to hand inspect valgrind.out after each test to verify
+	nothing bad is happenning.
+
+
+
+
+
+
+Using OpenFlow's Test Suite:
+-------------------------------------------------------------------------
+Part of the regression test involves re-using regression tests from the
+reference openflow implementation.  One can accomplish this as follows:
+
+cd $FlowVisor/regress/bin
+. env.sh
+cd $openflow/regress/bin
+[re-run regression tests; specifically the learning_switch ones]
+
+This adds $FlowVisor/regress/bin to your path *ahead* of the openflow
+binaries, so that the "controller" wrapper is from $FlowVisor/regress/bin
+and not the standard binary.  Then all of the learning_switch examples
+should pass the openflow tests with the FlowVisor acting as a proxy.
+
+

@@ -112,7 +112,9 @@ public class FVEventLoop {
     			for (SelectionKey sk : selector.selectedKeys()) 
     			{
     				if(sk.isValid()) {  // skip any keys that have been canceled
-    					FVEventHandler handler = (FVEventHandler)sk.attachment();   			    
+    					FVEventHandler handler = (FVEventHandler)sk.attachment(); 
+    					FVLog.log(LogLevel.MOBUG, null, "sending IO Event= "+sk.readyOps()+
+    							" to " + handler.getName());
     					handler.handleEvent(new FVIOEvent(sk, null, handler));
     				}
     			}

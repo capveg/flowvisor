@@ -61,6 +61,9 @@ public class FVClassifier implements FVEventHandler {
 		match.setWildcards(OFMatch.OFPFW_ALL);
 		OFFlowMod fm = new OFFlowMod();
 		fm.setMatch(match);
+		fm.setCommand(OFFlowMod.OFPFC_DELETE);
+		fm.setOutPort(OFPort.OFPP_NONE);
+		fm.setBufferId(0xffffffff);		// buffer to NONE
 		msgStream.write(fm);
 		msgStream.write(new OFFeaturesRequest());
 		msgStream.flush();
@@ -115,7 +118,9 @@ public class FVClassifier implements FVEventHandler {
 				msgStream.flush();
 		} catch (IOException e1) {
 			// connection to switch died; tear it down
+			FVLog.log(LogLevel.INFO, this, "got IO exception; closing because : " + e1);
 			this.tearDown();
+			return;
 		}
 		// setup for next select
 		if (msgStream.needsFlush())
@@ -129,8 +134,15 @@ public class FVClassifier implements FVEventHandler {
 	 */
 	@Override
 	public void tearDown() {
-		// TODO close all Slice connections
-		
+		FVLog.log(LogLevel.WARN, this, "tearing down");
+		try {
+			this.sock.close();
+			// shutdown each of the connections to the controllers
+			for(FVSlicer fvSlicer : slicerMap.values()) 
+				fvSlicer.tearDown();
+		} catch (IOException e) {
+			// Silently ignore... already tearing down
+		}
 	}
 
 	/** Main function
@@ -222,7 +234,7 @@ public class FVClassifier implements FVEventHandler {
 	 */
 	public void tearDown(String sliceName) {
 		slicerMap.remove(sliceName);
-		FVLog.log(LogLevel.INFO, this, "tore down slice " + sliceName + " on request");
+		FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
 	}
 	
 	/**

@@ -30,6 +30,7 @@ public class OFSwitchAcceptor implements FVEventHandler
         ssc.socket().setReuseAddress(true);
         ssc.socket().bind(new InetSocketAddress(port), backlog);
         ssc.configureBlocking(false);
+    	FVLog.log(LogLevel.INFO, this, "Listenning on port " + port); 
 
         switches = new ArrayList<FVClassifier>();
         // register this module with the polling loop

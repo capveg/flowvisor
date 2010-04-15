@@ -1,0 +1,25 @@
+#!/bin/sh
+
+out=tests.results
+
+tests='tests-base.py  tests-dynconfig.py tests-mobility.py tests-readonly.py tests-match.py'
+
+# need to completely fill in the test case
+#tests-expand.py \
+rm -f $out
+
+for p in $tests ; do
+	cat << EOF 2>&1 | tee -a $out
+----------------------------------------
+----------------------------------------
+----- Running test $p
+----------------------------------------
+----------------------------------------
+EOF
+	./$p | tee -a $out 2>&1 
+	grep -q FAILED $out
+	if [ $? -eq 0 ] ; then
+		echo $p FAILED | tee -a $out
+		exit 1
+	fi
+done

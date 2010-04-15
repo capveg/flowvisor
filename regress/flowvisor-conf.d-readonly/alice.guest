@@ -1,0 +1,8 @@
+ID: 3
+#Host: openflow2.stanford.edu
+#Port: 6650
+Host: tcp:localhost:54321
+
+
+# all stuff to mvm-client2 (laptop) is handled by mvm-client2's controller
+FlowSpace: readonly: dl_dst: 00:21:5c:54:a6:a1 

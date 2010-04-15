@@ -1,0 +1,1508 @@
+----------------------------------------
+----------------------------------------
+----- Verfiying regression framework
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+##ParseConfig: found controller alice on port 54321
+        Starting io loop for controller bob
+    Spawning new Controller alice on listenning on port 54321
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller alice
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-base -v0 ptcp:16633'
+    flowvisor spawned at Pid=6131 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch2 with dpid= 2
+    Created switch switch2 with connection localhost:16633 ('127.0.0.1', 52875)
+    Switch switch2 sent hello
+    Mapping dpid 2 to switch2
+    Starting io loop for switch switch2
+    addSwitch: Got hello flush for switch2
+    addSwitch: Got flow_mod flush for switch2
+    addSwitch: Got feature_request (from FV) for switch2
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller bob got a new connection from 127.0.0.1:43580 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller alice got a new connection from 127.0.0.1:51779 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Controller alice waiting for switch features
+    Got feature_request (from FC bob) for switch2
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch2
+    Sent switch_features to fake controller alice
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52878)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller alice got a new connection from 127.0.0.1:51782 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_1 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_1
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller bob got a new connection from 127.0.0.1:43583 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_1 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_1
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : config request test
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+send packet 2 from guest alice to switch switch2
+send packet 2 from guest alice to switch switch2 (sent 8 bytes)
+recv packet 3 from switch switch2 
+recv packet 3 from switch switch2  (STRICT_XID) (read 8 bytes - correct)
+############ Test config request test SUCCEEDED!
+Cleaning up (killing pid=6131)
+----------------------------------------
+----------------------------------------
+----- Running test tests-base.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+        Starting io loop for controller alice
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-base -v0 ptcp:16633'
+    flowvisor spawned at Pid=6145 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch2 with dpid= 2
+    Created switch switch2 with connection localhost:16633 ('127.0.0.1', 52881)
+    Switch switch2 sent hello
+    Mapping dpid 2 to switch2
+    Starting io loop for switch switch2
+    addSwitch: Got hello flush for switch2
+    addSwitch: Got flow_mod flush for switch2
+    addSwitch: Got feature_request (from FV) for switch2
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller bob got a new connection from 127.0.0.1:43586 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller alice got a new connection from 127.0.0.1:51785 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch2
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch2
+    Sent switch_features to fake controller alice
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52884)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller alice got a new connection from 127.0.0.1:51788 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_1 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_1
+    Controller alice sending features request
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller bob got a new connection from 127.0.0.1:43589 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_1 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_1
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : feature_reply
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 224 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 176 bytes - correct)
+############ Test feature_reply SUCCEEDED!
+############ Starting Test : switch2controller packet_in routing - by port
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 82 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 82 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 82 bytes - correct)
+############ Test switch2controller packet_in routing - by port SUCCEEDED!
+############ Starting Test : switch2controller packet_in routing - shared port
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 82 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 82 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 82 bytes - correct)
+############ Test switch2controller packet_in routing - shared port SUCCEEDED!
+############ Starting Test : echo/reply faking
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 8 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 8 bytes - correct)
+send packet 4 from guest alice to switch switch1
+send packet 4 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 5 from guest alice 
+recv packet 5 from guest alice  from switch switch1 (read 8 bytes - correct)
+############ Test echo/reply faking SUCCEEDED!
+############ Starting Test : port status routing
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 64 bytes)
+recv packet 1 from guest bob 
+recv packet 1 from guest bob  from switch switch1 (read 64 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 64 bytes)
+recv packet 3 from guest alice 
+recv packet 3 from guest alice  from switch switch1 (read 64 bytes - correct)
+############ Test port status routing SUCCEEDED!
+############ Starting Test : packet_out; valid
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 88 bytes - correct)
+send packet 2 from guest alice to switch switch1
+send packet 2 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 3 from guest alice 
+recv packet 3 from guest alice  from switch switch1 (read 12 bytes - correct)
+############ Test packet_out; valid SUCCEEDED!
+############ Starting Test : echo/reply faking (again)
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 8 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 8 bytes - correct)
+send packet 4 from guest alice to switch switch1
+send packet 4 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 5 from guest alice 
+recv packet 5 from guest alice  from switch switch1 (read 8 bytes - correct)
+############ Test echo/reply faking (again) SUCCEEDED!
+############ Starting Test : lldp hack
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 88 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 82 bytes - correct)
+############ Test lldp hack SUCCEEDED!
+############ Starting Test : stats description
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 12 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 12 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 812 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 812 bytes - correct)
+############ Test stats description SUCCEEDED!
+############ Starting Test : packet_out flood 
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 104 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 96 bytes - correct)
+############ Test packet_out flood  SUCCEEDED!
+Cleaning up (killing pid=6145)
+----------------------------------------
+----------------------------------------
+----- Running test tests-ports.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller alice
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-ports -v0 ptcp:16633'
+    flowvisor spawned at Pid=6160 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+    skipping default switch 'flowvisor-conf.d-ports/default.switch'
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52887)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 2 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller bob got a new connection from 127.0.0.1:43592 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller alice got a new connection from 127.0.0.1:51791 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending hello
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+############ Starting Test : packet_out; valid
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 112 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 112 bytes - correct)
+############ Test packet_out; valid SUCCEEDED!
+############ Starting Test : dont flood in_port; valid
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 104 bytes - correct)
+############ Test dont flood in_port; valid SUCCEEDED!
+Cleaning up (killing pid=6160)
+----------------------------------------
+----------------------------------------
+----- Running test tests-dynconfig.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller alice
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-dynconfig -v0 ptcp:16633'
+    flowvisor spawned at Pid=6172 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52890)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller bob got a new connection from 127.0.0.1:43595 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Starting io loop for switch sliced_switch_bob_0
+    Controller bob sending hello
+    Controller alice got a new connection from 127.0.0.1:51794 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+    skipping default switch 'flowvisor-conf.d-dynconfig/default.switch'
+    Created switch switch2 with connection localhost:16633 ('127.0.0.1', 52893)
+    Switch switch2 sent hello
+    Mapping dpid 2 to switch2
+    Starting io loop for switch switch2
+    addSwitch: Got hello flush for switch2
+    addSwitch: Got flow_mod flush for switch2
+    addSwitch: Got feature_request (from FV) for switch2
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller alice got a new connection from 127.0.0.1:51797 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_1 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_1
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got a new connection from 127.0.0.1:43598 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_1 on port ('127.0.0.1', 54322)
+    Starting io loop for switch sliced_switch_bob_1
+    Controller bob sending hello
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch2
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch2
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '2'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : feature_reply
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 224 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 176 bytes - correct)
+############ Test feature_reply SUCCEEDED!
+
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+############### SWAP ALICE/BOB SLICES#######################
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+
+Reading new config (sending kill -HUP to pid=6172)
+############ Starting Test : switch2controller packet_in routing - by port
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 82 bytes)
+recv packet 1 from guest bob 
+recv packet 1 from guest bob  from switch switch1 (read 82 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest alice 
+recv packet 3 from guest alice  from switch switch1 (read 82 bytes - correct)
+############ Test switch2controller packet_in routing - by port SUCCEEDED!
+############ Starting Test : switch2controller packet_in routing - shared port
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 82 bytes)
+recv packet 1 from guest bob 
+recv packet 1 from guest bob  from switch switch1 (read 82 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest alice 
+recv packet 3 from guest alice  from switch switch1 (read 82 bytes - correct)
+############ Test switch2controller packet_in routing - shared port SUCCEEDED!
+############ Starting Test : echo/reply faking
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+send packet 2 from guest alice to switch switch1
+send packet 2 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 3 from guest alice 
+recv packet 3 from guest alice  from switch switch1 (read 8 bytes - correct)
+send packet 4 from guest bob to switch switch1
+send packet 4 from guest bob to switch switch1 (sent 8 bytes)
+recv packet 5 from guest bob 
+recv packet 5 from guest bob  from switch switch1 (read 8 bytes - correct)
+############ Test echo/reply faking SUCCEEDED!
+############ Starting Test : port status routing
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 64 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 64 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 64 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 64 bytes - correct)
+############ Test port status routing SUCCEEDED!
+############ Starting Test : (2nd) packet_out; valid
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 88 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 12 bytes - correct)
+############ Test (2nd) packet_out; valid SUCCEEDED!
+############ Starting Test : echo/reply faking (again)
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 8 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 8 bytes - correct)
+send packet 4 from guest alice to switch switch1
+send packet 4 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 5 from guest alice 
+recv packet 5 from guest alice  from switch switch1 (read 8 bytes - correct)
+############ Test echo/reply faking (again) SUCCEEDED!
+############ Starting Test : lldp hack
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 88 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 82 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 82 bytes - correct)
+############ Test lldp hack SUCCEEDED!
+############ Starting Test : stats description
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 12 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 12 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 812 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (STRICT_XID) (read 812 bytes - correct)
+send packet 4 from guest bob to switch switch2
+send packet 4 from guest bob to switch switch2 (sent 12 bytes)
+recv packet 5 from switch switch2 
+recv packet 5 from switch switch2  (STRICT_XID) (read 12 bytes - correct)
+send packet 6 from switch switch2
+send packet 6 from switch switch2 (sent 812 bytes)
+recv packet 7 from guest bob 
+recv packet 7 from guest bob  from switch switch2 (read 812 bytes - correct)
+############ Test stats description SUCCEEDED!
+############ Starting Test :  (3rd) packet_out; valid
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 104 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 12 bytes - correct)
+send packet 4 from guest bob to switch switch2
+send packet 4 from guest bob to switch switch2 (sent 88 bytes)
+recv packet 5 from switch switch2 
+recv packet 5 from switch switch2  (read 112 bytes - correct)
+send packet 6 from guest bob to switch switch2
+send packet 6 from guest bob to switch switch2 (sent 88 bytes)
+recv packet 7 from guest bob 
+recv packet 7 from guest bob  from switch switch2 (read 12 bytes - correct)
+############ Test  (3rd) packet_out; valid SUCCEEDED!
+
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+############### NO SWAP -- NOOP      #######################
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+
+Reading new config (sending kill -HUP to pid=6172)
+############ Starting Test : packet_out; valid
+send packet 0 from guest bob to switch switch1
+send packet 0 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 104 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from guest bob 
+recv packet 3 from guest bob  from switch switch1 (read 12 bytes - correct)
+send packet 4 from guest bob to switch switch2
+send packet 4 from guest bob to switch switch2 (sent 88 bytes)
+recv packet 5 from switch switch2 
+recv packet 5 from switch switch2  (read 112 bytes - correct)
+send packet 6 from guest bob to switch switch2
+send packet 6 from guest bob to switch switch2 (sent 88 bytes)
+recv packet 7 from guest bob 
+recv packet 7 from guest bob  from switch switch2 (read 12 bytes - correct)
+############ Test packet_out; valid SUCCEEDED!
+Cleaning up (killing pid=6172)
+----------------------------------------
+----------------------------------------
+----- Running test tests-mobility.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller mvm-client2 on port 54322
+    Spawning new Controller mvm-client2 on listenning on port 54322
+        Starting io loop for controller mvm-client2
+##ParseConfig: found controller globalguy on port 54321
+    Spawning new Controller globalguy on listenning on port 54321
+        Starting io loop for controller globalguy
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-mobility -v0 ptcp:16633'
+    flowvisor spawned at Pid=6187 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52896)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'globalguy'
+    Controller mvm-client2 got a new connection from 127.0.0.1:43601 : spawning new FakeSwitch
+    Created switch sliced_switch_mvm-client2_0 on port ('127.0.0.1', 54322)
+    Controller mvm-client2 sending hello
+    Starting io loop for switch sliced_switch_mvm-client2_0
+    Controller globalguy got a new connection from 127.0.0.1:51800 : spawning new FakeSwitch
+    Created switch sliced_switch_globalguy_0 on port ('127.0.0.1', 54321)
+    Controller globalguy sending hello
+    Starting io loop for switch sliced_switch_globalguy_0
+    Controller mvm-client2 sending features request
+    Controller mvm-client2 waiting for switch features
+    Controller globalguy sending features request
+    Controller globalguy waiting for switch features
+    Got feature_request (from FC globalguy) for switch1
+    Sent switch_features to fake controller globalguy
+    addSwitch: Waiting for features_request from fakeController 'mvm-client2'
+    Got feature_request (from FC mvm-client2) for switch1
+    Sent switch_features to fake controller mvm-client2
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller mvm-client2 got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller globalguy got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest globalguy to switch switch1
+send packet 0 from guest globalguy to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : legit flow_mod
+send packet 0 from guest globalguy to switch switch1
+send packet 0 from guest globalguy to switch switch1 (sent 72 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 72 bytes - correct)
+############ Test legit flow_mod SUCCEEDED!
+############ Starting Test : incoming ping
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest mvm-client2 
+recv packet 1 from guest mvm-client2  from switch switch1 (read 116 bytes - correct)
+############ Test incoming ping SUCCEEDED!
+############ Starting Test : legit flow_mod2
+send packet 0 from guest mvm-client2 to switch switch1
+send packet 0 from guest mvm-client2 to switch switch1 (sent 80 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 80 bytes - correct)
+send packet 2 from guest globalguy to switch switch1
+send packet 2 from guest globalguy to switch switch1 (sent 80 bytes)
+recv packet 3 from guest globalguy 
+recv packet 3 from guest globalguy  from switch switch1 (read 12 bytes - correct)
+############ Test legit flow_mod2 SUCCEEDED!
+Cleaning up (killing pid=6187)
+----------------------------------------
+----------------------------------------
+----- Running test tests-readonly.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+##ParseConfig: spawning flowvisor
+        Starting io loop for controller alice
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-readonly -v0 ptcp:16633'
+    flowvisor spawned at Pid=6199 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52899)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Controller bob got a new connection from 127.0.0.1:43604 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller alice got a new connection from 127.0.0.1:51803 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : bad flow_mod write
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 72 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 12 bytes - correct)
+############ Test bad flow_mod write SUCCEEDED!
+############ Starting Test : lookup on packet_in 
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest bob 
+recv packet 1 from guest bob  from switch switch1 (read 116 bytes - correct)
+############ Test lookup on packet_in  SUCCEEDED!
+############ Starting Test : bad flow_mod2
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 80 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 12 bytes - correct)
+############ Test bad flow_mod2 SUCCEEDED!
+############ Starting Test : bad packet_out
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 58 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 12 bytes - correct)
+############ Test bad packet_out SUCCEEDED!
+Cleaning up (killing pid=6199)
+----------------------------------------
+----------------------------------------
+----- Running test tests-match.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller cathy on port 54323
+    Spawning new Controller cathy on listenning on port 54323
+        Starting io loop for controller cathy
+##ParseConfig: found controller ingrid on port 54329
+    Spawning new Controller ingrid on listenning on port 54329
+##ParseConfig: found controller hank on port 54328
+        Starting io loop for controller ingrid
+    Spawning new Controller hank on listenning on port 54328
+        Starting io loop for controller hank
+##ParseConfig: found controller doug on port 54324
+    Spawning new Controller doug on listenning on port 54324
+        Starting io loop for controller doug
+##ParseConfig: found controller george on port 54327
+    Spawning new Controller george on listenning on port 54327
+        Starting io loop for controller george
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller frank on port 54326
+    Spawning new Controller frank on listenning on port 54326
+##ParseConfig: found controller alice on port 54321
+        Starting io loop for controller frank
+    Spawning new Controller alice on listenning on port 54321
+        Starting io loop for controller alice
+##ParseConfig: found controller eric on port 54325
+    Spawning new Controller eric on listenning on port 54325
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller eric
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-match -v0 ptcp:16633'
+    flowvisor spawned at Pid=6218 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52902)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'hank'
+    Controller cathy got a new connection from 127.0.0.1:51955 : spawning new FakeSwitch
+    Created switch sliced_switch_cathy_0 on port ('127.0.0.1', 54323)
+    Starting io loop for switch sliced_switch_cathy_0
+    Controller cathy sending hello
+    Controller ingrid got a new connection from 127.0.0.1:38002 : spawning new FakeSwitch
+    Created switch sliced_switch_ingrid_0 on port ('127.0.0.1', 54329)
+    Controller ingrid sending hello
+    Controller hank got a new connection from 127.0.0.1:46919 : spawning new FakeSwitch
+    Created switch sliced_switch_hank_0 on port ('127.0.0.1', 54328)
+    Controller george got a new connection from 127.0.0.1:39147 : spawning new FakeSwitch
+    Created switch sliced_switch_george_0 on port ('127.0.0.1', 54327)
+    Controller doug got a new connection from 127.0.0.1:59966 : spawning new FakeSwitch
+    Created switch sliced_switch_doug_0 on port ('127.0.0.1', 54324)
+    Controller hank sending hello
+    Controller george sending hello
+    Starting io loop for switch sliced_switch_ingrid_0
+    Starting io loop for switch sliced_switch_hank_0
+    Starting io loop for switch sliced_switch_doug_0
+    Starting io loop for switch sliced_switch_george_0
+    Controller doug sending hello
+    Controller bob got a new connection from 127.0.0.1:43612 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller frank got a new connection from 127.0.0.1:53585 : spawning new FakeSwitch
+    Created switch sliced_switch_frank_0 on port ('127.0.0.1', 54326)
+    Controller frank sending hello
+    Starting io loop for switch sliced_switch_frank_0
+    Controller alice got a new connection from 127.0.0.1:51812 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending hello
+    Controller eric got a new connection from 127.0.0.1:38720 : spawning new FakeSwitch
+    Created switch sliced_switch_eric_0 on port ('127.0.0.1', 54325)
+    Controller eric sending hello
+    Starting io loop for switch sliced_switch_eric_0
+    Controller hank sending features request
+    Controller hank waiting for switch features
+    Controller ingrid sending features request
+    Controller ingrid waiting for switch features
+    Controller doug sending features request
+    Controller doug waiting for switch features
+    Controller cathy sending features request
+    Controller cathy waiting for switch features
+    Controller george sending features request
+    Controller george waiting for switch features
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller frank sending features request
+    Controller frank waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Controller eric sending features request
+    Controller eric waiting for switch features
+    Got feature_request (from FC hank) for switch1
+    Sent switch_features to fake controller hank
+    addSwitch: Waiting for features_request from fakeController 'frank'
+    Got feature_request (from FC frank) for switch1
+    Sent switch_features to fake controller frank
+    addSwitch: Waiting for features_request from fakeController 'ingrid'
+    Got feature_request (from FC ingrid) for switch1
+    Sent switch_features to fake controller ingrid
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+    addSwitch: Waiting for features_request from fakeController 'eric'
+    Got feature_request (from FC eric) for switch1
+    Sent switch_features to fake controller eric
+    addSwitch: Waiting for features_request from fakeController 'doug'
+    Got feature_request (from FC doug) for switch1
+    Sent switch_features to fake controller doug
+    addSwitch: Waiting for features_request from fakeController 'cathy'
+    Got feature_request (from FC cathy) for switch1
+    Sent switch_features to fake controller cathy
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'george'
+    Got feature_request (from FC george) for switch1
+    Sent switch_features to fake controller george
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller cathy got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller ingrid got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller hank got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller doug got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller george got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller frank got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller eric got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : feature_reply
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 224 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 224 bytes - correct)
+############ Test feature_reply SUCCEEDED!
+############ Starting Test : ping by ip_dst/prefix to Frank
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest frank 
+recv packet 1 from guest frank  from switch switch1 (read 116 bytes - correct)
+############ Test ping by ip_dst/prefix to Frank SUCCEEDED!
+############ Starting Test : ping by vlan_pcp to Hank
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 120 bytes)
+recv packet 1 from guest hank 
+recv packet 1 from guest hank  from switch switch1 (read 120 bytes - correct)
+############ Test ping by vlan_pcp to Hank SUCCEEDED!
+############ Starting Test : ping by vlan to Ingrid
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 120 bytes)
+recv packet 1 from guest ingrid 
+recv packet 1 from guest ingrid  from switch switch1 (read 120 bytes - correct)
+############ Test ping by vlan to Ingrid SUCCEEDED!
+############ Starting Test : ping by ip_src to Alice
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 116 bytes - correct)
+############ Test ping by ip_src to Alice SUCCEEDED!
+############ Starting Test : ping by ip_dst to Bob
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest bob 
+recv packet 1 from guest bob  from switch switch1 (read 116 bytes - correct)
+############ Test ping by ip_dst to Bob SUCCEEDED!
+############ Starting Test : packet_in by ip_proto to Cathy
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest cathy 
+recv packet 1 from guest cathy  from switch switch1 (read 116 bytes - correct)
+############ Test packet_in by ip_proto to Cathy SUCCEEDED!
+############ Starting Test : icmp by tp_src to Doug
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest doug 
+recv packet 1 from guest doug  from switch switch1 (read 116 bytes - correct)
+############ Test icmp by tp_src to Doug SUCCEEDED!
+############ Starting Test : icmp by tp_dst to Eric
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest eric 
+recv packet 1 from guest eric  from switch switch1 (read 116 bytes - correct)
+############ Test icmp by tp_dst to Eric SUCCEEDED!
+############ Starting Test : icmp by tp_tos to George
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest george 
+recv packet 1 from guest george  from switch switch1 (read 116 bytes - correct)
+############ Test icmp by tp_tos to George SUCCEEDED!
+############ Starting Test : all clear?
+clear? test 0 
+############ Test all clear? SUCCEEDED!
+############ Starting Test : flow_expire in for None 
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 88 bytes)
+############ Test flow_expire in for None  SUCCEEDED!
+############ Starting Test : flow_expire in for doug 
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 88 bytes)
+recv packet 1 from guest doug 
+recv packet 1 from guest doug  from switch switch1 (read 88 bytes - correct)
+############ Test flow_expire in for doug  SUCCEEDED!
+############ Starting Test : flow_expire in for eric 
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 88 bytes)
+recv packet 1 from guest eric 
+recv packet 1 from guest eric  from switch switch1 (read 88 bytes - correct)
+############ Test flow_expire in for eric  SUCCEEDED!
+Cleaning up (killing pid=6218)
+----------------------------------------
+----------------------------------------
+----- Running test tests-match_all.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller alice
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-match_all -v0 ptcp:16633'
+    flowvisor spawned at Pid=6236 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52912)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Controller alice got a new connection from 127.0.0.1:51815 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : feature_reply
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 224 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 224 bytes - correct)
+############ Test feature_reply SUCCEEDED!
+############ Starting Test : switch2controller packet_in routing - by port
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 82 bytes)
+recv packet 1 from guest alice 
+recv packet 1 from guest alice  from switch switch1 (read 82 bytes - correct)
+############ Test switch2controller packet_in routing - by port SUCCEEDED!
+Cleaning up (killing pid=6236)
+----------------------------------------
+----------------------------------------
+----- Running test tests-glen.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller openpipes on port 54321
+    Spawning new Controller openpipes on listenning on port 54321
+        Starting io loop for controller openpipes
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-glen -v0 ptcp:16633'
+    flowvisor spawned at Pid=6246 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52914)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'openpipes'
+    Controller openpipes got a new connection from 127.0.0.1:51817 : spawning new FakeSwitch
+    Created switch sliced_switch_openpipes_0 on port ('127.0.0.1', 54321)
+    Controller openpipes sending hello
+    Starting io loop for switch sliced_switch_openpipes_0
+    Controller openpipes sending features request
+    Controller openpipes waiting for switch features
+    Got feature_request (from FC openpipes) for switch1
+    Sent switch_features to fake controller openpipes
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller openpipes got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest openpipes to switch switch1
+send packet 0 from guest openpipes to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : flow mod del all 
+send packet 0 from guest openpipes to switch switch1
+send packet 0 from guest openpipes to switch switch1 (sent 72 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 72 bytes - correct)
+recv packet 2 from switch switch1 
+recv packet 2 from switch switch1  (read 72 bytes - correct)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 72 bytes - correct)
+recv packet 4 from switch switch1 
+recv packet 4 from switch switch1  (read 72 bytes - correct)
+recv packet 5 from switch switch1 
+recv packet 5 from switch switch1  (read 72 bytes - correct)
+recv packet 6 from switch switch1 
+recv packet 6 from switch switch1  (read 72 bytes - correct)
+recv packet 7 from switch switch1 
+recv packet 7 from switch switch1  (read 72 bytes - correct)
+recv packet 8 from switch switch1 
+recv packet 8 from switch switch1  (read 72 bytes - correct)
+############ Test flow mod del all  SUCCEEDED!
+############ Starting Test : glen test 1
+send packet 0 from guest openpipes to switch switch1
+send packet 0 from guest openpipes to switch switch1 (sent 72 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 72 bytes - correct)
+recv packet 2 from switch switch1 
+recv packet 2 from switch switch1  (read 72 bytes - correct)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 72 bytes - correct)
+recv packet 4 from switch switch1 
+recv packet 4 from switch switch1  (read 72 bytes - correct)
+recv packet 5 from switch switch1 
+recv packet 5 from switch switch1  (read 72 bytes - correct)
+recv packet 6 from switch switch1 
+recv packet 6 from switch switch1  (read 72 bytes - correct)
+recv packet 7 from switch switch1 
+recv packet 7 from switch switch1  (read 72 bytes - correct)
+recv packet 8 from switch switch1 
+recv packet 8 from switch switch1  (read 72 bytes - correct)
+############ Test glen test 1 SUCCEEDED!
+Cleaning up (killing pid=6246)
+----------------------------------------
+----------------------------------------
+----- Running test tests-deny.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller production on port 54322
+    Spawning new Controller production on listenning on port 54322
+##ParseConfig: found controller flowdragging on port 54321
+        Starting io loop for controller production
+    Spawning new Controller flowdragging on listenning on port 54321
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller flowdragging
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-deny -v0 ptcp:16633'
+    flowvisor spawned at Pid=6257 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52916)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'production'
+    Controller production got a new connection from 127.0.0.1:43621 : spawning new FakeSwitch
+    Created switch sliced_switch_production_0 on port ('127.0.0.1', 54322)
+    Controller production sending hello
+    Starting io loop for switch sliced_switch_production_0
+    Controller flowdragging got a new connection from 127.0.0.1:51820 : spawning new FakeSwitch
+    Created switch sliced_switch_flowdragging_0 on port ('127.0.0.1', 54321)
+    Controller flowdragging sending hello
+    Starting io loop for switch sliced_switch_flowdragging_0
+    Controller flowdragging sending features request
+    Controller flowdragging waiting for switch features
+    Controller production sending features request
+    Controller production waiting for switch features
+    Got feature_request (from FC production) for switch1
+    Sent switch_features to fake controller production
+    addSwitch: Waiting for features_request from fakeController 'flowdragging'
+    Got feature_request (from FC flowdragging) for switch1
+    Sent switch_features to fake controller flowdragging
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller flowdragging got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller production got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : ping_in 
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest flowdragging 
+recv packet 1 from guest flowdragging  from switch switch1 (read 116 bytes - correct)
+############ Test ping_in  SUCCEEDED!
+Cleaning up (killing pid=6257)
+----------------------------------------
+----------------------------------------
+----- Running test tests-squelch.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller frank on port 54321
+    Spawning new Controller frank on listenning on port 54321
+##ParseConfig: found controller alice on port 54324
+        Starting io loop for controller frank
+    Spawning new Controller alice on listenning on port 54324
+##ParseConfig: found controller eric on port 54323
+        Starting io loop for controller alice
+    Spawning new Controller eric on listenning on port 54323
+        Starting io loop for controller eric
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-squelch -v0 ptcp:16633'
+    flowvisor spawned at Pid=6271 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52919)
+    Switch switch1 sent hello
+    Mapping dpid 1 to switch1
+    Starting io loop for switch switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'frank'
+    Controller bob got a new connection from 127.0.0.1:43624 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller frank got a new connection from 127.0.0.1:51823 : spawning new FakeSwitch
+    Created switch sliced_switch_frank_0 on port ('127.0.0.1', 54321)
+    Controller frank sending hello
+    Starting io loop for switch sliced_switch_frank_0
+    Controller alice got a new connection from 127.0.0.1:59982 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54324)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller eric got a new connection from 127.0.0.1:51975 : spawning new FakeSwitch
+    Created switch sliced_switch_eric_0 on port ('127.0.0.1', 54323)
+    Controller eric sending hello
+    Starting io loop for switch sliced_switch_eric_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller frank sending features request
+    Controller frank waiting for switch features
+    Controller eric sending features request
+    Controller eric waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Got feature_request (from FC frank) for switch1
+    Sent switch_features to fake controller frank
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+    addSwitch: Waiting for features_request from fakeController 'eric'
+    Got feature_request (from FC eric) for switch1
+    Sent switch_features to fake controller eric
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller frank got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller eric got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : ping by ip_dst/prefix to Frank
+send packet 0 from switch switch1
+send packet 0 from switch switch1 (sent 116 bytes)
+recv packet 1 from guest frank 
+recv packet 1 from guest frank  from switch switch1 (read 116 bytes - correct)
+send packet 2 from switch switch1
+send packet 2 from switch switch1 (sent 116 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 72 bytes - correct)
+############ Test ping by ip_dst/prefix to Frank SUCCEEDED!
+############ Starting Test : too many packet_outs by Frank
+send packet 0 from guest frank to switch switch1
+send packet 0 from guest frank to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 112 bytes - correct)
+send packet 2 from guest frank to switch switch1
+send packet 2 from guest frank to switch switch1 (sent 88 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 112 bytes - correct)
+send packet 4 from guest frank to switch switch1
+send packet 4 from guest frank to switch switch1 (sent 88 bytes)
+clear? test 5 
+############ Test too many packet_outs by Frank SUCCEEDED!
+############### Sleeping for 5 seconds to let the rate limiters recharge
+############ Starting Test : too many packet_outs by Frank (again)
+send packet 0 from guest frank to switch switch1
+send packet 0 from guest frank to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 112 bytes - correct)
+send packet 2 from guest frank to switch switch1
+send packet 2 from guest frank to switch switch1 (sent 88 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 112 bytes - correct)
+send packet 4 from guest frank to switch switch1
+send packet 4 from guest frank to switch switch1 (sent 88 bytes)
+clear? test 5 
+############ Test too many packet_outs by Frank (again) SUCCEEDED!
+Cleaning up (killing pid=6271)
+----------------------------------------
+----------------------------------------
+----- Running test tests-qos.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller cathy on port 54323
+    Spawning new Controller cathy on listenning on port 54323
+        Starting io loop for controller cathy
+##ParseConfig: found controller erik on port 54325
+    Spawning new Controller erik on listenning on port 54325
+        Starting io loop for controller erik
+##ParseConfig: found controller doug on port 54324
+    Spawning new Controller doug on listenning on port 54324
+        Starting io loop for controller doug
+##ParseConfig: found controller bob on port 54322
+    Spawning new Controller bob on listenning on port 54322
+        Starting io loop for controller bob
+##ParseConfig: found controller alice on port 54321
+    Spawning new Controller alice on listenning on port 54321
+        Starting io loop for controller alice
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-qos -v0 ptcp:16633'
+    flowvisor spawned at Pid=6288 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52924)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'cathy'
+    Controller cathy got a new connection from 127.0.0.1:51977 : spawning new FakeSwitch
+    Created switch sliced_switch_cathy_0 on port ('127.0.0.1', 54323)
+    Controller cathy sending hello
+    Starting io loop for switch sliced_switch_cathy_0
+    Controller erik got a new connection from 127.0.0.1:38735 : spawning new FakeSwitch
+    Created switch sliced_switch_erik_0 on port ('127.0.0.1', 54325)
+    Controller erik sending hello
+    Starting io loop for switch sliced_switch_erik_0
+    Controller doug got a new connection from 127.0.0.1:59987 : spawning new FakeSwitch
+    Created switch sliced_switch_doug_0 on port ('127.0.0.1', 54324)
+    Starting io loop for switch sliced_switch_doug_0
+    Controller doug sending hello
+    Controller bob got a new connection from 127.0.0.1:43632 : spawning new FakeSwitch
+    Created switch sliced_switch_bob_0 on port ('127.0.0.1', 54322)
+    Controller bob sending hello
+    Starting io loop for switch sliced_switch_bob_0
+    Controller alice got a new connection from 127.0.0.1:51831 : spawning new FakeSwitch
+    Created switch sliced_switch_alice_0 on port ('127.0.0.1', 54321)
+    Controller alice sending hello
+    Starting io loop for switch sliced_switch_alice_0
+    Controller alice sending features request
+    Controller alice waiting for switch features
+    Controller bob sending features request
+    Controller bob waiting for switch features
+    Controller cathy sending features request
+    Controller cathy waiting for switch features
+    Controller erik sending features request
+    Controller erik waiting for switch features
+    Controller doug sending features request
+    Controller doug waiting for switch features
+    Got feature_request (from FC cathy) for switch1
+    Sent switch_features to fake controller cathy
+    addSwitch: Waiting for features_request from fakeController 'bob'
+    Got feature_request (from FC bob) for switch1
+    Sent switch_features to fake controller bob
+    addSwitch: Waiting for features_request from fakeController 'erik'
+    Got feature_request (from FC erik) for switch1
+    Sent switch_features to fake controller erik
+    addSwitch: Waiting for features_request from fakeController 'alice'
+    Got feature_request (from FC alice) for switch1
+    Sent switch_features to fake controller alice
+    addSwitch: Waiting for features_request from fakeController 'doug'
+    Got feature_request (from FC doug) for switch1
+    Sent switch_features to fake controller doug
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller bob got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller alice got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller cathy got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller doug got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+    Controller erik got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : packet_out qos re-write
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 88 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 96 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 88 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 96 bytes - correct)
+send packet 4 from guest cathy to switch switch1
+send packet 4 from guest cathy to switch switch1 (sent 88 bytes)
+recv packet 5 from switch switch1 
+recv packet 5 from switch switch1  (read 104 bytes - correct)
+send packet 6 from guest doug to switch switch1
+send packet 6 from guest doug to switch switch1 (sent 88 bytes)
+recv packet 7 from switch switch1 
+recv packet 7 from switch switch1  (read 96 bytes - correct)
+send packet 8 from guest erik to switch switch1
+send packet 8 from guest erik to switch switch1 (sent 88 bytes)
+recv packet 9 from switch switch1 
+recv packet 9 from switch switch1  (read 112 bytes - correct)
+############ Test packet_out qos re-write SUCCEEDED!
+############ Starting Test : flow_mod qos re-write
+send packet 0 from guest alice to switch switch1
+send packet 0 from guest alice to switch switch1 (sent 80 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 88 bytes - correct)
+send packet 2 from guest bob to switch switch1
+send packet 2 from guest bob to switch switch1 (sent 80 bytes)
+recv packet 3 from switch switch1 
+recv packet 3 from switch switch1  (read 88 bytes - correct)
+send packet 4 from guest cathy to switch switch1
+send packet 4 from guest cathy to switch switch1 (sent 80 bytes)
+recv packet 5 from switch switch1 
+recv packet 5 from switch switch1  (read 96 bytes - correct)
+send packet 6 from guest doug to switch switch1
+send packet 6 from guest doug to switch switch1 (sent 80 bytes)
+recv packet 7 from switch switch1 
+recv packet 7 from switch switch1  (read 88 bytes - correct)
+send packet 8 from guest erik to switch switch1
+send packet 8 from guest erik to switch switch1 (sent 80 bytes)
+recv packet 9 from switch switch1 
+recv packet 9 from switch switch1  (read 104 bytes - correct)
+############ Test flow_mod qos re-write SUCCEEDED!
+Cleaning up (killing pid=6288)
+----------------------------------------
+----------------------------------------
+----- Running test tests-of1-0.py
+----------------------------------------
+----------------------------------------
+##ParseConfig: found controller production on port 7001
+    Spawning new Controller production on listenning on port 7001
+##ParseConfig: spawning flowvisor
+    Using flowvisor from : ../flowvisor
+        Starting io loop for controller production
+    Using valgrind /usr/bin/valgrind --log-file=valgrind.out
+    Spawning '/usr/bin/valgrind --log-file=valgrind.out ../flowvisor -a flowvisor-conf.d-of1-0 -v0 ptcp:16633'
+    flowvisor spawned at Pid=6302 (output stored in fv_regress.log) 
+    Sleeping a bit before first to let flowvisor start
+##ParseConfig: found switch switch1 with dpid= 1
+    Created switch switch1 with connection localhost:16633 ('127.0.0.1', 52930)
+    Switch switch1 sent hello
+    Starting io loop for switch switch1
+    Mapping dpid 1 to switch1
+    addSwitch: Got hello flush for switch1
+    addSwitch: Got flow_mod flush for switch1
+    addSwitch: Got feature_request (from FV) for switch1
+    addSwitch: Sent switch_features to flowvisor
+    addSwitch: Waiting for features_request from fakeController 'production'
+    Controller production got a new connection from 127.0.0.1:39342 : spawning new FakeSwitch
+    Created switch sliced_switch_production_0 on port ('127.0.0.1', 7001)
+    Controller production sending hello
+    Starting io loop for switch sliced_switch_production_0
+    Controller production sending features request
+    Controller production waiting for switch features
+    Got feature_request (from FC production) for switch1
+    Sent switch_features to fake controller production
+    skipping default switch 'flowvisor-conf.d-of1-0/default.switch'
+#################################### Init Done #################
+    Sleeping a bit before first test to make sure flowvisor has stabilized
+    Controller production got switch features
+    Fake Controller Alice got a connection from switch with dpid= '1'
+############ Starting Test : feature_request
+send packet 0 from guest production to switch switch1
+send packet 0 from guest production to switch switch1 (sent 8 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (STRICT_XID) (read 8 bytes - correct)
+############ Test feature_request SUCCEEDED!
+############ Starting Test : set_config
+send packet 0 from guest production to switch switch1
+send packet 0 from guest production to switch switch1 (sent 12 bytes)
+recv packet 1 from switch switch1 
+recv packet 1 from switch switch1  (read 12 bytes - correct)
+############ Test set_config SUCCEEDED!
+Cleaning up (killing pid=6302)
+----------------------------------------
+----------------------------------------
+----- All Tests Succeeded!
+----------------------------------------
+----------------------------------------

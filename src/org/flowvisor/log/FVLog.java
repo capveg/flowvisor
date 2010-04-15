@@ -12,7 +12,7 @@ import org.flowvisor.events.FVEventHandler;
 public class FVLog {
 
 	static FVLogInterface logger = new StderrLogger();
-	static LogLevel threshold = LogLevel.INFO;	// min level for logging
+	static LogLevel threshold = LogLevel.MOBUG;	// min level for logging
 	
 	/** Wrapper around the default logger 
 	 * 

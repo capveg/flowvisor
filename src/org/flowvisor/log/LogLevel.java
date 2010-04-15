@@ -10,10 +10,15 @@ package org.flowvisor.log;
  *
  */
 public enum LogLevel {
-	FATAL,		// The world is on fire
-	CRIT,		// Will always want to know
-	ALERT,		// Will typically want to know
-	WARN,		// Might want to know cuz it's possibly bad
-	INFO,		// Maybe worth knowing, maybe not -- not bad
-	DEBUG		// Only worth knowing if debugging
+	FATAL,				// The world is on fire
+	CRIT,				// Will always want to know
+	ALERT,				// Will typically want to know
+	WARN,				// Might want to know cuz it's possibly bad
+	INFO,				// Maybe worth knowing, maybe not -- not bad
+	DEBUG,				// Only worth knowing if debugging
+	MOBUG;				// more debugging; rarely worth knowing
+	
+	public String toString() {
+		return String.format("%5s", this.name());
+	}
 }

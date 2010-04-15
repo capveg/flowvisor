@@ -47,6 +47,7 @@ public class FVSlicer implements FVEventHandler {
 	}
 
 	public void init() {
+		FVLog.log(LogLevel.DEBUG, this, "initializing new FVSlicer");
 		String sliceBase = FVConfig.SLICES + "." + this.sliceName;
 		// snag controller info from config
 		try {
@@ -90,6 +91,7 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	@Override
 	public void tearDown() {
+		FVLog.log(LogLevel.DEBUG, this, "tearing down");
 		if (this.sock != null)
 			try {
 				this.sock.close();		// FIXME will this also cancel()  the key in the event loop?
@@ -112,6 +114,8 @@ public class FVSlicer implements FVEventHandler {
 	}
 
 	private void reconnect() {
+		FVLog.log(LogLevel.INFO, this, "trying to connect to " + 
+				this.hostname + ":" + this.port);
 		// reset our state to unconnected (might be a NOOP)
 		this.isConnected = false;
 		this.msgStream = null;
@@ -123,7 +127,7 @@ public class FVSlicer implements FVEventHandler {
 			sock.configureBlocking(false);	// set to non-blocking
 			this.isConnected = this.sock.connect(new InetSocketAddress(hostname, port)); // try to connect
 			// register into event loop
-			this.loop.register(this.sock, SelectionKey.OP_ACCEPT|SelectionKey.OP_READ, this);	
+			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);	
 		} catch (IOException e) {
 			// TODO:: spawn a timer event to connect again later
 			FVLog.log(LogLevel.ALERT, this, "Giving up on reconnecting, got : " + e);
@@ -137,21 +141,23 @@ public class FVSlicer implements FVEventHandler {
 			try {
 				if (!this.sock.finishConnect())
 					return;	// not done yet
-				else
-					this.isConnected = true;
+				
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.DEBUG, this, "retrying connection got: " + e1 );
 				this.reconnect();
+				return;
 			}
-		}
-		if (this.msgStream == null ) {
+			FVLog.log(LogLevel.DEBUG, this, "connected");
+			this.isConnected = true;
 			try {
 				msgStream = new OFMessageAsyncStream(this.sock, new BasicFactory());
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.ALERT, this, "Giving up; while creating OFMessageAsyncStream, got: " 
 						+ e1);
 				this.tearDown();
+				return;
 			}
+			FVLog.log(LogLevel.DEBUG, this, "sending HELLO");
 			msgStream.write(new OFHello());		// send initial handshake
 		}
 		try {
@@ -165,10 +171,12 @@ public class FVSlicer implements FVEventHandler {
 			reconnect();
 		}
 		// setup for next select
-		if (msgStream.needsFlush())
-			e.getSelectionKey().interestOps( SelectionKey.OP_READ + SelectionKey.OP_WRITE );
-		else
-			e.getSelectionKey().interestOps( SelectionKey.OP_READ);
+		if (msgStream != null && e.getSelectionKey().isValid()) {
+			if(msgStream.needsFlush())
+				e.getSelectionKey().interestOps( SelectionKey.OP_READ + SelectionKey.OP_WRITE );
+			else
+				e.getSelectionKey().interestOps( SelectionKey.OP_READ);
+		}
 			
 	}
 

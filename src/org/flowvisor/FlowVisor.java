@@ -23,12 +23,17 @@ public class FlowVisor
     	
     	// init polling loop
     	FVEventLoop pollLoop = new FVEventLoop();
-
+    	
+    	if(args.length > 0) // FIXME: do real arg parsing
+    		FVConfig.setInt(FVConfig.LISTEN_PORT, Integer.valueOf(args[0]));
+  	
+    	int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
+    	
     	// init switchAcceptor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
     										"ofswitchAcceptor",
     										pollLoop, 
-    										FVConfig.getInt(FVConfig.LISTEN_PORT), 
+    										port, 
     										16);
     	handlers.add(acceptor);				
     	

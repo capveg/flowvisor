@@ -25,7 +25,7 @@
     <target name="compile" depends="init"
         description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${fv_src}" classpath="${of_jar}" destdir="${fv_build}"/>
+        <javac debug="true" srcdir="${fv_src}" classpath="${of_jar}" destdir="${fv_build}"/>
     </target>
 
     <target name="dist" depends="compile"

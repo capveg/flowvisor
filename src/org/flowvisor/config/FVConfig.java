@@ -103,7 +103,7 @@ public class FVConfig {
 		ConfigEntry entry = FVConfig.lookup(node);
 		if (entry == null ) 
 			entry = create(node, ConfigType.INT);
-		else 
+		else if(entry.type != ConfigType.INT)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to int");
 		ConfIntEntry ei = (ConfIntEntry)entry;
 		ei.setInt(val);
@@ -137,7 +137,7 @@ public class FVConfig {
 		ConfigEntry entry = FVConfig.lookup(node);
 		if (entry == null ) 
 			entry = create(node, ConfigType.STR);
-		else 
+		else if( entry.getType() != ConfigType.STR)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to string");
 		ConfStrEntry ei = (ConfStrEntry)entry;
 		ei.setString(val);
@@ -196,7 +196,7 @@ public class FVConfig {
 		ConfigEntry entry = FVConfig.lookup(node);
 		if (entry == null ) 
 			entry = create(node, ConfigType.FLOWMAP);
-		else 
+		else if(entry.getType() != ConfigType.FLOWMAP)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to a FlowMap");
 		ConfFlowMapEntry efm = (ConfFlowMapEntry)entry;
 		efm.setFlowMap(val);
