@@ -35,6 +35,7 @@ public class FVClassifier implements FVEventHandler {
 	OFMessageAsyncStream msgStream;
 	OFFeaturesReply switchInfo;
 	Map<String,FVSlicer> slicerMap;
+	XidTranslator xidTranslator;
 	
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -49,6 +50,8 @@ public class FVClassifier implements FVEventHandler {
 		this.switchInfo = null;
 		this.doneID = false;
 		this.slicerMap = new HashMap<String,FVSlicer>();
+		this.xidTranslator= new XidTranslator();
+		
 	}
 
 	
@@ -72,7 +75,6 @@ public class FVClassifier implements FVEventHandler {
 	
 	@Override
 	public boolean needsAccept() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -102,7 +104,7 @@ public class FVClassifier implements FVEventHandler {
 	
 	@Override
 	public String getName() {
-		return switchName+ "-classifier";
+		return "classifier-" + switchName;
 	}
 
 	@Override
@@ -177,7 +179,11 @@ public class FVClassifier implements FVEventHandler {
 	 */
 	private void classifyOFMessage(OFMessage msg) {
 		// FIXME: do an actual classification
-		// FIXME: for now, just send on to all slices
+
+		switch(msg.getType()) {
+			case HELLO:
+				
+		}
 		for(FVSlicer fvSlicer: slicerMap.values()) {
 			FVLog.log(LogLevel.DEBUG, this, "sending to " + 
 					fvSlicer.getName() + " :" + msg);
