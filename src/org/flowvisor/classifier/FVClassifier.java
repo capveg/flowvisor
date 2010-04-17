@@ -36,6 +36,7 @@ public class FVClassifier implements FVEventHandler {
 	OFFeaturesReply switchInfo;
 	Map<String,FVSlicer> slicerMap;
 	XidTranslator xidTranslator;
+	int missSendLength;
 	
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -51,10 +52,20 @@ public class FVClassifier implements FVEventHandler {
 		this.doneID = false;
 		this.slicerMap = new HashMap<String,FVSlicer>();
 		this.xidTranslator= new XidTranslator();
-		
+		this.missSendLength = 128;
 	}
 
 	
+	public int getMissSendLength() {
+		return missSendLength;
+	}
+
+
+	public void setMissSendLength(int missSendLength) {
+		this.missSendLength = missSendLength;
+	}
+
+
 	@Override
 	public boolean needsConnect() {
 		return false;			// never want connect events
@@ -250,7 +261,7 @@ public class FVClassifier implements FVEventHandler {
 				OFStatisticsRequest stats = new OFStatisticsRequest();
 				stats.setStatisticType(OFStatisticsType.DESC);
 				*/
-				switchName = "dpid:" + String.format("%1$016x", switchInfo.getDatapathId());
+				switchName = "dpid:" + String.format("%1$x", switchInfo.getDatapathId());
 				FVLog.log(LogLevel.INFO, this, 
 				        	"identified switch as " + 
 				        	switchName + " on " + 
@@ -303,4 +314,12 @@ public class FVClassifier implements FVEventHandler {
 			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
 		}
 	}
+
+
+	public String getSwitchName() {
+		return this.switchName;
+	}
+
+
+
 }

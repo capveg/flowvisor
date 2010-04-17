@@ -40,6 +40,7 @@ public class FVSlicer implements FVEventHandler {
 	int port;
 	boolean isConnected;
 	OFMessageAsyncStream msgStream;
+	int missSendLength;
 	
 	public FVSlicer(FVEventLoop loop, FVClassifier fvClassifier, String sliceName) {
 		this.loop = loop;
@@ -47,6 +48,7 @@ public class FVSlicer implements FVEventHandler {
 		this.sliceName = sliceName;
 		this.isConnected = false;
 		this.msgStream = null;
+		this.missSendLength=128;		// openflow default (?) findout...  TODO
 	}
 
 	public void init() {
@@ -112,7 +114,7 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	@Override
 	public String getName() {		
-		return fvClassifier.getName() + "_" + this.sliceName;
+		return "slicer_" + this.sliceName + "_"+  fvClassifier.getSwitchName();
 	}
 
 	/* (non-Javadoc)
@@ -216,5 +218,10 @@ public class FVSlicer implements FVEventHandler {
 		// FIXME: for now, just blindly pass on to switch
 		FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
 		((Slicable)msg).sliceFromController(fvClassifier, this);
+	}
+
+	public void setMissSendLength(int missSendLength) {
+		this.missSendLength = missSendLength;
+		
 	}
 }

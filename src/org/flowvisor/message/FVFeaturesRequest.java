@@ -20,6 +20,7 @@ public class FVFeaturesRequest extends OFFeaturesRequest implements
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// just rewrite XID before sending
 		FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
+		FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: " + this);
 		fvClassifier.getMsgStream().write(this);
 	}
 }
