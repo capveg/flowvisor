@@ -291,7 +291,7 @@ class FvRegress:
         fc = FakeController(name,port)
         self.fakeControllers[name]= fc
         fc.start()
-    def spawnFlowVisor(self,fv_jvm=None,fv_args=defaultArgs):
+    def spawnFlowVisor(self,configDir="flowvisor-conf.d",port=OFPORT,fv_jvm=None,fv_args=defaultArgs):
         """start the flowvisor"""
         if not fv_jvm:
             fv_jvm = findInPath('java')
@@ -527,7 +527,7 @@ class FvRegress:
     def doPause(str):
         print "Press RETURN to %s" % str
         sys.stdin.readline()
-    def parseConfig(configDir, valgrind=None,*args):
+    def parseConfig(configDir, alreadyRunning=False, port=OFPORT,*args):
         controllerFiles=[]
         switchFiles = []
         for fname in os.listdir(configDir) :
@@ -540,16 +540,20 @@ class FvRegress:
                 print "ParseConfig: ignoring file " + path
         h = FvRegress()
         for cont in controllerFiles :
-            name, port = parseController(cont)
-            print "##ParseConfig: found controller " + name + " on port " + str(port)
-            h.addController(name,port)
-        print "##ParseConfig: spawning flowvisor"
-        h.spawnFlowVisor(configDir=configDir,*args)
+            name, cport = parseController(cont)
+            print "##ParseConfig: found controller " + name + " on port " + str(cport)
+            h.addController(name,cport)
+        if alreadyRunning : 
+            print "##ParseConfig: connecting to already running flowvisor"
+            h.useAlreadyRunningFlowVisor(port=port)
+        else :
+            print "##ParseConfig: spawning flowvisor"
+            h.spawnFlowVisor(configDir=configDir,port=port*args)
         for switch in switchFiles :
             name,dpid = parseSwitch(switch)
             if name : 
                 print "##ParseConfig: found switch " + name + " with dpid= " + str(dpid)
-                h.addSwitch(name=name, dpid=dpid)
+                h.addSwitch(name=name, dpid=dpid, port=port)
             else : 
                 print "    skipping default switch '" + switch + "'"
         return h
@@ -603,14 +607,17 @@ if __name__ == '__main__':
     config_request =  FvRegress.OFVERSION + '0700085680f7a9'
     config_request_translated =      FvRegress.OFVERSION + '07000804010000'    # flowvisor should translate xid
     config_request_translated2 =      FvRegress.OFVERSION + '07000805010000'    # flowvisor should translate xid
-    h= FvRegress()
-    port= 6633
-    h.addController("alice", 54321)
-    h.addController("bob", 54322)
-    h.useAlreadyRunningFlowVisor(6633)
-    h.addSwitch(name='switch1', port=port)
-    h.addSwitch(name='switch2', port=port)
-    #h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base')
+    #h= FvRegress(port=6633)
+    #h.addController("alice", 54321)
+    #h.addController("bob", 54322)
+    #h.useAlreadyRunningFlowVisor(6633)
+    #h.addSwitch(name='switch1', port=port)
+    #h.addSwitch(name='switch2', port=port)
+    if len(sys.argv) > 1 :
+        h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base', alreadyRunning=True, port=int(sys.argv[1]))
+    else:
+        h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base')
+
     if debug:
         h.doPause("start tests")
     h.runTest("config request test", [

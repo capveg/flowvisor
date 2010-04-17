@@ -100,6 +100,7 @@ public class OFSwitchAcceptor implements FVEventHandler
     			FVLog.log(LogLevel.CRIT, null, "ssc.accept() returned null !?! FIXME!");
     			return;
     		}
+    		FVLog.log(LogLevel.INFO, this, "got new connection: " + sock);
     		FVClassifier fvc = new FVClassifier(pollLoop, sock); 
       		fvc.init();
     		switches.add(fvc);

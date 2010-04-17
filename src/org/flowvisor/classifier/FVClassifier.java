@@ -1,11 +1,14 @@
 package org.flowvisor.classifier;
 
+import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.*;
+
 
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.openflow.io.OFMessageAsyncStream;
 import org.flowvisor.slicer.FVSlicer;
+import org.flowvisor.flows.FlowMap;
 import org.flowvisor.message.*;
 import org.openflow.protocol.*;
 import org.flowvisor.log.*;
@@ -37,6 +40,7 @@ public class FVClassifier implements FVEventHandler {
 	Map<String,FVSlicer> slicerMap;
 	XidTranslator xidTranslator;
 	int missSendLength;
+	FlowMap switchFlowMap;
 	
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -53,6 +57,7 @@ public class FVClassifier implements FVEventHandler {
 		this.slicerMap = new HashMap<String,FVSlicer>();
 		this.xidTranslator= new XidTranslator();
 		this.missSendLength = 128;
+		this.switchFlowMap = null;
 	}
 
 	
@@ -284,7 +289,10 @@ public class FVClassifier implements FVEventHandler {
 	 * 
 	 */
 	private void connectToControllers() {
-		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(this.switchInfo.getDatapathId());
+		// FIXME: debug this optimization later
+		// this.switchFlowMap = FlowSpaceUtil.getSubFlowMap(this.switchInfo.getDatapathId());
+		this.switchFlowMap = FVConfig.getFlowSpaceFlowMap();
+		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(this.switchFlowMap,this.switchInfo.getDatapathId());
 		// foreach slice, make sure it has access to this switch
 		for(String sliceName : newSlices ) {
 			if(! slicerMap.containsKey(sliceName)) {
@@ -303,6 +311,16 @@ public class FVClassifier implements FVEventHandler {
 		}
 		
 	}
+
+	public FlowMap getSwitchFlowMap() {
+		return switchFlowMap;
+	}
+
+
+	public void setSwitchFlowMap(FlowMap switchFlowMap) {
+		this.switchFlowMap = switchFlowMap;
+	}
+
 
 	/**
 	 * Called by FVSlicer to tell us to forget about them

@@ -1,9 +1,15 @@
 package org.flowvisor.message;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
+
+import org.openflow.protocol.*;
 
 public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply implements Classifiable,
 		Slicable {
@@ -23,9 +29,14 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply imple
 		fvSlicer.getMsgStream().write(this);
 	}
 
+	// rewrite the ports list to only the set of ports allowed by the slice definition 
 	private void prunePorts(FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-		
+		List<OFPhysicalPort> newPorts = new ArrayList<OFPhysicalPort>();
+		for(OFPhysicalPort phyPort: this.getPorts()) {
+			if (fvSlicer.getPorts().contains(phyPort.getPortNumber()))
+				newPorts.add(phyPort);
+		}
+		this.setPorts(newPorts);
 	}
 
 	@Override

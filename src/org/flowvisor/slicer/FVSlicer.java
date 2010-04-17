@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.List;
+import java.util.Set;
 
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
@@ -18,6 +19,7 @@ import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.message.*;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -37,11 +39,12 @@ public class FVSlicer implements FVEventHandler {
 	FVEventLoop loop;
 	SocketChannel sock;
 	String hostname;
-	int port;
+	int port;							// the tcp port of our controller
 	boolean isConnected;
 	OFMessageAsyncStream msgStream;
 	int missSendLength;
-	
+	Set<Short> ports;  					// the list of ports we're allowed to access on this switch
+ 	
 	public FVSlicer(FVEventLoop loop, FVClassifier fvClassifier, String sliceName) {
 		this.loop = loop;
 		this.fvClassifier = fvClassifier;
@@ -49,6 +52,7 @@ public class FVSlicer implements FVEventHandler {
 		this.isConnected = false;
 		this.msgStream = null;
 		this.missSendLength=128;		// openflow default (?) findout...  TODO
+		this.ports = null;
 	}
 
 	public void init() {
@@ -69,12 +73,33 @@ public class FVSlicer implements FVEventHandler {
 			this.tearDown();
 			return;
 		}
-		
+		this.updatePortList();
 		this.reconnect();
 	}
 
 	
 	
+	private void updatePortList() {
+		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier.getSwitchInfo().getDatapathId(), 
+				this.sliceName);
+		if(this.ports != null) {
+			// we got a new list of ports while we are already running
+			// step through and update if necessary 
+			// TODO : implement!
+			FVLog.log(LogLevel.CRIT, this, "dynamic ports update not yet implemented!");
+		}
+		this.ports = ports;	// put new ports into place		
+	}
+
+	
+	public Set<Short> getPorts() {
+		return ports;
+	}
+
+	public void setPorts(Set<Short> ports) {
+		this.ports = ports;
+	}
+
 	public OFMessageAsyncStream getMsgStream() {
 		return msgStream;
 	}

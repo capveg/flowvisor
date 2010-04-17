@@ -24,15 +24,15 @@ public class FlowSpaceUtil {
 	 * This function is somewhat expensive (think DB join), so the results
 	 * should be cached, and then updated when the FlowSpace signals a change
 	 * 
+	 * @param flowMap A map of flow entries, like that from FVConfig.getFlowSpaceFlowMap();
 	 * @param dpid As returned in OFFeaturesReply
 	 * @return A list of names of slices, i.e., "alice", "bob", etc.
 	 */
-	public static Set<String> getSlicesByDPID(long dpid) {
+	public static Set<String> getSlicesByDPID(FlowMap flowMap, long dpid) {
 		Set<String> ret = new HashSet<String>();
-		FlowMap flowmap = FVConfig.getFlowSpaceFlowMap();
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
-		List<FlowEntry> rules = flowmap.matches(dpid, match);
+		List<FlowEntry> rules = flowMap.matches(dpid, match);
 		for(FlowEntry rule: rules) { 
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
@@ -41,6 +41,8 @@ public class FlowSpaceUtil {
 		}
 		return ret;
 	}
+	
+	
 	
 	/**
 	 * Consult the flowspace and return the set of ports that this slice
@@ -104,7 +106,7 @@ public class FlowSpaceUtil {
 		
 		switch(args.length) {
 		case 1 :
-			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(dpid);
+			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(FVConfig.getFlowSpaceFlowMap(),dpid);
 			System.out.println("The following slices have access to dpid=" + args[0]);
 			for(String slice: slices)
 				System.out.println(slice);
@@ -121,4 +123,41 @@ public class FlowSpaceUtil {
 		}
 			
 	}
+
+	/**
+	 * Get the FlowMap that is the intersection of the Master FlowSpace and
+	 * this dpid
+	 * @param dpid As returned from OFFeatureReply
+	 * @return A valid flowmap (never null)
+	 */
+
+	public static FlowMap getSubFlowMap(long dpid) {
+		// assumes that new OFMatch() matches everything
+		return FlowSpaceUtil.getSubFlowMap(FVConfig.getFlowSpaceFlowMap(), dpid, new OFMatch());
+	}
+
+
+	/**
+	 * Get the FlowMap that is the intersection of this FlowMap and the given flowSpace
+	 * that is, any rule in the source flowmap that matches any part of dpid and match
+	 * is added to the returned flowmap
+	 * @param flowMap Source flow map
+	 * @param dpid datapathId from OFFeaturesReply
+	 * @param match a valid OFMatch() struture
+	 * @return a valid flowMap (never null)
+	 */
+
+	public static FlowMap getSubFlowMap(FlowMap flowMap, long dpid, OFMatch match) {
+		// TODO
+		throw new RuntimeException("buggy!  need to fix!");
+		/*
+		FlowMap neoFlowMap = new LinearFlowMap();
+		List<FlowEntry> rules = flowMap.matches(dpid, match);
+		for (FlowEntry rule : rules)
+			flowMap.addRule(flowMap.countRules(), rule);
+		return neoFlowMap; 
+		*/
+	}
+
+
 }
