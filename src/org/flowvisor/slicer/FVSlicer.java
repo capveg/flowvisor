@@ -4,6 +4,7 @@
 package org.flowvisor.slicer;
 
 import java.io.IOException;
+
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -17,12 +18,12 @@ import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.message.*;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMessage;
-import org.openflow.protocol.factory.BasicFactory;
 
 /**
  * @author capveg
@@ -68,6 +69,16 @@ public class FVSlicer implements FVEventHandler {
 		}
 		
 		this.reconnect();
+	}
+
+	
+	
+	public OFMessageAsyncStream getMsgStream() {
+		return msgStream;
+	}
+
+	public void setMsgStream(OFMessageAsyncStream msgStream) {
+		this.msgStream = msgStream;
 	}
 
 	@Override
@@ -178,7 +189,7 @@ public class FVSlicer implements FVEventHandler {
 			FVLog.log(LogLevel.DEBUG, this, "connected");
 			this.isConnected = true;
 			try {
-				msgStream = new OFMessageAsyncStream(this.sock, new BasicFactory());
+				msgStream = new OFMessageAsyncStream(this.sock, new FVMessageFactory());
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.ALERT, this, "Giving up; while creating OFMessageAsyncStream, got: " 
 						+ e1);
@@ -204,34 +215,6 @@ public class FVSlicer implements FVEventHandler {
 	void handleOFMsgFromController(OFMessage msg) {
 		// FIXME: for now, just blindly pass on to switch
 		FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
-		switch(msg.getType()) {
-			case HELLO: 
-				break;		// just sync a HELLO message
-			default:
-				fvClassifier.handleOFMsgFromController(msg, this);
-		}
-		
-		
+		((Slicable)msg).sliceFromController(fvClassifier, this);
 	}
-	
-	/**
-	 * This is the hook for the FVClassifier to pass OpenFlow messages to this slice
-	 * @param msg ofmessage; not null
-	 */
-	
-	public void handleOFMsgFromSwitch(OFMessage msg) {
-		if ( Thread.currentThread().getId() != this.getThreadContext())
-			// FIXME: implement cross-thread message passing
-			throw new RuntimeException("FIXME :: implement cross-thread message passing");
-		FVLog.log(LogLevel.DEBUG, this, "recv from switch: " + msg);
-
-		switch(msg.getType()) {
-			case HELLO:
-				break;		// just sync a HELLO message
-			default:
-			// FIXME: implement per-msg handling
-			this.msgStream.write(msg);		// FIXME for now, just blindly pass it on	
-		}
-	}
-
 }

@@ -24,12 +24,4 @@ public interface Classifiable {
 	 * @param fvClassifier Switch state
 	 */
 	public void classifyFromSwitch(FVClassifier fvClassifier);
-	
-	/**
-	 * Given a message from a controller, send it to the switch 
-	 * 
-	 * Possibly do some rewriting or drop or record state
-	 * @param fvClassifier
-	 */
-	public void classifyFromController(FVClassifier fvClassifier);
 }

@@ -14,21 +14,11 @@ public class FVHello extends org.openflow.protocol.OFHello
 		implements Classifiable, Slicable {
 
 	/* (non-Javadoc)
-	 * @see org.flowvisor.message.Classifiable#classifyFromController(org.flowvisor.classifier.FVClassifier)
-	 */
-	@Override
-	public void classifyFromController(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
 	 * @see org.flowvisor.message.Classifiable#classifyFromSwitch(org.flowvisor.classifier.FVClassifier)
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		// silently drop all Hello msgs
 	}
 
 	/* (non-Javadoc)
@@ -36,17 +26,7 @@ public class FVHello extends org.openflow.protocol.OFHello
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see org.flowvisor.message.Slicable#sliceFromSwitch(org.flowvisor.classifier.FVClassifier, org.flowvisor.slicer.FVSlicer)
-	 */
-	@Override
-	public void sliceFromSwitch(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		// silently drop all Hello msgs
 	}
 
 }

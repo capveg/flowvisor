@@ -1,13 +1,13 @@
 package org.flowvisor.classifier;
 
 import org.flowvisor.events.*;
+
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.openflow.io.OFMessageAsyncStream;
 import org.flowvisor.slicer.FVSlicer;
+import org.flowvisor.message.*;
 import org.openflow.protocol.*;
-import org.openflow.protocol.factory.*;
-//import org.openflow.protocol.statistics.OFStatisticsType;
 import org.flowvisor.log.*;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class FVClassifier implements FVEventHandler {
 		this.loop = loop;
 		this.switchName = "unidentified:"+sock.toString();
 		try {
-			this.msgStream = new OFMessageAsyncStream(sock, new BasicFactory());
+			this.msgStream = new OFMessageAsyncStream(sock, new FVMessageFactory());
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -76,6 +76,46 @@ public class FVClassifier implements FVEventHandler {
 	@Override
 	public boolean needsAccept() {
 		return false;
+	}
+
+
+	public OFMessageAsyncStream getMsgStream() {
+		return msgStream;
+	}
+
+
+	public void setMsgStream(OFMessageAsyncStream msgStream) {
+		this.msgStream = msgStream;
+	}
+
+
+	public OFFeaturesReply getSwitchInfo() {
+		return switchInfo;
+	}
+
+
+	public void setSwitchInfo(OFFeaturesReply switchInfo) {
+		this.switchInfo = switchInfo;
+	}
+
+
+	public Map<String, FVSlicer> getSlicerMap() {
+		return slicerMap;
+	}
+
+
+	public void setSlicerMap(Map<String, FVSlicer> slicerMap) {
+		this.slicerMap = slicerMap;
+	}
+
+
+	public XidTranslator getXidTranslator() {
+		return xidTranslator;
+	}
+
+
+	public void setXidTranslator(XidTranslator xidTranslator) {
+		this.xidTranslator = xidTranslator;
 	}
 
 
@@ -178,18 +218,8 @@ public class FVClassifier implements FVEventHandler {
 	 * @param m
 	 */
 	private void classifyOFMessage(OFMessage msg) {
-		// FIXME: do an actual classification
-
-		switch(msg.getType()) {
-			case HELLO:
-				
-		}
-		for(FVSlicer fvSlicer: slicerMap.values()) {
-			FVLog.log(LogLevel.DEBUG, this, "sending to " + 
-					fvSlicer.getName() + " :" + msg);
-			fvSlicer.handleOFMsgFromSwitch(msg);
-		}
-			
+		FVLog.log(LogLevel.DEBUG, this, "received from switch: " + msg);
+		((Classifiable)msg).classifyFromSwitch(this);  // msg specific handling
 	}
 
 	/** State machine for switches before we know
@@ -271,27 +301,6 @@ public class FVClassifier implements FVEventHandler {
 		if (slicerMap!=null) {
 			slicerMap.remove(sliceName);
 			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
-		}
-	}
-	
-	/**
-	 * FVSlicer calls this to pass messages from the controller to the switch
-	 * 
-	 * Here we do switch-specific but slice-agnostic rewriting
-	 * @param msg
-	 */
-	
-	public void handleOFMsgFromController(OFMessage msg, FVSlicer fvSlicer) {
-		if ( Thread.currentThread().getId() != this.getThreadContext())
-			// FIXME: implement cross-thread message passing
-			throw new RuntimeException("FIXME :: implement cross-thread message passing");
-		FVLog.log(LogLevel.DEBUG, this, "received from " + 
-				fvSlicer.getName() + " :" + msg);
-		switch(msg.getType()) {
-			default:
-				// FIXME: give each msg their own handler
-				FVLog.log(LogLevel.DEBUG, this, "send to switch: " + msg);
-				this.msgStream.write(msg);		// just pass on to switch
 		}
 	}
 }

@@ -7,12 +7,6 @@ import org.openflow.protocol.OFPacketOut;
 public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	@Override
-	public void classifyFromController(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		// TODO Auto-generated method stub
 
@@ -20,12 +14,6 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sliceFromSwitch(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO Auto-generated method stub
 
 	}
