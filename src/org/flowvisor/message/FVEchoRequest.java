@@ -7,6 +7,11 @@ import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.slicer.FVSlicer;
 
 /**
+ * Given an echo request, just send an immediate response from the fv
+ * 
+ * FIXME send these all the way through instead of faking
+ * 	NEED to update regression tests
+ * 
  * @author capveg
  *
  */
@@ -18,8 +23,9 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVEchoReply reply = new FVEchoReply();
+		reply.setXid(this.getXid());
+		fvClassifier.getMsgStream().write(reply);
 	}
 
 	/* (non-Javadoc)
@@ -27,8 +33,9 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVEchoReply reply = new FVEchoReply();
+		reply.setXid(this.getXid());
+		fvSlicer.getMsgStream().write(reply);
 	}
 
 }

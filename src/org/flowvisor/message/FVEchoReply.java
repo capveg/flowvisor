@@ -7,14 +7,11 @@ public class FVEchoReply extends org.openflow.protocol.OFEchoReply implements Sl
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		// Sliently ignore echo replies
 	}
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		// Sliently ignore echo replies
 	}
-
 }
