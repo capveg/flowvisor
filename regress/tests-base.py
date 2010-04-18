@@ -5,7 +5,7 @@ import sys
 
 if len(sys.argv) > 1 :
     wantPause = False
-    timeout=5
+    timeout=60
     h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base', alreadyRunning=True, port=int(sys.argv[1]))
 else:
     wantPause = False

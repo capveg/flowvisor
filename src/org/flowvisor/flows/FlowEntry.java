@@ -4,6 +4,7 @@
 package org.flowvisor.flows;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.*;
@@ -76,124 +77,152 @@ public class FlowEntry {
 		this.actionsList = actionsList;
 	}
 	
-	// private class to carry TestField results
-	private class TestResult {
-		int returnWildcard;
-		Object result;
-		boolean matchFound;
-		boolean maybeSubset;
-		boolean maybeSuperset;
-		TestResult() {
-			this.maybeSubset = this.maybeSuperset = this.matchFound = true;
-		}
-		void setTestResult(int wc, Object res, MatchType m) {
-			this.returnWildcard |= wc; 
-			this.result = res; 
-			if (m == MatchType.NONE)
-				matchFound = false;
-			else {
-				if(m == MatchType.SUPERSET)
-					maybeSubset = false;
-				if(m == MatchType.SUBSET)
-					maybeSuperset = false;
-			}
-		}
+	private enum TestOp {
+		LEFT,				// no test, just return the LEFT param
+		RIGHT,				// no test, just return the RIGHT param
+		EQUAL,				// test if they are equal
+		WILD				// no test, both are wildcards
 	}
 	
 	/**
 	 * Test whether the passed fields match and if so, how
+     * 
+     * Code is a bit hackish, but not sure how to improve
 	 * 
 	 * @author capveg
-	 *
-	 * @param <A>
 	 */
 	private class TestField {
-		/** 
-		 * Given two Objects x,y from an OFMatch structure, and two wildcards saying whether these
-		 * 	fields are wilcarded, return :
-		 * 	either x if both are wildcarded (or y, doesn't matter)
-		 * 	x, if only y is wildcarded
-		 *  y, if only x is wildcarded
-		 *  x if x == y (or y, doesn't matter)
-		 *  NONE if x != y
-		 *  
-		 *  NOTE: both x and y must support a deep equals() operation 
-		 *  
-		 * @param result	Baggage to store the tripple return value
-		 * @param wildIndex	OFMatch.OFPFW_* value to indicate which field we're testing
-		 * @param wildX		The wildcards from the first match
-		 * @param wildY		The wildcards from the second match
-		 * @param x			The field to test from the first match
-		 * @param y			The field to test from the second match
+		/**
+		 * What type of test should we do on these params?
+		 * 
+		 * This is the common code for all of the tests
+		 * 
+		 * @param flowIntersect
+		 * @param wildIndex
+		 * @param wildX
+		 * @param wildY
+		 * @return
 		 */
-		
-		Object testField(TestResult result, int wildIndex, int wildX, int wildY, Object x, Object y) {
+		TestOp whichTest(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY) {
+			TestOp ret ;
 			if (( (wildX & wildIndex) == 0 ) && 
 					( (wildY & wildIndex) == 0 )) {		// is neither field wildcarded?
-				if(x.equals(y)) 
-					result.setTestResult(0, x, MatchType.EQUAL);
-				else 
-					result.setTestResult(0, null, MatchType.NONE); 
+				ret = TestOp.EQUAL; 
 			} 
-			else if ((wildX & wildIndex) != 0 )  	// is just X wildcarded? 
-				result.setTestResult(0, y, MatchType.SUBSET);
-			else if ((wildY & wildIndex) != 0 )		// is just Y wildcarded?
-				result.setTestResult(0, x, MatchType.SUPERSET);
+			else if ((wildX & wildIndex) != 0 ) {  	// is just X wildcarded? 
+				ret = TestOp.RIGHT;
+				flowIntersect.maybeSubset = false;
+			}
+			else if ((wildY & wildIndex) != 0 ) {		// is just Y wildcarded?
+				ret = TestOp.LEFT;
+				flowIntersect.maybeSuperset = false;
+			}
 			else
-				result.setTestResult(wildIndex, x, MatchType.EQUAL);
-			return result.result;
+				ret = TestOp.WILD;
+			
+			OFMatch interMatch = flowIntersect.getMatch();
+			int wildCards = interMatch.getWildcards();
+			if (ret != TestOp.WILD) 
+				interMatch.setWildcards(wildCards& (~wildIndex)); 	// disable wildCards for this field
+			else
+				interMatch.setWildcards(wildCards|wildIndex);		// enable wildCards for this field
+			return ret;
 		}
-		short testFieldShort(TestResult result, int wildIndex, int wildX, int wildY, short x, short y) {
-			Short s = ((Short)testField(result, wildIndex, wildX, wildY, 
-					Short.valueOf(x), 
-					Short.valueOf(y)));
-			if (s != null)
-				return s.shortValue();
-			else 
-				return -1;
+					
+		short testFieldShort(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, short x, short y) {
+			
+			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
+			case EQUAL:
+				if (x != y) 
+					flowIntersect.setMatchType(MatchType.NONE);
+				return x;		// or y; doesn't matter if they are equal
+			case LEFT:
+				return x;
+			case WILD:			// or y; doesn't matter if they are wild
+			case RIGHT:
+				return y;
+			}	
+			assert(false);		// should never get here
+			return -1;
 		}
-		long testFieldLong(TestResult result, int wildIndex, int wildX, int wildY, long x, long y) {
-			Long l =  ((Long)testField(result, wildIndex, wildX, wildY, 
-					Long.valueOf(x), 
-					Long.valueOf(y)));
-			if (l != null)
-				return l.longValue();
-			else 
-				return -1;
+		
+		long testFieldLong(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, long x, long y) {
+			
+			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
+			case EQUAL:
+				if (x != y) 
+					flowIntersect.setMatchType(MatchType.NONE);
+				return x;		// or y; doesn't matter if they are equal
+			case LEFT:
+				return x;
+			case WILD:			// or y; doesn't matter if they are wild
+			case RIGHT:
+				return y;
+			}	
+			assert(false);		// should never get here
+			return -1;
 		}
-		byte testFieldByte(TestResult result, int wildIndex, int wildX, int wildY, byte x, byte y) {
-			Byte b = (Byte)testField(result, wildIndex, wildX, wildY, 
-					Byte.valueOf(x), 
-					Byte.valueOf(y));
-			if (b != null) 
-				return b.byteValue();
-			else 
-				return -1;
+		byte testFieldByte(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, byte x, byte y) {
+			
+			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
+			case EQUAL:
+				if (x != y) 
+					flowIntersect.setMatchType(MatchType.NONE);
+				return x;		// or y; doesn't matter if they are equal
+			case LEFT:
+				return x;
+			case WILD:			// or y; doesn't matter if they are wild
+			case RIGHT:
+				return y;
+			}	
+			assert(false);		// should never get here
+			return -1;
 		}
+
+		byte[] testFieldByteArray(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, byte x[], byte y[]) {
+			
+			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
+			case EQUAL:
+				if (!Arrays.equals(x, y)) 
+					flowIntersect.setMatchType(MatchType.NONE);
+				return x;		// or y; doesn't matter if they are equal
+			case LEFT:
+				return x;
+			case WILD:			// or y; doesn't matter if they are wild
+			case RIGHT:
+				return y;
+			}	
+			assert(false);		// should never get here
+			return null;
+		}
+
+		
+		
 		// see if ip prefix x/masklenX intersects with y/masklenY (CIDR-style)
-		int testFieldMask(TestResult result, int maskShift,
+		int testFieldMask(FlowIntersect flowIntersect, int maskShift,
 				int masklenX, int masklenY,
 				int x, int y) {
 			int min = Math.min(masklenX, masklenY);  // get the less specific address
 			if (min >= 32) {  // silly work around to deal with lack of unsigned
-				if (x == y) 
-					result.setTestResult(0, Integer.valueOf(x), MatchType.EQUAL);
-				else
-					result.setTestResult(0, Integer.valueOf(x), MatchType.NONE);
+				if (x != y) 
+					flowIntersect.setMatchType(MatchType.NONE);
 				return x;
 			}
 					 
 			int mask = (1 << min) -1;	// min < 32, so no signed issues
 			int min_encoded = 32-min;	// because OpenFlow does it backwards... grr
 			if ((x & mask) != (y & mask))
-				result.setTestResult(0, Integer.valueOf(x), MatchType.NONE);
+				flowIntersect.setMatchType(MatchType.NONE);
 			// else there is some overlap
+			OFMatch interMatch = flowIntersect.getMatch();
+			int wildCards = interMatch.getWildcards();
+			// turn off all bits for this match and then turn on the used ones
+			wildCards = (wildCards& ~((1 << OFMatch.OFPFW_NW_SRC_BITS) - 1) << maskShift) | 
+						min_encoded << maskShift;
 			if (masklenX < masklenY ) 
-				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.SUPERSET);
+				flowIntersect.maybeSubset=false;
 			else if (masklenX > masklenY )
-				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.SUBSET);
-			else
-				result.setTestResult(min_encoded << maskShift, Integer.valueOf(x & mask), MatchType.EQUAL);
+				flowIntersect.maybeSuperset = false;
 			// note that b/c of how CIDR addressing works, there is no overlap that is not a SUB or SUPERSET
 			
 			return (x & mask);
@@ -234,122 +263,121 @@ public class FlowEntry {
 		// FIXME: lots of untested code
 		
 		TestField tester = new TestField();
-		TestResult result = new TestResult();
 		OFMatch interMatch = intersection.getMatch();
 		
 		// test DPID
 		intersection.setDPID(
-				tester.testFieldLong(result, 1, dpid == ALL_DPIDS ? 1 : 0 , this.dpid == ALL_DPIDS? 1: 0, 
+				tester.testFieldLong(intersection, 1, dpid == ALL_DPIDS ? 1 : 0 , this.dpid == ALL_DPIDS? 1: 0, 
 						dpid, this.dpid)
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test in_port
 		interMatch.setInputPort(
-				tester.testFieldShort(result, OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards, 
+				tester.testFieldShort(intersection, OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards, 
 						argMatch.getInputPort(),
 						ruleMatch.getInputPort())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		
 		// test ether_dst
-		interMatch.setDataLayerDestination( (byte[])
-				tester.testField(result, OFMatch.OFPFW_DL_DST, argWildcards, ruleWildcards, 
+		interMatch.setDataLayerDestination( 
+				tester.testFieldByteArray(intersection, OFMatch.OFPFW_DL_DST, argWildcards, ruleWildcards, 
 						argMatch.getDataLayerDestination(),
 						ruleMatch.getDataLayerDestination())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test ether_src
-		interMatch.setDataLayerSource( (byte[])
-				tester.testField(result, OFMatch.OFPFW_DL_SRC, argWildcards, ruleWildcards, 
+		interMatch.setDataLayerSource(
+				tester.testFieldByteArray(intersection, OFMatch.OFPFW_DL_SRC, argWildcards, ruleWildcards, 
 						argMatch.getDataLayerSource(),
 						ruleMatch.getDataLayerSource())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test ether_type
 		interMatch.setDataLayerType( 
-				tester.testFieldShort(result, OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards,
+				tester.testFieldShort(intersection, OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards,
 						argMatch.getDataLayerType(),
 						ruleMatch.getDataLayerType())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
-
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
+		
 		// test vlan_type
 		interMatch.setDataLayerVirtualLan(
-				tester.testFieldShort(result, OFMatch.OFPFW_DL_VLAN, argWildcards, ruleWildcards,
+				tester.testFieldShort(intersection, OFMatch.OFPFW_DL_VLAN, argWildcards, ruleWildcards,
 						argMatch.getDataLayerVirtualLan(),
 						ruleMatch.getDataLayerVirtualLan())
 				);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
-
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
+		
 		// test vlan_pcp
 		interMatch.setDataLayerVirtualLanPriorityCodePoint(
-				tester.testFieldByte(result, OFMatch.OFPFW_DL_VLAN_PCP, argWildcards, ruleWildcards, 
+				tester.testFieldByte(intersection, OFMatch.OFPFW_DL_VLAN_PCP, argWildcards, ruleWildcards, 
 						argMatch.getDataLayerVirtualLanPriorityCodePoint(), 
 						ruleMatch.getDataLayerVirtualLanPriorityCodePoint())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test ip_dst
 		interMatch.setNetworkDestination(
-				tester.testFieldMask(result, OFMatch.OFPFW_NW_DST_SHIFT, 
+				tester.testFieldMask(intersection, OFMatch.OFPFW_NW_DST_SHIFT, 
 						argMatch.getNetworkDestinationMaskLen(),
 						ruleMatch.getNetworkDestinationMaskLen(),
 						argMatch.getNetworkDestination(), 
 						ruleMatch.getNetworkDestination())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test ip_src
 		interMatch.setNetworkSource(
-				tester.testFieldMask(result, OFMatch.OFPFW_NW_SRC_SHIFT, 
+				tester.testFieldMask(intersection, OFMatch.OFPFW_NW_SRC_SHIFT, 
 						argMatch.getNetworkSourceMaskLen(),
 						ruleMatch.getNetworkSourceMaskLen(),
 						argMatch.getNetworkSource(), 
 						ruleMatch.getNetworkSource())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		
 		
 		// test ip_proto
 		interMatch.setNetworkProtocol(
-				tester.testFieldByte(result, OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards, 
+				tester.testFieldByte(intersection, OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards, 
 						argMatch.getNetworkProtocol(), 
 						ruleMatch.getNetworkProtocol())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test tp_src
 		interMatch.setTransportSource(
-				tester.testFieldShort(result, OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards, 
+				tester.testFieldShort(intersection, OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards, 
 						argMatch.getTransportSource(), 
 						ruleMatch.getTransportSource())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		// test tp_dst
 		interMatch.setTransportDestination(
-				tester.testFieldShort(result, OFMatch.OFPFW_TP_DST, argWildcards, ruleWildcards, 
+				tester.testFieldShort(intersection, OFMatch.OFPFW_TP_DST, argWildcards, ruleWildcards, 
 						argMatch.getTransportDestination(), 
 						ruleMatch.getTransportDestination())
 		);
-		if (! result.matchFound) 
-			return intersection.setMatchType(MatchType.NONE);
+		if (intersection.getMatchType() == MatchType.NONE) 
+			return intersection;	// shortcut back
 		
 		
 		/***
@@ -357,16 +385,15 @@ public class FlowEntry {
 		 * an intersection 
 		 */
 		
-		if (result.maybeSubset  && result.maybeSuperset) {
+		if (intersection.maybeSubset  && intersection.maybeSuperset) {
 			intersection.setMatchType(MatchType.EQUAL);
-		} else if( result.maybeSubset) {
+		} else if( intersection.maybeSubset) {
 			intersection.setMatchType(MatchType.SUBSET);
-		} else if ( result.maybeSuperset) {
+		} else if ( intersection.maybeSuperset) {
 			intersection.setMatchType(MatchType.SUPERSET);
 		} else
 			intersection.setMatchType(MatchType.INTERSECT);
-		
-		interMatch.setWildcards(result.returnWildcard);
+		// wildcards was being set all of the way
 		intersection.setMatch(interMatch);
 		return intersection;
 		

@@ -19,12 +19,16 @@ public class FlowIntersect {
 	long dpid;
 	OFMatch match;
 	FlowEntry flowEntry;
+	public boolean maybeSubset;
+	public boolean maybeSuperset;
 	
 	public FlowIntersect(FlowEntry flowEntry) {
 		this.dpid = FlowEntry.ALL_DPIDS;
 		this.match =  (OFMatch) flowEntry.getMatch().clone();
-		this.matchType = MatchType.NONE;
+		this.matchType = MatchType.UNKNOWN;
 		this.flowEntry = flowEntry;
+		this.maybeSubset = true;
+		this.maybeSuperset = true;
 	}
 	
 	public long getDPID() {

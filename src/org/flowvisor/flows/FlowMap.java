@@ -65,10 +65,11 @@ public interface FlowMap {
 	/**
 	 * Given a dpid and a packet, return the rule that matches this packet.
 	 * @param dpid Identifier for switch
+	 * @param inputPort The port the packet came in on
 	 * @param packetData Raw packet data, starting from l2 ethernet headers
 	 * @return The FlowEntry that this matches to.  Can be null if no match.
 	 */
-	public FlowEntry matches(long dpid, byte[] packetData);
+	public FlowEntry matches(long dpid, short inputPort, byte[] packetData);
 	
 	/** 
 	 * Add a new rule between rules position and position+1.

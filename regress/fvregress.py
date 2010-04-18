@@ -489,8 +489,10 @@ class FvRegress:
 
         if success :
             print msg + " (read " + str(len(packet)) + " bytes - correct)"
-        else :
+        elif packet:
             print msg + " (FAILED! got "+ str(len(packet)) + " bytes but was expecting " + str(len(correct_packet))+" bytes )"
+        else :
+            print msg + " (FAILED! got ZERO bytes but was expecting " + str(len(correct_packet))+" bytes )"
         return success
     def runClear(self,event,count,recvTimeout=1):
         msg= "%s test %d " % ( event.action, count)

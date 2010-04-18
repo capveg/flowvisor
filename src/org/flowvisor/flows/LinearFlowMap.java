@@ -25,14 +25,16 @@ public class LinearFlowMap implements FlowMap {
 	}
  	
 	@Override
-	public FlowEntry matches(long dpid, byte[] packetData) {
+	public FlowEntry matches(long dpid, short inputPort, byte[] packetData) {
 		OFMatch m = new OFMatch();
-		m.loadFromPacket(packetData);
+		m.loadFromPacket(packetData, inputPort);
 		List<FlowEntry> list = matches(dpid, m);
-		if (list.size() > 1) 
-			throw new RuntimeException("matching a single packet returned more than one FlowEntry::" +
-					list.size());
-		return list.get(0);
+		// we should match zero or one thing
+		int size = list.size();
+		assert(size <= 1);		// should not get more than 1 result here
+		if ( size == 1)
+			return list.get(0);
+		return null;
 	}
 
 	@Override

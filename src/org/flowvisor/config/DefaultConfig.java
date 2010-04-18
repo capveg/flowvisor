@@ -28,14 +28,10 @@ public class DefaultConfig {
 		OFMatch match = new OFMatch();
 		short alicePorts[] = { 0, 2, 3 };
 		String aliceMacs[] = {"00:00:00:00:00:02", "00:01:00:00:00:02"};
-		// short alicePorts[] = { 2 };
-		// String aliceMacs[] = {"00:01:00:00:00:02"};
+		// short alicePorts[] = { 0 };
+		// String aliceMacs[] = {"00:00:00:00:00:02"};
 
 		
-		short bobPorts[]  = { 1, 3};
-		String bobMacs[] = { "00:00:00:00:00:01", "00:01:00:00:00:01"};
-		// short bobPorts[]  = { 3};
-		// String bobMacs[] = { "00:01:00:00:00:01"};
 		
 		int position=0;		
 		int i,j;
@@ -49,6 +45,13 @@ public class DefaultConfig {
 				flowMap.addRule(position++, new FlowEntry(match.clone(), aliceAction));
 			}
 		}
+
+		
+		short bobPorts[]  = { 1, 3};
+		String bobMacs[] = { "00:00:00:00:00:01", "00:01:00:00:00:01"};
+		// short bobPorts[]  = { 3};
+		// String bobMacs[] = { "00:01:00:00:00:01"};
+
 		
 		// add all of bob's rules
 		for(i=0; i< bobPorts.length; i++) {
@@ -58,8 +61,6 @@ public class DefaultConfig {
 				flowMap.addRule(position++, new FlowEntry(match.clone(), bobAction));
 			}
 		}
-			
-
 		// now populate the config
 		try {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
