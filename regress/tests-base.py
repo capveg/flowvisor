@@ -117,21 +117,23 @@ try:
             ])
     #############################################################
                 # note; this packet is bogus! works just well enough for testing
-    port_status_1 =    FvRegress.OFVERSION + '''0c 0040 2d47 c5ee 0000 0000 0000 0000
-                0001 1234 5678 9abc def0 0000 0000 0000
+    port_status_1 =    FvRegress.OFVERSION + \
+               '''0c 0040 2d47 c5ee 0000 0000 0000 0000
+                0001 1234 5678 9abc 706f 7274 2030 0000
                 0000 0000 0000 0000 0000 0000 0000 0000
                 0000 0000 0000 0000 0000 0000 0000 0000
                 '''
-    port_status_2 =    FvRegress.OFVERSION + '''0c 0040 2d47 c5ee 0000 0000 0000 0000
-                0002 1234 5678 9abc def0 0000 0000 0000
+    port_status_2 =    FvRegress.OFVERSION +  \
+               '''0c 0040 2d47 c5ee 0000 0000 0000 0000
+                0002 1234 5678 9abc 706f 7274 2030 0000
                 0000 0000 0000 0000 0000 0000 0000 0000
                 0000 0000 0000 0000 0000 0000 0000 0000
                 '''
     h.runTest(name="port status routing", timeout=timeout, events= [
-            TestEvent( "send","switch",'switch1', port_status_1),    # switch sends port=0 event
-            TestEvent( "recv","guest",'bob', port_status_1),    # only guest 0 should get it
-            TestEvent( "send","switch",'switch1', port_status_2),    # switch sends port=1 event
-            TestEvent( "recv","guest",'alice', port_status_2),    # only guest 1 should get it
+            TestEvent( "send","switch",'switch1', port_status_1),    # switch sends port=1 event
+            TestEvent( "recv","guest",'bob', port_status_1),    # only guest 1 should get it
+            TestEvent( "send","switch",'switch1', port_status_2),    # switch sends port=2 event
+            TestEvent( "recv","guest",'alice', port_status_2),    # only guest 2 should get it
             ])
     #############################################################
     packet_out_p0 = FvRegress.OFVERSION + '''0d 0058 0000 abcd ffff ffff
