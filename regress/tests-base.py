@@ -158,7 +158,15 @@ try:
 983f 2b71 c2e4 1b6f bc11 8250'''
             # note, the xid here is a function of the order of the tests;
             #    DO NOT CHANGE test order
-    packet_out_p1_aftr = FvRegress.OFVERSION + '''01 000c 0000 abce 0004 0000'''    # NOT correct output -- yet; need to append bad message
+            # NOT correct output -- yet; need to append bad message
+    packet_out_p1_aftr = FvRegress.OFVERSION + \
+            '''01 00 64 00 00 00 00 00 02 00 05 01 0d 00 58
+            00 00 ab ce ff ff ff ff ff ff 00 08 00 00 00 08
+            00 01 00 80 00 00 00 00 00 01 00 00 00 00 00 00
+            08 00 45 00 00 32 00 00 40 00 40 11 28 68 c0 a8
+            c8 00 c0 a8 c9 01 00 01 00 00 00 1e d7 c3 cd c0
+            25 1b e6 dc ea 0c 72 6d 98 3f 2b 71 c2 e4 1b 6f
+            bc 11 82 50'''
     h.runTest(name="packet_out; valid", timeout=timeout, events= [
             TestEvent( "send","guest",'alice', packet_out_p0),
             TestEvent( "recv","switch",'switch1', packet_out_p0_aftr),

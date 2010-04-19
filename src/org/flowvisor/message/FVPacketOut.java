@@ -7,8 +7,14 @@ import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
+
+import org.openflow.io.OFMessageAsyncStream;
+import org.openflow.protocol.OFError;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketOut;
+import org.openflow.protocol.OFPort;
+import org.openflow.protocol.OFError.OFBadRequestCode;
+import org.openflow.protocol.OFError.OFErrorType;
 import org.openflow.protocol.action.OFAction;
 
 /**
@@ -33,22 +39,24 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO verify the buffer_id is one we're allowed to use from a packet_in that went to us
 		
+		
+		OFMatch match = new OFMatch();
+		match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
 		// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
-		FlowEntry flowEntry = fvClassifier.getSwitchFlowMap().matches(
+		List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
 				fvClassifier.getSwitchInfo().getDatapathId(), 
-				this.getInPort(), 
-				this.getPacketData());
-		if (flowEntry == null) {  	// didn't match anything
-			this.sendEpermError();
+				match);
+		if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
+			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
+			this.sendEpermError(fvSlicer.getMsgStream());
 			return;
 		}
 		List<OFAction> actionsList = this.getActions();
-		OFMatch match = new OFMatch();
-		match.loadFromPacket(this.getPacketData(), this.getInPort());
 		try {
 			this.setActions(FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer));
 		} catch (ActionDisallowedException e) {
-			this.sendActionsError();
+			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
+			this.sendActionsError(fvSlicer.getMsgStream());
 			return;
 		}
 		// if we've gotten this far, everything is kosher
@@ -56,14 +64,20 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	}
 		
 
-	private void sendActionsError() {
-		// TODO Auto-generated method stub
-		assert(false);
+	private void sendActionsError(OFMessageAsyncStream out) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
+		err.setErrorCode(OFBadRequestCode.OFPBRC_EPERM);
+		err.setOffendingMsg(this);
+		out.write(err);
 	}
 
-	private void sendEpermError() {
-		// TODO Auto-generated method stub
-		assert(false);
+	private void sendEpermError(OFMessageAsyncStream out) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
+		err.setErrorCode(OFBadRequestCode.OFPBRC_EPERM);
+		err.setOffendingMsg(this);
+		out.write(err);
 	}
 
 }
