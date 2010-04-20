@@ -12,7 +12,12 @@ public class FlowVisor
 {
 	// VENDOR EXTENSION ID
 	public final static int FLOWVISOR_VENDOR_EXTENSION = 0x80000001;
+	
+	// VERSION
 	public final static String FLOVISOR_VERSION = "flowvisor-0.6-alpha";
+	
+	// Max slicename len ; used in LLDP for now; needs to be 1 byte 
+	public final static int MAX_SLICENAME_LEN = 255;
 		
     public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
     {

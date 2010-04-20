@@ -6,6 +6,7 @@ import org.flowvisor.flows.SliceAction;
 
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.OFAction;
@@ -22,7 +23,9 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 	
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO add LLDP special case
+		// handle LLDP as a special (hackish) case
+		if (LLDPUtil.handleLLDPFromSwitch(this, fvClassifier))
+			return;
 		// TODO add  ARP special case
 		this.lookupByFlowSpace(fvClassifier);
 

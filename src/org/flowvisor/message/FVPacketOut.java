@@ -6,6 +6,7 @@ import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.slicer.FVSlicer;
 
 import org.openflow.io.OFMessageAsyncStream;
@@ -39,6 +40,9 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO verify the buffer_id is one we're allowed to use from a packet_in that went to us
 		
+		// if it's LLDP, pass off to the LLDP hack
+		if(LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
+			return;
 		
 		OFMatch match = new OFMatch();
 		match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
