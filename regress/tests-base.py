@@ -191,27 +191,31 @@ try:
                 0001 0000 0000 0000 88cc 4500 0032 0000
                 4000 4011 2868 c0a8 c800 c0a8 c901 0001
                 0000 001e d7c3 cdc0 251b e6dc ea0c 726d
-983f 2b71 c2e4 1b6f bc11 8250'''
-            # note, the xid here is a function of the order of the tests;
-            #    DO NOT CHANGE test order
-    lldp_out_after = FvRegress.OFVERSION + '''0d 0058 0301 0000 ffff ffff
-                ffff 0008 0000 0008 0001 0080 0123 20ff
-                0002 0000 0000 0000 88cc 4500 0032 0000
-                4000 4011 2868 c0a8 c800 c0a8 c901 0001
-                0000 001e d7c3 cdc0 251b e6dc ea0c 726d
-983f 2b71 c2e4 1b6f bc11 8250'''
-    lldp_in =      FvRegress.OFVERSION + '''0a 0052 0000 0000 0000 0101
-                0040 0003 0000 0123 20ff 0002 0000 0000
-                0002 88cc 4500 0032 0000 0000 40ff f72c
-                c0a8 0028 c0a8 0128 7a18 586b 1108 97f5
-                19e2 657e 07cc 31c3 11c7 c40c 8b95 5151
-                3354 51d5 0036'''
-    lldp_in_after =  FvRegress.OFVERSION + '''0a 0052 0000 0000 0000 0101
-                0040 0003 0000 0123 2000 0001 0000 0000
-                0002 88cc 4500 0032 0000 0000 40ff f72c
-                c0a8 0028 c0a8 0128 7a18 586b 1108 97f5
-                19e2 657e 07cc 31c3 11c7 c40c 8b95 5151
-                3354 51d5 0036'''
+                983f 2b71 c2e4 1b6f bc11 8250'''
+    lldp_out_after = FvRegress.OFVERSION + \
+                '''0d 00 69 00 00 ab cd ff ff ff ff ff ff 00 08
+                00 00 00 08 00 01 00 80 01 23 20 00 00 01 00 00
+                00 00 00 00 88 cc 45 00 00 32 00 00 40 00 40 11
+                28 68 c0 a8 c8 00 c0 a8 c9 01 00 01 00 00 00 1e
+                d7 c3 cd c0 25 1b e6 dc ea 0c 72 6d 98 3f 2b 71
+                c2 e4 1b 6f bc 11 82 50 08 81 07 62 6f 62 00 66
+                76 31 00 04 04 de ad ca fe'''
+    lldp_in =      FvRegress.OFVERSION + \
+                    '''0a 00 63 00 00 00 00 00 00 01 01
+                    00 40 00 03 00 00 01 23 20 00 00 01 00 00
+                    00 00 00 00 88 cc 45 00 00 32 00 00 40 00 40 11
+                    28 68 c0 a8 c8 00 c0 a8 c9 01 00 01 00 00 00 1e
+                    d7 c3 cd c0 25 1b e6 dc ea 0c 72 6d 98 3f 2b 71
+                    c2 e4 1b 6f bc 11 82 50 08 81 07 62 6f 62 00 66
+                    76 31 00 04 04 de ad ca fe'''
+                    
+    lldp_in_after =  FvRegress.OFVERSION + \
+                '''0a 00 52 00 00 00 00 00 00 01 01 00 40 00 03
+                00 00 01 23 20 00 00 01 00 00 00 00 00 00 88 cc
+                45 00 00 32 00 00 40 00 40 11 28 68 c0 a8 c8 00
+                c0 a8 c9 01 00 01 00 00 00 1e d7 c3 cd c0 25 1b
+                e6 dc ea 0c 72 6d 98 3f 2b 71 c2 e4 1b 6f bc 11
+                82 50'''
     h.runTest(name="lldp hack", timeout=timeout, events= [
             TestEvent( "send","guest",'bob', lldp_out),
             TestEvent( "recv","switch",'switch1', lldp_out_after),

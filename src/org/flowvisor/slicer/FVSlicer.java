@@ -249,4 +249,8 @@ public class FVSlicer implements FVEventHandler {
 		this.missSendLength = missSendLength;
 		
 	}
+
+	public String getSliceName() {
+		return this.sliceName;
+	}
 }

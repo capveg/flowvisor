@@ -1,0 +1,4 @@
+FlowVisor 0.6 - total rewrite (in Java!)
+* Single, unified flowspace config, not divided by slice
+* lldp is now rewritten with a trailer, not by rewritting the dst mac
+* OFError msgs now correctly encap the offending packet
