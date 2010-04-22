@@ -1,0 +1,4 @@
+fix spacing in OFMatch.tostring
+verify that wildcards are getting set correctly in intersect
+    - at each test?
+    - at the end?

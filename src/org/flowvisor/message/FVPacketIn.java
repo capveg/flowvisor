@@ -62,4 +62,15 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: ");
 	}
+
+	@Override
+	public void setPacketData(byte[] packetData) {
+		if (packetData == null)
+			this.length = (short)(MINIMUM_LENGTH);
+		else
+			this.length = (short)(MINIMUM_LENGTH +
+					packetData.length);
+		this.packetData = packetData;
+	}
+
 }

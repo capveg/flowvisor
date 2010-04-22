@@ -7,7 +7,10 @@ import org.openflow.protocol.*;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionType;
 import org.openflow.protocol.factory.BasicFactory;
+import org.openflow.protocol.statistics.OFStatistics;
+import org.openflow.protocol.statistics.OFStatisticsType;
 import org.flowvisor.message.actions.*;
+import org.flowvisor.message.statistics.*;
 
 /**
  * @author capveg
@@ -57,6 +60,27 @@ public class FVMessageFactory extends BasicFactory {
 	    FVActionVendor.class
 	};
   
+	@SuppressWarnings("unchecked")
+	static final Class convertStatsRequestMap[] = {
+		FVDescriptionStatistics.class, 
+		FVFlowStatisticsRequest.class, 
+		FVAggregateStatisticsRequest.class,
+		FVTableStatistics.class, 
+		FVPortStatisticsRequest.class, 
+		FVQueueStatisticsRequest.class,
+		FVVendorStatistics.class
+	};
+	
+	@SuppressWarnings("unchecked")
+	static final Class convertStatsReplyMap[] = {
+		FVDescriptionStatistics.class, 
+		FVFlowStatisticsReply.class, 
+		FVAggregateStatisticsReply.class,
+		FVTableStatistics.class, 
+		FVPortStatisticsReply.class, 
+		FVQueueStatisticsReply.class,
+		FVVendorStatistics.class
+	};	
 	
     @SuppressWarnings("unchecked")
 	@Override
@@ -80,5 +104,21 @@ public class FVMessageFactory extends BasicFactory {
         }
     }
 
-    
+    @SuppressWarnings("unchecked")  // big hack; need to fix
+	@Override
+    public OFStatistics getStatistics(OFType t, OFStatisticsType st) {
+        Class<? extends OFStatistics> c;
+        if (t == OFType.STATS_REPLY)
+        	c = (Class<? extends OFStatistics>) convertStatsReplyMap[st.getTypeValue()];
+        else if (t == OFType.STATS_REQUEST)
+          	c = (Class<? extends OFStatistics>) convertStatsRequestMap[st.getTypeValue()];
+        else
+        	throw new RuntimeException("non-stats type in stats factory: " + t);
+        try {
+            return c.getConstructor(new Class[]{}).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

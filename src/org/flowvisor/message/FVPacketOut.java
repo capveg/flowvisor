@@ -83,5 +83,18 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		err.setOffendingMsg(this);
 		out.write(err);
 	}
+	
+	// convenience function that Derickso doesn't want in main openflow.jar
+	@Override
+	public void setPacketData(byte[] packetData) {
+		if (packetData == null)
+			this.length = (short)(MINIMUM_LENGTH + actionsLength);
+		else
+			this.length = (short)(MINIMUM_LENGTH +
+					actionsLength +
+					packetData.length);
+		this.packetData = packetData;
+	}
+
 
 }
