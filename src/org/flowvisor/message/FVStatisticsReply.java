@@ -1,21 +1,49 @@
 package org.flowvisor.message;
 
+import java.util.List;
+
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
+import org.flowvisor.message.statistics.ClassifiableStatistic;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFStatisticsReply;
+import org.openflow.protocol.statistics.OFStatistics;
 
 public class FVStatisticsReply extends OFStatisticsReply implements
 		Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		// TODO: come back and retool FV stats handling to make this less fugly
+		List<OFStatistics> statsList = this.getStatistics();
+		if(statsList.size() > 0) {	// if there is a body, do body specific parsing
+			OFStatistics stat = statsList.get(0);
+			assert(stat instanceof ClassifiableStatistic);
+			((ClassifiableStatistic)stat).classifyFromSwitch(this, fvClassifier);
+		} else {
+			// else just classify by xid and hope for the best
+			FVSlicer fvSlicer = FVMessageUtil.untranslateXid(this, fvClassifier);
+			if (fvSlicer == null )
+				FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this);
+			else {
+				FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + this);
+				fvSlicer.getMsgStream().write(this);
+			}
+		}
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		// should never get stats replies from controller
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + this);
 	}
+
+	@Override
+	public String toString() {	
+		return super.toString() + 
+			";st=" + this.getStatisticType(); 
+			// ";mfr=" + this.getManufacturerDescription() + 
+	}
+
 }

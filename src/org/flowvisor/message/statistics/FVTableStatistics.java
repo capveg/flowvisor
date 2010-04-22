@@ -1,24 +1,38 @@
 package org.flowvisor.message.statistics;
 
 import org.flowvisor.classifier.FVClassifier;
-import org.flowvisor.message.Classifiable;
-import org.flowvisor.message.Slicable;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
+import org.flowvisor.message.FVMessageUtil;
+import org.flowvisor.message.statistics.ClassifiableStatistic;
+import org.flowvisor.message.statistics.SlicableStatistic;
 import org.flowvisor.slicer.FVSlicer;
+import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.statistics.OFTableStatistics;
 
-public class FVTableStatistics extends OFTableStatistics implements Slicable,
-		Classifiable {
+public class FVTableStatistics extends OFTableStatistics implements SlicableStatistic,
+		ClassifiableStatistic {
 
 	@Override
-	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+		// TODO generate separate request/reply messages
+		// TODO return the count of flows used by this slice
+		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
+		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
+		fvSlicer.getMsgStream().write(msg);
 	}
 
 	@Override
-	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
+		// TODO generate separata request/reply messages
+		// TODO return the count of flows used by this slice
+		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
+		if (fvSlicer == null )
+			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
+		else {
+			FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
+			fvSlicer.getMsgStream().write(msg);
+		}
 	}
 
 }

@@ -42,11 +42,13 @@ public class FVMessageUtil {
 	 * Undo the effect of translateXID, and return the FVSlicer this came from
 	 * @param msg
 	 * @param fvClassifier
-	 * @return the fvSlicer that was input in the translate step
+	 * @return the fvSlicer that was input in the translate step or null if not found
 	 */
 	static public FVSlicer untranslateXid(OFMessage msg, FVClassifier fvClassifier) {
 		XidTranslator xidTranslator = fvClassifier.getXidTranslator();
 		XidPair pair = xidTranslator.untranslate(msg.getXid());
+		if (pair == null) 
+			return null;
 		msg.setXid(pair.getXid());
 		return pair.getFvSlicer();
 	}
