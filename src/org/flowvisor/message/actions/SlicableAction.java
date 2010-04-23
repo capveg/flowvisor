@@ -6,7 +6,7 @@ package org.flowvisor.message.actions;
 import java.util.List;
 
 import org.flowvisor.classifier.FVClassifier;
-import org.flowvisor.message.ActionDisallowedException;
+import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;

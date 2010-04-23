@@ -9,6 +9,7 @@ import java.util.List;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.classifier.XidPair;
 import org.flowvisor.classifier.XidTranslator;
+import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.slicer.*;
 import org.flowvisor.message.actions.*;
 
@@ -75,5 +76,12 @@ public class FVMessageUtil {
 		for(OFAction action : actionList ) 
 			((SlicableAction)action).slice(approvedList, match, fvClassifier, fvSlicer);
 		return approvedList;	
+	}
+
+	public static short countActionsLen(List<OFAction> actionsList) {
+		short count=0;
+		for(OFAction act: actionsList)
+			count += act.getLength();
+		return count;
 	}
 }

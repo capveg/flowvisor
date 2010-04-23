@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.flowvisor.classifier.FVClassifier;
@@ -26,6 +29,8 @@ import org.flowvisor.log.LogLevel;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFPhysicalPort;
+import org.openflow.protocol.OFPort;
 
 /**
  * @author capveg
@@ -43,7 +48,9 @@ public class FVSlicer implements FVEventHandler {
 	boolean isConnected;
 	OFMessageAsyncStream msgStream;
 	int missSendLength;
-	Set<Short> ports;  					// the list of ports we're allowed to access on this switch
+	boolean allowAllPorts;
+
+	Map<Short,Boolean> allowedPorts;		// ports in this slice and whether they get OFPP_FLOOD'd
  	
 	public FVSlicer(FVEventLoop loop, FVClassifier fvClassifier, String sliceName) {
 		this.loop = loop;
@@ -52,7 +59,8 @@ public class FVSlicer implements FVEventHandler {
 		this.isConnected = false;
 		this.msgStream = null;
 		this.missSendLength=128;		// openflow default (?) findout...  TODO
-		this.ports = null;
+		this.allowedPorts = null;
+		this.allowAllPorts = false;
 	}
 
 	public void init() {
@@ -82,24 +90,73 @@ public class FVSlicer implements FVEventHandler {
 	private void updatePortList() {
 		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier.getSwitchInfo().getDatapathId(), 
 				this.sliceName);
-		if(this.ports != null) {
+		if (ports.contains(OFPort.OFPP_ALL)) {
+			// this switch has access to ALL PORTS; feed them in from the features request
+			ports.clear();	// remove the OFPP_ALL virtual port
+			this.allowAllPorts = true;
+			for ( OFPhysicalPort phyPort : this.fvClassifier.getSwitchInfo().getPorts())
+				ports.add(phyPort.getPortNumber());
+		}
+		if(this.allowedPorts != null) {
 			// we got a new list of ports while we are already running
 			// step through and update if necessary 
 			// TODO : implement!
 			FVLog.log(LogLevel.CRIT, this, "dynamic ports update not yet implemented!");
 		}
-		this.ports = ports;	// put new ports into place		
+		else {
+			// TODO add a debug msg
+			allowedPorts = new HashMap<Short, Boolean>();
+			for(Short port: ports)
+				allowedPorts.put(port, Boolean.TRUE);
+		}
 	}
 
-	
+	/**
+	 * Return the list of ports in this slice on this switch
+	 * @return
+	 */
 	public Set<Short> getPorts() {
-		return ports;
+		return this.allowedPorts.keySet();
+	}
+	
+	
+	/**
+	 * Return the list of ports that have flooding enabled for OFPP_FLOOD
+	 * @return
+	 */
+	public Set<Short> getFloodPorts() {
+		Set<Short> floodPorts= new LinkedHashSet<Short>();
+		for(Short port : this.allowedPorts.keySet())
+			if ( this.allowedPorts.get(port))
+				floodPorts.add(port);
+		return floodPorts;
 	}
 
-	public void setPorts(Set<Short> ports) {
-		this.ports = ports;
+	public boolean isAllowAllPorts() {
+		return allowAllPorts;
 	}
 
+	/** 
+	 * Set the OFPP_FLOOD flag for this port
+	 * silently fail if this port is not in the slice
+	 * @param port
+	 * @param status
+	 */
+	
+	public void setFloodPortStatus(Short port, Boolean status) {
+		if (this.allowedPorts.containsKey(port))
+			this.allowedPorts.put(port, status);
+	}
+	
+	/** 
+	 * Is this port in this slice on this switch?
+	 * @param port
+	 * @return true is yes, false is no.. durh
+	 */
+	public boolean portInSlice(Short port) {
+		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
+	}
+	
 	public OFMessageAsyncStream getMsgStream() {
 		return msgStream;
 	}

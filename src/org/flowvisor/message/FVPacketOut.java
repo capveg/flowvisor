@@ -3,6 +3,7 @@ package org.flowvisor.message;
 import java.util.List;
 
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -57,12 +58,18 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		}
 		List<OFAction> actionsList = this.getActions();
 		try {
-			this.setActions(FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer));
+			actionsList= FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer);
 		} catch (ActionDisallowedException e) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
 			this.sendActionsError(fvSlicer.getMsgStream());
 			return;
 		}
+
+		this.setActions(actionsList);
+		// really annoying; should be in the base class
+		short count = FVMessageUtil.countActionsLen(actionsList);
+		this.setActionsLength(count);
+		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count +this.getPacketData().length));
 		// if we've gotten this far, everything is kosher
 		fvClassifier.getMsgStream().write(this);
 	}
