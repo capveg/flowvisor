@@ -2,15 +2,16 @@
 from fvregress import *
 import string 	# really?  you have to do this?
 
-if len(sys.argv) > 1 :
-	wantPause = True
-	timeout=9999999
-	valgrindArgs= []
-else:
-	wantPause = False
-	timeout=5
-	valgrindArgs= None
+test="ports"
 
+if len(sys.argv) > 1 :
+    wantPause = False
+    timeout=60
+    h = FvRegress.parseConfig(configDir='flowvisor-conf.d-'+test, alreadyRunning=True, port=int(sys.argv[1]))
+else:
+    wantPause = False
+    timeout=5
+    h = FvRegress.parseConfig(configDir='flowvisor-conf.d-'+test)
 
 # start up a flowvisor with 1 switch and two guests
 
@@ -29,7 +30,6 @@ switch_features= FvRegress.OFVERSION + '''06 00 e0 ef be ad de 00 00 00 00 00 00
                     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'''
 
-h = FvRegress.parseConfig(configDir='flowvisor-conf.d-ports', valgrind=valgrindArgs)
 if wantPause:
 	doPause("before adding switch1")
 h.addSwitch(name='switch1',dpid=2, switch_features=switch_features)	
