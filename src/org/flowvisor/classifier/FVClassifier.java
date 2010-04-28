@@ -196,6 +196,8 @@ public class FVClassifier implements FVEventHandler {
 						else 
 							handleOFMessage_unidenitified(m);
 					}
+				} else {
+					throw new IOException("got EOF from other side");
 				}
 			}
 			// write stuff if need be

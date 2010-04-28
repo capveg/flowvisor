@@ -155,4 +155,8 @@ public class LinearFlowMap implements FlowMap {
 		return this.rules;
 	}
 
+	public void setRules(List<FlowEntry> rules) {
+		this.rules = rules;
+	}
+
 }

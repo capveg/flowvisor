@@ -3,6 +3,8 @@ package org.flowvisor.config;
 
 
 
+import java.io.FileNotFoundException;
+
 import org.flowvisor.FlowVisor;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
@@ -90,12 +92,19 @@ public class DefaultConfig {
 	/**
 	 * Print default config to stdout
 	 * @param args
+	 * @throws FileNotFoundException 
 	 */
 	
 	
-	public static void main(String args[]) {
-	
-		DefaultConfig.init();
+	public static void main(String args[]) throws FileNotFoundException {
+
+		if(args.length == 0) {
+			System.err.println("Using default config");
+			DefaultConfig.init();	
+		} else {
+			System.err.println("Reading config from: " + args[0]);
+			FVConfig.readFromFile(args[0]);
+		}
 		FVConfig.walk(new ConfigDumper(System.out));
 	}
 }

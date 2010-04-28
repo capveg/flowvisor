@@ -26,6 +26,18 @@ public class ConfDirEntry extends ConfigEntry {
 		this.entries = new HashMap<String,ConfigEntry>();
 	}
 	
+	public ConfDirEntry() {
+		super(ConfigType.DIR);
+	}
+	
+	public HashMap<String, ConfigEntry> getEntries() {
+		return entries;
+	}
+
+	public void setEntries(HashMap<String, ConfigEntry> entries) {
+		this.entries = entries;
+	}
+
 	/** 
 	 * Lookup an entry in this directory
 	 * @param name entry name

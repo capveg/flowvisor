@@ -8,6 +8,7 @@ import org.openflow.protocol.*;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.util.HexString;
 
+import java.io.FileNotFoundException;
 import java.util.Set;
 import java.util.List;
 import java.util.HashSet;
@@ -87,33 +88,33 @@ public class FlowSpaceUtil {
 	/**
 	 * Mini-frontend for querying FlowSpace
 	 * @param args
+	 * @throws FileNotFoundException 
 	 */
 	
-	public static void main(String args[] ) {
-		if ((args.length != 1) && (args.length != 2)) {
-			System.err.println("Usage: FLowSpaceUtil <dpid> [slice]");
+	public static void main(String args[] ) throws FileNotFoundException {
+		if ((args.length != 2) && (args.length != 3)) {
+			System.err.println("Usage: FLowSpaceUtil config.xml <dpid> [slice]");
 			System.exit(1);
 		}
 		
-		DefaultConfig.init();
-		
+		FVConfig.readFromFile(args[0]);
 		long dpid; 
-		if(args[0].indexOf(':') != -1 )
-			dpid = HexString.toLong(args[0]);
+		if(args[1].indexOf(':') != -1 )
+			dpid = HexString.toLong(args[1]);
 		else
-			dpid = Long.valueOf(args[0]);
+			dpid = Long.valueOf(args[1]);
 		
 		
 		switch(args.length) {
-		case 1 :
+		case 2 :
 			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(FVConfig.getFlowSpaceFlowMap(),dpid);
-			System.out.println("The following slices have access to dpid=" + args[0]);
+			System.out.println("The following slices have access to dpid=" + args[1]);
 			for(String slice: slices)
 				System.out.println(slice);
 			break;
-		case 2 :
-			Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, args[1]);
-			System.out.println("Slice " + args[1] + " on switch " + args[0] + 
+		case 3 :
+			Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, args[2]);
+			System.out.println("Slice " + args[2] + " on switch " + args[1] + 
 					" has access to port:");
 			if (ports.size() == 1 && ports.contains(Short.valueOf(OFPort.OFPP_ALL.getValue())) )
 				System.out.println("ALL PORTS");

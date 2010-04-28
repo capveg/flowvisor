@@ -56,6 +56,10 @@ public class FlowEntry {
 		this.actionsList.add(action);
 	}
 	
+	public FlowEntry() {
+		// set nothing; java bean
+	}
+	
 	public OFMatch getMatch() {
 		return this.ruleMatch;
 	}
@@ -447,10 +451,22 @@ public class FlowEntry {
 		
 		return new FlowEntry(dpid, rule, actionsList);
 	}
-	
-	
-	
-	
+
+	public OFMatch getRuleMatch() {
+		return ruleMatch;
+	}
+
+	public void setRuleMatch(OFMatch ruleMatch) {
+		this.ruleMatch = ruleMatch;
+	}
+
+	public long getDpid() {
+		return dpid;
+	}
+
+	public void setDpid(long dpid) {
+		this.dpid = dpid;
+	}
 
 	
 }

@@ -15,6 +15,11 @@ public class ConfFlowMapEntry extends ConfigEntry {
 	public ConfFlowMapEntry(String name) {
 		super(name,ConfigType.FLOWMAP);
 	}
+	
+	public ConfFlowMapEntry() {
+		super(ConfigType.FLOWMAP);
+	}
+	
 	public FlowMap getFlowMap() {
 		return flowMap;
 	}

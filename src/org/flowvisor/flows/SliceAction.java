@@ -28,6 +28,11 @@ public class SliceAction extends OFActionVendor {
 		this.setVendor(FlowVisor.FLOWVISOR_VENDOR_EXTENSION);
 	}
 	
+	public SliceAction() {
+		// java bean constructor
+	}
+	
+	
 	
 	/** 
 	 * Guaranteed to never print commas, so commas can be used

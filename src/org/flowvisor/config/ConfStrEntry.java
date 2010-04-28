@@ -13,6 +13,10 @@ public class ConfStrEntry extends ConfigEntry {
 		super(name, ConfigType.STR);
 	}
 	
+	public ConfStrEntry() {
+		super(ConfigType.STR);
+	}
+	
 	@Override
 	public String[] getValue() {
 		String ret[] = new String[1];

@@ -5,7 +5,15 @@ package org.flowvisor.config;
 
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.flows.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.*;
+import java.beans.XMLEncoder;
+import java.beans.XMLDecoder;
 
 /**
  * Central collection of all configuration and policy information, e.g., 
@@ -252,5 +260,51 @@ public class FVConfig {
 	public static void unwatch(FVEventHandler handler, String name)  throws ConfigError {
 		ConfigEntry e = lookup(name);
 		e.unwatch(handler);
+	}
+	
+	
+	/**
+	 * Read XML-encoded config from filename
+	 * 
+	 * @param filename fully qualified or relative pathname
+	 */
+	public static synchronized void readFromFile(String filename) throws FileNotFoundException {
+		XMLDecoder dec = new XMLDecoder(
+					new BufferedInputStream(
+							new FileInputStream(filename)
+							)
+					);
+		FVConfig.root = (ConfDirEntry) dec.readObject();
+	}
+	
+	/**
+	 * Write XML-encoded config to filename
+	 * 
+	 * @param filename fully qualified or relative pathname
+	 */
+	public static synchronized void writeToFile(String filename) throws FileNotFoundException {
+		XMLEncoder enc = new XMLEncoder(
+					new BufferedOutputStream(
+							new FileOutputStream(filename)
+							)
+					);
+		enc.writeObject(FVConfig.root);
+		enc.close();
+	}
+	
+	/**
+	 * Create a default config file and write it to arg1
+	 * 
+	 * @param args filename
+	 * @throws FileNotFoundException 
+	 */
+	
+	public static void main(String args[]) throws FileNotFoundException {
+		if(args.length != 1) {
+			System.err.println("Usage: FVConfig filename");
+			System.exit(1);
+		}
+		DefaultConfig.init();
+		FVConfig.writeToFile(args[0]);
 	}
 }

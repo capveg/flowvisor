@@ -287,6 +287,8 @@ public class FVSlicer implements FVEventHandler {
 			if(msgStream.needsFlush())	// flush any pending messages
 				msgStream.flush();
 			List<OFMessage> msgs = this.msgStream.read();	// read any new messages
+			if (msgs == null)
+				throw new IOException("got null from read()");
 			for(OFMessage msg: msgs)
 				handleOFMsgFromController(msg);				// process new messages
 		} catch(IOException e1) {

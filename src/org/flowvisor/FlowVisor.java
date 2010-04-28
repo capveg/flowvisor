@@ -23,15 +23,16 @@ public class FlowVisor
     {
     	ArrayList<FVEventHandler> handlers = new ArrayList<FVEventHandler>();
 
-    	// init default config
-    	DefaultConfig.init();
+    	// FIXME :: do real arg parsing
+    	if (args.length == 0 )
+    		usage("need to specify config");
+    	
+    	// load  config from file
+    	FVConfig.readFromFile(args[0]);
     	
     	// init polling loop
     	FVEventLoop pollLoop = new FVEventLoop();
-    	
-    	if(args.length > 0) // FIXME: do real arg parsing
-    		FVConfig.setInt(FVConfig.LISTEN_PORT, Integer.valueOf(args[0]));
-  	
+    	  	
     	int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
     	
     	// init switchAcceptor
@@ -52,4 +53,15 @@ public class FlowVisor
     		fvh.cleanup();
     	*/
     }
+
+    /**
+     * Print usage message and warning string then exit
+     * @param string warning
+     */
+    
+	private static void usage(String string) {
+		System.err.println("err: " + string );
+		System.err.println("Usage: FlowVisor configfile.xml");
+		System.exit(-1);
+	}
 }

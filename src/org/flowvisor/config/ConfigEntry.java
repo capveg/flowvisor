@@ -17,11 +17,19 @@ import org.flowvisor.log.LogLevel;
  * @author capveg
  *
  */
-public abstract class ConfigEntry {
+public class ConfigEntry {
 	String name;
 	ConfigType type;
 	Set<FVEventHandler> watchList;		// never gets saved across sessions
 	boolean persistent;   				// does this config entry get saved across FV sessions?
+	
+	public ConfigEntry(ConfigType type) {
+		this.type = type;
+		this.watchList = new HashSet<FVEventHandler>();
+		// leave everything else undefined
+	}
+	
+	
 	
 	public ConfigEntry(String name, ConfigType type) {
 		this.name = name;
@@ -30,13 +38,31 @@ public abstract class ConfigEntry {
 		this.watchList = new HashSet<FVEventHandler>();
 	}
 	
-	public String getName() {
-		return this.name;
-	}
-	public ConfigType getType() {
-		return this.type;
-	}
 	
+	
+	public String getName() {
+		return name;
+	}
+
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+
+	public ConfigType getType() {
+		return type;
+	}
+
+
+
+	public void setType(ConfigType type) {
+		this.type = type;
+	}
+
+
 	/**
 	 * Add this {@link FVEventHandler} to the list of things that get updated if this
 	 * config entry changes

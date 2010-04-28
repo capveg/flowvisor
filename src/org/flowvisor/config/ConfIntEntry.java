@@ -8,6 +8,9 @@ public class ConfIntEntry extends ConfigEntry {
 		super(name, ConfigType.INT);
 	}
 
+	public ConfIntEntry() {
+		super(ConfigType.INT);
+	}
 	
 	/** 
 	 * Get the node's value
