@@ -4,8 +4,11 @@ package org.flowvisor;
 import java.io.*;
 import java.util.ArrayList;
 import org.flowvisor.exceptions.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.events.*;
+import org.flowvisor.api.APIServer;
 import org.flowvisor.config.*;
 
 public class FlowVisor
@@ -31,6 +34,7 @@ public class FlowVisor
     	FVConfig.readFromFile(args[0]);
     	
     	// init polling loop
+    	FVLog.log(LogLevel.INFO, null, "initializing poll loop");
     	FVEventLoop pollLoop = new FVEventLoop();
     	  	
     	int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
@@ -42,7 +46,14 @@ public class FlowVisor
     										port, 
     										16);
     	handlers.add(acceptor);				
-    	
+    	// start XMLRPC UserAPI server; FIXME not async!
+    	try {
+			APIServer.spawn();
+		} catch (Exception e) {
+			FVLog.log(LogLevel.FATAL, null, "failed to spawn APIServer");
+			e.printStackTrace();
+			System.exit(-1);
+		}
     	// start event processing
     	pollLoop.doEventLoop();
     	
