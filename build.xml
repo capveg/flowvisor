@@ -10,6 +10,8 @@
     <property name="dist"  location="dist"/>
     <property name="docs"  location="doc"/>
     <property name="of_jar" location="lib/openflow.jar"/>
+    <property name="xml-ver" value="3.1.3"/>
+    <property name="fv_classpath" location="${of_jar}:lib/xmlrpc-client-${xml-ver}.jar:lib/xmlrpc-server-${xml-ver}.jar:lib/xmlrpc-common-${xml-ver}.jar"/>
     <property name="fv_src" location="src"/>
     <property name="fv_build" location="build/"/>
     <property name="fv_main" location="org.flowvisor.Flowvisor"/>
@@ -25,7 +27,7 @@
     <target name="compile" depends="init"
         description="compile the source " >
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac debug="true" srcdir="${fv_src}" classpath="${of_jar}" destdir="${fv_build}"/>
+        <javac debug="true" srcdir="${fv_src}" classpath="${fv_classpath}" destdir="${fv_build}"/>
     </target>
 
     <target name="dist" depends="compile"
@@ -36,7 +38,7 @@
         <jar destfile="${fv_jar}" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="org.flowvisor.FlowVisor"/>
-                <attribute name="Class-Path" value="${of_jar}"/>
+                <attribute name="Class-Path" value="${fv_classpath}"/>
             </manifest>
             <fileset dir="${fv_build}"/>
         </jar>
@@ -61,7 +63,7 @@
             <arg line="${args}"/>
             <classpath>
                 <pathelement location="${fv_jar}"/>
-                <pathelement location="${of_jar}"/>
+                <pathelement location="${fv_classpath}"/>
             </classpath>
         </java>
     </target>
@@ -69,7 +71,7 @@
     <target name="javadoc">
         <javadoc access="protected"
         author="true"
-        classpath="${fv_jar}:${of_jar}"
+        classpath="${fv_jar}:${fv_classpath}"
         destdir="${docs}"
         doctitle="FlowVisor"
         nodeprecated="false"
