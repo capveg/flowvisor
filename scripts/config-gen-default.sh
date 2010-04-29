@@ -2,9 +2,9 @@
 
 base=/home/capveg/git/proj/flowvisor/flowvisor-nwo-java
 
-if [ -f $base/scripts/envs.sh ] ; then
+if [ -f $base/scripts/envs.sh ]; then
     . $base/scripts/envs.sh
 fi
 
 
-exec java -cp $classpath org.flowvisor.api.APIClientTool $@
+exec java -cp $classpath org.flowvisor.config.FVConfig $@
