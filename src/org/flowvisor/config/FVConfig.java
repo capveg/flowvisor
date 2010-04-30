@@ -292,6 +292,23 @@ public class FVConfig {
 		enc.close();
 	}
 	
+	public synchronized static void createSlice(
+			String sliceName, 
+			String controller_hostname, 
+			int controller_port, 
+			String slice_email) {
+		String base = FVConfig.SLICES + "."+ sliceName;
+		try {
+			FVConfig.create(base, ConfigType.DIR);
+			FVConfig.setString(base + "." + FVConfig.SLICE_CONTACT_EMAIL, slice_email);
+			FVConfig.setString(base + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, controller_hostname);
+			FVConfig.setInt(base + "." + FVConfig.SLICE_CONTROLLER_PORT, controller_port);
+		} catch (ConfigError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+
 	/**
 	 * Create a default config file and write it to arg1
 	 * 
@@ -306,5 +323,10 @@ public class FVConfig {
 		}
 		DefaultConfig.init();
 		FVConfig.writeToFile(args[0]);
+	}
+
+	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
+		
+		
 	}
 }

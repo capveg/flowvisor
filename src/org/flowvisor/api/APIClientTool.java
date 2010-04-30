@@ -12,6 +12,7 @@ import java.util.HashMap;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -64,10 +65,14 @@ public class APIClientTool {
 	 * 
 	 * @throws Exception
 	 */
-	public void init() throws MalformedURLException {
+	public void init(String user, String passwd) throws MalformedURLException {
 		config = new XmlRpcClientConfigImpl();
+		config.setBasicUserName(user);
+		config.setBasicPassword(passwd);
 		config.setServerURL(new URL(this.URL));
+	    
 		client = new XmlRpcClient();
+		client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));
 		client.setConfig(config);
 	}
 	
@@ -112,8 +117,8 @@ public class APIClientTool {
 			IllegalAccessException, 
 			InvocationTargetException, MalformedURLException {
 		// FIXME: make URL a parameter
-		APIClientTool client = new APIClientTool("http://127.0.0.1:8080/xmlrpc");
-		client.init();
+		APIClientTool client = new APIClientTool("http://root:joemama@localhost:8080/xmlrpc");
+		client.init("root","nopass");
 		if(args.length == 0)
 			usage("need to specify a command");
 		APICmd cmd = APICmd.cmdlist.get(args[0]);

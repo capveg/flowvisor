@@ -68,19 +68,8 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
 			// create slices
-			FVConfig.create(FVConfig.SLICES, ConfigType.DIR);
-			// create alice slice
-			String aliceSlice = FVConfig.SLICES + ".alice";
-			FVConfig.create(aliceSlice, ConfigType.DIR);
-			FVConfig.setString(aliceSlice + "." + FVConfig.SLICE_CONTACT_EMAIL, "alice@foo.com");
-			FVConfig.setString(aliceSlice + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, "localhost");
-			FVConfig.setInt(aliceSlice + "." + FVConfig.SLICE_CONTROLLER_PORT, 54321);
-			String bobSlice = FVConfig.SLICES + ".bob";
-			FVConfig.create(bobSlice, ConfigType.DIR);
-			FVConfig.setString(bobSlice + "." + FVConfig.SLICE_CONTACT_EMAIL, "bob@foo.com");
-			FVConfig.setString(bobSlice + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, "localhost");
-			FVConfig.setInt(bobSlice + "." + FVConfig.SLICE_CONTROLLER_PORT, 54322);
-			
+			FVConfig.createSlice("alice", 	"localhost", 54321, "alice@foo.com");
+			FVConfig.createSlice("bob", 	"localhost", 54322, "bob@foo.com");
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);

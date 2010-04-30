@@ -7,7 +7,7 @@ run:
 	java -jar dist/flowvisor.jar
 
 count: 
-	@find . -name \*.java | xargs wc -l | sort -n
+	@find src -name \*.java | xargs wc -l | sort -n
 
 clean:
 	ant clean
