@@ -27,7 +27,7 @@ public class APIServer {
      * @throws Exception
      */
     public static WebServer spawn() throws Exception {
-        WebServer webServer = new WebServer(port);
+        WebServer webServer = new SSLWebServer(port);
 
         XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
 

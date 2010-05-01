@@ -3,7 +3,7 @@ import xmlrpclib
 
 user="root"
 passwd="0fw0rk"
-s = xmlrpclib.ServerProxy("http://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
+s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
 print s.api.ping("Joe mama")
 print s.api.listFlowSpace()
 

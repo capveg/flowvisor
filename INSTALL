@@ -1,0 +1,11 @@
+To build, need openflowj:
+    (in some other dir)
+    git clone git://openflowswitch.org/openflowj.git
+    cd openflowj
+    ant     # to build; see openflowj instructions for full details
+Need to edit scripts/envs.sh to install dir (FIXME!)
+Need to create SSL and FlowVisor configs:
+    use ./scripts/config-gen-default.sh
+
+To run flowvisor:
+    scripts/flowvisor.sh
