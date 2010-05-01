@@ -41,7 +41,7 @@ public class APIServer {
             (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
         serverConfig.setEnabledForExtensions(true);
         serverConfig.setContentLengthOptional(false);
-        FVLog.log(LogLevel.INFO, null, "initializing FlowVisor UserAPI XMLRPC WebServer");
+        FVLog.log(LogLevel.INFO, null, "initializing FlowVisor UserAPI XMLRPC SSL WebServer");
         webServer.start();
         return webServer;
     }
