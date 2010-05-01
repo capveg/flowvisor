@@ -33,7 +33,7 @@ public class APIServer {
 
         PropertyHandlerMapping phm = new PropertyHandlerMapping();
        
-        phm.addHandler("api", org.flowvisor.api.FVUserAPI.class);
+        phm.addHandler("api", org.flowvisor.api.FVUserAPIImpl.class);
         phm.setAuthenticationHandler(new APIAuth());
         xmlRpcServer.setHandlerMapping(phm);
 

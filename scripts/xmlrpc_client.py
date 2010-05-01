@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import xmlrpclib
 
-user="pyroot"
-passwd="grr"
+user="root"
+passwd="0fw0rk"
 s = xmlrpclib.ServerProxy("http://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
 print s.api.ping("Joe mama")
 print s.api.listFlowSpace()

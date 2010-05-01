@@ -1,59 +1,24 @@
-/**
- * 
- */
 package org.flowvisor.api;
 
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.XmlRpcRequest;
-import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
-import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
-import org.apache.xmlrpc.server.PropertyHandlerMapping;
-import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
-import org.apache.xmlrpc.webserver.XmlRpcServlet;
-import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
-import org.flowvisor.flows.FlowMap;
-import org.flowvisor.log.FVLog;
-import org.flowvisor.log.LogLevel;
 
-/**
- * This is the actual UserAPI that gets wrapped via XMLRPC
- * In theory ("God willin' and the creek dun rise"), XMLRPC
- * calls will call these function directly
- * 
- * @author capveg
- *
- */
-public class FVUserAPI extends XmlRpcServlet {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public interface FVUserAPI {
 
 	/** 
 	 * For debugging
 	 * @param arg test string
 	 * @return response test string
 	 */
-	public String ping(String arg) {
-		return "PONG: " + arg;
-	}
+	public String ping(String arg);
 	
 	/**
-	 * Lists all the flowspace
+	 * Lists all the flowspace this user has control over
 	 * 
 	 * @return
 	 */
-	public String[] listFlowSpace() {
-		 
-		FlowMap flowMap = FVConfig.getFlowSpaceFlowMap();
-		String[] fs = new String[flowMap.countRules()];
-		for(int i=0; i< fs.length; i++)
-			fs[i] = flowMap.getRules().get(i).toString();
-		return fs;
-	}
+	public String[] listFlowSpace();
 	
 	/**
 	 * Create a new slice (without flowspace)
@@ -66,25 +31,7 @@ public class FVUserAPI extends XmlRpcServlet {
 	 */
 	
 	public boolean createSlice(String sliceName, String passwd, 
-			String controller_url, String slice_email) throws MalformedControllerURL {
-		// FIXME: make sure this user has perms to do this OP
-		
-		// FIXME: for now, only handle tcp, not ssl controller url
-		String[] list = controller_url.split(":");
-		if(list.length< 2)
-			throw new MalformedControllerURL("controller url needs to be of the form " +
-					"proto:hostname[:port], e.g., tcp:yourhost.foo.com:6633, not: " + controller_url);
-		if(!list[0].equals("tcp"))
-			throw new MalformedControllerURL("Flowvisor currently only supports 'tcp' proto, not: "
-					+ list[0]);
-		int controller_port;
-		if (list.length>=3)
-			controller_port = Integer.valueOf(list[2]);
-		else
-			controller_port = FVConfig.OFP_TCP_PORT;
-		FVConfig.createSlice(sliceName, list[1], controller_port, slice_email);
-		return true;
-	}
+			String controller_url, String slice_email) throws MalformedControllerURL;
 	
 	/**
 	 * Change the password for this slice
@@ -95,53 +42,40 @@ public class FVUserAPI extends XmlRpcServlet {
 	 * @param sliceName
 	 * @param newPasswd
 	 */
-	public void changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException {
-		// FIXME 
-	}
+	public void changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException;
+	// have both names, b/c it makes the OM's life easier
+	public void change_passwd(String sliceName, String newPasswd) throws PermissionDeniedException;
 	
-	public LinkAdvertisement[] getLinks() {
-		LinkAdvertisement[] list = new LinkAdvertisement[0];
-		return list;
-	}
+	/**
+	 * Get the list of devices (e.g., switches, routers, APs) connected to the FV
+	 * 
+	 * @return
+	 */
+	public DeviceAdvertisement[] getDevices();
 	
-	public DeviceAdvertisement[] getDevices(){
-		DeviceAdvertisement[] list = new DeviceAdvertisement[0];
-		return list;
-	}
 	
-	public boolean deleteSlice(String sliceName) throws SliceNotFound {
-		// FIXME: make sure this user has permissions to do this operations
-		
-		try {
-			FVConfig.deleteSlice(sliceName);
-		} catch (Exception e) {
-			throw new SliceNotFound("slice does not exist: " + sliceName);
-		}
-		return true;
-	}
+	/**
+	 * Get the list of links between the devices in getDevices()
+	 * Links are directional, so switch1 --> switch2 does not imply
+	 * the reverse; they will be both listed if the link is bidirectional
+	 * @return
+	 */
+	
+	public LinkAdvertisement[] getLinks();
+	
+	/**
+	 * Delete the named slice
+	 * 
+	 * Requestor only has permission to delete its own slice or the slice that it 
+	 * (transitively) created.  Since root has transitively created all slices, root
+	 * can delete all slices. 
+	 * 
+	 * @param sliceName
+	 * @return  Success
+	 * @throws {@link SliceNotFound}, {@link PermissionDeniedException}
+	 */
+	
+	public boolean deleteSlice(String sliceName) throws SliceNotFound, PermissionDeniedException;
 
 	
-	
-    private boolean isAuthenticated(String user, String pass) {
-    	FVLog.log(LogLevel.INFO, null, "tried to auth user/pass:  " + user +"/" + pass);
-       // FIXME check passwd db HERE
-        return true;
-    }
- 
-    protected XmlRpcHandlerMapping newXmlRpcHandlerMapping() throws XmlRpcException {
-        PropertyHandlerMapping mapping
-            = (PropertyHandlerMapping) super.newXmlRpcHandlerMapping();
-        AbstractReflectiveHandlerMapping.AuthenticationHandler handler =
-            new AbstractReflectiveHandlerMapping.AuthenticationHandler(){
-                    public boolean isAuthorized(XmlRpcRequest pRequest){
-                        XmlRpcHttpRequestConfig config =
-                            (XmlRpcHttpRequestConfig) pRequest.getConfig();
-                        return isAuthenticated(config.getBasicUserName(),
-                            config.getBasicPassword());
-                    };
-            };
-        mapping.setAuthenticationHandler(handler);
-        return mapping;
-    }
-
 }

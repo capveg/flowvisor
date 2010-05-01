@@ -3,14 +3,18 @@
  */
 package org.flowvisor.config;
 
+import org.flowvisor.api.APIAuth;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.flows.*;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.beans.XMLEncoder;
 import java.beans.XMLDecoder;
@@ -37,7 +41,11 @@ public class FVConfig {
 	final static public String SLICE_CONTROLLER_HOSTNAME = "controller_hostname";
 	final static public String SLICE_CONTROLLER_PORT = "controller_port";
 	final static public String SLICE_CONTACT_EMAIL	 = "contact_email";
-	final static public int	   OFP_TCP_PORT	    = 6633;	
+	public static final String SLICE_SALT = "passwd_salt";	
+	public static final String SLICE_CRYPT = "passwd_crypt";	
+	public static final String SLICE_CREATOR = "creator";	
+	
+	final static public int	   OFP_TCP_PORT	    = 6633;
 	
 	
 	static ConfDirEntry root = new ConfDirEntry("");  // base of all config info
@@ -296,16 +304,22 @@ public class FVConfig {
 			String sliceName, 
 			String controller_hostname, 
 			int controller_port, 
-			String slice_email) {
+			String passwd,
+			String slice_email,
+			String creatorSlice) {
 		String base = FVConfig.SLICES + "."+ sliceName;
 		try {
 			FVConfig.create(base, ConfigType.DIR);
 			FVConfig.setString(base + "." + FVConfig.SLICE_CONTACT_EMAIL, slice_email);
 			FVConfig.setString(base + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, controller_hostname);
 			FVConfig.setInt(base + "." + FVConfig.SLICE_CONTROLLER_PORT, controller_port);
+			String salt = APIAuth.getSalt();
+			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
+			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, APIAuth.makeCrypt(salt, passwd));
+			FVConfig.setString(base + "." + FVConfig.SLICE_CREATOR, creatorSlice);
+			
 		} catch (ConfigError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("failed to create slice " + sliceName + "::" + e);
 		}		
 	}
 
@@ -316,17 +330,34 @@ public class FVConfig {
 	 * @throws FileNotFoundException 
 	 */
 	
-	public static void main(String args[]) throws FileNotFoundException {
+	public static void main(String args[]) throws FileNotFoundException, IOException {
 		if(args.length != 1) {
 			System.err.println("Usage: FVConfig filename");
 			System.exit(1);
 		}
-		DefaultConfig.init();
-		FVConfig.writeToFile(args[0]);
+		String filename = args[0];
+		System.err.println("Enter password for root account (will be echo'd!):");
+		// FIXME turn off echo
+		String passwd = new BufferedReader(new InputStreamReader(System.in)).readLine();
+		System.err.println("Generating default config to " + filename);
+		DefaultConfig.init(passwd);
+		FVConfig.writeToFile(filename);
 	}
 
 	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
 		
 		
+	}
+
+	public static boolean confirm(String base) {
+		return (lookup(base) != null);
+	}
+
+	/**
+	 * Return the name of the super user account
+	 * @return
+	 */
+	public static String getRoot() {
+		return "root";
 	}
 }

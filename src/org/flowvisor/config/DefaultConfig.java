@@ -22,7 +22,7 @@ import org.openflow.protocol.OFMatch;
 public class DefaultConfig {
 
 			
-	static public void init() {
+	static public void init(String rootPasswd) {
 		// setup a bunch of default things in the config
 		FlowMap flowMap = new LinearFlowMap();
 		SliceAction aliceAction = new SliceAction("alice", SliceAction.WRITE);
@@ -68,8 +68,12 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
 			// create slices
-			FVConfig.createSlice("alice", 	"localhost", 54321, "alice@foo.com");
-			FVConfig.createSlice("bob", 	"localhost", 54322, "bob@foo.com");
+			FVConfig.createSlice("root", 	"none", 0, rootPasswd, "root@localhost",
+					FVConfig.getRoot());
+			FVConfig.createSlice("alice", 	"localhost", 54321, "alicePass", "alice@foo.com",
+					FVConfig.getRoot());
+			FVConfig.createSlice("bob", 	"localhost", 54322, "bobPass", "bob@foo.com",
+					FVConfig.getRoot());
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);
@@ -88,8 +92,8 @@ public class DefaultConfig {
 	public static void main(String args[]) throws FileNotFoundException {
 
 		if(args.length == 0) {
-			System.err.println("Using default config");
-			DefaultConfig.init();	
+			System.err.println("Generating default config");
+			DefaultConfig.init("CHANGEME");	
 		} else {
 			System.err.println("Reading config from: " + args[0]);
 			FVConfig.readFromFile(args[0]);
