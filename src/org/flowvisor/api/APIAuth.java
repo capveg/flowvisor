@@ -122,4 +122,32 @@ public class APIAuth implements AuthenticationHandler {
 		Random rand = new Random();
 		return Integer.valueOf(rand.nextInt()).toString();
 	}
+	
+	/**
+	 * Did changerSlice transitively create sliceName?
+	 * @param changerSlice the slice trying to perform a change
+	 * @param sliceName the slice being changes
+	 * @return 
+	 */
+	public static boolean transitivelyCreated(String changerSlice,
+			String sliceName) {
+		String user = sliceName;
+		String root = FVConfig.getRoot();
+		if(changerSlice.equals(root)) // root created everyone
+			return true;
+		while(!user.equals(root)) {
+			if(user.equals(changerSlice))
+				return true;
+			try {
+				user = FVConfig.getString(FVConfig.SLICES + "." + user + "." + 
+						FVConfig.SLICE_CREATOR);
+			} catch (ConfigError e) {
+				// FIXME: this config format is stupid
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+		}
+		// changerSlice is not on the transitive path of who created sliceName
+		return false;
+	}
 }

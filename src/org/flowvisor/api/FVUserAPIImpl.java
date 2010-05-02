@@ -4,6 +4,7 @@
 package org.flowvisor.api;
 
 import org.flowvisor.api.APIUserCred;
+import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
@@ -67,7 +68,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public boolean createSlice(String sliceName, String passwd, 
 			String controller_url, String slice_email) throws MalformedControllerURL {
 		// FIXME: make sure this user has perms to do this OP
-		
+		// for now, all slices can create other slices
 		// FIXME: for now, only handle tcp, not ssl controller url
 		String[] list = controller_url.split(":");
 		if(list.length< 2)
@@ -97,8 +98,31 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	@Override
 	public void changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException {
-		changePasswd(sliceName, newPasswd); 
+		String changerSlice = APIUserCred.getUserName();
+		if(!APIAuth.transitivelyCreated(changerSlice,sliceName))
+			throw new PermissionDeniedException("Slice " + changerSlice + 
+					" does not have perms to change the passwd of " + sliceName); 
+		String salt = APIAuth.getSalt();
+		String crypt = APIAuth.makeCrypt(salt, newPasswd);
+		String base = FVConfig.SLICES + "." + sliceName;
+		try {
+			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
+			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, crypt);
+			
+		} catch (ConfigError e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
 	}
+
+	@Override
+	public void change_passwd(String sliceName, String newPasswd)
+			throws PermissionDeniedException {
+		changePasswd(sliceName, newPasswd);
+		// just call changePasswd(); keeping the two names made things easier for Jad /shrug
+	}
+
 	
 	@Override
 	public LinkAdvertisement[] getLinks() {
@@ -124,12 +148,6 @@ public class FVUserAPIImpl implements FVUserAPI {
 		return true;
 	}
 
-	@Override
-	public void change_passwd(String sliceName, String newPasswd)
-			throws PermissionDeniedException {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 
