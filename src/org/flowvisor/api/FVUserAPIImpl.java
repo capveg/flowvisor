@@ -3,9 +3,15 @@
  */
 package org.flowvisor.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIUserCred;
+import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
@@ -123,23 +129,65 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// just call changePasswd(); keeping the two names made things easier for Jad /shrug
 	}
 
+	/**
+	 * For now, create a circular, bidirectional loop between existing switches
+	 * FIXME need to actually infer and calc real topology
+	 */
 	
 	@Override
 	public LinkAdvertisement[] getLinks() {
-		LinkAdvertisement[] list = new LinkAdvertisement[0];
+		DeviceAdvertisement[] devices = getDevices();
+		LinkAdvertisement[] list = new LinkAdvertisement[devices.length*2];
+		int linkIndex;
+		for(int i=0;i<devices.length; i++) {
+			// forward direction
+			linkIndex=i*2;
+			list[linkIndex].srcDPID = devices[i].dpid;
+			list[linkIndex].dstDPID = devices[(i+1)%devices.length].dpid;
+			list[linkIndex].srcPort = 0;
+			list[linkIndex].dstPort = 1;
+			list[linkIndex].attributes.put("fakeLink", "true");
+			// reverse direction
+			linkIndex=i*2+1;
+			list[linkIndex].dstDPID = devices[i].dpid;
+			list[linkIndex].srcDPID = devices[(i+1)%devices.length].dpid;
+			list[linkIndex].dstPort = 0;
+			list[linkIndex].srcPort = 1;
+			list[linkIndex].attributes.put("fakeLink", "true");
+		}
 		return list;
 	}
 	
 	@Override
 	public DeviceAdvertisement[] getDevices(){
-		DeviceAdvertisement[] list = new DeviceAdvertisement[0];
+		FlowVisor fv = FlowVisor.getInstance();
+		// get list from main flowvisor instance
+		List<FVClassifier> classifiers = new ArrayList<FVClassifier>();
+		for(FVEventHandler handler : fv.getHandlers()) {
+			if(handler instanceof FVClassifier)
+				classifiers.add((FVClassifier) handler);
+		}
+		DeviceAdvertisement[] list = new DeviceAdvertisement[classifiers.size()];
+		for(int i=0; i < classifiers.size(); i++) {
+			FVClassifier classifier = classifiers.get(i);
+			list[i].dpid = classifier.getSwitchInfo().getDatapathId();
+			// TODO get and cache STATS_DESC info
+			list[i].hw_desc = "unimplemented";
+			list[i].mfr_desc = "unimplemented";
+			list[i].serial_num = "unimplemented";
+			list[i].dp_desc = "unimplemented";
+			list[i].attributes.put("nPorts", 
+					String.valueOf(classifier.getSwitchInfo().getPorts().size()));
+		}
 		return list;
 	}
 	
 	@Override
-	public boolean deleteSlice(String sliceName) throws SliceNotFound {
-		// FIXME: make sure this user has permissions to do this operations
-		
+	public boolean deleteSlice(String sliceName) throws SliceNotFound, PermissionDeniedException {
+		String changerSlice = APIUserCred.getUserName();
+		if(!APIAuth.transitivelyCreated(changerSlice,sliceName))
+			throw new PermissionDeniedException("Slice " + changerSlice + 
+					" does not have perms to change the passwd of " + sliceName); 		
 		try {
 			FVConfig.deleteSlice(sliceName);
 		} catch (Exception e) {
