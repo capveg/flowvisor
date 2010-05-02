@@ -44,6 +44,24 @@ public class FlowSpaceUtil {
 	}
 	
 	
+	public static FlowMap getSliceFlowSpace(String sliceName) {
+		OFMatch match = new OFMatch();
+		FlowMap ret = new LinearFlowMap();
+		match.setWildcards(OFMatch.OFPFW_ALL);
+		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
+		List<FlowIntersect> intersections = flowSpace.intersects(FlowEntry.ALL_DPIDS, match);
+		for(FlowIntersect inter: intersections) { 
+			FlowEntry rule = inter.getFlowEntry();
+			for(OFAction action : rule.getActionsList()) {
+				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
+				if (sliceAction.getSliceName().equals(sliceName)) {
+					FlowEntry neoRule = new FlowEntry(rule.getMatch(), sliceAction);
+					ret.add();
+				}
+			}
+		}
+		return ret;
+	}
 	
 	/**
 	 * Consult the flowspace and return the set of ports that this slice

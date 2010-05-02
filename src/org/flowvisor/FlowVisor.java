@@ -21,17 +21,24 @@ public class FlowVisor
 	
 	// Max slicename len ; used in LLDP for now; needs to be 1 byte 
 	public final static int MAX_SLICENAME_LEN = 255;
+	
+	/********/
+	String configFile;
+	ArrayList<FVEventHandler> handlers;
+	static FlowVisor instance;
+	
+	
+	public FlowVisor(String configFile) {
+		this.configFile=configFile;
+		this.handlers = new ArrayList<FVEventHandler>();
+	}
+	
+	public void run() throws IOException, ConfigError, UnhandledEvent  {
+		// register this flowvisor instance
+		FlowVisor.setInstance(this);
 		
-    public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
-    {
-    	ArrayList<FVEventHandler> handlers = new ArrayList<FVEventHandler>();
-
-    	// FIXME :: do real arg parsing
-    	if (args.length == 0 )
-    		usage("need to specify config");
-    	
-    	// load  config from file
-    	FVConfig.readFromFile(args[0]);
+		// load  config from file
+    	FVConfig.readFromFile(this.configFile);
     	
     	// init polling loop
     	FVLog.log(LogLevel.INFO, null, "initializing poll loop");
@@ -63,6 +70,18 @@ public class FlowVisor
     	for (FVEventHandler fvh : handlers)
     		fvh.cleanup();
     	*/
+	
+	}
+	
+    public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
+    {
+    	
+    	// FIXME :: do real arg parsing
+    	if (args.length == 0 )
+    		usage("need to specify config");
+    	
+    	FlowVisor fv = new FlowVisor(args[0]);
+    	fv.run();
     }
 
     /**
@@ -74,5 +93,29 @@ public class FlowVisor
 		System.err.println("err: " + string );
 		System.err.println("Usage: FlowVisor configfile.xml");
 		System.exit(-1);
+	}
+
+	/**
+	 * Get the running fv instance
+	 * @return
+	 */
+	public static FlowVisor getInstance() {
+		return instance;
+	}
+
+	/** 
+	 * Set the running fv instance
+	 * @param instance
+	 */
+	public static void setInstance(FlowVisor instance) {
+		FlowVisor.instance = instance;
+	}
+
+	public ArrayList<FVEventHandler> getHandlers() {
+		return handlers;
+	}
+
+	public void setHandlers(ArrayList<FVEventHandler> handlers) {
+		this.handlers = handlers;
 	}
 }
