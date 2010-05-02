@@ -14,12 +14,15 @@ s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xm
 print "=============== Alice's view ================"
 print s.api.ping("Joe mama")
 print s.api.listFlowSpace()
+print s.api.getDevices()
+print s.api.change_passwd("alice","foo")
 user="bob"
 passwd="bobPass"
 s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
 print "=============== Bob's view ================"
 print s.api.ping("Joe mama")
 print s.api.listFlowSpace()
+print s.api.changePasswd("alice","foo")
 
 #### FIXME
 #print "=============== available methods ============"
