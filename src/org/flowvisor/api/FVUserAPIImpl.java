@@ -9,6 +9,7 @@ import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
 import org.flowvisor.flows.FlowMap;
+import org.flowvisor.flows.FlowSpaceUtil;
 
 /**
  * This is the actual UserAPI that gets wrapped via XMLRPC
@@ -41,8 +42,12 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	@Override
 	public String[] listFlowSpace() {
-		 
-		FlowMap flowMap = FVConfig.getFlowSpaceFlowMap();
+		String sliceName = APIUserCred.getUserName();
+		FlowMap flowMap;
+		if (sliceName.equals(FVConfig.getRoot()))
+			flowMap = FVConfig.getFlowSpaceFlowMap();
+		else
+			flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
 		String[] fs = new String[flowMap.countRules()];
 		for(int i=0; i< fs.length; i++)
 			fs[i] = flowMap.getRules().get(i).toString();

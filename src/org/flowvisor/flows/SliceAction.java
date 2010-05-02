@@ -12,7 +12,7 @@ import org.flowvisor.*;
  * @author capveg
  *
  */
-public class SliceAction extends OFActionVendor {
+public class SliceAction extends OFActionVendor  implements Cloneable {
 	public static final int READ 		= (1<<1);
 	public static final int WRITE 		= (1<<2);
 	public static final int DELEGATE	= (1<<3);
@@ -109,6 +109,17 @@ public class SliceAction extends OFActionVendor {
 		if (slicePerms != other.slicePerms)
 			return false;
 		return true;
+	}
+
+	
+	
+	public SliceAction clone() {
+		try {
+			return (SliceAction) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 	
 	

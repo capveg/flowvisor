@@ -43,6 +43,14 @@ public class FlowSpaceUtil {
 		return ret;
 	}
 	
+	/**
+	 * Return the flowspace controlled by this slice
+	 * Note that this correctly removes the "holes" caused
+	 * by higher priority flowspace entries
+	 *  
+	 * @param sliceName
+	 * @return
+	 */
 	
 	public static FlowMap getSliceFlowSpace(String sliceName) {
 		OFMatch match = new OFMatch();
@@ -55,8 +63,9 @@ public class FlowSpaceUtil {
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
 				if (sliceAction.getSliceName().equals(sliceName)) {
-					FlowEntry neoRule = new FlowEntry(rule.getMatch(), sliceAction);
-					ret.add();
+					FlowEntry neoRule = new FlowEntry(rule.getDpid(),rule.getMatch().clone(), 
+							sliceAction.clone());
+					ret.addRule(ret.countRules(),neoRule);
 				}
 			}
 		}
