@@ -9,5 +9,5 @@ else
     exit 1
 fi
 
-echo Staring FlowVisor >&2 
-exec java $sslopts -cp $classpath org.flowvisor.FlowVisor $@
+java -cp $classpath org.flowvisor.config.DefaultConfig $@
+
