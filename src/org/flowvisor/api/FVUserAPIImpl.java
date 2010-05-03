@@ -196,7 +196,18 @@ public class FVUserAPIImpl implements FVUserAPI {
 		return true;
 	}
 
-
-
+	/**
+	 * Implements {@link org.flowvisor.api.FVUserAPI#changeFlowSpace}
+	 * 
+	 * Allow this change if it affectst the flowspace delagated to this
+	 * slice.  
+	 * 
+	 */
+	
+	@Override
+	public void changeFlowSpace(FlowChange[] changes) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -78,4 +78,16 @@ public interface FVUserAPI {
 	public boolean deleteSlice(String sliceName) throws SliceNotFound, PermissionDeniedException;
 
 	
+	/**
+	 * Make changes to the flowspace
+	 * 
+	 * Changes are processed in order and only after the last change is 
+	 * applied to the changes take affect, i.e., this is transactional
+	 * 
+	 * FIXME: create a test case to make sure it is in fact transactional
+	 * 
+	 * @param changes list of changes
+	 */
+	public void changeFlowSpace(FlowChange[] changes);
+	
 }

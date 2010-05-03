@@ -22,6 +22,7 @@ public class FlowEntry {
 	public static final String ALL_DPIDS_STR 	= "all_dpids"; 
 
 	OFMatch ruleMatch;
+	int index;
 	List<OFAction> actionsList;
 	long dpid;
 	/**
@@ -33,27 +34,22 @@ public class FlowEntry {
 	public FlowEntry(long dpid, OFMatch match, List<OFAction> actionsList) {
 		this.dpid = 		dpid;
 		this.ruleMatch = 		match;
+		this.index = -1;
 		this.actionsList = 	actionsList;
 	}
 	
 	public FlowEntry(long dpid, OFMatch match, OFAction action) {
-		this.dpid = dpid;
-		this.ruleMatch = match;
+		this(dpid,match,(List<OFAction>)null);
 		this.actionsList = new ArrayList<OFAction>();
 		this.actionsList.add(action);
 	}
 	
 	public FlowEntry(OFMatch match, List<OFAction> actionsList) {
-		this.dpid = ALL_DPIDS;
-		this.ruleMatch = match;
-		this.actionsList = actionsList;
+		this(ALL_DPIDS,match,actionsList);
 	}
 
 	public FlowEntry(OFMatch match, OFAction action) {
-		this.dpid = ALL_DPIDS;
-		this.ruleMatch = match;
-		this.actionsList = new ArrayList<OFAction>();
-		this.actionsList.add(action);
+		this(ALL_DPIDS, match, action);
 	}
 	
 	public FlowEntry() {
@@ -413,9 +409,14 @@ public class FlowEntry {
 			dpid_str = ALL_DPIDS_STR;
 		else
 			dpid_str = HexString.toHexString(this.dpid);
+		String indexStr;
+		if (index != -1)
+			indexStr = ",index=" + index;
+		else 
+			indexStr = "";
 		
 		return "FlowEntry[dpid=[" + dpid_str +
-				"],ruleMatch=[" + this.ruleMatch + "],actionsList=[" + actions + "],]";
+				"],ruleMatch=[" + this.ruleMatch + "],actionsList=[" + actions + "]" + indexStr+ "]";
 	}
 
 	/**
@@ -468,5 +469,11 @@ public class FlowEntry {
 		this.dpid = dpid;
 	}
 
-	
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
 }

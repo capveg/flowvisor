@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import org.flowvisor.FlowVisor;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
+import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.flows.LinearFlowMap;
 import org.flowvisor.flows.SliceAction;
 import org.openflow.protocol.OFMatch;
@@ -80,7 +81,8 @@ public class DefaultConfig {
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException((Exception) e);
-		}		
+		}	
+		FlowSpaceUtil.updateFlowSpaceIndexes();
 	}
 	/**
 	 * Print default config to stdout

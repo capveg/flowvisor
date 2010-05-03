@@ -65,6 +65,7 @@ public class FlowSpaceUtil {
 				if (sliceAction.getSliceName().equals(sliceName)) {
 					FlowEntry neoRule = new FlowEntry(rule.getDpid(),rule.getMatch().clone(), 
 							sliceAction.clone());
+					neoRule.setIndex(rule.getIndex());
 					ret.addRule(ret.countRules(),neoRule);
 				}
 			}
@@ -187,5 +188,18 @@ public class FlowSpaceUtil {
 		*/
 	}
 
-
+	/**
+	 * Step through the list of rules and tell each rule it's index
+	 * 
+	 * Useful for changing/setting rules by index
+	 */
+	
+	public static void updateFlowSpaceIndexes() {
+		synchronized (FVConfig.class) {
+			FlowMap flowMap = FVConfig.getFlowSpaceFlowMap();
+			int i=0;
+			for(FlowEntry rule: flowMap.getRules())
+				rule.setIndex(i++);
+		}
+	}
 }
