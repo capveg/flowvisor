@@ -3,10 +3,8 @@
  */
 package org.flowvisor.api;
 
-import java.util.List;
 
 import org.flowvisor.flows.FlowEntry;
-import org.openflow.protocol.action.OFAction;
 
 /**
  * Object that holds a change to the flowspace
@@ -21,22 +19,16 @@ public class FlowChange {
 	}
 	FlowChangeOp operation;
 	int index;
-	long dpid;
-	FlowEntry entry;
-	List<OFAction> actionsList;
-	
+	FlowEntry entry;	
 	public FlowChange() {
 		// java beans constructor
 	}
 
-	public FlowChange(FlowChangeOp operation, int index, long dpid,
-			FlowEntry entry, List<OFAction> actionsList) {
+	public FlowChange(FlowChangeOp operation, int index, long dpid, FlowEntry entry) {
 		super();
 		this.operation = operation;
 		this.index = index;
-		this.dpid = dpid;
 		this.entry = entry;
-		this.actionsList = actionsList;
 	}
 
 	public FlowChangeOp getOperation() {
@@ -55,28 +47,12 @@ public class FlowChange {
 		this.index = index;
 	}
 
-	public long getDpid() {
-		return dpid;
-	}
-
-	public void setDpid(long dpid) {
-		this.dpid = dpid;
-	}
-
 	public FlowEntry getEntry() {
 		return entry;
 	}
 
 	public void setEntry(FlowEntry entry) {
 		this.entry = entry;
-	}
-
-	public List<OFAction> getActionsList() {
-		return actionsList;
-	}
-
-	public void setActionsList(List<OFAction> actionsList) {
-		this.actionsList = actionsList;
 	}
 	
 }

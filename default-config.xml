@@ -31,17 +31,11 @@
              </void> 
             </object> 
            </void> 
+           <void property="index"> 
+            <int>0</int> 
+           </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -61,19 +55,7 @@
             <int>1</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -93,19 +75,7 @@
             <int>2</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>2</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -125,22 +95,7 @@
             <int>3</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>2</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -160,19 +115,7 @@
             <int>4</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>3</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -192,22 +135,7 @@
             <int>5</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>2</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>3</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -237,19 +165,7 @@
             <int>6</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>1</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -269,22 +185,7 @@
             <int>7</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>1</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -304,19 +205,7 @@
             <int>8</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>3</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -336,22 +225,7 @@
             <int>9</int> 
            </void> 
            <void property="match"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>3</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
+            <object class="org.openflow.protocol.OFMatch"/> 
            </void> 
           </object> 
          </void> 
@@ -429,7 +303,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>-546982025</string> 
+               <string>-1854628387</string> 
               </void> 
              </object> 
             </void> 
@@ -485,7 +359,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>222b26905c4a468d92aa3e44e260e01b</string> 
+               <string>b6df5cb407ebad0b56be6b7052adfd52</string> 
               </void> 
              </object> 
             </void> 
@@ -528,7 +402,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>995117061</string> 
+               <string>848839467</string> 
               </void> 
              </object> 
             </void> 
@@ -581,7 +455,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>92c8029242a780e7fe16f76bda5f9c00</string> 
+               <string>c62677f22f7be5a56ed7d2a59c5db798</string> 
               </void> 
              </object> 
             </void> 
@@ -624,7 +498,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>-199453077</string> 
+               <string>-1590882754</string> 
               </void> 
              </object> 
             </void> 
@@ -680,7 +554,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>26a53f78a6c2c4bce11439a7c9c56334</string> 
+               <string>f43a2dd5b8e401cca1f85032be1a0430</string> 
               </void> 
              </object> 
             </void> 

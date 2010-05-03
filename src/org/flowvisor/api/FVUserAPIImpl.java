@@ -17,6 +17,8 @@ import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 
 /**
  * This is the actual UserAPI that gets wrapped via XMLRPC
@@ -206,8 +208,30 @@ public class FVUserAPIImpl implements FVUserAPI {
 	
 	@Override
 	public void changeFlowSpace(FlowChange[] changes) {
-		// TODO Auto-generated method stub
-		
+		// FIXME: implement security for who can change what
+		String user = APIUserCred.getUserName();
+		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
+		for(int i=0; i< changes.length; i++) {
+			FlowChange change = changes[i];
+			FVLog.log(LogLevel.INFO, null, "user " + user + " " + change.operation +
+					" at index=" + change.index + " flow entry " + 
+					change.getEntry());
+			switch(change.operation) {
+			case ADD:
+				flowSpace.addRule(change.getIndex(), change.getEntry());
+				break;
+			case REMOVE:
+				flowSpace.getRules().remove(change.index);
+				break;
+			case CHANGE:
+				flowSpace.getRules().set(change.index, change.getEntry());
+				break;
+			default:
+				FVLog.log(LogLevel.WARN, null, "user " + user + 
+						" ignoring unknown changeFlow event: " + 
+						change.operation);
+			}
+		}
 	}
 
 	@Override

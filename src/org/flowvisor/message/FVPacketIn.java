@@ -64,13 +64,14 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 	}
 
 	@Override
-	public void setPacketData(byte[] packetData) {
+	public FVPacketIn setPacketData(byte[] packetData) {
 		if (packetData == null)
 			this.length = (short)(MINIMUM_LENGTH);
 		else
 			this.length = (short)(MINIMUM_LENGTH +
 					packetData.length);
 		this.packetData = packetData;
+		return this;
 	}
 
 }

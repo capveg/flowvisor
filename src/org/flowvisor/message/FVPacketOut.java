@@ -93,7 +93,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	
 	// convenience function that Derickso doesn't want in main openflow.jar
 	@Override
-	public void setPacketData(byte[] packetData) {
+	public FVPacketOut setPacketData(byte[] packetData) {
 		if (packetData == null)
 			this.length = (short)(MINIMUM_LENGTH + actionsLength);
 		else
@@ -101,6 +101,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 					actionsLength +
 					packetData.length);
 		this.packetData = packetData;
+		return this;
 	}
 
 
