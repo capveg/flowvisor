@@ -323,6 +323,11 @@ public class FVConfig {
 		}		
 	}
 
+	public static String readPasswd(String prompt) throws IOException { 
+		System.err.println(prompt);
+		// FIXME turn off echo
+		return new BufferedReader(new InputStreamReader(System.in)).readLine();
+	}
 	/**
 	 * Create a default config file and write it to arg1
 	 * 
@@ -336,17 +341,17 @@ public class FVConfig {
 			System.exit(1);
 		}
 		String filename = args[0];
-		System.err.println("Enter password for root account (will be echo'd!):");
-		// FIXME turn off echo
-		String passwd = new BufferedReader(new InputStreamReader(System.in)).readLine();
+		String passwd = FVConfig.readPasswd("Enter password for root account (will be echo'd!):");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
 		FVConfig.writeToFile(filename);
 	}
 
 	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
-		
-		
+		ConfDirEntry sliceList= (ConfDirEntry) lookup(FVConfig.SLICES);
+		if(!sliceList.entries.containsKey(sliceName))
+			throw new ConfigNotFoundError("slice does not exist: " + sliceName);
+		sliceList.entries.remove(sliceName);
 	}
 
 	public static boolean confirm(String base) {
@@ -357,7 +362,7 @@ public class FVConfig {
 	 * Return the name of the super user account
 	 * @return
 	 */
-	public static String getRoot() {
-		return "root";
+	public static boolean isSupervisor(String user) {
+		return "root".equals(user);
 	}
 }

@@ -90,4 +90,12 @@ public interface FVUserAPI {
 	 */
 	public void changeFlowSpace(FlowChange[] changes);
 	
+	/**
+	 * Return a list of slices in the flowvisor: 
+	 * root only!
+	 * @return
+	 */
+	public String[] listSlices() throws PermissionDeniedException;
+		
+	
 }

@@ -51,7 +51,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public String[] listFlowSpace() {
 		String sliceName = APIUserCred.getUserName();
 		FlowMap flowMap;
-		if (sliceName.equals(FVConfig.getRoot()))
+		if (FVConfig.isSupervisor(sliceName))
 			flowMap = FVConfig.getFlowSpaceFlowMap();
 		else
 			flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
@@ -209,5 +209,23 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String[] listSlices() throws PermissionDeniedException {
+		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
+			throw new PermissionDeniedException("listSlices only available to root");
+		String[] sliceArr=null;
+		try {
+			List<String> slices = FVConfig.list(FVConfig.SLICES);
+			sliceArr = new String[slices.size()];
+			slices.toArray(sliceArr);
+		} catch (ConfigError e) {
+			e.printStackTrace();
+			new RuntimeException("wtf!?: no SLICES subdir found in config");
+		}
+		return sliceArr;
+	}
+	
+	
 
 }

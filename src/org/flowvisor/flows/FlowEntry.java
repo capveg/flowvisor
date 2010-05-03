@@ -53,7 +53,7 @@ public class FlowEntry {
 	}
 	
 	public FlowEntry() {
-		// set nothing; java bean
+		this.index = -1; // set nothing; java bean
 	}
 	
 	public OFMatch getMatch() {

@@ -70,11 +70,11 @@ public class DefaultConfig {
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
 			// create slices
 			FVConfig.createSlice("root", 	"none", 0, rootPasswd, "root@localhost",
-					FVConfig.getRoot());
+					"root");
 			FVConfig.createSlice("alice", 	"localhost", 54321, "alicePass", "alice@foo.com",
-					FVConfig.getRoot());
+					"root");
 			FVConfig.createSlice("bob", 	"localhost", 54322, "bobPass", "bob@foo.com",
-					FVConfig.getRoot());
+					"root");
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);

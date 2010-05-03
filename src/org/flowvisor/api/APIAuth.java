@@ -132,10 +132,9 @@ public class APIAuth implements AuthenticationHandler {
 	public static boolean transitivelyCreated(String changerSlice,
 			String sliceName) {
 		String user = sliceName;
-		String root = FVConfig.getRoot();
-		if(changerSlice.equals(root)) // root created everyone
+		if(FVConfig.isSupervisor(changerSlice)) // root created everyone
 			return true;
-		while(!user.equals(root)) {
+		while(!FVConfig.isSupervisor(user)) {
 			if(user.equals(changerSlice))
 				return true;
 			try {
