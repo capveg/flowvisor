@@ -16,6 +16,7 @@ $base/lib/xmlrpc-common-3.1.3.jar:\
 $base/lib/xmlrpc-server-3.1.3.jar:\
 $base/lib/commons-logging-1.1.jar:\
 $base/lib/ws-commons-util-1.0.2.jar:\
+$base/lib/jsse.jar:\
 $base/dist/flowvisor.jar
 
 # ssl options for the jvm

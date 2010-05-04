@@ -3,6 +3,10 @@ package org.flowvisor.config;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.flowvisor.flows.FlowEntry;
+import org.flowvisor.flows.SliceAction;
+import org.openflow.protocol.OFMatch;
+
 /**
  * Takes a string of the form "foo[key1=[val1],key2=[val2],]" are returns a hashmap containg
  * ( key1 			=> val1, 
@@ -24,13 +28,87 @@ public class BracketParse {
 	 * @return null if unparsed, else a hashmap, as above
 	 */
 	
-	static HashMap<String,String> decode(String line) {
+	public static HashMap<String,String> decode(String line) {
 		HashMap<String,String> map = new LinkedHashMap<String,String>();
 		int index = line.indexOf("[");
 		if (index< 0)
 			return null;	// unparsed
-		
-		
+		String name = line.substring(0, index);
+		String rest = line.substring(index+1);
+		map.put(OBJECTNAME, name);
+		int bracketCount=1;
+		index=0;
+		String key=null;
+		String value;
+		while(index < rest.length() ) {
+			switch(rest.charAt(index)) {
+			case '[':  
+				if (bracketCount == 1) {  // begin of a value
+					rest = rest.substring(index+1);
+					index=-1;
+				}
+				bracketCount++;
+				break;
+			case ']':
+				bracketCount--;
+				if (bracketCount==1) { // end of a value
+					value = rest.substring(0,index);
+					rest = rest.substring(index+1);
+					if(key == null)
+						return null;	// unparsed
+					map.put(key,value);
+					key=null;
+				}
+				break;
+			case '=':
+				if (bracketCount==1) {	// end of a key
+					key = rest.substring(0, index);
+					rest = rest.substring(index+1);
+					index=-1;
+				}
+				break;
+			case ',':
+				if (bracketCount==1) { // begin of key
+					rest = rest.substring(index+1);
+					index=-1;
+				}
+			} // switch
+			index++;
+		} // while
 		return map;
 	}
+	
+	public static String encode(HashMap<String,String> map) {
+		if ( !map.containsKey(OBJECTNAME) )
+			return null;		// needs to have a OBJECTNAME key
+		String base = map.get(OBJECTNAME) + "[";
+		for(String key: map.keySet()) {
+			if (key.equals(OBJECTNAME))
+				continue;
+			base += key + "=[" + map.get(key) + "],";
+		}
+		return base + "]";
+	}
+	
+	/** 
+	 * Test that FlowEntry marshalling/unmarshalling works
+	 * @param args
+	 * 
+	 * FIXME: move me to JUnit
+	 */
+	public static void main(String args[]) {
+		OFMatch match = new OFMatch();
+		match.setWildcards(OFMatch.OFPFW_ALL& (~OFMatch.OFPFW_IN_PORT));
+		match.setInputPort((short)4);
+		
+		FlowEntry rule = new FlowEntry(FlowEntry.ALL_DPIDS, match, 
+				new SliceAction("bob", SliceAction.WRITE));
+		String test = rule.toString();
+		FlowEntry testRule = FlowEntry.fromString(test);
+		if (testRule.equals(rule)) 
+			System.out.println("Success");
+		else 
+			System.out.println("Failed");
+	}
 }
+

@@ -5,7 +5,11 @@ package org.flowvisor.flows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.flowvisor.config.BracketParse;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.*;
 import org.openflow.util.HexString;
@@ -401,22 +405,20 @@ public class FlowEntry {
 
 	@Override
 	public String toString() {
-		String actions = "";
-		for(OFAction action : actionsList) 
-			actions += action.toString() +",";
-		String dpid_str;
-		if(this.dpid == ALL_DPIDS)
-			dpid_str = ALL_DPIDS_STR;
+		HashMap<String,String> map = new LinkedHashMap<String, String>();
+		map.put(BracketParse.OBJECTNAME,"FlowEntry");
+		if(dpid == ALL_DPIDS)
+			map.put("dpid", ALL_DPIDS_STR);
 		else
-			dpid_str = HexString.toHexString(this.dpid);
-		String indexStr;
-		if (index != -1)
-			indexStr = ",index=" + index;
-		else 
-			indexStr = "";
-		
-		return "FlowEntry[dpid=[" + dpid_str +
-				"],ruleMatch=[" + this.ruleMatch + "],actionsList=[" + actions + "]" + indexStr+ "]";
+			map.put("dpid", String.valueOf(dpid));
+		map.put("ruleMatch", this.ruleMatch.toString());
+		String actions = "";
+		for(OFAction action : actionsList)
+			actions += action.toString() +",";
+		map.put("actionsList", actions);
+		if(this.index!= -1)
+			map.put("index", String.valueOf(-1));
+		return BracketParse.encode(map);
 	}
 
 	/**
@@ -429,23 +431,23 @@ public class FlowEntry {
 	 * @return an initialized flowentry
 	 */
 	public static FlowEntry fromString(String string) {
-		String[] tokens = string.split("[]");
 		List<OFAction> actionsList = new ArrayList<OFAction>();
 		long dpid;
 		OFMatch rule ;
-		if (!tokens[0].equals("FlowEntry"))
-			throw new IllegalArgumentException("expected FlowEntry, got '" + tokens[0]+ "'");
-		if (!tokens[1].equals("dpid="))
-			throw new IllegalArgumentException("expected dpid=, got '" + tokens[1]+ "'");
+		HashMap<String,String> map = BracketParse.decode(string);
+		if ((map== null)||(!map.get(BracketParse.OBJECTNAME).equals("FlowEntry")))
+			throw new IllegalArgumentException("expected FlowEntry, got '" + string+ "'");
+		if (!map.containsKey("dpid"))
+			throw new IllegalArgumentException("expected dpid, got '" + string+ "'");
 		int i;
 		// translate dpid
-		if (tokens[2].equals(ALL_DPIDS_STR))
+		if (map.get("dpid").equals(ALL_DPIDS_STR))
 			dpid = ALL_DPIDS;
 		else
-			dpid = HexString.toLong(tokens[2]);
+			dpid = HexString.toLong(map.get("dpid"));
 		rule = new OFMatch();
-		rule.fromString(tokens[4]);
-		String [] actions = tokens[6].split(",");
+		rule.fromString(map.get("ruleMatch"));
+		String [] actions = map.get("actionsList").split(",");
 		for (i=0; i < actions.length ; i++ )
 			if(! actions[i].equals(""))
 				actionsList.add(OFAction.fromString(actions[i]));
