@@ -298,6 +298,7 @@ public class FVClassifier implements FVEventHandler {
 		// foreach slice, make sure it has access to this switch
 		for(String sliceName : newSlices ) {
 			if(! slicerMap.containsKey(sliceName)) {
+				FVLog.log(LogLevel.INFO, this, "connecting to slice " + sliceName);
 				FVSlicer newSlicer = new FVSlicer(this.loop, this, sliceName);
 				slicerMap.put(sliceName, newSlicer); // create new slicer in this same EventLoop
 				newSlicer.init();	// and start it up
