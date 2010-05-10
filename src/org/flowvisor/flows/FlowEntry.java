@@ -417,7 +417,7 @@ public class FlowEntry {
 			actions += action.toString() +",";
 		map.put("actionsList", actions);
 		if(this.index!= -1)
-			map.put("index", String.valueOf(-1));
+			map.put("index", String.valueOf(this.index));
 		return BracketParse.encode(map);
 	}
 
