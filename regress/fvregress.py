@@ -68,7 +68,7 @@ def a2b(str):
     return binascii.unhexlify(str.translate(string.maketrans('',''),string.whitespace))
 
 def findInPath(binary):
-    for dir in ['', '..'] + os.environ['PATH'].split(':'):
+    for dir in ['', '..', "../scripts"] + os.environ['PATH'].split(':'):
         if dir == '':
             sep = ''
         else : 
@@ -107,21 +107,21 @@ class FakeController(Thread):
         self.setDaemon(True)
         print "    Spawning new Controller " + self.name + " on listenning on port " + str(port)
     def run(self):
-        print "        Starting io loop for controller "+ self.name
+        print "        Controller" + self.name + ": Starting io loop"
         while 1 :
             (sock, address) = self.listen_sock.accept()
             self.switch_lock.acquire()
-            print "    Controller " + self.name + " got a new connection from " + address[0] + ":"+ str(address[1]) + " : spawning new FakeSwitch"
+            print "    Controller " + self.name + ": got a new connection from " + address[0] + ":"+ str(address[1]) + " : spawning new FakeSwitch"
             sw = FakeSwitch("sliced_switch_"+self.name+"_"+ str(len(self.sliced_switches)),sock=sock)
             sw.start()
-            print "    Controller " + self.name + " sending hello"
+            print "    Controller " + self.name + ": sending hello"
             sw.send(a2b(FvRegress.HELLO))
             m = sw.recv_blocking(timeout=FakeController.DefTimeout)
             if not of_cmp(FvRegress.HELLO,b2a(m)) :
                 raise FvExcept("mismatched hellos in FakeController " + self.name)
-            print "    Controller " + self.name + " sending features request"
+            print "    Controller " + self.name + ": sending features request"
             sw.send(a2b(FvRegress.FEATURE_REQUEST))
-            print "    Controller " + self.name + " waiting for switch features"
+            print "    Controller " + self.name + ": waiting for switch features"
             m = sw.recv_blocking(timeout=FakeController.DefTimeout)
             if not m :
                 raise FvExcept("Got no feature_response from sliced switch " + address[0] + ":" + str(address[1]) + \
@@ -129,9 +129,9 @@ class FakeController(Thread):
             if len(m) < 32 :
                 raise FvExcept("Got short feature_response from sliced switch " + address[0] + ":" + str(address[1]) + \
                     " on FakeController " + self.name)
-            print "    Controller " + self.name + " got switch features"
+            print "    Controller " + self.name + ": got switch features"
             dpid = unpack("!Q ",m[8:16])[0]
-            print "    Fake Controller Alice got a connection from switch with dpid= '" + str(dpid) + "'"
+            print "    Controller " + self.name + ": got a connection from switch with dpid= '" + str(dpid) + "'"
             self.sliced_switches[dpid]=sw
             self.switch_lock.release()
     def name(self):
@@ -264,7 +264,6 @@ class FvRegress:
         ff ff ff ff ff ff 00 00
         '''))
     logfile = 'fv_regress.log'
-    defaultArgs= ["%d" % OFPORT  ]
 
     def __init__(self):
         # set up the guests
@@ -291,24 +290,20 @@ class FvRegress:
         fc = FakeController(name,port)
         self.fakeControllers[name]= fc
         fc.start()
-    def spawnFlowVisor(self,configDir="flowvisor-conf.d",port=OFPORT,fv_jvm=None,fv_args=defaultArgs):
+    def spawnFlowVisor(self,configFile="test-base.xml",port=OFPORT,fv_cmd="flowvisor.sh",fv_args=[]):
         """start the flowvisor"""
-        if not fv_jvm:
-            fv_jvm = findInPath('java')
-            fv_jar = findJar('flowvisor.jar')
-            if fv_jvm and fv_jar:
-                print "    Using flowvisor from : " + fv_jvm + " " + fv_jar
-            else:
-                raise FvExcept("could not find the jvm or flowvisor jar in the path or in ../flowvisor")
-        print "    Spawning '" +  fv_jvm + " -jar " + fv_jar + " " + " ".join(fv_args) + "'"
+        cmd = findInPath(fv_cmd)
+        if cmd:
+            print "    Using flowvisor from : " + cmd
+        else:
+                raise FvExcept("could not find " +fv_cmd )
+        print "    Spawning '" +  cmd + " " + configFile
 
         self.logfile = open(FvRegress.logfile,'w+')
-        self.fv_child=subprocess.Popen([fv_jvm, "-jar", fv_jar] +
+        self.fv_child=subprocess.Popen([cmd, configFile ]  +
                 fv_args,stdout=self.logfile.fileno(),
                 stderr=self.logfile.fileno(),close_fds=True)
         print '    flowvisor spawned at Pid=%d (output stored in %s) ' %  ( self.fv_child.pid, FvRegress.logfile)
-        print "    Sleeping a bit before first to let flowvisor start"
-        time.sleep(1.0)
     def useAlreadyRunningFlowVisor(self,port=None) :
         if(port):
             FvRegress.OFPORT = port
@@ -358,10 +353,10 @@ class FvRegress:
                 if not of_cmp(b2a(m),FvRegress.FEATURE_REQUEST) :
                     raise FvExcept("Failed to get features_request from fake controller " + \
                         cont + " for new switch " + name + " got " + b2a(m))
-                print "    Got feature_request (from FC " + cont + ") for " + name
+                print "    addSwitch: Got feature_request (from FC " + cont + "(?)) for " + name
                 switch_features= switch_features[0:4] + m[4:8] + switch_features[8:]    # match xids
                 sw.send(switch_features)
-                print "    Sent switch_features to fake controller " + cont
+                print "    addSwitch: Sent switch_features response: (to fake controller " + cont  + "?)"
         except (Exception),e :
             print "############ Test %s FAILED! :exception=%s" % (name,e)
             print str(e)
@@ -442,6 +437,9 @@ class FvRegress:
             raise(e)
         print "############ Test %s SUCCEEDED!" % name
         return True
+    def lamePause(self):
+        print " Sleeping a little to let FV initialize"
+        time.sleep(1.0)
     def runSendTest(self,event,count):
         msg= "%s packet %d from %s %s" % ( event.action, count, event.actor, event.actorID)
         #packet = binascii.unhexlify(event.packet)
@@ -529,73 +527,16 @@ class FvRegress:
     def doPause(str):
         print "Press RETURN to %s" % str
         sys.stdin.readline()
-    def parseConfig(configDir, alreadyRunning=False, port=OFPORT,*args):
-        controllerFiles=[]
-        switchFiles = []
-        for fname in os.listdir(configDir) :
-            path = configDir + "/" + fname
-            if fname.endswith(".switch") :
-                switchFiles.append( path)
-            elif fname.endswith(".guest") :
-                controllerFiles.append( path)
-            else :
-                print "ParseConfig: ignoring file " + path
+    def parseConfig(configFile, alreadyRunning=False, port=OFPORT,*args):
         h = FvRegress()
-        for cont in controllerFiles :
-            name, cport = parseController(cont)
-            print "##ParseConfig: found controller " + name + " on port " + str(cport)
-            h.addController(name,cport)
         if alreadyRunning : 
             print "##ParseConfig: connecting to already running flowvisor"
             h.useAlreadyRunningFlowVisor(port=port)
         else :
             print "##ParseConfig: spawning flowvisor"
-            h.spawnFlowVisor(configDir=configDir,port=port*args)
-        for switch in switchFiles :
-            name,dpid = parseSwitch(switch)
-            if name : 
-                print "##ParseConfig: found switch " + name + " with dpid= " + str(dpid)
-                h.addSwitch(name=name, dpid=dpid, port=port)
-            else : 
-                print "    skipping default switch '" + switch + "'"
+            h.spawnFlowVisor(configFile=configFile,port=port*args)
         return h
     parseConfig = staticmethod(parseConfig)    # fugly python hackery
-
-
-def parseController(file) :
-    f = open(file,"r")
-    name = os.path.basename(file).replace(".guest","")
-    port = None
-    for line in f.readlines() :
-        if line.lower().startswith("name: ") :
-            name = line.lower().replace("name: ",'').strip(" \n\r\t")
-        elif line.lower().startswith("host: ") :
-            i = line.rfind(":")
-            port = int( line[i+1:-1].strip(" \n\r\t"))
-    if port == None :
-        raise FvExcept( "ParseController : could not find a Host entry for controller " + file )
-    return [name, port]
-def parseSwitch(file) :
-    f = open(file,"r")
-    name = os.path.basename(file).replace(".switch","")
-    dpid=None
-    default=False
-    for line in f.readlines() :
-        if line.lower().startswith("name: ") :
-            name = line.lower().replace("name: ",'').strip(" \n\r\t")
-        elif line.lower().startswith("default: ") :
-            default=True
-        elif line.lower().startswith("datapathid: ") :
-            dpid = 0
-            octs = line.lower().replace("datapathid: ",'').strip(" \n\r\t").split(":")
-            #octs.reverse()
-            for oct in octs:
-                #print "oct = " + oct + "dpid= " + str(dpid)
-                dpid = dpid *256 + int(oct)
-    if default : 
-        return [None, None]
-    else :
-        return [name,dpid]
 
 
 def doPause(str):
@@ -609,26 +550,30 @@ if __name__ == '__main__':
     config_request =  FvRegress.OFVERSION + '0700085680f7a9'
     config_request_translated =      FvRegress.OFVERSION + '07000804010000'    # flowvisor should translate xid
     config_request_translated2 =      FvRegress.OFVERSION + '07000805010000'    # flowvisor should translate xid
-    #h= FvRegress(port=6633)
-    #h.addController("alice", 54321)
-    #h.addController("bob", 54322)
-    #h.useAlreadyRunningFlowVisor(6633)
-    #h.addSwitch(name='switch1', port=port)
-    #h.addSwitch(name='switch2', port=port)
-    if len(sys.argv) > 1 :
-        h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base', alreadyRunning=True, port=int(sys.argv[1]))
-    else:
-        h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base')
+    h= FvRegress()
+    port=16633
+    try: 
+        h.addController("alice",    54321)
+        h.addController("bob",      54322)
+        if len(sys.argv) > 1 :
+            port=int(sys.argv[1])
+            h.useAlreadyRunningFlowVisor(port)
+        else:
+            h.spawnFlowVisor(configFile="tests-base.xml")
+        h.lamePause()
+        h.addSwitch(name='switch1',port=port)
+        #h.addSwitch(name='switch2',port=port)
 
-    if debug:
-        h.doPause("start tests")
-    h.runTest("config request test", [
-            TestEvent( "send","guest",'alice', packet=config_request),
-            TestEvent( "recv","switch",'switch1', packet=config_request_translated),        # turn off strict xid checking
-            TestEvent( "send","guest",'alice',actorID2='switch2', packet=config_request),
-            TestEvent( "recv","switch",'switch2', packet=config_request_translated2),
-            ])
+        if debug:
+            h.doPause("start tests")
+        h.runTest("config request test", [
+                TestEvent( "send","guest",'alice', packet=config_request),
+                TestEvent( "recv","switch",'switch1', packet=config_request_translated),        # turn off strict xid checking
+                TestEvent( "send","guest",'alice',actorID2='switch2', packet=config_request),
+                TestEvent( "recv","switch",'switch2', packet=config_request_translated2),
+                ])
 
-    if debug:
-        h.doPause("do cleanup")
-    h.cleanup()
+        if debug:
+            h.doPause("do cleanup")
+    finally:
+        h.cleanup()

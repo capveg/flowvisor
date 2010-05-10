@@ -10,7 +10,7 @@ if len(sys.argv) > 1 :
 else:
     wantPause = False
     timeout=5
-    h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base')
+    h = FvRegress.parseConfig(configFile='test-base.xml')
 
 # start up a flowvisor with 1 switch (default) and two guests
 
