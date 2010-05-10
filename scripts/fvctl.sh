@@ -10,4 +10,4 @@ else
 fi
 
 
-exec java -cp $classpath org.flowvisor.api.APIClientTool $@
+exec java -cp $classpath org.flowvisor.api.FVCtl $@
