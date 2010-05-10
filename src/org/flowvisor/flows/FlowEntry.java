@@ -269,9 +269,9 @@ public class FlowEntry {
 		TestField tester = new TestField();
 		OFMatch interMatch = intersection.getMatch();
 		
-		// test DPID
+		// test DPID: 1<<31 == unused wildcard field -- hack!
 		intersection.setDPID(
-				tester.testFieldLong(intersection, 1, dpid == ALL_DPIDS ? 1 : 0 , this.dpid == ALL_DPIDS? 1: 0, 
+				tester.testFieldLong(intersection, 1<<31, dpid == ALL_DPIDS ? 1<<31 : 0 , this.dpid == ALL_DPIDS? 1<<31: 0, 
 						dpid, this.dpid)
 		);
 		if (intersection.getMatchType() == MatchType.NONE) 
