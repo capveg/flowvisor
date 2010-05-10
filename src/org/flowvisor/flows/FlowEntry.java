@@ -450,7 +450,7 @@ public class FlowEntry {
 		String [] actions = map.get("actionsList").split(",");
 		for (i=0; i < actions.length ; i++ )
 			if(! actions[i].equals(""))
-				actionsList.add(OFAction.fromString(actions[i]));
+				actionsList.add(SliceAction.fromString(actions[i]));
 		
 		return new FlowEntry(dpid, rule, actionsList);
 	}
