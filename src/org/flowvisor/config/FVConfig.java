@@ -328,24 +328,7 @@ public class FVConfig {
 		// FIXME turn off echo
 		return new BufferedReader(new InputStreamReader(System.in)).readLine();
 	}
-	/**
-	 * Create a default config file and write it to arg1
-	 * 
-	 * @param args filename
-	 * @throws FileNotFoundException 
-	 */
-	
-	public static void main(String args[]) throws FileNotFoundException, IOException {
-		if(args.length != 1) {
-			System.err.println("Usage: FVConfig filename");
-			System.exit(1);
-		}
-		String filename = args[0];
-		String passwd = FVConfig.readPasswd("Enter password for root account (will be echo'd!):");
-		System.err.println("Generating default config to " + filename);
-		DefaultConfig.init(passwd);
-		FVConfig.writeToFile(filename);
-	}
+
 
 	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
 		ConfDirEntry sliceList= (ConfDirEntry) lookup(FVConfig.SLICES);
@@ -364,5 +347,24 @@ public class FVConfig {
 	 */
 	public static boolean isSupervisor(String user) {
 		return "root".equals(user);
+	}
+
+	/**
+	 * Create a default config file and write it to arg1
+	 * 
+	 * @param args filename
+	 * @throws FileNotFoundException 
+	 */
+	
+	public static void main(String args[]) throws FileNotFoundException, IOException {
+		if(args.length != 1) {
+			System.err.println("Usage: FVConfig filename");
+			System.exit(1);
+		}
+		String filename = args[0];
+		String passwd = FVConfig.readPasswd("Enter password for root account (will be echo'd!):");
+		System.err.println("Generating default config to " + filename);
+		DefaultConfig.init(passwd);
+		FVConfig.writeToFile(filename);
 	}
 }
