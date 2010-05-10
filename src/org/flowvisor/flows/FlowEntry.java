@@ -478,4 +478,43 @@ public class FlowEntry {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((actionsList == null) ? 0 : actionsList.hashCode());
+		result = prime * result + (int) (dpid ^ (dpid >>> 32));
+		result = prime * result
+				+ ((ruleMatch == null) ? 0 : ruleMatch.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FlowEntry other = (FlowEntry) obj;
+		if (actionsList == null) {
+			if (other.actionsList != null)
+				return false;
+		} else if (!actionsList.equals(other.actionsList))
+			return false;
+		if (dpid != other.dpid)
+			return false;
+		if (ruleMatch == null) {
+			if (other.ruleMatch != null)
+				return false;
+		} else if (!ruleMatch.equals(other.ruleMatch))
+			return false;
+		return true;
+	}
+
+	
+
 }
