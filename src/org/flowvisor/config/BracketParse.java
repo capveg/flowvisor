@@ -54,6 +54,7 @@ public class BracketParse {
 				if (bracketCount==1) { // end of a value
 					value = rest.substring(0,index);
 					rest = rest.substring(index+1);
+					index=-1;
 					if(key == null)
 						return null;	// unparsed
 					map.put(key,value);
