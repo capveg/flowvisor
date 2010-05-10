@@ -57,7 +57,7 @@ public class FlowEntry {
 	}
 	
 	public FlowEntry() {
-		this.index = -1; // set nothing; java bean
+		// set nothing; java bean
 	}
 	
 	public OFMatch getMatch() {
