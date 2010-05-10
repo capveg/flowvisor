@@ -4,7 +4,9 @@
 package org.flowvisor.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIUserCred;
@@ -105,7 +107,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @param newPasswd
 	 */
 	@Override
-	public void changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException {
+	public boolean changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
 		if(!APIAuth.transitivelyCreated(changerSlice,sliceName))
 			throw new PermissionDeniedException("Slice " + changerSlice + 
@@ -121,13 +123,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
-		
+		return true;
 	}
 
 	@Override
-	public void change_passwd(String sliceName, String newPasswd)
+	public boolean change_passwd(String sliceName, String newPasswd)
 			throws PermissionDeniedException {
-		changePasswd(sliceName, newPasswd);
+		return changePasswd(sliceName, newPasswd);
 		// just call changePasswd(); keeping the two names made things easier for Jad /shrug
 	}
 
@@ -207,7 +209,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	
 	@Override
-	public void changeFlowSpace(FlowChange[] changes) {
+	public boolean changeFlowSpace(FlowChange[] changes) {
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
@@ -232,6 +234,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 						change.operation);
 			}
 		}
+		return true;
 	}
 
 	@Override
@@ -248,6 +251,28 @@ public class FVUserAPIImpl implements FVUserAPI {
 			new RuntimeException("wtf!?: no SLICES subdir found in config");
 		}
 		return sliceArr;
+	}
+
+	@Override
+	public Map<String, String> getSliceInfo(String sliceName) throws PermissionDeniedException {
+		HashMap<String,String> map = new HashMap<String,String>();
+		String user = APIUserCred.getUserName();
+		if(!FVConfig.isSupervisor(user)&&
+				!APIAuth.transitivelyCreated(user, sliceName))
+			throw new PermissionDeniedException("not superuser or transitive slice creator");
+		String base = FVConfig.SLICES + "." + sliceName + ".";
+		
+		try {
+			map.put("contact_email", FVConfig.getString(base + "contact_email"));
+			map.put("controller_hostname", FVConfig.getString(base + "controller_hostname"));
+			map.put("controller_port", String.valueOf(FVConfig.getInt(base+ "controller_port")));
+			map.put("creator", FVConfig.getString(base + "creator"));
+		} catch (ConfigError e) {
+			FVLog.log(LogLevel.CRIT, null, "malformed slice: " + e);
+			e.printStackTrace();
+		}
+		
+		return map;
 	}
 	
 	

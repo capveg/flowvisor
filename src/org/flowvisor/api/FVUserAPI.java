@@ -1,5 +1,7 @@
 package org.flowvisor.api;
 
+import java.util.Map;
+
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
@@ -33,6 +35,8 @@ public interface FVUserAPI {
 	public boolean createSlice(String sliceName, String passwd, 
 			String controller_url, String slice_email) throws MalformedControllerURL;
 	
+	public Map<String,String> getSliceInfo(String sliceName) throws PermissionDeniedException;
+	
 	/**
 	 * Change the password for this slice
 	 * 
@@ -42,9 +46,9 @@ public interface FVUserAPI {
 	 * @param sliceName
 	 * @param newPasswd
 	 */
-	public void changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException;
+	public boolean changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException;
 	// have both names, b/c it makes the OM's life easier
-	public void change_passwd(String sliceName, String newPasswd) throws PermissionDeniedException;
+	public boolean change_passwd(String sliceName, String newPasswd) throws PermissionDeniedException;
 	
 	/**
 	 * Get the list of devices (e.g., switches, routers, APs) connected to the FV
@@ -88,7 +92,7 @@ public interface FVUserAPI {
 	 * 
 	 * @param changes list of changes
 	 */
-	public void changeFlowSpace(FlowChange[] changes);
+	public boolean changeFlowSpace(FlowChange[] changes);
 	
 	/**
 	 * Return a list of slices in the flowvisor: 

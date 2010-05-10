@@ -24,7 +24,7 @@ public class FlowChange {
 		// java beans constructor
 	}
 
-	public FlowChange(FlowChangeOp operation, int index, long dpid, FlowEntry entry) {
+	public FlowChange(FlowChangeOp operation, int index, FlowEntry entry) {
 		super();
 		this.operation = operation;
 		this.index = index;
