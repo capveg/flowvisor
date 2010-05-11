@@ -189,16 +189,22 @@ public class FVCtl {
 			System.err.println("failed!");
 	}
 
+	@SuppressWarnings("unchecked")
 	public void run_getSliceInfo(String sliceName) throws IOException, XmlRpcException {
-		Map<Object,Object> reply = (Map<Object,Object>) this.client.execute("api.getSliceInfo", 
-						new Object[] {sliceName});
-		if(reply == null) {
+		
+		Object o =  this.client.execute("api.getSliceInfo", 
+				new Object[] {sliceName});
+		if(o == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}
+		Map<String,String> reply = null;
+		if (o instanceof Map<?, ?>)
+			reply = (Map<String,String>) o; 
+			
 		System.err.println("Got reply:");
-		for(Object key: reply.keySet()) 
-			System.out.println((String)key + "=" + (String) reply.get(key));
+		for(String key: reply.keySet()) 
+			System.out.println(key + "=" + reply.get(key));
 	}
 
 	
