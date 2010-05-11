@@ -63,7 +63,7 @@ public class FlowSpaceUtil {
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
 				if (sliceAction.getSliceName().equals(sliceName)) {
-					FlowEntry neoRule = new FlowEntry(rule.getDpid(),rule.getMatch().clone(), 
+					FlowEntry neoRule = new FlowEntry(rule.getDpid(),rule.getRuleMatch().clone(), 
 							sliceAction.clone());
 					neoRule.setIndex(rule.getIndex());
 					ret.addRule(ret.countRules(),neoRule);
@@ -98,7 +98,7 @@ public class FlowSpaceUtil {
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
 				if (sliceAction.sliceName.equals(slice)) {
-					OFMatch ruleMatch = rule.getMatch();
+					OFMatch ruleMatch = rule.getRuleMatch();
 					if ((ruleMatch.getWildcards()& OFMatch.OFPFW_IN_PORT) != 0)
 						allPorts = true;
 					else 

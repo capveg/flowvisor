@@ -37,8 +37,8 @@ public class FlowEntry {
 	 */
 	public FlowEntry(long dpid, OFMatch match, List<OFAction> actionsList) {
 		this.dpid = 		dpid;
-		this.ruleMatch = 		match;
-		this.index = -1;
+		this.ruleMatch = 	match;
+		this.index = 		-1;
 		this.actionsList = 	actionsList;
 	}
 	
@@ -60,12 +60,6 @@ public class FlowEntry {
 		// set nothing; java bean
 	}
 	
-	public OFMatch getMatch() {
-		return this.ruleMatch;
-	}
-	public void setMatch(OFMatch match) {
-		this.ruleMatch = match;
-	}
 	
 	public long getDPID() {
 		return this.dpid;

@@ -24,7 +24,7 @@ public class FlowIntersect {
 	
 	public FlowIntersect(FlowEntry flowEntry) {
 		this.dpid = FlowEntry.ALL_DPIDS;
-		this.match =  (OFMatch) flowEntry.getMatch().clone();
+		this.match =  (OFMatch) flowEntry.getRuleMatch().clone();
 		this.matchType = MatchType.UNKNOWN;
 		this.flowEntry = flowEntry;
 		this.maybeSubset = true;
