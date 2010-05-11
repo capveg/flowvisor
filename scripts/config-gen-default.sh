@@ -20,4 +20,4 @@ fi
 echo "Generating default FlowVisor config file to $config"
 java -cp $classpath org.flowvisor.config.FVConfig $config
 
-echo "You will need to create new slices/flowvisor using the root account"
+echo "You will need to create new slices using the root account"
