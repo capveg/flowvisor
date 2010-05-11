@@ -3,7 +3,13 @@
 out=tests.results
 sleep=0.5
 
-tests='tests-base.py  tests-ports.py tests-dynconfig.py tests-mobility.py tests-readonly.py tests-match.py tests-match_all.py tests-glen.py tests-deny.py tests-squelch.py tests-qos.py tests-of1-0.py'
+#tests='tests-base.py  tests-ports.py tests-dynconfig.py tests-mobility.py tests-readonly.py tests-match.py tests-match_all.py tests-glen.py tests-deny.py tests-squelch.py tests-qos.py tests-of1-0.py'
+
+tests="\
+tests-base.py \
+tests-api.py"
+
+    
 
 # need to completely fill in the test case
 #tests-expand.py \
