@@ -3,14 +3,6 @@ from fvregress import *
 import string     # really?  you have to do this?
 import sys
 
-if len(sys.argv) > 1 :
-    wantPause = False
-    timeout=60
-    h = FvRegress.parseConfig(configDir='flowvisor-conf.d-base', alreadyRunning=True, port=int(sys.argv[1]))
-else:
-    wantPause = False
-    timeout=5
-    h = FvRegress.parseConfig(configFile='test-base.xml')
 
 # start up a flowvisor with 1 switch (default) and two guests
 
@@ -18,12 +10,30 @@ else:
 #    hyperargs=["-v0", "-a", "flowvisor-conf.d-base", "ptcp:%d"% HyperTest.OFPORT],valgrind=valgrindArgs)
 
 
-if wantPause:
-    doPause("start tests")
-#################################### Start Tests
 try:
 
+    h= FvRegress()
+    port=16633
+    h.addController("alice",    54321)
+    h.addController("bob",      54322)
 
+    if len(sys.argv) > 1 :
+        wantPause = False
+        port=int(sys.argv[1])
+        timeout=60
+        h.useAlreadyRunningFlowVisor(port)
+    else:
+        wantPause = False
+        timeout=5
+        h.spawnFlowVisor(configFile="tests-base.xml")
+    h.lamePause()
+    h.addSwitch(name='switch1',port=port)
+    h.addSwitch(name='switch2',port=port)
+
+
+    if wantPause:
+        doPause("start tests")
+#################################### Start Tests
     feature_request =     FvRegress.OFVERSION + '05 0008 2d47 c5eb'
     feature_request_after = FvRegress.OFVERSION + '05 0008 0000 0102'
     h.runTest(name="feature_request",timeout=timeout,  events= [

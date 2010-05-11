@@ -562,7 +562,7 @@ if __name__ == '__main__':
             h.spawnFlowVisor(configFile="tests-base.xml")
         h.lamePause()
         h.addSwitch(name='switch1',port=port)
-        #h.addSwitch(name='switch2',port=port)
+        h.addSwitch(name='switch2',port=port)
 
         if debug:
             h.doPause("start tests")
