@@ -296,6 +296,7 @@ public class FVConfig {
 							new FileOutputStream(filename)
 							)
 					);
+		FVConfig.walk(new ConfigDumper(System.err));
 		enc.writeObject(FVConfig.root);
 		enc.close();
 	}
