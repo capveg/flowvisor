@@ -406,10 +406,7 @@ public class FlowEntry {
 		else
 			map.put("dpid", String.valueOf(dpid));
 		map.put("ruleMatch", this.ruleMatch.toString());
-		String actions = "";
-		for(OFAction action : actionsList)
-			actions += action.toString() +",";
-		map.put("actionsList", actions);
+		map.put("actionsList", FlowSpaceUtil.toString(actionsList));
 		if(this.index!= -1)
 			map.put("index", String.valueOf(this.index));
 		return BracketParse.encode(map);
