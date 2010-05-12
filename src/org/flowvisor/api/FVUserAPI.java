@@ -58,7 +58,7 @@ public interface FVUserAPI {
 	 * 
 	 * @return
 	 */
-	public String[] getDevices();
+	public List<String> listDevices();
 	
 	/**
 	 * Get information about a device
@@ -76,7 +76,7 @@ public interface FVUserAPI {
 	 * @return
 	 */
 	
-	public LinkAdvertisement[] getLinks();
+	public List<Map<String,String>> getLinks();
 	
 	/**
 	 * Delete the named slice
@@ -131,7 +131,7 @@ public interface FVUserAPI {
 	 * root only!
 	 * @return
 	 */
-	public String[] listSlices() throws PermissionDeniedException;
+	public List<String> listSlices() throws PermissionDeniedException;
 		
 	
 }

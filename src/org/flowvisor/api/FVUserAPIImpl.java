@@ -5,6 +5,7 @@ package org.flowvisor.api;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -144,43 +145,43 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	
 	@Override
-	public LinkAdvertisement[] getLinks() {
-		String[] devices = getDevices();
-		LinkAdvertisement[] list = new LinkAdvertisement[devices.length*2];
+	public List<Map<String,String>> getLinks() {
+		List<String> devices = listDevices();
+		List<Map<String,String>> list = new LinkedList<Map<String,String>>();
 		int linkIndex;
-		for(int i=0;i<devices.length; i++) {
+		for(int i=0;i<devices.size(); i++) {
 			// forward direction
-			linkIndex=i*2;
-			list[linkIndex].srcDPID = devices[i];
-			list[linkIndex].dstDPID = devices[(i+1)%devices.length];
-			list[linkIndex].srcPort = 0;
-			list[linkIndex].dstPort = 1;
-			list[linkIndex].attributes.put("fakeLink", "true");
+			LinkAdvertisement link = new LinkAdvertisement(); 
+			link.srcDPID = devices.get(i);
+			link.dstDPID = devices.get((i+1)%devices.size());
+			link.srcPort = 0;
+			link.dstPort = 1;
+			link.setAttribute("fakeLink", "true");
+			list.add(link.toMap());
 			// reverse direction
-			linkIndex=i*2+1;
-			list[linkIndex].dstDPID = devices[i];
-			list[linkIndex].srcDPID = devices[(i+1)%devices.length];
-			list[linkIndex].dstPort = 0;
-			list[linkIndex].srcPort = 1;
-			list[linkIndex].attributes.put("fakeLink", "true");
+			link = new LinkAdvertisement();
+			link.dstDPID = devices.get(i);
+			link.srcDPID = devices.get((i+1)%devices.size());
+			link.dstPort = 0;
+			link.srcPort = 1;
+			link.setAttribute("fakeLink", "true");
+			list.add(link.toMap());
 		}
 		return list;
 	}
 	
 	@Override
-	public String[] getDevices(){
+	public List<String> listDevices(){
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
-		List<Long> dpids = new ArrayList<Long>();
+		List<String> dpids = new ArrayList<String>();
 		for(FVEventHandler handler : fv.getHandlers()) {
 			if(handler instanceof FVClassifier)
-				dpids.add(((FVClassifier) handler).getSwitchInfo().getDatapathId());
+				dpids.add(
+						HexString.toHexString(
+								((FVClassifier) handler).getSwitchInfo().getDatapathId()));
 		}
-		String arr[] = new String[dpids.size()];
-		int i=0;
-		for(Long dpid : dpids)
-			arr[i++] = HexString.toHexString(dpid.longValue());
-		return arr;
+		return dpids;
 	}
 	
 	
@@ -276,19 +277,17 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public String[] listSlices() throws PermissionDeniedException {
+	public List<String> listSlices() throws PermissionDeniedException {
 		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
 			throw new PermissionDeniedException("listSlices only available to root");
-		String[] sliceArr=null;
+		List<String> slices = null;
 		try {
-			List<String> slices = FVConfig.list(FVConfig.SLICES);
-			sliceArr = new String[slices.size()];
-			slices.toArray(sliceArr);
+			slices = FVConfig.list(FVConfig.SLICES);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			new RuntimeException("wtf!?: no SLICES subdir found in config");
 		}
-		return sliceArr;
+		return slices;
 	}
 
 	@Override

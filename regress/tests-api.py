@@ -60,36 +60,42 @@ try:
         test_failed("listFlowSpace root test")
     print "     passed"
     print "GetDevices Test"
-    x =  s.api.getDevices()
+    x =  s.api.listDevices()
     valid_len = 2
     if len(x) != valid_len :
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
-        test_failed("getDevices root test1")
+        test_failed("listDevices root test1")
     valid = "00:00:00:00:00:00:00:01"
     if x[0] != valid:
         print "Got " + x[0] + " but wanted " + valid
-        test_failed("getDevices root test2")
+        test_failed("listDevices root test2")
     valid = "00:00:00:00:00:00:00:02"
     if x[1] != valid:
         print "Got " + x[1] + " but wanted " + valid
-        test_failed("getDevices root test3")
-    print "     passed"
+        test_failed("listDevices root test3")
     x = s.api.getDeviceInfo("00:00:00:00:00:00:00:01")
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
+    print "     passed"
+    x = s.api.getLinks()
+    linkcount=0
+    for link in x:
+        print "         Link " + str(linkcount) + ":"
+        for key,val in link.iteritems():
+            print "         " + key  + "=" + val 
 
 #################################### Start Alice Tests
     user="alice"
     passwd="alicePass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
-    print "Root ping test"
+    print "Alice ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG(alice): Joe mama"
     if(x != valid) : 
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
-    print "Root listFlowSpace test"
+    print "Alice listFlowSpace test"
     x = s.api.listFlowSpace()
     valid_len = 6 
     if len(x) != valid_len: 

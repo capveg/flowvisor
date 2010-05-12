@@ -45,9 +45,9 @@ public class FVCtl {
 	XmlRpcClient client;
 	static APICmd[] cmdlist = new APICmd[] { 
 		new APICmd("listFlowSpace",		0	),
-		new APICmd("getDevices",		0	),
-		new APICmd("getLinks",			0	),
 		new APICmd("listSlices",		0	),
+		new APICmd("listDevices",		0	),
+		new APICmd("getLinks",			0	),
 		new APICmd("ping",				1, "<msg>"),
 		new APICmd("deleteSlice",		1, "<slicename>"),
 		new APICmd("changePasswd",		1, "<slicename>"),
@@ -155,8 +155,8 @@ public class FVCtl {
 
 	}
 	
-	public void run_getDevices() throws XmlRpcException {
-		Object[] reply = (Object[]) this.client.execute("api.getDevices", new Object[] {});
+	public void run_listDevices() throws XmlRpcException {
+		Object[] reply = (Object[]) this.client.execute("api.listDevices", new Object[] {});
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);

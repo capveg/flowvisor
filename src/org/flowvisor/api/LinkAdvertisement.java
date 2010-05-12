@@ -4,6 +4,9 @@
 package org.flowvisor.api;
 
 import java.util.HashMap;
+import java.util.Map;
+
+import javax.smartcardio.ATR;
 
 /**
  * 
@@ -73,6 +76,34 @@ public class LinkAdvertisement {
 
 	public void setAttributes(HashMap<String, String> attributes) {
 		this.attributes = attributes;
+	}
+	
+	public void setAttribute(String key, String value) {
+		if(this.attributes == null)
+			this.attributes = new HashMap<String,String>();
+		this.attributes.put(key,value);
+	}
+
+	/**
+	 * I *SWEAR* XMLRPC is supposed to be able to handle this for me... :-(
+	 * 
+	 * @return a key=value paired map of information on this link
+	 */
+
+	public Map<String, String> toMap() {
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("srcDPID", srcDPID);
+		map.put("srcPort",String.valueOf(srcPort));
+		map.put("dstDPID", dstDPID);
+		map.put("dstPort",String.valueOf(dstPort));
+		String attribs = "";
+		for(String attrib : attributes.keySet()) {
+			if (!attribs.equals("")) 
+				attribs+=",";
+			attribs+=attrib + "=" + attributes.get(attrib);
+		}
+		map.put("attributes",attribs);
+		return map;
 	}
 	
 }
