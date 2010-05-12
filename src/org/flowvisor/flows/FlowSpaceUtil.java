@@ -202,4 +202,16 @@ public class FlowSpaceUtil {
 				rule.setIndex(i++);
 		}
 	}
+	
+	public static String toString(List<OFAction> actionsList) {
+		String actions = "";
+		if (actionsList == null)
+			return actions;
+		for(OFAction action : actionsList) {
+			if (!actions.equals(""))
+				actions+=",";
+			actions+=action.toString();
+		}
+		return actions;
+	}
 }
