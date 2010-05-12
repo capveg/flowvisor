@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -27,7 +29,7 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
-import org.flowvisor.flows.FlowEntry;
+import org.flowvisor.exceptions.MalformedFlowChange;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -53,8 +55,8 @@ public class FVCtl {
 		new APICmd("getDeviceInfo",     1, "<dpid>"),
 		new APICmd("createSlice",		3, "<slicename> <controller_url> <email>"),
 		new APICmd("removeFlowSpace", 	1, "<index>"),
-		new APICmd("addFlowSpace", 		2, "<index> <FlowEntry>"),
-		new APICmd("changeFlowSpace", 	2, "<index> <FlowEntry>")
+		new APICmd("addFlowSpace", 		4, "<index> <dpid> <match> <actions>"),
+		new APICmd("changeFlowSpace", 	4, "<index> <dpid> <match> <actions>")
 	};
 	static class APICmd {
 		String name;
@@ -102,6 +104,7 @@ public class FVCtl {
 		config.setBasicUserName(user);
 		config.setBasicPassword(passwd);
 		config.setServerURL(new URL(this.URL));
+		config.setEnabledForExtensions(true);
 	    
 		client = new XmlRpcClient();
 		//client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));
@@ -219,7 +222,6 @@ public class FVCtl {
 		for(String key: reply.keySet()) 
 			System.out.println(key + "=" + reply.get(key));
 	}
-
 	
 	public void run_createSlice(String sliceName, String controller_url, String slice_email) throws IOException, XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
@@ -259,8 +261,12 @@ public class FVCtl {
 	}
 
 	public void run_removeFlowSpace(String indexStr) throws XmlRpcException {
-		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer.valueOf(indexStr), null); 
-		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { change });
+		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer.valueOf(indexStr));
+		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
+		mapList.add(change.toMap());
+		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", 
+				new Object[] { mapList  });
+					
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
@@ -271,33 +277,34 @@ public class FVCtl {
 			System.err.println("failed!");	
 	}
 
-	public void run_addFlowSpace(String indexStr, String flowEntryStr) throws XmlRpcException {
-		FlowEntry flowEntry = FlowEntry.fromString(flowEntryStr);
-		FlowChange change = new FlowChange(FlowChangeOp.ADD, Integer.valueOf(indexStr), flowEntry); 
-		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { change });
-		if(reply == null) {
-			System.err.println("Got 'null' for reply :-(");
-			System.exit(-1);
-		}			
-		if (reply) 
-			System.err.println("success!");
-		else 
-			System.err.println("failed!");	
+	public void run_addFlowSpace(String indexStr, String dpid, String match, String actions) 
+					throws XmlRpcException, MalformedFlowChange {
+		do_flowSpaceChange(FlowChangeOp.ADD, indexStr, dpid, match, actions);
 	}
 
-	public void run_changeFlowSpace(String indexStr, String flowEntryStr) throws XmlRpcException {
-		FlowEntry flowEntry = FlowEntry.fromString(flowEntryStr);
-		FlowChange change = new FlowChange(FlowChangeOp.CHANGE, Integer.valueOf(indexStr), flowEntry); 
-		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { change });
-		if(reply == null) {
-			System.err.println("Got 'null' for reply :-(");
-			System.exit(-1);
-		}			
-		if (reply) 
-			System.err.println("success!");
-		else 
-			System.err.println("failed!");	
+	public void run_changeFlowSpace(String indexStr, String dpid, String match, String actions) 
+		throws XmlRpcException, MalformedFlowChange {
+		do_flowSpaceChange(FlowChangeOp.CHANGE, indexStr, dpid, match, actions);
 	}
+
+	private void do_flowSpaceChange(FlowChangeOp op, String indexStr, String dpid, 
+			String match, String actions) throws MalformedFlowChange, XmlRpcException{
+	Map<String,String> map = FlowChange.makeMap(op, indexStr, dpid, match,actions);
+	System.err.print("Local sanity checks: ");
+	FlowChange.fromMap(map);	// could throw MalformedFlowChange
+	System.err.print("passed");
+	List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
+	mapList.add(map);
+	Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
+	if(reply == null) {
+		System.err.println("Got 'null' for reply :-(");
+		System.exit(-1);
+	}			
+	if (reply) 
+		System.err.println("success!");
+	else 
+		System.err.println("failed!");			
+}
 
 	
 	public void run_listSlices() throws XmlRpcException {

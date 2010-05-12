@@ -16,8 +16,10 @@ import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
+import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
+import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
@@ -231,31 +233,45 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	
 	@Override
-	public boolean changeFlowSpace(FlowChange[] changes) {
+	public boolean changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange{
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
-		for(int i=0; i< changes.length; i++) {
-			FlowChange change = changes[i];
-			FVLog.log(LogLevel.INFO, null, "user " + user + " " + change.operation +
-					" at index=" + change.index + " flow entry " + 
-					change.getEntry());
+		for(int i=0; i< changes.size(); i++) {
+			FlowChange change = FlowChange.fromMap(changes.get(i)); 
+			FVLog.log(LogLevel.INFO, null, "user " + user + " " + change.getOperation() +
+					" at index=" + change.getIndex() + " for dpid=" + 
+					HexString.toHexString(change.getDpid()) + " match=" +
+					change.getMatch() + " actions=" + 
+					FlowSpaceUtil.toString(change.getActions())
+					);
 			switch(change.getOperation()) {
 			case ADD:
-				flowSpace.addRule(change.getIndex(), change.getEntry());
+				flowSpace.addRule(change.getIndex(), 
+						new FlowEntry(
+								change.getDpid(),
+								change.getMatch(),
+								change.getActions()
+								));
 				break;
 			case REMOVE:
-				flowSpace.getRules().remove(change.index);
+				flowSpace.getRules().remove(change.getIndex());
 				break;
 			case CHANGE:
-				flowSpace.getRules().set(change.index, change.getEntry());
+				flowSpace.getRules().set(change.getIndex(),new FlowEntry(
+						change.getDpid(),
+						change.getMatch(),
+						change.getActions()
+						)); 
 				break;
 			default:
 				FVLog.log(LogLevel.WARN, null, "user " + user + 
 						" ignoring unknown changeFlow event: " + 
-						change.operation);
+						change.getOperation());
 			}
 		}
+		// update the indexes at the end, not with each rule
+		FlowSpaceUtil.updateFlowSpaceIndexes();
 		return true;
 	}
 

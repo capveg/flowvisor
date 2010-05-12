@@ -1,9 +1,11 @@
 package org.flowvisor.api;
 
+import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
+import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
 
@@ -97,11 +99,32 @@ public interface FVUserAPI {
 	 * Changes are processed in order and only after the last change is 
 	 * applied to the changes take affect, i.e., this is transactional
 	 * 
-	 * FIXME: create a test case to make sure it is in fact transactional
+	 * FIXME: make this more codified; is XMLRPC the right thing here? Protobufs?
 	 * 
-	 * @param changes list of changes
+	 * Each Map should contain the following elements; all keys and values are strings
+	 *    key="operation", value={CHANGE,ADD,REMOVE}
+	 *    key="index",     value=index into flowspace for the operation
+	 *    
+	 *    additionally, ADD and CHANGE operations should contain
+	 *    key="dpid", value=8 octet hexcoded string, e.g., "00:00:23:20:10:25:55:af"
+	 *    key="match", value=dpctl-style OFMatch string, see below
+	 *    key="actions", value=comma separated string of SliceActions suitable to call SliceAction.fromString
+	 *    	e.g., "SliceAction:alice=4,SliceAction:bob=2
+	 *    
+	 *    FIXME: change perms flags to human readable letters, e.g., "(r)read,(w)rite,(d)elegate"
+	 *    
+	 *   The "match" value string is a comma separated string of the form "match_field=value", e.g.,
+	 *   "in_port=5,dl_src=00:43:af:35:22:11,tp_src=80" similar to dpctl from the OpenFlow reference switch.
+	 *   Any field not explicitly listed is assumed to be wildcarded.
+	 *     
+	 *   The string will get wrapped with "OFMatch[" + match_value + "]" and passed off to 
+	 *   OFMatch.fromString("OFMatch[" + match_value + "]") and generally follows the same convention
+	 *   as dpctl 
+	 * 
+	 * @param list of changes
+	 * @throws MalformedFlowChange
 	 */
-	public boolean changeFlowSpace(FlowChange[] changes);
+	public boolean changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange;
 	
 	/**
 	 * Return a list of slices in the flowvisor: 
