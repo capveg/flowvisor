@@ -6,8 +6,6 @@ package org.flowvisor.api;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.smartcardio.ATR;
-
 /**
  * 
  * @author capveg

@@ -77,12 +77,18 @@ try:
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
     print "     passed"
+    print "Root getLinks test"
     x = s.api.getLinks()
     linkcount=0
+    valid_len = 2
+    if len(x) != valid_len: 
+        print "Got " + str(len(x)) + " links but wanted " + str(valid_len)
+        test_failed("getLinks root test")
     for link in x:
-        print "         Link " + str(linkcount) + ":"
+        print "             Link " + str(linkcount) + ":"
         for key,val in link.iteritems():
-            print "         " + key  + "=" + val 
+            print "                 " + key  + "=" + val 
+    print "     passed"
 
 #################################### Start Alice Tests
     user="alice"
@@ -102,14 +108,26 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace alice test")
     print "     passed"
+    ## FIXME!
     #print s.api.change_passwd("alice","foo")
+#################################### Start Alice Tests
     user="bob"
     passwd="bobPass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
-    print "=============== Bob's view ================"
-    print s.api.ping("Joe mama")
-    for x in  s.api.listFlowSpace():
-        print x
+    print "Bob ping test"
+    x= s.api.ping("Joe mama")
+    valid = "PONG(bob): Joe mama"
+    if(x != valid) : 
+        print "Got '"+ x + "' but wanted '" + valid + "'"
+        test_failed("ping test")
+    print "     passed"
+    print "Bob listFlowSpace test"
+    x = s.api.listFlowSpace()
+    valid_len = 4 
+    if len(x) != valid_len: 
+        print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
+        test_failed("listFlowSpace bob test")
+    print "     passed"
 
 
 #################################### Start Tests

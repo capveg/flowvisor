@@ -148,7 +148,6 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public List<Map<String,String>> getLinks() {
 		List<String> devices = listDevices();
 		List<Map<String,String>> list = new LinkedList<Map<String,String>>();
-		int linkIndex;
 		for(int i=0;i<devices.size(); i++) {
 			// forward direction
 			LinkAdvertisement link = new LinkAdvertisement(); 
@@ -156,14 +155,6 @@ public class FVUserAPIImpl implements FVUserAPI {
 			link.dstDPID = devices.get((i+1)%devices.size());
 			link.srcPort = 0;
 			link.dstPort = 1;
-			link.setAttribute("fakeLink", "true");
-			list.add(link.toMap());
-			// reverse direction
-			link = new LinkAdvertisement();
-			link.dstDPID = devices.get(i);
-			link.srcDPID = devices.get((i+1)%devices.size());
-			link.dstPort = 0;
-			link.srcPort = 1;
 			link.setAttribute("fakeLink", "true");
 			list.add(link.toMap());
 		}
