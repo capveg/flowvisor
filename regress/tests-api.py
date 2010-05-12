@@ -19,7 +19,7 @@ try:
 
     h= FvRegress()
     port=16633
-    rpcport=8080
+    rpcport=18080
     h.addController("alice",    54321)
     h.addController("bob",      54322)
     wantPause = False
@@ -42,7 +42,7 @@ try:
 #################################### Start Root Tests
     user="root"
     passwd="0fw0rk"
-    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
+    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Root ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG(root): Joe mama"
@@ -93,7 +93,7 @@ try:
 #################################### Start Alice Tests
     user="alice"
     passwd="alicePass"
-    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
+    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Alice ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG(alice): Joe mama"
@@ -113,7 +113,7 @@ try:
 #################################### Start Alice Tests
     user="bob"
     passwd="bobPass"
-    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:8080/xmlrpc")
+    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Bob ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG(bob): Joe mama"

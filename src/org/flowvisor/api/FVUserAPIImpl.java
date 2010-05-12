@@ -100,6 +100,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			controller_port = FVConfig.OFP_TCP_PORT;
 		FVConfig.createSlice(sliceName, list[1], controller_port, passwd, slice_email, 
 				APIUserCred.getUserName());
+		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
 	
@@ -129,6 +130,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
 
@@ -213,6 +215,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 		} catch (Exception e) {
 			throw new SliceNotFound("slice does not exist: " + sliceName);
 		}
+		FlowVisor.getInstance().checkPointConfig();
+		// TODO: remove all of the relevant FlowSpace as well
 		return true;
 	}
 
@@ -264,6 +268,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		// update the indexes at the end, not with each rule
 		FlowSpaceUtil.updateFlowSpaceIndexes();
+		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
 
@@ -302,7 +307,4 @@ public class FVUserAPIImpl implements FVUserAPI {
 		
 		return map;
 	}
-	
-	
-
 }

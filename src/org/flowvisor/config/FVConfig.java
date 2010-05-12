@@ -34,6 +34,8 @@ import java.beans.XMLDecoder;
  */
 public class FVConfig {
 	final static public String LISTEN_PORT 		= "flowvisor.listen_port";
+	public static final String API_WEBSERVER_PORT = "flowvisor.api_webserver_port";
+
 	final static public String VERSION_STR		= "version";
 	final static public String SLICES 			= "slices";
 	final static public String SWITCHES 		= "switches";

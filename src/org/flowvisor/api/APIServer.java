@@ -1,9 +1,14 @@
 package org.flowvisor.api;
 
+import java.io.IOException;
+
+import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.flowvisor.config.ConfigError;
+import org.flowvisor.config.FVConfig;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 
@@ -19,15 +24,32 @@ import org.flowvisor.log.LogLevel;
 public class APIServer {
 
 	// FIXME: replace with a FVConfig entry
-    private static final int port = 8080;
+    private static final int default_port = 8080;
 
+    public static int getDefaultPort() {
+    	return default_port;
+    }
+    
     /**
      * Spawn a thread to run the XMLRPC FlowVisor UserAPI WebServer
      * @return the webServer
+     * @throws XmlRpcException 
+     * @throws IOException 
      * @throws Exception
      */
-    public static WebServer spawn() throws Exception {
-        WebServer webServer = new SSLWebServer(port);
+    public static WebServer spawn() throws XmlRpcException, IOException  {
+        int port;
+        
+        try {
+			port = FVConfig.getInt(FVConfig.API_WEBSERVER_PORT);
+		} catch (ConfigError e) {
+			port = default_port;	// not explicitly configured
+		} 
+        
+        
+        
+    	
+    	WebServer webServer = new SSLWebServer(port);
 
         XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
 
@@ -41,7 +63,7 @@ public class APIServer {
             (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
         serverConfig.setEnabledForExtensions(true);
         serverConfig.setContentLengthOptional(false);
-        FVLog.log(LogLevel.INFO, null, "initializing FlowVisor UserAPI XMLRPC SSL WebServer");
+        FVLog.log(LogLevel.INFO, null, "initializing FlowVisor UserAPI XMLRPC SSL WebServer on port " + port);
         webServer.start();
         return webServer;
     }

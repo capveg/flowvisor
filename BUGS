@@ -1,3 +1,21 @@
-index=0 in flowentry doesn't print
 changePasswd isn't registered
-need to save changes to file after done
+
+
+nw_dst parsing fails:
+[capveg@grr flowvisor-nwo-java]$ ./scripts/fvctl.sh addFlowSpace 7 00:11:22:33:44:55:66:77 tp_dst=80,nw_src=128.8.128.118/32 Slice:bob=4
+WARN: blindly trusting server cert - FIXME
+    Local sanity checks: Exception in thread "main" java.lang.reflect.InvocationTargetException
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+    at java.lang.reflect.Method.invoke(Unknown Source)
+    at org.flowvisor.api.FVCtl$APICmd.invoke(FVCtl.java:83)
+at org.flowvisor.api.FVCtl.main(FVCtl.java:373)
+    Caused by: java.lang.ArrayIndexOutOfBoundsException: 0
+    at org.openflow.protocol.OFMatch.setFromCIDR(Unknown Source)
+    at org.openflow.protocol.OFMatch.fromString(Unknown Source)
+    at org.flowvisor.api.FlowChange.fromMap(FlowChange.java:97)
+    at org.flowvisor.api.FVCtl.do_flowSpaceChange(FVCtl.java:295)
+at org.flowvisor.api.FVCtl.run_addFlowSpace(FVCtl.java:282)
+    ... 6 more
+

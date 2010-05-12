@@ -34,7 +34,7 @@ public class FlowVisor
 	}
 	
 	public void run() throws IOException, ConfigError, UnhandledEvent  {
-		// register this flowvisor instance
+		// register this flowvisor instance as THE flowvisor instance
 		FlowVisor.setInstance(this);
 		
 		// load  config from file
@@ -72,6 +72,16 @@ public class FlowVisor
     	*/
 	
 	}
+	
+	/**
+	 * FlowVisor Daemon Executable Main
+	 * 
+	 * Takes a config file as only parameter
+	 * @param args config file
+	 * @throws IOException
+	 * @throws UnhandledEvent
+	 * @throws ConfigError
+	 */
 	
     public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
     {
@@ -125,5 +135,34 @@ public class FlowVisor
 	
 	public void setHandlers(ArrayList<FVEventHandler> handlers) {
 		this.handlers = handlers;
+	}
+	
+	/**
+	 * Save the running config back to disk
+	 * 
+	 * Write to a temp file and only if it succeeds, move it into place
+	 * 
+	 * FIXME: add versioning 
+	 */
+	public void checkPointConfig() {
+		String tmpFile = this.configFile + ".tmp";		// assumes no one else can write to same dir
+														// else security problem
+		try {
+			FVConfig.writeToFile(tmpFile);
+		} catch (FileNotFoundException e) {
+			FVLog.log(LogLevel.CRIT, null, "failed to save config: tried to write to '" +
+					tmpFile + "' but got FileNotFoundException");
+			return;
+		}
+		// sometimes, Java has the stoopidest ways of doing things :-(
+		File tmp = new File(tmpFile);
+		if(tmp.length() == 0) {
+			FVLog.log(LogLevel.CRIT, null, "failed to save config: tried to write to '" +
+					tmpFile + "' but wrote empty file");
+			return;
+		}
+			
+		tmp.renameTo(new File(this.configFile));
+		FVLog.log(LogLevel.INFO, null, "Saved config to disk at " + this.configFile);
 	}
 }

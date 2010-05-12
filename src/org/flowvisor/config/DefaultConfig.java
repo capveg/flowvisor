@@ -6,6 +6,7 @@ package org.flowvisor.config;
 import java.io.FileNotFoundException;
 
 import org.flowvisor.FlowVisor;
+import org.flowvisor.api.APIServer;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -67,6 +68,7 @@ public class DefaultConfig {
 		// now populate the config
 		try {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
 			// create slices
 			FVConfig.createSlice("root", 	"none", 0, rootPasswd, "root@localhost",

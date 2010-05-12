@@ -288,11 +288,15 @@ public class FVCtl {
 	}
 
 	private void do_flowSpaceChange(FlowChangeOp op, String indexStr, String dpid, 
-			String match, String actions) throws MalformedFlowChange, XmlRpcException{
+			String match, String actions) throws XmlRpcException{
 	Map<String,String> map = FlowChange.makeMap(op, indexStr, dpid, match,actions);
-	System.err.print("Local sanity checks: ");
-	FlowChange.fromMap(map);	// could throw MalformedFlowChange
-	System.err.print("passed");
+	
+	try {
+		FlowChange.fromMap(map);
+	} catch (MalformedFlowChange e) {
+		System.err.println("Local sanity check failed: " + e);
+		return;
+	}	
 	List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
 	mapList.add(map);
 	Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
@@ -305,7 +309,6 @@ public class FVCtl {
 	else 
 		System.err.println("failed!");			
 }
-
 	
 	public void run_listSlices() throws XmlRpcException {
 		Object[] reply = (Object[]) this.client.execute("api.listSlices", new Object[] {});
@@ -354,9 +357,10 @@ public class FVCtl {
 		// FIXME: make URL a parameter
 		//FVCtl client = new FVCtl("https://root:joemama@localhost:8080/xmlrpc");
 		FVCtl client = new FVCtl("https://localhost:8080/xmlrpc");
-		client.init("root","0fw0rk");
 		if(args.length == 0)
 			usage("need to specify a command");
+		client.init("root","0fw0rk");
+
 		APICmd cmd = APICmd.cmdlist.get(args[0]);
 		if(cmd == null)
 			usage("command '" + args[0] + "' does not exist");
