@@ -8,7 +8,7 @@ package org.flowvisor.exceptions;
  * @author capveg
  *
  */
-public class ActionDisallowedException extends Exception {
+public class ActionDisallowedException extends FVException {
 
 	public ActionDisallowedException(String string) {
 		super(string);
