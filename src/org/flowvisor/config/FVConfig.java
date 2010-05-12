@@ -174,9 +174,7 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("tried to get a string but got a " +  entry.getType());
 		return ((ConfStrEntry)entry).getString();
 	}
-	
-	
-	
+		
 	/**
 	 * Return the flowmap associated with this node
 	 * @param node
