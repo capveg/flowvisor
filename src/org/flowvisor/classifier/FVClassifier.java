@@ -1,5 +1,6 @@
 package org.flowvisor.classifier;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.*;
 
@@ -141,6 +142,7 @@ public class FVClassifier implements FVEventHandler {
 	 */
 	
 	public void init() throws IOException {
+		FlowVisor.getInstance().addHandler(this);
 		msgStream.write(new OFHello());
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
@@ -330,6 +332,7 @@ public class FVClassifier implements FVEventHandler {
 	 * @param sliceName
 	 */
 	public void tearDown(String sliceName) {
+		FlowVisor.getInstance().removeHandler(this);
 		if (slicerMap!=null) {
 			slicerMap.remove(sliceName);
 			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName + " on request");
@@ -339,6 +342,11 @@ public class FVClassifier implements FVEventHandler {
 
 	public String getSwitchName() {
 		return this.switchName;
+	}
+
+
+	public String getRemoteIP() {
+		return this.sock.socket().getRemoteSocketAddress().toString();
 	}
 
 

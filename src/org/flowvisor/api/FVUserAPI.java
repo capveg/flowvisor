@@ -2,6 +2,7 @@ package org.flowvisor.api;
 
 import java.util.Map;
 
+import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
@@ -51,12 +52,20 @@ public interface FVUserAPI {
 	public boolean change_passwd(String sliceName, String newPasswd) throws PermissionDeniedException;
 	
 	/**
-	 * Get the list of devices (e.g., switches, routers, APs) connected to the FV
+	 * Get the list of device DPIDs (e.g., switches, routers, APs) connected to the FV
 	 * 
 	 * @return
 	 */
-	public DeviceAdvertisement[] getDevices();
+	public String[] getDevices();
 	
+	/**
+	 * Get information about a device
+	 * 
+	 * @param dpidStr  8 colon separated hex bytes, e..g., "00:00:00:00:00:00:00:01"
+	 * 
+	 * @return a map of key=value pairs where the value may itself be a more complex object
+	 */
+	public Map<String,String> getDeviceInfo(String dpidStr) throws DPIDNotFound;
 	
 	/**
 	 * Get the list of links between the devices in getDevices()

@@ -14,6 +14,7 @@ import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
+import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
@@ -21,6 +22,8 @@ import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.openflow.protocol.OFFeaturesReply;
+import org.openflow.util.HexString;
 
 /**
  * This is the actual UserAPI that gets wrapped via XMLRPC
@@ -140,21 +143,21 @@ public class FVUserAPIImpl implements FVUserAPI {
 	
 	@Override
 	public LinkAdvertisement[] getLinks() {
-		DeviceAdvertisement[] devices = getDevices();
+		String[] devices = getDevices();
 		LinkAdvertisement[] list = new LinkAdvertisement[devices.length*2];
 		int linkIndex;
 		for(int i=0;i<devices.length; i++) {
 			// forward direction
 			linkIndex=i*2;
-			list[linkIndex].srcDPID = devices[i].dpid;
-			list[linkIndex].dstDPID = devices[(i+1)%devices.length].dpid;
+			list[linkIndex].srcDPID = devices[i];
+			list[linkIndex].dstDPID = devices[(i+1)%devices.length];
 			list[linkIndex].srcPort = 0;
 			list[linkIndex].dstPort = 1;
 			list[linkIndex].attributes.put("fakeLink", "true");
 			// reverse direction
 			linkIndex=i*2+1;
-			list[linkIndex].dstDPID = devices[i].dpid;
-			list[linkIndex].srcDPID = devices[(i+1)%devices.length].dpid;
+			list[linkIndex].dstDPID = devices[i];
+			list[linkIndex].srcDPID = devices[(i+1)%devices.length];
 			list[linkIndex].dstPort = 0;
 			list[linkIndex].srcPort = 1;
 			list[linkIndex].attributes.put("fakeLink", "true");
@@ -163,29 +166,48 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 	
 	@Override
-	public DeviceAdvertisement[] getDevices(){
+	public String[] getDevices(){
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
-		List<FVClassifier> classifiers = new ArrayList<FVClassifier>();
+		List<Long> dpids = new ArrayList<Long>();
 		for(FVEventHandler handler : fv.getHandlers()) {
 			if(handler instanceof FVClassifier)
-				classifiers.add((FVClassifier) handler);
+				dpids.add(((FVClassifier) handler).getSwitchInfo().getDatapathId());
 		}
-		DeviceAdvertisement[] list = new DeviceAdvertisement[classifiers.size()];
-		for(int i=0; i < classifiers.size(); i++) {
-			FVClassifier classifier = classifiers.get(i);
-			list[i].dpid = classifier.getSwitchInfo().getDatapathId();
-			// TODO get and cache STATS_DESC info
-			list[i].hw_desc = "unimplemented";
-			list[i].mfr_desc = "unimplemented";
-			list[i].serial_num = "unimplemented";
-			list[i].dp_desc = "unimplemented";
-			list[i].attributes.put("nPorts", 
-					String.valueOf(classifier.getSwitchInfo().getPorts().size()));
-		}
-		return list;
+		String arr[] = new String[dpids.size()];
+		int i=0;
+		for(Long dpid : dpids)
+			arr[i++] = HexString.toHexString(dpid.longValue());
+		return arr;
 	}
 	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.flowvisor.api.FVUserAPI#getDeviceInfo()
+	 */
+	@Override
+	public Map<String, String> getDeviceInfo(String dpidStr) throws DPIDNotFound {
+		Map<String,String> map = new HashMap<String,String>();
+		long dpid = HexString.toLong(dpidStr);
+		FVClassifier fvClassifier = null;
+		for(FVEventHandler handler: FlowVisor.getInstance().getHandlers()) {
+			if(handler instanceof FVClassifier) {
+				if (((FVClassifier)handler).getSwitchInfo().getDatapathId() == dpid) {
+					fvClassifier = (FVClassifier) handler;
+					break;
+				}
+			}
+		}
+		if (fvClassifier == null)
+			throw new DPIDNotFound("dpid does not exist: " +  dpidStr + " ::" +String.valueOf(dpid));
+		OFFeaturesReply config = fvClassifier.getSwitchInfo();
+		map.put("dpid", String.valueOf(dpid));
+		map.put("nPorts",String.valueOf(config.getPorts().size()));
+		map.put("remote", String.valueOf(fvClassifier.getRemoteIP()));
+		return map;
+	}
+
 	@Override
 	public boolean deleteSlice(String sliceName) throws SliceNotFound, PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
@@ -218,7 +240,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			FVLog.log(LogLevel.INFO, null, "user " + user + " " + change.operation +
 					" at index=" + change.index + " flow entry " + 
 					change.getEntry());
-			switch(change.operation) {
+			switch(change.getOperation()) {
 			case ADD:
 				flowSpace.addRule(change.getIndex(), change.getEntry());
 				break;

@@ -115,6 +115,14 @@ public class FlowVisor
 		return handlers;
 	}
 
+	public void addHandler(FVEventHandler handler) {
+		this.handlers.add(handler);
+	}
+	
+	public void removeHandler(FVEventHandler handler) {
+		this.handlers.remove(handler);
+	}
+	
 	public void setHandlers(ArrayList<FVEventHandler> handlers) {
 		this.handlers = handlers;
 	}

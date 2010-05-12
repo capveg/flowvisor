@@ -4,6 +4,9 @@
 package org.flowvisor.api;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.flowvisor.flows.FlowEntry;
 
 /**
@@ -15,9 +18,20 @@ public class FlowChange {
 	public enum FlowChangeOp {
 		ADD,
 		REMOVE,
-		CHANGE
+		CHANGE;
+		
+		static Map<Integer,FlowChangeOp> typeMap = new HashMap<Integer,FlowChangeOp>();
+		static public FlowChangeOp ordToType(int i) {
+			return FlowChangeOp.typeMap.get(Integer.valueOf(i));
+		}
+		FlowChangeOp() {
+			FlowChangeOp.addMapping(Integer.valueOf(this.ordinal()), this);
+		}
+		private static void addMapping(Integer i, FlowChangeOp flowChangeOp) {
+			FlowChangeOp.typeMap.put(i, flowChangeOp);
+		}
 	}
-	FlowChangeOp operation;
+	int operation;
 	int index;
 	FlowEntry entry;	
 	public FlowChange() {
@@ -26,17 +40,17 @@ public class FlowChange {
 
 	public FlowChange(FlowChangeOp operation, int index, FlowEntry entry) {
 		super();
-		this.operation = operation;
+		this.operation = operation.ordinal();
 		this.index = index;
 		this.entry = entry;
 	}
 
 	public FlowChangeOp getOperation() {
-		return operation;
+		return FlowChangeOp.ordToType(operation);
 	}
 
 	public void setOperation(FlowChangeOp operation) {
-		this.operation = operation;
+		this.operation = operation.ordinal();
 	}
 
 	public int getIndex() {

@@ -50,6 +50,7 @@ public class FVCtl {
 		new APICmd("deleteSlice",		1, "<slicename>"),
 		new APICmd("changePasswd",		1, "<slicename>"),
 		new APICmd("getSliceInfo", 		1, "<slicename>"),
+		new APICmd("getDeviceInfo",     1, "<dpid>"),
 		new APICmd("createSlice",		3, "<slicename> <controller_url> <email>"),
 		new APICmd("removeFlowSpace", 	1, "<index>"),
 		new APICmd("addFlowSpace", 		2, "<index> <FlowEntry>"),
@@ -158,8 +159,20 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		for(int i=0;i < reply.length; i++) {
-			DeviceAdvertisement ad = (DeviceAdvertisement) reply[i];
-			System.out.println("Device "+i+": " + ad);
+			String dpid = (String) reply[i];
+			System.out.println("Device "+i+": " + dpid);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void run_getDeviceInfo(String dpidStr) throws XmlRpcException {
+		Map<String,Object> reply = (Map<String,Object>) this.client.execute("api.getDeviceInfo", new Object[] {dpidStr});
+		if(reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		for(String key: reply.keySet()) {
+			System.out.println(key+"="+reply.get(key));
 		}
 	}
 	

@@ -22,14 +22,13 @@ try:
     rpcport=8080
     h.addController("alice",    54321)
     h.addController("bob",      54322)
+    wantPause = False
 
     if len(sys.argv) > 1 :
-        wantPause = False
         port=int(sys.argv[1])
         timeout=60
         h.useAlreadyRunningFlowVisor(port)
     else:
-        wantPause = False
         timeout=5
         h.spawnFlowVisor(configFile="tests-base.xml")
     h.lamePause()
@@ -65,10 +64,19 @@ try:
     valid_len = 2
     if len(x) != valid_len :
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
-        test_failed("getDevices root test")
+        test_failed("getDevices root test1")
+    valid = "00:00:00:00:00:00:00:01"
+    if x[0] != valid:
+        print "Got " + x[0] + " but wanted " + valid
+        test_failed("getDevices root test2")
+    valid = "00:00:00:00:00:00:00:02"
+    if x[1] != valid:
+        print "Got " + x[1] + " but wanted " + valid
+        test_failed("getDevices root test3")
     print "     passed"
-    for d in x: 
-        print d
+    x = s.api.getDeviceInfo("00:00:00:00:00:00:00:01")
+    for key,val in  x.iteritems():
+        print "                 "+ key + "="  + val
 
 #################################### Start Alice Tests
     user="alice"
@@ -83,9 +91,9 @@ try:
     print "     passed"
     print "Root listFlowSpace test"
     x = s.api.listFlowSpace()
-    valid_len = 7 
+    valid_len = 6 
     if len(x) != valid_len: 
-        print "Got " + len(x) + " entries but wanted " + valid_len
+        print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace alice test")
     print "     passed"
     #print s.api.change_passwd("alice","foo")
@@ -102,7 +110,5 @@ try:
 # more tests for this setup HERE
 #################################### End Tests
 finally:
-    if wantPause:
-        doPause("start cleanup")
     h.cleanup()
 

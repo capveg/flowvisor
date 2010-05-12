@@ -11,9 +11,9 @@ import java.util.HashMap;
  *
  */
 public class LinkAdvertisement {
-	long srcDPID;
+	String srcDPID;
 	int srcPort;
-	long dstDPID;
+	String dstDPID;
 	int dstPort;
 	// list of key=value pairs, for extensibility
 	HashMap<String,String> attributes;
@@ -24,7 +24,7 @@ public class LinkAdvertisement {
 
 	
 	
-	public LinkAdvertisement(long srcDPID, int srcPort, long dstDPID,
+	public LinkAdvertisement(String srcDPID, int srcPort, String dstDPID,
 			int dstPort) {
 		super();
 		this.srcDPID = srcDPID;
@@ -35,11 +35,11 @@ public class LinkAdvertisement {
 
 
 
-	public long getSrcDPID() {
+	public String getSrcDPID() {
 		return srcDPID;
 	}
 
-	public void setSrcDPID(long srcDPID) {
+	public void setSrcDPID(String srcDPID) {
 		this.srcDPID = srcDPID;
 	}
 
@@ -51,11 +51,11 @@ public class LinkAdvertisement {
 		this.srcPort = srcPort;
 	}
 
-	public long getDstDPID() {
+	public String getDstDPID() {
 		return dstDPID;
 	}
 
-	public void setDstDPID(long dstDPID) {
+	public void setDstDPID(String dstDPID) {
 		this.dstDPID = dstDPID;
 	}
 
