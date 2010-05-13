@@ -23,7 +23,6 @@ public class ConfBoolEntry extends ConfigEntry {
 	}
 	public ConfBoolEntry() {
 		super(ConfigType.BOOL);
-		// TODO Auto-generated constructor stub
 	}
 	public ConfBoolEntry(String name) {
 		super(name, ConfigType.BOOL);

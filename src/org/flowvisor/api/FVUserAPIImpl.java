@@ -337,9 +337,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
 			throw new PermissionDeniedException("only superusers can call setConfig()");
 		FVConfig.setConfig(nodeName, value);
+		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
-
-	
-	
 }

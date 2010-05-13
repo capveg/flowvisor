@@ -3,7 +3,11 @@
  */
 package org.flowvisor.api;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -31,6 +35,8 @@ import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 
+import com.sun.org.apache.regexp.internal.ReaderCharacterIterator;
+
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
  *   
@@ -49,6 +55,8 @@ public class FVCtl {
 		new APICmd("listDevices",		0	),
 		new APICmd("getLinks",			0	),
 		new APICmd("ping",				1, "<msg>"),
+		new APICmd("getConfig",         1, "<configEntry>"),
+		new APICmd("setConfig",         2, "<configEntry> <value>"),
 		new APICmd("deleteSlice",		1, "<slicename>"),
 		new APICmd("changePasswd",		1, "<slicename>"),
 		new APICmd("getSliceInfo", 		1, "<slicename>"),
@@ -177,6 +185,43 @@ public class FVCtl {
 		for(String key: reply.keySet()) {
 			System.out.println(key+"="+reply.get(key));
 		}
+	}
+	
+	public void run_getConfig(String name) throws XmlRpcException {
+		
+		Object reply = this.client.execute("api.getConfig", 
+				new Object[] { name});
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		Object objects[] = (Object[]) reply;
+		if (objects.length == 1) 
+			System.out.println(name + " = " + (String)objects[0]);
+		else 
+			for (int i=0; i< objects.length; i++) 
+				System.out.println(name + " " + i + " = "+ (String)objects[i]);
+	}
+	
+	public void run_setConfig(String name, String value) throws XmlRpcException {
+		Object reply = this.client.execute("api.setConfig", 
+				new Object[] { name, value});
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		if(!(reply instanceof Boolean)) {
+			System.err.println("Didn't get boolean reply?; got" + reply);
+			System.exit(-1);
+		}
+		boolean success = ((Boolean)reply).booleanValue();
+		if(success) {
+			System.out.println("success");
+			System.exit(0);
+		} else {
+			System.out.println("failure");
+			System.exit(-1);
+		}	
 	}
 	
 	public void run_getLinks() throws XmlRpcException {
@@ -335,7 +380,18 @@ public class FVCtl {
 		}
 	}
 
-	
+
+	private static void usage(String string) {
+		System.err.println(string);
+		System.err.println("Usage: FVCtl [--user=user] [--url=url] " + 
+				"[--passwd-file=filename] command [args...] ");
+		for(int i=0; i< FVCtl.cmdlist.length; i++) {
+			APICmd cmd = FVCtl.cmdlist[i];
+			System.err.println("\t" + cmd.name + " " + 
+					cmd.usage);
+		}
+		System.exit(-1);
+	}	
 	
 	/**
 	 * Front-end cmdline parser for FVCtl
@@ -346,40 +402,58 @@ public class FVCtl {
 	 * @throws NoSuchMethodException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
-	 * @throws MalformedURLException 
+	 * @throws IOException 
 	 */
 	public static void main(String args[]) 
 		throws SecurityException, 
 			IllegalArgumentException, 
 			NoSuchMethodException, 
 			IllegalAccessException, 
-			InvocationTargetException, MalformedURLException {
+			InvocationTargetException, IOException {
 		// FIXME: make URL a parameter
 		//FVCtl client = new FVCtl("https://root:joemama@localhost:8080/xmlrpc");
-		FVCtl client = new FVCtl("https://localhost:8080/xmlrpc");
-		if(args.length == 0)
+		String URL = "https://localhost:8080/xmlrpc";
+		String user = "root";
+		String passwd = null;
+		
+		int cmdIndex=0;
+		// FIXME: find a decent java cmdline args parsing lib
+		while ((args.length > cmdIndex) && ( args[cmdIndex].startsWith("--"))) {
+			String params[] = args[cmdIndex].split("=");
+			if(params.length<2)
+				usage("parameter " + params[0] + " needs an argument");
+			if (params[0].equals("--url")) 
+				URL = params[1];
+			else if (params[0].equals("--user"))
+				user = params[1];
+			else if (params[0].equals("--passwd-file")) {
+				passwd = new BufferedReader(
+								new FileReader(
+									new File(params[1])
+									)
+								).readLine();
+			}
+			else 
+				usage("unknown parameter: " + params[0]);
+			cmdIndex++;
+		}
+		if(args.length == cmdIndex)
 			usage("need to specify a command");
-		client.init("root","0fw0rk");
+		
+		if (passwd == null)
+			passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
+		FVCtl client = new FVCtl(URL);
+		client.init(user,passwd);
 
-		APICmd cmd = APICmd.cmdlist.get(args[0]);
+		APICmd cmd = APICmd.cmdlist.get(args[cmdIndex]);
 		if(cmd == null)
-			usage("command '" + args[0] + "' does not exist");
-		if ( (args.length -1)  < cmd.argCount)
-			usage("command '" + args[0] + "' takes " + cmd.argCount + 
-					" args: only " + (args.length -1) + " given");
-		String[] strippedArgs = new String[args.length-1];
-		System.arraycopy(args, 1, strippedArgs, 0, strippedArgs.length);
+			usage("command '" + args[cmdIndex] + "' does not exist");
+		if ( (args.length -1 - cmdIndex)  < cmd.argCount)
+			usage("command '" + args[cmdIndex] + "' takes " + cmd.argCount + 
+					" args: only " + (args.length -1 - cmdIndex) + " given");
+		String[] strippedArgs = new String[args.length-1-cmdIndex];
+		System.arraycopy(args, cmdIndex, strippedArgs, 0, strippedArgs.length);
 		cmd.invoke(client, strippedArgs);
 	}
 
-	private static void usage(String string) {
-		System.err.println(string);
-		System.err.println("Usage: FVCtl: ");
-		for(int i=0; i< FVCtl.cmdlist.length; i++) {
-			APICmd cmd = FVCtl.cmdlist[i];
-			System.err.println("\t" + cmd.name + " " + 
-					cmd.usage);
-		}
-		System.exit(-1);
-	}
 }

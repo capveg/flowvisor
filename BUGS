@@ -19,3 +19,7 @@ at org.flowvisor.api.FVCtl.main(FVCtl.java:373)
 at org.flowvisor.api.FVCtl.run_addFlowSpace(FVCtl.java:282)
     ... 6 more
 
+
+getConfig on a directory dies: -- need to enable recursive dumping
+
+getLinks() returns a fake topology!
