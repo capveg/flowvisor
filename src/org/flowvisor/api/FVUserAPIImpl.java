@@ -307,4 +307,39 @@ public class FVUserAPIImpl implements FVUserAPI {
 		
 		return map;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.flowvisor.api.FVUserAPI#revertToLastCheckpoint()
+	 */
+	@Override
+	public boolean revertToLastCheckpoint() {
+		// TODO: implement!
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.flowvisor.api.FVUserAPI#getConfig(java.lang.String)
+	 */
+	@Override
+	public List<String> getConfig(String nodeName) throws ConfigError,
+			PermissionDeniedException {
+		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
+			throw new PermissionDeniedException("only superusers can call getConfig()");
+		return FVConfig.getConfig(nodeName);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.flowvisor.api.FVUserAPI#setConfig(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean setConfig(String nodeName, String value) throws ConfigError,
+			PermissionDeniedException {
+		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
+			throw new PermissionDeniedException("only superusers can call setConfig()");
+		FVConfig.setConfig(nodeName, value);
+		return true;
+	}
+
+	
+	
 }

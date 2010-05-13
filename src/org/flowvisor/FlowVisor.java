@@ -147,6 +147,15 @@ public class FlowVisor
 	public void checkPointConfig() {
 		String tmpFile = this.configFile + ".tmp";		// assumes no one else can write to same dir
 														// else security problem
+		
+		// do we want checkpointing?
+		try {
+			if (!FVConfig.getBoolean(FVConfig.CHECKPOINTING))
+				return;
+		} catch (ConfigError e1) {
+			FVLog.log(LogLevel.WARN, null, "Checkpointing config not set: assuming you want checkpointing");
+		}
+			
 		try {
 			FVConfig.writeToFile(tmpFile);
 		} catch (FileNotFoundException e) {

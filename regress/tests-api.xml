@@ -400,6 +400,20 @@
          </object> 
         </void> 
         <void method="put"> 
+         <string>checkpointing</string> 
+         <object class="org.flowvisor.config.ConfBoolEntry"> 
+          <void property="bool"> 
+           <boolean>false</boolean> 
+          </void> 
+          <void property="name"> 
+           <string>checkpointing</string> 
+          </void> 
+          <void property="persistent"> 
+           <boolean>true</boolean> 
+          </void> 
+         </object> 
+        </void> 
+        <void method="put"> 
          <string>listen_port</string> 
          <object class="org.flowvisor.config.ConfIntEntry"> 
           <void property="int"> 
@@ -443,7 +457,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>-1068563750</string> 
+               <string>48678349</string> 
               </void> 
              </object> 
             </void> 
@@ -499,7 +513,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>a0358d540782b12b57f40e27010c9200</string> 
+               <string>bd55615621fe0284399d633ad4032932</string> 
               </void> 
              </object> 
             </void> 
@@ -542,7 +556,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>940491926</string> 
+               <string>-219863677</string> 
               </void> 
              </object> 
             </void> 
@@ -595,7 +609,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>f4d7eb8782e384c413fa04403b56427e</string> 
+               <string>398b64abf837fb80edb3ed1539c6481b</string> 
               </void> 
              </object> 
             </void> 
@@ -638,7 +652,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>-1185909399</string> 
+               <string>-59852013</string> 
               </void> 
              </object> 
             </void> 
@@ -694,7 +708,7 @@
                <boolean>true</boolean> 
               </void> 
               <void property="string"> 
-               <string>cbce6f2cbbdcd37de9a1bc3e6b5c3690</string> 
+               <string>321f585e9b65c6c8472ad1fdd22c56aa</string> 
               </void> 
              </object> 
             </void> 

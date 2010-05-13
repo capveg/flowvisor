@@ -3,6 +3,7 @@ package org.flowvisor.api;
 import java.util.List;
 import java.util.Map;
 
+import org.flowvisor.config.ConfigError;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
@@ -132,6 +133,33 @@ public interface FVUserAPI {
 	 * @return
 	 */
 	public List<String> listSlices() throws PermissionDeniedException;
-		
+	
+	
+	/**
+	 * Returns a list of strings that represents the requested config element
+	 * @param nodeName config element name
+	 * @return List of strings
+	 * @throws ConfigError
+	 */
+	public List<String> getConfig(String nodeName) throws ConfigError, PermissionDeniedException; 
+	
+	/**
+	 * Sets a config element by name
+	 * @param nodeName config element name
+	 * @param value string representation of value
+	 * @return success
+	 * @throws ConfigError
+	 */
+	public boolean setConfig(String nodeName, String value) throws ConfigError, PermissionDeniedException;
+	
+	/**
+	 * Reload last checkpointed config from disk
+	 * 
+	 * Only available to root
+	 * 
+	 * TODO: implement!
+	 * @return success
+	 */
+	public boolean revertToLastCheckpoint();
 	
 }

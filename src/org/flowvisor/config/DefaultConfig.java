@@ -70,6 +70,7 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
 			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
+			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// create slices
 			FVConfig.createSlice("root", 	"none", 0, rootPasswd, "root@localhost",
 					"root");

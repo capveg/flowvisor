@@ -14,6 +14,7 @@ public enum ConfigType {
 	INT(ConfIntEntry.class),			// integer
 	REAL(ConfRealEntry.class),			// real
 	FLOWMAP(ConfFlowMapEntry.class),	// flowmap
+	BOOL(ConfBoolEntry.class),			// boolean
 	//FLOWENTRY(ConfigEntry.class)
 	;		// flow rule/flow entry
 	

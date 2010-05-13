@@ -33,13 +33,13 @@ import java.beans.XMLDecoder;
  *
  */
 public class FVConfig {
-	final static public String LISTEN_PORT 		= "flowvisor.listen_port";
-	public static final String API_WEBSERVER_PORT = "flowvisor.api_webserver_port";
-
-	final static public String VERSION_STR		= "version";
-	final static public String SLICES 			= "slices";
-	final static public String SWITCHES 		= "switches";
-	final static public String FLOWSPACE		= "flowspace";
+	final static public String LISTEN_PORT 			= "flowvisor.listen_port";
+	public static final String API_WEBSERVER_PORT 	= "flowvisor.api_webserver_port";
+	public static final String CHECKPOINTING 		= "flowvisor.checkpointing";
+	final static public String VERSION_STR			= "version";
+	final static public String SLICES 				= "slices";
+	final static public String SWITCHES 			= "switches";
+	final static public String FLOWSPACE			= "flowspace";
 	final static public String SLICE_CONTROLLER_HOSTNAME = "controller_hostname";
 	final static public String SLICE_CONTROLLER_PORT = "controller_port";
 	final static public String SLICE_CONTACT_EMAIL	 = "contact_email";
@@ -48,6 +48,7 @@ public class FVConfig {
 	public static final String SLICE_CREATOR = "creator";	
 	
 	final static public int	   OFP_TCP_PORT	    = 6633;
+	
 	
 	
 	static ConfDirEntry root = new ConfDirEntry("");  // base of all config info
@@ -142,7 +143,25 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("tried to get an int but got a " +  entry.getType());
 		return ((ConfIntEntry)entry).getInt();
 	}
-	
+
+	public static void setBoolean(String node, boolean on) throws ConfigError{
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null ) 
+			entry = create(node, ConfigType.BOOL);
+		else if( entry.getType() != ConfigType.BOOL)
+			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to boolean");
+		ConfBoolEntry ei = (ConfBoolEntry)entry;
+		ei.setBool(on);	
+	}
+
+	static public boolean getBoolean(String node) throws ConfigError {
+		ConfigEntry entry = FVConfig.lookup(node);
+		if (entry == null)
+			throw new ConfigNotFoundError("node " + node + " does not exist");
+		if (entry.getType() != ConfigType.BOOL)
+			throw new ConfigWrongTypeError("tried to get a boolean but got a " +  entry.getType());
+		return ((ConfBoolEntry)entry).getBool();
+	}
 	/** 
 	 * Sets an integer in the config
 	 * Will dynamically create the path if it does not exist
@@ -240,6 +259,21 @@ public class FVConfig {
 	 * @param walker
 	 */
 	
+	public static List<String> getConfig(String name) {
+		ConfigEntry val = lookup(name);
+		// FIXME: change val.getValue() to return a list instead of an array
+		String[] strings = val.getValue();
+		List<String> stringList = new LinkedList<String>();
+		for (int i=0; i<strings.length; i++)
+			stringList.add(strings[i]);
+		return stringList;
+	}
+	
+	public static void setConfig(String name, String val) {
+		ConfigEntry entry = lookup(name);
+		entry.setValue(val);
+	}
+	
 	static public void walk(ConfigIterator walker) {
 		walksubdir("", root, walker);
 	}
@@ -269,6 +303,7 @@ public class FVConfig {
 		ConfigEntry e = lookup(name);
 		e.unwatch(handler);
 	}
+	
 	
 	
 	/**
@@ -368,4 +403,6 @@ public class FVConfig {
 		DefaultConfig.init(passwd);
 		FVConfig.writeToFile(filename);
 	}
+
+
 }
