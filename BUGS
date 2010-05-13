@@ -23,3 +23,6 @@ at org.flowvisor.api.FVCtl.run_addFlowSpace(FVCtl.java:282)
 getConfig on a directory dies: -- need to enable recursive dumping
 
 getLinks() returns a fake topology!
+
+FVConfig.readPasswd() echo's the password
+    - run System(stty -echo) to enable/disable echoing
