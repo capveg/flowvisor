@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -34,8 +33,6 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
-
-import com.sun.org.apache.regexp.internal.ReaderCharacterIterator;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
