@@ -116,7 +116,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public boolean changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
-		if(!APIAuth.transitivelyCreated(changerSlice,sliceName))
+		if(!APIAuth.transitivelyCreated(changerSlice,sliceName) &&
+				!FVConfig.isSupervisor(changerSlice))
 			throw new PermissionDeniedException("Slice " + changerSlice + 
 					" does not have perms to change the passwd of " + sliceName); 
 		String salt = APIAuth.getSalt();
