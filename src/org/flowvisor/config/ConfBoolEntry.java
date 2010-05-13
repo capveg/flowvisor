@@ -9,23 +9,26 @@ package org.flowvisor.config;
  */
 public class ConfBoolEntry extends ConfigEntry {
 	private boolean bool;
+
+	public ConfBoolEntry() {
+		super(ConfigType.BOOL);
+	}
+	public ConfBoolEntry(String name) {
+		super(name, ConfigType.BOOL);
+	}
+
 	/**
 	 * @return the bool
 	 */
 	public boolean getBool() {
 		return bool;
 	}
+	
 	/**
 	 * @param bool the bool to set
 	 */
 	public void setBool(boolean bool) {
 		this.bool = bool;
-	}
-	public ConfBoolEntry() {
-		super(ConfigType.BOOL);
-	}
-	public ConfBoolEntry(String name) {
-		super(name, ConfigType.BOOL);
 	}
 	
 	@Override

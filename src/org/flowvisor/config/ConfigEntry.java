@@ -29,6 +29,10 @@ public class ConfigEntry {
 		// leave everything else undefined
 	}
 	
+	public ConfigEntry() {
+		// for java beans
+	}
+	
 	
 	
 	public ConfigEntry(String name, ConfigType type) {
