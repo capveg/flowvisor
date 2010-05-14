@@ -7,6 +7,8 @@ Documentation:
     http://www.openflowswitch.org/wk/index.php/FlowVisor
     [note that verision 0.6 is linked off of the main page]
 
+    Also, `make docs` produces the source code documentation
+
 Questions:
     openflow-discuss@openflowswitch.org
 

@@ -3,6 +3,12 @@
 all:
 	ant
 
+docs:
+	ant javadoc
+
+doc:
+	ant javadoc
+
 run:
 	java -jar dist/flowvisor.jar
 
