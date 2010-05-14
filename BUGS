@@ -26,3 +26,7 @@ getLinks() returns a fake topology!
 
 FVConfig.readPasswd() echo's the password
     - run System(stty -echo) to enable/disable echoing
+
+Regression Test Suite: weird (irrelevant) errors on shutdown:
+    intermittent... doesn't happen all of the time
+    <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'error'                                                                               
