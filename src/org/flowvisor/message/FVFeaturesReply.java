@@ -14,6 +14,9 @@ import org.openflow.protocol.*;
 public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply implements Classifiable,
 		Slicable {
 
+	/**
+	 * Prune the listed ports to only those that appear in the slice
+	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(this, fvClassifier);
@@ -41,10 +44,7 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply imple
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// Should never get Features Reply from controller
-		// Log and drop
-		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg from controller: "
-				+ this);
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
 }

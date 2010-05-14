@@ -36,7 +36,7 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// should never get stats replies from controller
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + this);
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
 	@Override

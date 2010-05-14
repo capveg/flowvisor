@@ -5,6 +5,7 @@ import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFPortStatus;
+import org.openflow.util.HexString;
 
 /**
  * Send the port status message to each slice that uses this port
@@ -19,13 +20,10 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		Short port = Short.valueOf(this.getDesc().getPortNumber());
-		byte mac[] = this.getDesc().getHardwareAddress();
 		FVLog.log(LogLevel.DEBUG, fvClassifier, "port status mac = " + 
-				String.format("%1$x:%2$x:%3$x:%4$x:%5$x:%6$x", 
-				mac[0], mac[1], mac[2], mac[3], mac[4],mac[5]		
-				));
+				HexString.toHexString(this.getDesc().getHardwareAddress()));
 		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values()) {
-			if (fvSlicer.getPorts().contains(port)) {
+			if (fvSlicer.portInSlice(port)) {
 				FVLog.log(LogLevel.DEBUG, fvSlicer, "sending msg to controller: " + this);
 				fvSlicer.getMsgStream().write(this);
 			}
@@ -34,7 +32,6 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: " + this);
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
-
 }

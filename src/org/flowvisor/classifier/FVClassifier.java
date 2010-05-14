@@ -374,6 +374,13 @@ public class FVClassifier implements FVEventHandler {
 		return this.sock.socket().getRemoteSocketAddress().toString();
 	}
 
+	/**
+	 * @return This switch's DPID
+	 */
+	public long getDPID() {
+		return this.switchInfo.getDatapathId();
+	}
+
 
 
 }

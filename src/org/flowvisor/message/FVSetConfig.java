@@ -10,9 +10,15 @@ public class FVSetConfig extends OFSetConfig implements Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpect msg: " + this);
+		FVMessageUtil.dropUnexpectedMesg(this, fvClassifier);
 	}
 
+	/**
+	 * Record missSendLength param
+	 * 
+	 * Save the missSendLength parameter <br>
+	 * Only send it if it's higher than previously asked for
+	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		int missSendLength = this.getMissSendLength();

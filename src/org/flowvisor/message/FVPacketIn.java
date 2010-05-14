@@ -60,7 +60,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: " + this);
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
 	@Override

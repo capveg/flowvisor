@@ -8,14 +8,14 @@ public class FVVendor extends OFVendor implements Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		// Just blindly forward vendor messages
+		FVMessageUtil.untranslateXidAndSend(this, fvClassifier);
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		// Just blindly forward vendor messages
+		FVMessageUtil.translateXidAndSend(this, fvClassifier, fvSlicer);
 	}
 
 }

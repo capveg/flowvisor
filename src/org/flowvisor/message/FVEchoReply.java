@@ -7,11 +7,11 @@ public class FVEchoReply extends org.openflow.protocol.OFEchoReply implements Sl
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// Sliently ignore echo replies
+		// Sliently ignore/drop echo replies
 	}
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// Sliently ignore echo replies
+		// Sliently ignore/drop echo replies
 	}
 }

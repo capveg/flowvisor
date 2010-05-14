@@ -18,8 +18,7 @@ public class FVBarrierReply extends org.openflow.protocol.OFBarrierReply impleme
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.untranslateXidAndSend(this, fvClassifier);
 	}
 
 	/* (non-Javadoc)
@@ -27,8 +26,7 @@ public class FVBarrierReply extends org.openflow.protocol.OFBarrierReply impleme
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
 }

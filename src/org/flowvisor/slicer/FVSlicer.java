@@ -342,4 +342,8 @@ public class FVSlicer implements FVEventHandler {
 	public String getSliceName() {
 		return this.sliceName;
 	}
+
+	public boolean getFloodPortStatus(short port) {
+		return this.allowedPorts.get(port);
+	}
 }

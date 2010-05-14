@@ -17,8 +17,7 @@ public class FVError extends org.openflow.protocol.OFError implements Classifiab
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.untranslateXidAndSend(this, fvClassifier);
 	}
 
 	/* (non-Javadoc)
@@ -26,8 +25,7 @@ public class FVError extends org.openflow.protocol.OFError implements Classifiab
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
 }

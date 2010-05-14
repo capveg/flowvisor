@@ -17,8 +17,7 @@ public class FVBarrierRequest extends org.openflow.protocol.OFBarrierRequest imp
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.translateXidAndSend(this, fvClassifier, fvSlicer);
 	}
 
 	/* (non-Javadoc)
@@ -26,8 +25,7 @@ public class FVBarrierRequest extends org.openflow.protocol.OFBarrierRequest imp
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.dropUnexpectedMesg(this, fvClassifier);
 	}
 
 }

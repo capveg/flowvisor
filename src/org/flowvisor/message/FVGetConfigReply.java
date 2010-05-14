@@ -9,14 +9,11 @@ public class FVGetConfigReply extends OFGetConfigReply implements Classifiable,
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.untranslateXidAndSend(this, fvClassifier);
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
-
 }

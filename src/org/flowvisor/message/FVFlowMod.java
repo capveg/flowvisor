@@ -8,14 +8,14 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.dropUnexpectedMesg(this, fvClassifier);
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO Auto-generated method stub
-
+		FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
+		// FIXME: enforce flowspace isolation HERE
+		fvClassifier.getMsgStream().write(this);
 	}
 
 }

@@ -9,7 +9,7 @@ import org.flowvisor.slicer.FVSlicer;
 /**
  * Given an echo request, just send an immediate response from the fv
  * 
- * FIXME send these all the way through instead of faking
+ * FIXME consider sending these all the way through instead of faking
  * 	NEED to update regression tests
  * 
  * @author capveg
