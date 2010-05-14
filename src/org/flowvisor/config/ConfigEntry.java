@@ -32,40 +32,29 @@ public class ConfigEntry {
 	public ConfigEntry() {
 		// for java beans
 	}
-	
-	
-	
+		
 	public ConfigEntry(String name, ConfigType type) {
 		this.name = name;
 		this.type = type;
 		this.persistent = true;
 		this.watchList = new HashSet<FVEventHandler>();
 	}
-	
-	
-	
+		
 	public String getName() {
 		return name;
 	}
-
-
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-
-
 	public ConfigType getType() {
 		return type;
 	}
 
-
-
 	public void setType(ConfigType type) {
 		this.type = type;
 	}
-
 
 	/**
 	 * Add this {@link FVEventHandler} to the list of things that get updated if this

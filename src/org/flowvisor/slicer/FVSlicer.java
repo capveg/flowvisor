@@ -17,6 +17,7 @@ import java.util.Set;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
@@ -90,24 +91,26 @@ public class FVSlicer implements FVEventHandler {
 	private void updatePortList() {
 		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier.getSwitchInfo().getDatapathId(), 
 				this.sliceName);
-		if (ports.contains(OFPort.OFPP_ALL)) {
+		if (ports.contains(OFPort.OFPP_ALL.getValue())) {
 			// this switch has access to ALL PORTS; feed them in from the features request
 			ports.clear();	// remove the OFPP_ALL virtual port
 			this.allowAllPorts = true;
 			for ( OFPhysicalPort phyPort : this.fvClassifier.getSwitchInfo().getPorts())
 				ports.add(phyPort.getPortNumber());
 		}
-		if(this.allowedPorts != null) {
-			// we got a new list of ports while we are already running
-			// step through and update if necessary 
-			// TODO : implement!
-			FVLog.log(LogLevel.CRIT, this, "dynamic ports update not yet implemented!");
-		}
-		else {
-			// TODO add a debug msg
+		if(this.allowedPorts == null)
 			allowedPorts = new HashMap<Short, Boolean>();
-			for(Short port: ports)
+		for(Short port: ports) {
+			if(!allowedPorts.keySet().contains(port)) {
+				FVLog.log(LogLevel.INFO, this, "adding access to port " + port);
 				allowedPorts.put(port, Boolean.TRUE);
+			}
+		}
+		for(Short port: allowedPorts.keySet()) {
+			if(!ports.contains(port)) {
+				FVLog.log(LogLevel.INFO, this, "removing access to port " + port);
+				allowedPorts.remove(port);
+			}
 		}
 	}
 
@@ -232,8 +235,35 @@ public class FVSlicer implements FVEventHandler {
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
+		else if (e instanceof ConfigUpdateEvent)
+			updateConfig((ConfigUpdateEvent)e);
 		else
 			throw new UnhandledEvent(e);
+	}
+	
+	/**
+	 * We got a signal that something in the config changed
+	 * @param e
+	 */
+
+	private void updateConfig(ConfigUpdateEvent e) {
+		String whatChanged = e.getConfig();
+		if (whatChanged.equals(FVConfig.FLOWSPACE))
+			updateFlowSpaceConfig(e);
+		else 
+			FVLog.log(LogLevel.WARN, this, "ignoring unhandled/implemented config update:" + e);
+	}
+
+	/**
+	 * The FlowSpace just changed; update all cached dependencies
+	 * @param e
+	 */
+	
+	private void updateFlowSpaceConfig(ConfigUpdateEvent e) {
+		updatePortList();
+		// FIXME: implement compare of old vs. new flowspace 
+		// 		and remove flow entries that don't fit the difference
+		FVLog.log(LogLevel.CRIT, this, "FIXME: need to flush old flow entries");
 	}
 
 	private void reconnect() {

@@ -6,6 +6,8 @@ package org.flowvisor.config;
 import org.flowvisor.api.APIAuth;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.flows.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -262,6 +264,8 @@ public class FVConfig {
 	public static List<String> getConfig(String name) {
 		ConfigEntry val = lookup(name);
 		// FIXME: change val.getValue() to return a list instead of an array
+		if (val == null)
+			return null;
 		String[] strings = val.getValue();
 		List<String> stringList = new LinkedList<String>();
 		for (int i=0; i<strings.length; i++)
@@ -294,17 +298,39 @@ public class FVConfig {
 		
 	}
 
-	public static void watch(FVEventHandler handler, String name)  throws ConfigError {
+	public static void watch(FVEventHandler handler, String name){
 		ConfigEntry e = lookup(name);
-		e.watch(handler);
+		if (e == null)
+			FVLog.log(LogLevel.WARN, handler, "tried to watch non-existent config: " + name);
+		else
+			e.watch(handler);
 	}
 	
-	public static void unwatch(FVEventHandler handler, String name)  throws ConfigError {
+	public static void unwatch(FVEventHandler handler, String name){
 		ConfigEntry e = lookup(name);
-		e.unwatch(handler);
+		if (e == null)
+			FVLog.log(LogLevel.WARN, handler, "tried to unwatch non-existent config: " + name);
+		else
+			e.unwatch(handler);
 	}
 	
-	
+	/**
+	 * Tell all of the FVHandler's that are watching this node
+	 * that the value has changed and they need to refresh it
+	 * 
+	 * Fails silently if node does not exist
+	 * 
+	 * @param node nodename
+	 */
+	public static void sendUpdates(String node){
+		ConfigEntry entry = lookup(node);
+		if (entry == null) {
+			FVLog.log(LogLevel.WARN, null, "tried to signal update for non-existent config node: " + 
+					node);
+			return;
+		}
+		entry.sendUpdates();
+	}
 	
 	/**
 	 * Read XML-encoded config from filename
@@ -364,7 +390,6 @@ public class FVConfig {
 		// FIXME turn off echo
 		return new BufferedReader(new InputStreamReader(System.in)).readLine();
 	}
-
 
 	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
 		ConfDirEntry sliceList= (ConfDirEntry) lookup(FVConfig.SLICES);
