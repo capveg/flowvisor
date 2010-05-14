@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIUserCred;
+import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -177,9 +178,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		return dpids;
 	}
-	
-	
-	
+		
 	/* (non-Javadoc)
 	 * @see org.flowvisor.api.FVUserAPI#getDeviceInfo()
 	 */
@@ -234,14 +233,17 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
+		String logMsg;
 		for(int i=0; i< changes.size(); i++) {
-			FlowChange change = FlowChange.fromMap(changes.get(i)); 
-			FVLog.log(LogLevel.INFO, null, "user " + user + " " + change.getOperation() +
-					" at index=" + change.getIndex() + " for dpid=" + 
+			FlowChange change = FlowChange.fromMap(changes.get(i));
+			logMsg = "user " + user + " " + change.getOperation() +
+					" at index=" + change.getIndex();
+			if (change.getOperation()!= FlowChangeOp.REMOVE)
+				logMsg+= " for dpid=" + 
 					HexString.toHexString(change.getDpid()) + " match=" +
 					change.getMatch() + " actions=" + 
-					FlowSpaceUtil.toString(change.getActions())
-					);
+					FlowSpaceUtil.toString(change.getActions());
+			FVLog.log(LogLevel.INFO, null, logMsg );
 			switch(change.getOperation()) {
 			case ADD:
 				flowSpace.addRule(change.getIndex(), 
@@ -270,6 +272,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// update the indexes at the end, not with each rule
 		FlowSpaceUtil.updateFlowSpaceIndexes();
 		FlowVisor.getInstance().checkPointConfig();
+		FVLog.log(LogLevel.INFO, null, "Signalling FlowSpace Update to all event handlers");
+		FVConfig.sendUpdates(FVConfig.FLOWSPACE);		// signal that FS has changed
 		return true;
 	}
 
@@ -324,8 +328,14 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public List<String> getConfig(String nodeName) throws ConfigError,
 			PermissionDeniedException {
-		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
+		String user = APIUserCred.getUserName();
+		if(!FVConfig.isSupervisor(user)) {
+			FVLog.log(LogLevel.WARN, null, "blocked getConfig for user " + user + 
+					" on config " + nodeName);
 			throw new PermissionDeniedException("only superusers can call getConfig()");
+		}
+		FVLog.log(LogLevel.DEBUG, null, "getConfig for user " + user + 
+				" on config " + nodeName);
 		return FVConfig.getConfig(nodeName);
 	}
 
@@ -335,10 +345,17 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public boolean setConfig(String nodeName, String value) throws ConfigError,
 			PermissionDeniedException {
-		if(!FVConfig.isSupervisor(APIUserCred.getUserName()))
+		String user = APIUserCred.getUserName();
+		if(!FVConfig.isSupervisor(user)) {
+			FVLog.log(LogLevel.WARN, null, "blocked setConfig for user " + user + 
+					" on config " + nodeName + " to " + value);
 			throw new PermissionDeniedException("only superusers can call setConfig()");
+		}
 		FVConfig.setConfig(nodeName, value);
 		FlowVisor.getInstance().checkPointConfig();
+		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user + 
+				" on config " + nodeName + " to " + value);
+
 		return true;
 	}
 }
