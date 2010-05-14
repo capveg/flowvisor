@@ -9,6 +9,11 @@ docs:
 doc:
 	ant javadoc
 
+test:
+	make -C regress tests
+tests:
+	make -C regress tests
+
 run:
 	java -jar dist/flowvisor.jar
 
