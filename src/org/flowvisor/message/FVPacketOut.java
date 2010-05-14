@@ -11,12 +11,11 @@ import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.slicer.FVSlicer;
 
 import org.openflow.io.OFMessageAsyncStream;
-import org.openflow.protocol.OFError;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketOut;
 import org.openflow.protocol.OFPort;
+import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.OFError.OFBadRequestCode;
-import org.openflow.protocol.OFError.OFErrorType;
 import org.openflow.protocol.action.OFAction;
 
 /**
@@ -34,7 +33,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + this);
+		FVMessageUtil.dropUnexpectedMesg(this,fvClassifier);
 	}
 
 	@Override
@@ -77,19 +76,11 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		
 
 	private void sendActionsError(OFMessageAsyncStream out) {
-		OFError err = new FVError();
-		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
-		err.setErrorCode(OFBadRequestCode.OFPBRC_EPERM);
-		err.setOffendingMsg(this);
-		out.write(err);
+		out.write(FVMessageUtil.makeErrorMsg(OFBadRequestCode.OFPBRC_EPERM, this));
 	}
 
 	private void sendEpermError(OFMessageAsyncStream out) {
-		OFError err = new FVError();
-		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
-		err.setErrorCode(OFBadRequestCode.OFPBRC_EPERM);
-		err.setOffendingMsg(this);
-		out.write(err);
+		out.write(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 	}
 	
 	// convenience function that Derickso doesn't want in main openflow.jar

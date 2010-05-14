@@ -9,12 +9,20 @@ import java.util.List;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.classifier.XidPair;
 import org.flowvisor.classifier.XidTranslator;
+import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.slicer.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.actions.*;
 
+import org.openflow.protocol.OFError;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFError.OFBadActionCode;
+import org.openflow.protocol.OFError.OFBadRequestCode;
+import org.openflow.protocol.OFError.OFErrorType;
+import org.openflow.protocol.OFError.OFPortModFailedCode;
 import org.openflow.protocol.action.OFAction;
 
 
@@ -83,5 +91,53 @@ public class FVMessageUtil {
 		for(OFAction act: actionsList)
 			count += act.getLength();
 		return count;
+	}
+
+	public static void translateXidAndSend(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
+		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
+		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
+		fvClassifier.getMsgStream().write(msg);
+	}
+	
+	public static void dropUnexpectedMesg(OFMessage msg, FVEventHandler handler) {
+		FVLog.log(LogLevel.WARN, handler, "dropping unexpected msg: " + msg);
+	}
+
+	public static void untranslateXidAndSend(OFMessage msg, FVClassifier fvClassifier) {
+		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
+		if( fvSlicer == null ) {
+			FVLog.log(LogLevel.WARN, fvClassifier, "dropping msg with unknown xid: " + msg);
+			return;
+		}
+		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
+		fvSlicer.getMsgStream().write(msg);
+	}
+
+	public static OFMessage makeErrorMsg(OFPortModFailedCode code,
+			OFMessage msg) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_PORT_MOD_FAILED);
+		err.setErrorCode(code);
+		err.setOffendingMsg(msg);
+		return err;
+	}
+
+	public static OFMessage makeErrorMsg(OFBadRequestCode code,
+			FVPacketOut msg) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
+		err.setErrorCode(code);
+		err.setOffendingMsg(msg);
+		return err;
+	}
+
+	public static OFMessage makeErrorMsg(OFBadActionCode code,
+			FVPacketOut msg) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
+		err.setErrorCode(code);
+		err.setOffendingMsg(msg);
+		return err;
 	}
 }

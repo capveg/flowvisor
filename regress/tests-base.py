@@ -37,7 +37,9 @@ try:
     feature_request =     FvRegress.OFVERSION + '05 0008 2d47 c5eb'
     feature_request_after = FvRegress.OFVERSION + '05 0008 0000 0102'
     h.runTest(name="feature_request",timeout=timeout,  events= [
+            # send features_request
             TestEvent( "send","guest",'alice', feature_request),
+            # make sure the XID is updated
             TestEvent( "recv","switch",'switch1', feature_request_after, strict=True),
             ])
 
@@ -73,7 +75,9 @@ try:
 
 
     h.runTest(name="feature_reply", timeout=timeout, events= [
+            # send features_reply (with xid from request as above)
             TestEvent( "send","switch",'switch1', feature_reply),
+            # make sure the reply has pruned ports
             TestEvent( "recv","guest",'alice', feature_reply_after),
             ])
     ############################################################
@@ -170,7 +174,7 @@ try:
             #    DO NOT CHANGE test order
             # NOT correct output -- yet; need to append bad message
     packet_out_p1_aftr = FvRegress.OFVERSION + \
-            '''01 00 64 00 00 00 00 00 02 00 05 01 0d 00 58
+            '''01 00 64 00 00 00 00 00 02 00 06 01 0d 00 58
             00 00 ab ce ff ff ff ff ff ff 00 08 00 00 00 08
             00 01 00 80 00 00 00 00 00 01 00 00 00 00 00 00
             08 00 45 00 00 32 00 00 40 00 40 11 28 68 c0 a8
