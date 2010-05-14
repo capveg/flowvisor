@@ -126,12 +126,7 @@ public class FlowSpaceUtil {
 		}
 		
 		FVConfig.readFromFile(args[0]);
-		long dpid; 
-		if(args[1].indexOf(':') != -1 )
-			dpid = HexString.toLong(args[1]);
-		else
-			dpid = Long.valueOf(args[1]);
-		
+		long dpid = FlowSpaceUtil.parseDPID(args[1]);
 		
 		switch(args.length) {
 		case 2 :
@@ -213,5 +208,24 @@ public class FlowSpaceUtil {
 			actions+=action.toString();
 		}
 		return actions;
+	}
+
+	/**
+	 * Convert a string to a DPID
+	 * "*","all","all_dpids" --> ALL_DPIDS constant
+	 * if there is a ':", treat as a hex string
+	 * else assume it's decimal
+	 * @param dpidStr
+	 * @return a dpid
+	 */
+	public static long parseDPID(String dpidStr) {
+		if(dpidStr.equals("*") ||
+				dpidStr.equals("all") ||
+				dpidStr.equals("all_dpids"))
+			return FlowEntry.ALL_DPIDS;
+		if(dpidStr.indexOf(':')!=0)
+			return HexString.toLong(dpidStr);
+		else // maybe long in decimal?
+			return Long.valueOf(dpidStr);
 	}
 }

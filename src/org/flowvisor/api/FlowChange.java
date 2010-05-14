@@ -81,7 +81,8 @@ public class FlowChange {
 			if ( dpidStr == null )
 				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
 						"requires key '" + DPID_KEY + "' from " + map.toString());
-			flowChange.setDpid(HexString.toLong(dpidStr));
+			
+			flowChange.setDpid(FlowSpaceUtil.parseDPID(dpidStr));
 			// parse match
 			String matchStr = map.get(MATCH_KEY);
 			if ( matchStr== null )
