@@ -449,7 +449,7 @@ public class FVCtl {
 			usage("command '" + args[cmdIndex] + "' takes " + cmd.argCount + 
 					" args: only " + (args.length -1 - cmdIndex) + " given");
 		String[] strippedArgs = new String[args.length-1-cmdIndex];
-		System.arraycopy(args, cmdIndex, strippedArgs, 0, strippedArgs.length);
+		System.arraycopy(args, cmdIndex+1, strippedArgs, 0, strippedArgs.length);
 		cmd.invoke(client, strippedArgs);
 	}
 
