@@ -175,6 +175,7 @@ class FakeSwitch(Thread):
         self.name = name
         self.msg_cond = Condition()
         self.msgs = []
+        self.alive=True
         self.setDaemon(True)
     def run(self):
         print "    Starting io loop for switch "+ self.name
@@ -183,6 +184,7 @@ class FakeSwitch(Thread):
                 m = self.sock.recv(FakeSwitch.BUFSIZE)
                 if m == '' :
                     print "Switch " + self.name + " got EOF ; exiting..."
+                    self.alive=False
                     return
             except (socket.error), e :
                 print "Switch " + self.name + " got " + str(e) + "; exiting..."
@@ -225,6 +227,8 @@ class FakeSwitch(Thread):
                 m=m[size:]
             else :
                 return msgs
+    def is_alive(self):
+        return self.alive
 
 ###########################################################################
 class TestEvent:
@@ -232,8 +236,9 @@ class TestEvent:
     recv = 'recv'
     clear = 'clear?'
     switch = 'switch'
+    countSwitches = 'countSwitches'
     guest = 'guest'
-    actions = [ send, recv , clear]
+    actions = [ send, recv , clear, countSwitches]
     actors  = [ guest, switch ]
     def __init__(self,action,actor,actorID,packet,actorID2='switch1',strict=False):
         # action=string.lower(action)    # lame with extra lamesauce
@@ -421,6 +426,8 @@ class FvRegress:
                     ret=self.runRecvTest(e,count,recvTimeout=timeout/2)
                 elif e.action == TestEvent.clear:
                     ret=self.runClear(e,count,recvTimeout=timeout/2)
+                elif e.action == TestEvent.countSwitches:
+                    ret=self.runCountSwitches(e,count,recvTimeout=timeout/2)
                 else:
                     raise FvExcept("Unhandled event type %s for event %d " % [e.action,count])
                 if not ret :
@@ -492,6 +499,21 @@ class FvRegress:
         else :
             print msg + " (FAILED! got ZERO bytes but was expecting " + str(len(correct_packet))+" bytes )"
         return success
+    def runCountSwitches(self,event,count,recvTimeout=1):
+        msg= "%s test %d " % ( event.action, count)
+        cont = self.fakeControllers[event.actorID]
+        count=0
+        switches = cont.getSwitches()
+        for dpid in switches :
+            if switches[dpid].isAlive() :
+                count = count + 1
+        if count == event.actorID2 :
+            print msg + " SUCCESS: user " + event.actorID + " has " + str(count) + " switches"
+            return True
+        else :
+            print msg + " FAILED: user " + event.actorID + " has " + str(count) + " switches not " + str(event.actorID2)
+            return False
+
     def runClear(self,event,count,recvTimeout=1):
         msg= "%s test %d " % ( event.action, count)
         ret=True

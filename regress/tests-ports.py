@@ -178,6 +178,17 @@ try:
             # fv expands it to just ports=1 (even though it's the same input as before)
             TestEvent( "recv","switch","switch1", packet=bob_with_port2),
             ])
+    #########################################
+    change = { "operation" : "REMOVE", "index" : "0" }
+    ### now remove access from all Alice's ports
+    if not s.api.changeFlowSpace([change]) :
+        raise "FAILED: FlowSpace Change failed!"
+    else :
+        print "SUCCESS: FLowSpace Changed: removed Alice's access"
+    h.runTest(name="dropped Alice", timeout=timeout, events= [
+            # Make sure Alice has no switches connected to her
+            TestEvent( "countSwitches","guest","alice", actorID2=0,packet=None),
+            ])
 
 
 #########################################
