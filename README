@@ -1,0 +1,14 @@
+FlowVisor:
+    An OpenFlow controller that acts as a hypervisor/proxy
+    between a switch and multiple controllers.  Can slice
+    multiple switches in parallel, effectively slicing a network.
+
+Documentation:
+    http://www.openflowswitch.org/wk/index.php/FlowVisor
+    [note that verision 0.6 is linked off of the main page]
+
+Questions:
+    openflow-discuss@openflowswitch.org
+
+Bugs: 
+    http://www.openflowswitch.org/bugs/flowvisor
