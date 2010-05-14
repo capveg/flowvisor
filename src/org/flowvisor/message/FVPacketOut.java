@@ -57,6 +57,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 			return;
 		}
 		List<OFAction> actionsList = this.getActions();
+		match.setInputPort(this.getInPort());
 		try {
 			actionsList= FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer);
 		} catch (ActionDisallowedException e) {
