@@ -7,7 +7,9 @@ sleep=0.5
 
 tests="\
 tests-base.py \
-tests-api.py"
+tests-api.py \
+tests-ports.py \
+"
 
     
 
