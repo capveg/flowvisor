@@ -4,6 +4,77 @@
   <void property="entries"> 
    <object class="java.util.HashMap"> 
     <void method="put"> 
+     <string>flowvisor</string> 
+     <object class="org.flowvisor.config.ConfDirEntry"> 
+      <void property="entries"> 
+       <object class="java.util.HashMap"> 
+        <void method="put"> 
+         <string>api_webserver_port</string> 
+         <object class="org.flowvisor.config.ConfIntEntry"> 
+          <void property="int"> 
+           <int>18080</int> 
+          </void> 
+          <void property="name"> 
+           <string>api_webserver_port</string> 
+          </void> 
+          <void property="persistent"> 
+           <boolean>true</boolean> 
+          </void> 
+         </object> 
+        </void> 
+        <void method="put"> 
+         <string>checkpointing</string> 
+         <object class="org.flowvisor.config.ConfBoolEntry"> 
+          <void property="bool"> 
+           <boolean>false</boolean> 
+          </void> 
+          <void property="name"> 
+           <string>checkpointing</string> 
+          </void> 
+          <void property="persistent"> 
+           <boolean>true</boolean> 
+          </void> 
+         </object> 
+        </void> 
+        <void method="put"> 
+         <string>listen_port</string> 
+         <object class="org.flowvisor.config.ConfIntEntry"> 
+          <void property="int"> 
+           <int>16633</int> 
+          </void> 
+          <void property="name"> 
+           <string>listen_port</string> 
+          </void> 
+          <void property="persistent"> 
+           <boolean>true</boolean> 
+          </void> 
+         </object> 
+        </void> 
+       </object> 
+      </void> 
+      <void property="name"> 
+       <string>flowvisor</string> 
+      </void> 
+      <void property="persistent"> 
+       <boolean>true</boolean> 
+      </void> 
+     </object> 
+    </void> 
+    <void method="put"> 
+     <string>switches</string> 
+     <object class="org.flowvisor.config.ConfDirEntry"> 
+      <void property="entries"> 
+       <object class="java.util.HashMap"/> 
+      </void> 
+      <void property="name"> 
+       <string>switches</string> 
+      </void> 
+      <void property="persistent"> 
+       <boolean>true</boolean> 
+      </void> 
+     </object> 
+    </void> 
+    <void method="put"> 
      <string>flowspace</string> 
      <object class="org.flowvisor.config.ConfFlowMapEntry"> 
       <void property="flowMap"> 
@@ -105,76 +176,6 @@
            <void property="ruleMatch"> 
             <object class="org.openflow.protocol.OFMatch"> 
              <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>1</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
-           </void> 
-          </object> 
-         </void> 
-         <void method="add"> 
-          <object class="org.flowvisor.flows.FlowEntry"> 
-           <void property="DPID"> 
-            <long>-9223372036854775808</long> 
-           </void> 
-           <void property="actionsList"> 
-            <object class="java.util.ArrayList"> 
-             <void method="add"> 
-              <object idref="SliceAction0"/> 
-             </void> 
-            </object> 
-           </void> 
-           <void property="index"> 
-            <int>3</int> 
-           </void> 
-           <void property="ruleMatch"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="5"> 
-               <byte>1</byte> 
-              </void> 
-             </void> 
-             <void property="inputPort"> 
-              <short>3</short> 
-             </void> 
-             <void property="wildcards"> 
-              <int>4194298</int> 
-             </void> 
-            </object> 
-           </void> 
-          </object> 
-         </void> 
-         <void method="add"> 
-          <object class="org.flowvisor.flows.FlowEntry"> 
-           <void property="DPID"> 
-            <long>-9223372036854775808</long> 
-           </void> 
-           <void property="actionsList"> 
-            <object class="java.util.ArrayList"> 
-             <void method="add"> 
-              <object idref="SliceAction0"/> 
-             </void> 
-            </object> 
-           </void> 
-           <void property="index"> 
-            <int>4</int> 
-           </void> 
-           <void property="ruleMatch"> 
-            <object class="org.openflow.protocol.OFMatch"> 
-             <void property="dataLayerSource"> 
-              <void index="1"> 
-               <byte>1</byte> 
-              </void> 
               <void index="5"> 
                <byte>1</byte> 
               </void> 
@@ -194,77 +195,6 @@
       </void> 
       <void property="name"> 
        <string>flowspace</string> 
-      </void> 
-      <void property="persistent"> 
-       <boolean>true</boolean> 
-      </void> 
-     </object> 
-    </void> 
-    <void method="put"> 
-     <string>switches</string> 
-     <object class="org.flowvisor.config.ConfDirEntry"> 
-      <void property="entries"> 
-       <object class="java.util.HashMap"/> 
-      </void> 
-      <void property="name"> 
-       <string>switches</string> 
-      </void> 
-      <void property="persistent"> 
-       <boolean>true</boolean> 
-      </void> 
-     </object> 
-    </void> 
-    <void method="put"> 
-     <string>flowvisor</string> 
-     <object class="org.flowvisor.config.ConfDirEntry"> 
-      <void property="entries"> 
-       <object class="java.util.HashMap"> 
-        <void method="put"> 
-         <string>api_webserver_port</string> 
-         <object class="org.flowvisor.config.ConfIntEntry"> 
-          <void property="int"> 
-           <int>18080</int> 
-          </void> 
-          <void property="name"> 
-           <string>api_webserver_port</string> 
-          </void> 
-          <void property="persistent"> 
-           <boolean>true</boolean> 
-          </void> 
-         </object> 
-        </void> 
-        <void method="put"> 
-         <string>checkpointing</string> 
-         <object class="org.flowvisor.config.ConfBoolEntry"> 
-          <void property="bool"> 
-           <boolean>true</boolean> 
-          </void> 
-          <void property="name"> 
-           <string>checkpointing</string> 
-          </void> 
-          <void property="persistent"> 
-           <boolean>true</boolean> 
-          </void> 
-         </object> 
-        </void> 
-        <void method="put"> 
-         <string>listen_port</string> 
-         <object class="org.flowvisor.config.ConfIntEntry"> 
-          <void property="int"> 
-           <int>16633</int> 
-          </void> 
-          <void property="name"> 
-           <string>listen_port</string> 
-          </void> 
-          <void property="persistent"> 
-           <boolean>true</boolean> 
-          </void> 
-         </object> 
-        </void> 
-       </object> 
-      </void> 
-      <void property="name"> 
-       <string>flowvisor</string> 
       </void> 
       <void property="persistent"> 
        <boolean>true</boolean> 
@@ -310,20 +240,6 @@
              </object> 
             </void> 
             <void method="put"> 
-             <string>controller_port</string> 
-             <object class="org.flowvisor.config.ConfIntEntry"> 
-              <void property="int"> 
-               <int>54322</int> 
-              </void> 
-              <void property="name"> 
-               <string>controller_port</string> 
-              </void> 
-              <void property="persistent"> 
-               <boolean>true</boolean> 
-              </void> 
-             </object> 
-            </void> 
-            <void method="put"> 
              <string>controller_hostname</string> 
              <object class="org.flowvisor.config.ConfStrEntry"> 
               <void property="name"> 
@@ -334,6 +250,20 @@
               </void> 
               <void property="string"> 
                <string>localhost</string> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="put"> 
+             <string>controller_port</string> 
+             <object class="org.flowvisor.config.ConfIntEntry"> 
+              <void property="int"> 
+               <int>54322</int> 
+              </void> 
+              <void property="name"> 
+               <string>controller_port</string> 
+              </void> 
+              <void property="persistent"> 
+               <boolean>true</boolean> 
               </void> 
              </object> 
             </void> 
@@ -409,17 +339,6 @@
              </object> 
             </void> 
             <void method="put"> 
-             <string>controller_port</string> 
-             <object class="org.flowvisor.config.ConfIntEntry"> 
-              <void property="name"> 
-               <string>controller_port</string> 
-              </void> 
-              <void property="persistent"> 
-               <boolean>true</boolean> 
-              </void> 
-             </object> 
-            </void> 
-            <void method="put"> 
              <string>controller_hostname</string> 
              <object class="org.flowvisor.config.ConfStrEntry"> 
               <void property="name"> 
@@ -430,6 +349,17 @@
               </void> 
               <void property="string"> 
                <string>none</string> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="put"> 
+             <string>controller_port</string> 
+             <object class="org.flowvisor.config.ConfIntEntry"> 
+              <void property="name"> 
+               <string>controller_port</string> 
+              </void> 
+              <void property="persistent"> 
+               <boolean>true</boolean> 
               </void> 
              </object> 
             </void> 
@@ -505,20 +435,6 @@
              </object> 
             </void> 
             <void method="put"> 
-             <string>controller_port</string> 
-             <object class="org.flowvisor.config.ConfIntEntry"> 
-              <void property="int"> 
-               <int>54321</int> 
-              </void> 
-              <void property="name"> 
-               <string>controller_port</string> 
-              </void> 
-              <void property="persistent"> 
-               <boolean>true</boolean> 
-              </void> 
-             </object> 
-            </void> 
-            <void method="put"> 
              <string>controller_hostname</string> 
              <object class="org.flowvisor.config.ConfStrEntry"> 
               <void property="name"> 
@@ -529,6 +445,20 @@
               </void> 
               <void property="string"> 
                <string>localhost</string> 
+              </void> 
+             </object> 
+            </void> 
+            <void method="put"> 
+             <string>controller_port</string> 
+             <object class="org.flowvisor.config.ConfIntEntry"> 
+              <void property="int"> 
+               <int>54321</int> 
+              </void> 
+              <void property="name"> 
+               <string>controller_port</string> 
+              </void> 
+              <void property="persistent"> 
+               <boolean>true</boolean> 
               </void> 
              </object> 
             </void> 

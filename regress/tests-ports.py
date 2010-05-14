@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from fvregress import *
 import string     # really?  you have to do this?
+import xmlrpclib
 
 test="ports"
 try:
@@ -129,7 +130,54 @@ try:
             TestEvent( "send","guest","alice", packet=packet_out_pInPort),
             TestEvent( "recv","switch","switch1", packet=packet_out_pInPort_aftr),
             ])
+    #########################################
+    rpcport=18080
+    user="root"
+    passwd="0fw0rk"
+    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+    change = { "operation" : "REMOVE", "index" : "2"}
+    ### now remove access from Bob on port 3
+    if not s.api.changeFlowSpace([change]) :
+        raise "FAILED: FlowSpace Change failed!"
+    else :
+        print "SUCCESS: FLowSpace Changed: removed bob's port 3"
 
+    bob_without_port3 = FvRegress.OFVERSION + '''0d 00 58 00 00 ab cd ff ff ff ff ff ff 00 08
+            00 00 00 08 00 01 00 80 00 00 00 00 00 02 00 00
+            00 00 00 01 08 00 45 00 00 32 00 00 40 00 40 11
+            28 68 c0 a8 c8 00 c0 a8 c9 01 00 01 00 00 00 1e
+            d7 c3 cd c0 25 1b e6 dc ea 0c 72 6d 97 3f 2b 71
+            c2 e4 1b 6f bc 11 82 50'''
+
+    h.runTest(name="packet_out; without port3", timeout=timeout, events= [
+            # bob sends a FLOOD packet_out
+            TestEvent( "send","guest","bob", packet=packet_out_pAll_bob),
+            # fv expands it to just ports=1 (even though it's the same input as before)
+            TestEvent( "recv","switch","switch1", packet=bob_without_port3),
+            ])
+
+    #########################################
+    change = { "operation" : "ADD", "index" : "2", 
+            "dpid":"all", "match":"in_port=2,dl_src=00:00:00:00:00:00:00:01", "actions":"Slice=bob:4"}
+    ### now remove access from Bob on port 3
+    if not s.api.changeFlowSpace([change]) :
+        raise "FAILED: FlowSpace Change failed!"
+    else :
+        print "SUCCESS: FLowSpace Changed: added bob's port 2"
+
+    bob_with_port2 = FvRegress.OFVERSION + '''0d 00 60 00 00 ab cd ff ff ff ff ff ff 00 10
+            00 00 00 08 00 01 00 80 00 00 00 08 00 02 00 80
+            00 00 00 00 00 02 00 00 00 00 00 01 08 00 45 00
+            00 32 00 00 40 00 40 11 28 68 c0 a8 c8 00 c0 a8
+            c9 01 00 01 00 00 00 1e d7 c3 cd c0 25 1b e6 dc
+            ea 0c 72 6d 97 3f 2b 71 c2 e4 1b 6f bc 11 82 50'''
+
+    h.runTest(name="packet_out; with port2", timeout=timeout, events= [
+            # bob sends a FLOOD packet_out
+            TestEvent( "send","guest","bob", packet=packet_out_pAll_bob),
+            # fv expands it to just ports=1 (even though it's the same input as before)
+            TestEvent( "recv","switch","switch1", packet=bob_with_port2),
+            ])
 
 
 #########################################
