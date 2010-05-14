@@ -86,6 +86,7 @@ try:
         test_failed("getLinks root test")
     for link in x:
         print "             Link " + str(linkcount) + ":"
+        linkcount+=1
         for key,val in link.iteritems():
             print "                 " + key  + "=" + val 
     print "     passed"

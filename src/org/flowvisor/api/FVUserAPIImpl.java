@@ -137,7 +137,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean change_passwd(String sliceName, String newPasswd)
+	public boolean change_password(String sliceName, String newPasswd)
 			throws PermissionDeniedException {
 		return changePasswd(sliceName, newPasswd);
 		// just call changePasswd(); keeping the two names made things easier for Jad /shrug

@@ -52,7 +52,7 @@ public interface FVUserAPI {
 	 */
 	public boolean changePasswd(String sliceName, String newPasswd) throws PermissionDeniedException;
 	// have both names, b/c it makes the OM's life easier
-	public boolean change_passwd(String sliceName, String newPasswd) throws PermissionDeniedException;
+	public boolean change_password(String sliceName, String newPasswd) throws PermissionDeniedException;
 	
 	/**
 	 * Get the list of device DPIDs (e.g., switches, routers, APs) connected to the FV
