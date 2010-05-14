@@ -1,6 +1,11 @@
-Need to edit scripts/envs.sh to install dir (FIXME!)
-Need to create SSL and FlowVisor configs:
+1) run `make` (or `ant` : Makefile is just a wrapper)
+2) Edit scripts/envs.sh to install dir (FIXME!)
+3) Create SSL and FlowVisor configs:
     use ./scripts/config-gen-default.sh
+    - creates default-config.xml
 
 To run flowvisor:
-    ./scripts/flowvisor.sh
+    ./scripts/flowvisor.sh config.xml
+
+To configure running flowvisor, use ./scripts/fvctl.sh
+    FIXME: document fvctl
