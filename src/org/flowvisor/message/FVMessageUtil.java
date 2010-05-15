@@ -124,7 +124,7 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFBadRequestCode code,
-			FVPacketOut msg) {
+			OFMessage msg) {
 		OFError err = new FVError();
 		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
 		err.setErrorCode(code);
@@ -133,7 +133,7 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFBadActionCode code,
-			FVPacketOut msg) {
+			OFMessage msg) {
 		OFError err = new FVError();
 		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
 		err.setErrorCode(code);

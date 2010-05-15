@@ -23,6 +23,7 @@ import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.message.*;
 import org.flowvisor.log.FVLog;
@@ -50,6 +51,7 @@ public class FVSlicer implements FVEventHandler {
 	OFMessageAsyncStream msgStream;
 	int missSendLength;
 	boolean allowAllPorts;
+	FlowMap localFlowSpace;
 
 	Map<Short,Boolean> allowedPorts;		// ports in this slice and whether they get OFPP_FLOOD'd
  	
@@ -345,5 +347,10 @@ public class FVSlicer implements FVEventHandler {
 
 	public boolean getFloodPortStatus(short port) {
 		return this.allowedPorts.get(port);
+	}
+
+	public FlowMap getFlowSpace() {
+		// FIXME: return just the cached locallized flowspace
+		return FVConfig.getFlowSpaceFlowMap();
 	}
 }
