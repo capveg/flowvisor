@@ -331,26 +331,28 @@ public class FVCtl {
 
 	private void do_flowSpaceChange(FlowChangeOp op, String indexStr, String dpid, 
 			String match, String actions) throws XmlRpcException{
-	Map<String,String> map = FlowChange.makeMap(op, indexStr, dpid, match,actions);
-	
-	try {
-		FlowChange.fromMap(map);
-	} catch (MalformedFlowChange e) {
-		System.err.println("Local sanity check failed: " + e);
-		return;
-	}	
-	List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
-	mapList.add(map);
-	Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
-	if(reply == null) {
-		System.err.println("Got 'null' for reply :-(");
-		System.exit(-1);
-	}			
-	if (reply) 
-		System.err.println("success!");
-	else 
-		System.err.println("failed!");			
-}
+		if ( match.equals("") || match.equals("any") || match.equals("all"))
+			match="OFMatch[]";
+		Map<String,String> map = FlowChange.makeMap(op, indexStr, dpid, match,actions);
+		
+		try {
+			FlowChange.fromMap(map);
+		} catch (MalformedFlowChange e) {
+			System.err.println("Local sanity check failed: " + e);
+			return;
+		}	
+		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
+		mapList.add(map);
+		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
+		if(reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}			
+		if (reply) 
+			System.err.println("success!");
+		else 
+			System.err.println("failed!");			
+	}
 	
 	public void run_listSlices() throws XmlRpcException {
 		Object[] reply = (Object[]) this.client.execute("api.listSlices", new Object[] {});
@@ -379,13 +381,18 @@ public class FVCtl {
 
 
 	private static void usage(String string) {
+		usage(string,true);
+	}
+	private static void usage(String string, boolean printFull) {
 		System.err.println(string);
-		System.err.println("Usage: FVCtl [--user=user] [--url=url] " + 
-				"[--passwd-file=filename] command [args...] ");
-		for(int i=0; i< FVCtl.cmdlist.length; i++) {
-			APICmd cmd = FVCtl.cmdlist[i];
-			System.err.println("\t" + cmd.name + " " + 
-					cmd.usage);
+		if (printFull) {
+			System.err.println("Usage: FVCtl [--user=user] [--url=url] " + 
+					"[--passwd-file=filename] command [args...] ");
+			for(int i=0; i< FVCtl.cmdlist.length; i++) {
+				APICmd cmd = FVCtl.cmdlist[i];
+				System.err.println("\t" + cmd.name + " " + 
+						cmd.usage);
+			}
 		}
 		System.exit(-1);
 	}	
@@ -437,19 +444,20 @@ public class FVCtl {
 		if(args.length == cmdIndex)
 			usage("need to specify a command");
 		
-		if (passwd == null)
-			passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
-		FVCtl client = new FVCtl(URL);
-		client.init(user,passwd);
 
 		APICmd cmd = APICmd.cmdlist.get(args[cmdIndex]);
 		if(cmd == null)
 			usage("command '" + args[cmdIndex] + "' does not exist");
 		if ( (args.length -1 - cmdIndex)  < cmd.argCount)
 			usage("command '" + args[cmdIndex] + "' takes " + cmd.argCount + 
-					" args: only " + (args.length -1 - cmdIndex) + " given");
+					" args: only " + (args.length -1 - cmdIndex) + " given\n" +
+					args[cmdIndex] + " " + cmd.usage, false);
 		String[] strippedArgs = new String[args.length-1-cmdIndex];
 		System.arraycopy(args, cmdIndex+1, strippedArgs, 0, strippedArgs.length);
+		if (passwd == null)
+			passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
+		FVCtl client = new FVCtl(URL);
+		client.init(user,passwd);
 		cmd.invoke(client, strippedArgs);
 	}
 
