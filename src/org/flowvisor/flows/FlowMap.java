@@ -2,6 +2,7 @@ package org.flowvisor.flows;
 
 import org.openflow.protocol.OFMatch;
 import java.util.List;
+import java.util.SortedSet;
 
 /** 
  * Interface for computing intersections in flowspace.
@@ -72,20 +73,20 @@ public interface FlowMap {
 	public FlowEntry matches(long dpid, short inputPort, byte[] packetData);
 	
 	/** 
-	 * Add a new rule between rules position and position+1.
-	 *  The first rule is rule 0
+	 * Add a new rule into the map.  Rules are sorted by their
+	 *  priority: highest number has highest priority
 	 * 
-	 * @param position Index into the rule list
+	 * 
 	 * @param rule A valid FlowEntry
 	 */
-	public void addRule(int position, FlowEntry rule);
+	public void addRule(FlowEntry rule);
 	
 	/**
 	 * Remove the rule listed at position 
 	 * 
-	 * @param position Index into the rule list
+	 * @param id the unique FlowEntry id identifying this rule
 	 */
-	public void removeRule(int position);
+	public void removeRule(int id);
 	
 	/**
 	 * Return the number of rules in the list
@@ -102,7 +103,7 @@ public interface FlowMap {
 	 * @return list of FlowEntry's
 	 */
 	
-	public List<FlowEntry> getRules();
+	public SortedSet<FlowEntry> getRules();
 		
 	
 }

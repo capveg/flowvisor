@@ -102,13 +102,44 @@ public interface FVUserAPI {
 	 * 
 	 * FIXME: make this more codified; is XMLRPC the right thing here? Protobufs?
 	 * 
-	 * Each Map should contain the following elements; all keys and values are strings
+	 * Each Map should contain the an "operation" element; all keys and values are strings
 	 *    key="operation", value={CHANGE,ADD,REMOVE}
-	 *    key="index",     value=index into flowspace for the operation
 	 *    
-	 *    additionally, ADD and CHANGE operations should contain
+	 * remove:
+     * { 
+     *    "operation" : "REMOVE:", 
+     *    "id":"4235253" 
+     * }  
+     * 
+     * add:
+     * { 
+     *    "operation" : "ADD", 
+     *    "priority":"100",
+     *    "dpid" :  "00:00:23:20:10:25:55:af"
+     *    "match":"in_port=5,dl_src=00:23:20:10:10:10",
+     *    "actions":"Slice=alice:4"
+     * }
+     * 
+     * change:
+     * {
+     *    "operation": "CHANGE"
+     *    "id":"4353454",
+     *    "priority":"105",			// new priority
+     *    "dpid" : "all", 			// new dpid
+     *    "match":"in_port=5,dl_src=00:23:20:10:10:10",	// new match
+     *    "actions":"Slice=alice:4"	// new actions
+     * }
+     * 
+     * 
+	 * The changeFlowSpace() call will return a list of strings, where each element is an ID.
+	 * If the operation was a REMOVE or a CHANGE, it's the ID of the removed/changed entry.  If it's
+	 * an ADD, it's the ID of the new entry.  
+	 *    
 	 *    key="dpid", value=8 octet hexcoded string, e.g., "00:00:23:20:10:25:55:af"
+	 *    			the dpid string will be pushed off to FlowSpaceUtils.parseDPID()
+	 *    
 	 *    key="match", value=dpctl-style OFMatch string, see below
+	 *    
 	 *    key="actions", value=comma separated string of SliceActions suitable to call SliceAction.fromString
 	 *    	e.g., "SliceAction:alice=4,SliceAction:bob=2
 	 *    
@@ -124,8 +155,10 @@ public interface FVUserAPI {
 	 * 
 	 * @param list of changes
 	 * @throws MalformedFlowChange
+	 * @return A list of flow entry IDs in string form
+	 * @throws MalformedFlowChange
 	 */
-	public boolean changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange;
+	public List<String> changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange;
 	
 	/**
 	 * Return a list of slices in the flowvisor: 

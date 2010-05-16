@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
 import org.openflow.protocol.*;
@@ -20,26 +21,37 @@ import org.openflow.util.HexString;
  * In addition to normal openflow flow entry symantics, this flow entry also
  * matches on dpid
  */
-public class FlowEntry {
+public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 	public static final long ALL_DPIDS 		= Long.MIN_VALUE;
-	public static final String ALL_DPIDS_STR 	= "all_dpids"; 
-
+	public static final String ALL_DPIDS_STR 	= "all_dpids";
+	private static final int DefaultPriority = 32000; 
+	static int UNIQUE_FLOW_ID = 1000;
 	OFMatch ruleMatch;
-	int index;
 	List<OFAction> actionsList;
 	long dpid;
+	int priority;
+	int id;
 	/**
 	 * IF switch is dpid and packet match's match, then perform action list
 	 * @param dpid switch's datapath id (from FeaturesReply) or ALL_DPIDS
 	 * @param match an openflow match structure
 	 * @param actionsList list of actions; empty list implies DROP
 	 */
-	public FlowEntry(long dpid, OFMatch match, List<OFAction> actionsList) {
+	public FlowEntry(long dpid, OFMatch match, int id, int priority, List<OFAction> actionsList) {
 		this.dpid = 		dpid;
 		this.ruleMatch = 	match;
-		this.index = 		-1;
+		this.id = 			id;
 		this.actionsList = 	actionsList;
+		this.priority 	= 	priority;
+	}
+
+	public FlowEntry(long dpid, OFMatch match, int priority, List<OFAction> actionsList) {
+		this(dpid, match,FlowEntry.getUniqueId(), priority, actionsList);
+	}
+	
+	public FlowEntry(long dpid, OFMatch match, List<OFAction> actionsList) {
+		this(dpid,match,FlowEntry.DefaultPriority,actionsList);
 	}
 	
 	public FlowEntry(long dpid, OFMatch match, OFAction action) {
@@ -60,6 +72,9 @@ public class FlowEntry {
 		// set nothing; java bean
 	}
 	
+	synchronized static int getUniqueId() {
+		return FlowEntry.UNIQUE_FLOW_ID++;
+	}
 	
 	public long getDPID() {
 		return this.dpid;
@@ -407,8 +422,8 @@ public class FlowEntry {
 			map.put("dpid", String.valueOf(dpid));
 		map.put("ruleMatch", this.ruleMatch.toString());
 		map.put("actionsList", FlowSpaceUtil.toString(actionsList));
-		if(this.index!= -1)
-			map.put("index", String.valueOf(this.index));
+		map.put("id", String.valueOf(this.id));
+		map.put("priority", String.valueOf(this.priority));
 		return BracketParse.encode(map);
 	}
 
@@ -424,12 +439,23 @@ public class FlowEntry {
 	public static FlowEntry fromString(String string) {
 		List<OFAction> actionsList = new ArrayList<OFAction>();
 		long dpid;
-		OFMatch rule ;
-		HashMap<String,String> map = BracketParse.decode(string);
+		OFMatch rule;
+		int id;
+		int priority;
+		Map<String,String> map = BracketParse.decode(string);
 		if ((map== null)||(!map.get(BracketParse.OBJECTNAME).equals("FlowEntry")))
 			throw new IllegalArgumentException("expected FlowEntry, got '" + string+ "'");
 		if (!map.containsKey("dpid"))
-			throw new IllegalArgumentException("expected dpid, got '" + string+ "'");
+			throw new IllegalArgumentException("expected key dpid, got '" + string+ "'");
+		if (map.containsKey("id"))
+			id = Integer.valueOf(map.get("id"));
+		else
+			throw new IllegalArgumentException("expected key id, got '" + string+ "'");
+		if (map.containsKey("priority"))
+			priority = Integer.valueOf(map.get("priority"));
+		else
+			throw new IllegalArgumentException("expected key priority, got '" + string+ "'");
+	
 		int i;
 		// translate dpid
 		if (map.get("dpid").equals(ALL_DPIDS_STR))
@@ -443,7 +469,7 @@ public class FlowEntry {
 			if(! actions[i].equals(""))
 				actionsList.add(SliceAction.fromString(actions[i]));
 		
-		return new FlowEntry(dpid, rule, actionsList);
+		return new FlowEntry(dpid, rule, id, priority, actionsList);
 	}
 
 	public OFMatch getRuleMatch() {
@@ -462,14 +488,38 @@ public class FlowEntry {
 		this.dpid = dpid;
 	}
 
-	public int getIndex() {
-		return index;
+	/**
+	 * @return the priority
+	 */
+	public int getPriority() {
+		return priority;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	/**
+	 * @param priority the priority to set
+	 */
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -477,11 +527,16 @@ public class FlowEntry {
 		result = prime * result
 				+ ((actionsList == null) ? 0 : actionsList.hashCode());
 		result = prime * result + (int) (dpid ^ (dpid >>> 32));
+		result = prime * result + id;
+		result = prime * result + priority;
 		result = prime * result
 				+ ((ruleMatch == null) ? 0 : ruleMatch.hashCode());
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -498,12 +553,38 @@ public class FlowEntry {
 			return false;
 		if (dpid != other.dpid)
 			return false;
+		if (id != other.id)
+			return false;
+		if (priority != other.priority)
+			return false;
 		if (ruleMatch == null) {
 			if (other.ruleMatch != null)
 				return false;
 		} else if (!ruleMatch.equals(other.ruleMatch))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(FlowEntry other) {
+		// sort on priority, tie break on IDs
+		if (this.priority != other.priority)
+			return this.priority - other.priority;;
+		return this.id - other.id;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public FlowEntry clone() throws CloneNotSupportedException {
+		FlowEntry ret= new FlowEntry(
+				this.dpid, 
+				this.ruleMatch.clone(), 
+				this.priority,
+				actionsList);
+		ret.setId(this.id);
+		return ret;
 	}
 
 	

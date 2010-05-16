@@ -4,11 +4,14 @@
 package org.flowvisor.flows;
 
 import org.flowvisor.config.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.util.HexString;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
 import java.util.HashSet;
@@ -60,13 +63,20 @@ public class FlowSpaceUtil {
 		List<FlowIntersect> intersections = flowSpace.intersects(FlowEntry.ALL_DPIDS, match);
 		for(FlowIntersect inter: intersections) { 
 			FlowEntry rule = inter.getFlowEntry();
+			FlowEntry neoRule = null;
+			try {
+				neoRule = rule.clone();
+			} catch (CloneNotSupportedException e) {
+				FVLog.log(LogLevel.FATAL, null, "WTF!? FlowEntry not cloneable? " + e);
+			}
+			neoRule.setRuleMatch(inter.getMatch());
+			neoRule.setActionsList(new ArrayList<OFAction>());
 			for(OFAction action : rule.getActionsList()) {
-				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
+				// the flowspace should only contain SliceActions	
+				SliceAction sliceAction = (SliceAction) action;	
 				if (sliceAction.getSliceName().equals(sliceName)) {
-					FlowEntry neoRule = new FlowEntry(rule.getDpid(),rule.getRuleMatch().clone(), 
-							sliceAction.clone());
-					neoRule.setIndex(rule.getIndex());
-					ret.addRule(ret.countRules(),neoRule);
+					neoRule.getActionsList().add(sliceAction.clone());
+					ret.addRule(neoRule);
 				}
 			}
 		}
@@ -183,21 +193,7 @@ public class FlowSpaceUtil {
 		*/
 	}
 
-	/**
-	 * Step through the list of rules and tell each rule it's index
-	 * 
-	 * Useful for changing/setting rules by index
-	 */
-	
-	public static void updateFlowSpaceIndexes() {
-		synchronized (FVConfig.class) {
-			FlowMap flowMap = FVConfig.getFlowSpaceFlowMap();
-			int i=0;
-			for(FlowEntry rule: flowMap.getRules())
-				rule.setIndex(i++);
-		}
-	}
-	
+
 	public static String toString(List<OFAction> actionsList) {
 		String actions = "";
 		if (actionsList == null)
@@ -220,6 +216,7 @@ public class FlowSpaceUtil {
 	 */
 	public static long parseDPID(String dpidStr) {
 		if(dpidStr.equals("*") ||
+				dpidStr.equals("any") ||
 				dpidStr.equals("all") ||
 				dpidStr.equals("all_dpids"))
 			return FlowEntry.ALL_DPIDS;
@@ -227,5 +224,11 @@ public class FlowSpaceUtil {
 			return HexString.toLong(dpidStr);
 		else // maybe long in decimal?
 			return Long.valueOf(dpidStr);
+	}
+
+	public static String dpidToString(long dpid) {
+		if (dpid == FlowEntry.ALL_DPIDS)
+			return FlowEntry.ALL_DPIDS_STR;
+		return HexString.toHexString(dpid);
 	}
 }

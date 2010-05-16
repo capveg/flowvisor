@@ -9,7 +9,6 @@ import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIServer;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
-import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.flows.LinearFlowMap;
 import org.flowvisor.flows.SliceAction;
 import org.openflow.protocol.OFMatch;
@@ -37,7 +36,6 @@ public class DefaultConfig {
 
 		
 		
-		int position=0;		
 		int i,j;
 		match.setWildcards(OFMatch.OFPFW_ALL & ~(OFMatch.OFPFW_DL_SRC|OFMatch.OFPFW_IN_PORT));
 		
@@ -46,7 +44,7 @@ public class DefaultConfig {
 			match.setInputPort(alicePorts[i]);
 			for(j=0; j < aliceMacs.length ; j++) {
 				match.setDataLayerSource(aliceMacs[j]);
-				flowMap.addRule(position++, new FlowEntry(match.clone(), aliceAction));
+				flowMap.addRule(new FlowEntry(match.clone(), aliceAction));
 			}
 		}
 
@@ -62,7 +60,7 @@ public class DefaultConfig {
 			match.setInputPort(bobPorts[i]);
 			for(j=0; j < bobMacs.length ; j++) {
 				match.setDataLayerSource(bobMacs[j]);
-				flowMap.addRule(position++, new FlowEntry(match.clone(), bobAction));
+				flowMap.addRule(new FlowEntry(match.clone(), bobAction));
 			}
 		}
 		// now populate the config
@@ -85,7 +83,6 @@ public class DefaultConfig {
 			e.printStackTrace();
 			throw new RuntimeException((Exception) e);
 		}	
-		FlowSpaceUtil.updateFlowSpaceIndexes();
 	}
 	/**
 	 * Print default config to stdout

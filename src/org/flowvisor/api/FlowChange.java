@@ -23,10 +23,12 @@ import org.openflow.util.HexString;
  */
 public class FlowChange {
 	final static public String OP_KEY="operation";
-	final static public String INDEX_KEY="index";
+	final static public String ID_KEY="id";
+	final static public String PRIORITY_KEY="priority";
 	final static public String DPID_KEY="dpid";
 	final static public String ACTIONS_KEY="actions";
 	final static public String MATCH_KEY="match";
+	
 	
 	public enum FlowChangeOp {
 		ADD,
@@ -35,7 +37,8 @@ public class FlowChange {
 	}
 
 	private FlowChangeOp operation;
-	private int index;
+	private int id;
+	private int priority;
 	private long dpid;
 	private OFMatch match;
 	private List<OFAction> actions;	
@@ -48,9 +51,11 @@ public class FlowChange {
 	public Map<String,String> toMap(){
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(OP_KEY, operation.toString());
-		map.put(INDEX_KEY, String.valueOf(index));
+		if(operation != FlowChangeOp.ADD)
+			map.put(ID_KEY, String.valueOf(id));		
 		if(operation != FlowChangeOp.REMOVE) {
 			map.put(DPID_KEY, HexString.toHexString(dpid));
+			map.put(PRIORITY_KEY, String.valueOf(priority));
 			map.put(MATCH_KEY, match.toString());
 			map.put(ACTIONS_KEY,FlowSpaceUtil.toString(actions)); 
 		}
@@ -70,11 +75,13 @@ public class FlowChange {
 		String op = map.get(OP_KEY);
 		if(op == null)
 			throw new MalformedFlowChange("missing key '" + OP_KEY + "' from " + map.toString());
-		flowChange.setOperation(FlowChangeOp.valueOf(op));
-		String ind = map.get(INDEX_KEY);
-		if(ind == null)
-			throw new MalformedFlowChange("missing key '" + INDEX_KEY + "' from " + map.toString());
-		flowChange.setIndex(Integer.valueOf(ind));
+		flowChange.setOperation(FlowChangeOp.valueOf(op.toUpperCase()));
+		if (flowChange.getOperation() != FlowChangeOp.ADD) {
+			String ind = map.get(ID_KEY);
+			if(ind == null)
+				throw new MalformedFlowChange("missing key '" + ID_KEY + "' from " + map.toString());
+			flowChange.setId(Integer.valueOf(ind));
+		}
 		if(flowChange.getOperation() != FlowChangeOp.REMOVE) {
 			// parse dpid
 			String dpidStr = map.get(DPID_KEY);
@@ -83,6 +90,11 @@ public class FlowChange {
 						"requires key '" + DPID_KEY + "' from " + map.toString());
 			
 			flowChange.setDpid(FlowSpaceUtil.parseDPID(dpidStr));
+			// parse priority
+			String ind = map.get(PRIORITY_KEY);
+			if(ind == null)
+				throw new MalformedFlowChange("missing key '" + PRIORITY_KEY + "' from " + map.toString());
+			flowChange.setPriority(Integer.valueOf(ind));
 			// parse match
 			String matchStr = map.get(MATCH_KEY);
 			if ( matchStr== null )
@@ -119,17 +131,20 @@ public class FlowChange {
 	/**
 	 * Create a map from the parameters
 	 * @param add
-	 * @param indexStr
+	 * @param idStr
+	 * @param priorityStr
 	 * @param dpid2
 	 * @param match2
 	 * @param actions2
 	 * @return
 	 */
 	public static Map<String, String> makeMap(FlowChangeOp op,
-			String indexStr, String dpid2, String match2, String actions2) {
+			String dpid2, String idStr, String priorityString, String match2, String actions2) {
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(OP_KEY,op.toString());
-		map.put(INDEX_KEY,indexStr);
+		if(idStr != null)
+			map.put(ID_KEY,idStr);
+		map.put(PRIORITY_KEY, priorityString);
 		map.put(DPID_KEY,dpid2);
 		map.put(MATCH_KEY, match2);
 		map.put(ACTIONS_KEY, actions2);
@@ -150,11 +165,12 @@ public class FlowChange {
 	 * @param match
 	 * @param actionsList
 	 */
-	public FlowChange(FlowChangeOp operation, int index, long dpid, OFMatch match,
+	public FlowChange(FlowChangeOp operation, int id, int priority, long dpid, OFMatch match,
 			List<OFAction> actions) {
 		super();
 		this.operation = operation;
-		this.index = index;
+		this.id = id;
+		this.priority = priority;
 		this.dpid = dpid;
 		this.match = match;
 		this.actions = actions;
@@ -162,8 +178,8 @@ public class FlowChange {
 
 	
 	
-	public FlowChange(FlowChangeOp remove, Integer index) {
-		this(remove,index,-1,null,null);
+	public FlowChange(FlowChangeOp remove, Integer id) {
+		this(remove,id,-1,-1,null,null);
 	}
 
 	/**
@@ -180,20 +196,26 @@ public class FlowChange {
 	public void setOperation(FlowChangeOp operation) {
 		this.operation = operation;
 	}
-
-
+	
 	/**
-	 * @return the index
+	 * @return the id
 	 */
-	public int getIndex() {
-		return index;
+	public int getId() {
+		return id;
 	}
 
 	/**
-	 * @param index the index to set
+	 * @param id the id to set
 	 */
-	public void setIndex(int index) {
-		this.index = index;
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param priority the priority to set
+	 */
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
 	/**
@@ -236,5 +258,10 @@ public class FlowChange {
 	 */
 	public void setActions(List<OFAction> actions) {
 		this.actions = actions;
+	}
+
+	public int getPriority() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

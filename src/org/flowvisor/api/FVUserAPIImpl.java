@@ -67,8 +67,9 @@ public class FVUserAPIImpl implements FVUserAPI {
 		else
 			flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
 		String[] fs = new String[flowMap.countRules()];
-		for(int i=0; i< fs.length; i++)
-			fs[i] = flowMap.getRules().get(i).toString();
+		int i=0;
+		for(FlowEntry flowEntry : flowMap.getRules())
+			fs[i++] = flowEntry.toString();
 		return fs;
 	}
 	
@@ -229,52 +230,46 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	
 	@Override
-	public boolean changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange{
+	public List<String> changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange{
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
+		List<String> returnIDs = new LinkedList<String>(); 
 		String logMsg;
 		for(int i=0; i< changes.size(); i++) {
 			FlowChange change = FlowChange.fromMap(changes.get(i));
-			logMsg = "user " + user + " " + change.getOperation() +
-					" at index=" + change.getIndex();
-			if (change.getOperation()!= FlowChangeOp.REMOVE)
-				logMsg+= " for dpid=" + 
-					HexString.toHexString(change.getDpid()) + " match=" +
-					change.getMatch() + " actions=" + 
-					FlowSpaceUtil.toString(change.getActions());
-			FVLog.log(LogLevel.INFO, null, logMsg );
-			switch(change.getOperation()) {
-			case ADD:
-				flowSpace.addRule(change.getIndex(), 
-						new FlowEntry(
-								change.getDpid(),
-								change.getMatch(),
-								change.getActions()
-								));
-				break;
-			case REMOVE:
-				flowSpace.getRules().remove(change.getIndex());
-				break;
-			case CHANGE:
-				flowSpace.getRules().set(change.getIndex(),new FlowEntry(
+			FlowChangeOp operation = change.getOperation();
+			logMsg = "user " + user + " " + operation;
+			if (operation != FlowChangeOp.ADD) {
+				logMsg += " id=" + change.getId();
+				flowSpace.removeRule(change.getId());
+				returnIDs.add(String.valueOf(change.getId()));
+			}
+			if (operation != FlowChangeOp.REMOVE) {
+				logMsg += 
+					" for dpid=" + FlowSpaceUtil.dpidToString(change.getDpid()) + 
+					" match=" + change.getMatch() +
+					" priority=" + change.getPriority() + 
+					" actions=" + FlowSpaceUtil.toString(change.getActions());
+			
+				FlowEntry flowEntry = 		new FlowEntry(
 						change.getDpid(),
 						change.getMatch(),
+						change.getPriority(),
 						change.getActions()
-						)); 
-				break;
-			default:
-				FVLog.log(LogLevel.WARN, null, "user " + user + 
-						" ignoring unknown changeFlow event: " + 
-						change.getOperation());
+						);
+		
+				flowSpace.addRule(flowEntry); 
+				if (operation == FlowChangeOp.ADD)
+					returnIDs.add(String.valueOf(flowEntry.getId()));
 			}
+			FVLog.log(LogLevel.INFO, null, logMsg );
 		}
 		// update the indexes at the end, not with each rule
-		FlowSpaceUtil.updateFlowSpaceIndexes();
 		FlowVisor.getInstance().checkPointConfig();
 		FVLog.log(LogLevel.INFO, null, "Signalling FlowSpace Update to all event handlers");
 		FVConfig.sendUpdates(FVConfig.FLOWSPACE);		// signal that FS has changed
-		return true;
+		return returnIDs;
 	}
 
 	@Override

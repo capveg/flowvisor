@@ -59,9 +59,9 @@ public class FVCtl {
 		new APICmd("getSliceInfo", 		1, "<slicename>"),
 		new APICmd("getDeviceInfo",     1, "<dpid>"),
 		new APICmd("createSlice",		3, "<slicename> <controller_url> <email>"),
-		new APICmd("removeFlowSpace", 	1, "<index>"),
-		new APICmd("addFlowSpace", 		4, "<index> <dpid> <match> <actions>"),
-		new APICmd("changeFlowSpace", 	4, "<index> <dpid> <match> <actions>")
+		new APICmd("removeFlowSpace", 	1, "<id>"),
+		new APICmd("addFlowSpace", 		4, "<dpid> <priority> <match> <actions>"),
+		new APICmd("changeFlowSpace", 	5, "<id> <dpid> <priority> <match> <actions>")
 	};
 	static class APICmd {
 		String name;
@@ -306,34 +306,34 @@ public class FVCtl {
 		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer.valueOf(indexStr));
 		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
 		mapList.add(change.toMap());
-		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", 
+		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace", 
 				new Object[] { mapList  });
 					
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}			
-		if (reply) 
-			System.err.println("success!");
+		if (reply.length > 0) 
+			System.err.println("success: " + (String)reply[0]);
 		else 
 			System.err.println("failed!");	
 	}
 
-	public void run_addFlowSpace(String indexStr, String dpid, String match, String actions) 
+	public void run_addFlowSpace(String dpid, String priority, String match, String actions) 
 					throws XmlRpcException, MalformedFlowChange {
-		do_flowSpaceChange(FlowChangeOp.ADD, indexStr, dpid, match, actions);
+		do_flowSpaceChange(FlowChangeOp.ADD, dpid, null, priority, match, actions);
 	}
 
-	public void run_changeFlowSpace(String indexStr, String dpid, String match, String actions) 
+	public void run_changeFlowSpace(String idStr, String dpid, String priority, String match, String actions) 
 		throws XmlRpcException, MalformedFlowChange {
-		do_flowSpaceChange(FlowChangeOp.CHANGE, indexStr, dpid, match, actions);
+		do_flowSpaceChange(FlowChangeOp.CHANGE, dpid, idStr, priority, match, actions);
 	}
 
-	private void do_flowSpaceChange(FlowChangeOp op, String indexStr, String dpid, 
-			String match, String actions) throws XmlRpcException{
+	private void do_flowSpaceChange(FlowChangeOp op, String dpid, String idStr,
+			String priority, String match, String actions) throws XmlRpcException{
 		if ( match.equals("") || match.equals("any") || match.equals("all"))
 			match="OFMatch[]";
-		Map<String,String> map = FlowChange.makeMap(op, indexStr, dpid, match,actions);
+		Map<String,String> map = FlowChange.makeMap(op, dpid, idStr, priority, match,actions);
 		
 		try {
 			FlowChange.fromMap(map);
@@ -343,13 +343,13 @@ public class FVCtl {
 		}	
 		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
 		mapList.add(map);
-		Boolean reply = (Boolean) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
+		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}			
-		if (reply) 
-			System.err.println("success!");
+		if (reply.length > 0 ) 
+			System.err.println("success: " + (String) reply[0]);
 		else 
 			System.err.println("failed!");			
 	}

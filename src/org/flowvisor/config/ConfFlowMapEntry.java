@@ -48,8 +48,7 @@ public class ConfFlowMapEntry extends ConfigEntry {
 		if (tokens.length <2 ) 
 			throw new IllegalArgumentException("Expected <rule num> <flow entry> but got '" + 
 					val + "'");
-		int position = Integer.valueOf(tokens[0]);
 		FlowEntry rule = FlowEntry.fromString(tokens[1]);
-		flowMap.addRule(position, rule);
+		flowMap.addRule(rule);
 	}
 }

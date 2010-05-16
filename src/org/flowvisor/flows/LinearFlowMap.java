@@ -5,6 +5,8 @@ package org.flowvisor.flows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.openflow.protocol.OFMatch;
 
@@ -18,10 +20,10 @@ import org.openflow.protocol.OFMatch;
 public class LinearFlowMap implements FlowMap {
 
 	
-	List<FlowEntry> rules;
+	SortedSet<FlowEntry> rules;
 	
 	public LinearFlowMap () {
-		this.rules = new ArrayList<FlowEntry>();
+		this.rules = new TreeSet<FlowEntry>();
 	}
  	
 	@Override
@@ -38,8 +40,8 @@ public class LinearFlowMap implements FlowMap {
 	}
 
 	@Override
-	public void addRule(int position, FlowEntry rule) {
-		this.rules.add(position, rule);
+	public void addRule(FlowEntry rule) {
+		this.rules.add(rule);
 	}
 
 	@Override
@@ -47,10 +49,17 @@ public class LinearFlowMap implements FlowMap {
 		return this.rules.size();
 	}
 
+	/**
+	 * Lame: linear search to delete something in a sorted set
+	 * ... but it's sorted by priority, not ID
+	 */
 	@Override
-	public void removeRule(int position) {
-		this.rules.remove(position);
-		
+	public void removeRule(int id) {
+		for(FlowEntry flowEntry: this.getRules())
+			if (flowEntry.getId() == id) {
+				this.rules.remove(flowEntry);
+				break;
+			}
 	}
 
 	/**
@@ -151,12 +160,19 @@ public class LinearFlowMap implements FlowMap {
 	}
 
 	@Override
-	public List<FlowEntry> getRules() {
+	public SortedSet<FlowEntry> getRules() {
 		return this.rules;
 	}
 
-	public void setRules(List<FlowEntry> rules) {
+	/**
+	 * @param rules the rules to set
+	 * 
+	 * DO NOT REMOVE!  This breaks XML encoding/decoding
+	 */
+	public void setRules(SortedSet<FlowEntry> rules) {
 		this.rules = rules;
 	}
+	
+	
 
 }

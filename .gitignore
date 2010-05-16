@@ -8,4 +8,4 @@ regress/.tests-base.py.swp
 regress/fv_regress.log
 sslTest/
 tmp/
-
+scripts/envs.sh

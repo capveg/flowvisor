@@ -3,7 +3,7 @@
 SSL_KEYPASSWD=CHANGEME_PASSWD
 
 # base of source tree; needs rewrite for distribution
-base=/Users/capveg/git/flowvisor-java
+base=/home/capveg/git/proj/flowvisor/flowvisor-nwo-java
 
 SSL_KEYSTORE=$base/mySSLKeyStore
 

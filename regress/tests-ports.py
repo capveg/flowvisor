@@ -135,7 +135,7 @@ try:
     user="root"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
-    change = { "operation" : "REMOVE", "index" : "2"}
+    change = { "operation" : "REMOVE", "id" : "1008"}
     ### now remove access from Bob on port 3
     if not s.api.changeFlowSpace([change]) :
         raise "FAILED: FlowSpace Change failed!"
@@ -157,9 +157,9 @@ try:
             ])
 
     #########################################
-    change = { "operation" : "ADD", "index" : "2", 
+    change = { "operation" : "ADD", "priority" : "200", 
             "dpid":"all", "match":"in_port=2,dl_src=00:00:00:00:00:00:00:01", "actions":"Slice=bob:4"}
-    ### now remove access from Bob on port 3
+    ### now add access for Bob on port 2
     if not s.api.changeFlowSpace([change]) :
         raise "FAILED: FlowSpace Change failed!"
     else :
@@ -179,7 +179,7 @@ try:
             TestEvent( "recv","switch","switch1", packet=bob_with_port2),
             ])
     #########################################
-    change = { "operation" : "REMOVE", "index" : "0" }
+    change = { "operation" : "REMOVE", "id" : "1003" }
     ### now remove access from all Alice's ports
     if not s.api.changeFlowSpace([change]) :
         raise "FAILED: FlowSpace Change failed!"
