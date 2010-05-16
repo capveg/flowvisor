@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -17,8 +17,8 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 	public static final int WRITE 		= (1<<2);
 	public static final int DELEGATE	= (1<<3);
 	public static final int SLICE_CREATE= (1<<4);
-	
-	
+
+
 	int slicePerms;
 	String sliceName;
 	public SliceAction(String sliceName, int slicePerms) {
@@ -27,16 +27,16 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 		this.slicePerms = slicePerms;
 		this.setVendor(FlowVisor.FLOWVISOR_VENDOR_EXTENSION);
 	}
-	
+
 	public SliceAction() {
 		// java bean constructor
 	}
-	
-	
-	
-	/** 
+
+
+
+	/**
 	 * Guaranteed to never print commas, so commas can be used
-	 * as delimiters in lists of slice perms  
+	 * as delimiters in lists of slice perms
 	 * @return "Slice:$name=3" for name = READ + WRITE, etc.
 	 */
 	@Override
@@ -44,23 +44,23 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 		return "Slice:" + sliceName + "="+ slicePerms;
 	}
 
-	
+
 	public static OFAction fromString(String str) {
 		String[] list  = str.split("[:=]");
 		if ((list.length != 3) || (!list[0].equals("Slice")))
 			return OFAction.fromString(str);	// format not recognized; default to OFAction
 		return  new SliceAction(list[1],Integer.parseInt(list[2]));
 	}
-	
-	
-	
+
+
+
 	@Override
 	public void readFrom(ByteBuffer buf) {
 		throw new RuntimeException("SliceActions are not to be sent over the wire");
 	}
 
 
-	/** 
+	/**
 	 * Auto-generated functions
 	 */
 	public int getSlicePerms() {
@@ -82,7 +82,7 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 		this.sliceName = sliceName;
 	}
 
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -111,8 +111,8 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 		return true;
 	}
 
-	
-	
+
+
 	public SliceAction clone() {
 		try {
 			return (SliceAction) super.clone();
@@ -121,6 +121,6 @@ public class SliceAction extends OFActionVendor  implements Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	
+
+
 }

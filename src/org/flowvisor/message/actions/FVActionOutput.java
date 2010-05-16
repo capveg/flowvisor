@@ -29,7 +29,7 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 	public void slice(List<OFAction> approvedActions, OFMatch match,
 			FVClassifier fvClassifier, FVSlicer fvSlicer)
 			throws ActionDisallowedException {
-		if ((port < OFPort.OFPP_MAX.getValue() || 
+		if ((port < OFPort.OFPP_MAX.getValue() ||
 				(port == OFPort.OFPP_LOCAL.getValue())) ||
 				(port == OFPort.OFPP_NORMAL.getValue())) {
 			if (fvSlicer.portInSlice(port))
@@ -48,7 +48,7 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 				approvedActions.add(this);
 			else
 				throw new ActionDisallowedException("in port not in slice" + in_port);
-		} 
+		}
 		else {
 			FVLog.log(LogLevel.CRIT, fvSlicer, "action slicing unimplemented for type: " + this);
 			approvedActions.add(this);
@@ -66,7 +66,7 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 			portList = fvSlicer.getPorts();
 		else if (port == OFPort.OFPP_FLOOD.getValue())
 			portList = fvSlicer.getFloodPorts();
-		else 
+		else
 			throw new RuntimeException("called expandPorts with non-FLOOD/ALL port: " + port);
 		for(Short fPort : portList) {
 			if( fPort.equals(Short.valueOf(match.getInputPort())))
@@ -77,16 +77,16 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 				approvedActions.add(neoOut);
 			} catch (CloneNotSupportedException e) {
 				throw new RuntimeException("silly java... I *do* implement cloneable");
-			}		
+			}
 		}
-		
+
 	}
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
 		return super.clone();
 	}
-	
+
 	@Override
 	public String toString() {
 		return super.toString() + ";port=" + port;

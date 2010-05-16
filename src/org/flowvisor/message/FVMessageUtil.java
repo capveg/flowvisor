@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message;
 
@@ -35,18 +35,18 @@ public class FVMessageUtil {
 	/**
 	 * Translate the XID of a message from controller-unique to switch unique
 	 * Also, record the <oldXid,FVSlicer> mapping so we can reverse this later
-	 * 
+	 *
 	 * @param msg
 	 * @param fvClassifier
 	 * @param fvSlicer
 	 */
-	static public void translateXid(OFMessage msg, FVClassifier fvClassifier, 
+	static public void translateXid(OFMessage msg, FVClassifier fvClassifier,
 					FVSlicer fvSlicer) {
 		XidTranslator xidTranslator = fvClassifier.getXidTranslator();
 		int newXid = xidTranslator.translate(msg.getXid(), fvSlicer);
 		msg.setXid(newXid);
 	}
-	
+
 	/**
 	 * Undo the effect of translateXID, and return the FVSlicer this came from
 	 * @param msg
@@ -56,34 +56,34 @@ public class FVMessageUtil {
 	static public FVSlicer untranslateXid(OFMessage msg, FVClassifier fvClassifier) {
 		XidTranslator xidTranslator = fvClassifier.getXidTranslator();
 		XidPair pair = xidTranslator.untranslate(msg.getXid());
-		if (pair == null) 
+		if (pair == null)
 			return null;
 		msg.setXid(pair.getXid());
 		return pair.getFvSlicer();
 	}
 
-	
+
 	/**
 	 * Is this slice allowed to use this list of actions with this ofmatch structure?
-	 * 
+	 *
 	 * Return a (potentially edited) list of actions or throw an exception if not allowed
-	 * 
-	 * @param actionList 
+	 *
+	 * @param actionList
 	 * @param match inPort is encapsulated in the match
 	 * @param fvClassifier
 	 * @param fvSlicer
 	 * @return A list of actions the slice is actually allowed to send
 	 * @throws ActionDisallowedException
 	 */
-	static public List<OFAction> approveActions(List<OFAction> actionList, OFMatch match, 
+	static public List<OFAction> approveActions(List<OFAction> actionList, OFMatch match,
 				FVClassifier fvClassifier, FVSlicer fvSlicer) throws ActionDisallowedException {
 		List<OFAction> approvedList = new ArrayList<OFAction>();
-		
+
 		if (actionList == null)
 			return null;
-		for(OFAction action : actionList ) 
+		for(OFAction action : actionList )
 			((SlicableAction)action).slice(approvedList, match, fvClassifier, fvSlicer);
-		return approvedList;	
+		return approvedList;
 	}
 
 	public static short countActionsLen(List<OFAction> actionsList) {
@@ -99,7 +99,7 @@ public class FVMessageUtil {
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
 		fvClassifier.getMsgStream().write(msg);
 	}
-	
+
 	public static void dropUnexpectedMesg(OFMessage msg, FVEventHandler handler) {
 		FVLog.log(LogLevel.WARN, handler, "dropping unexpected msg: " + msg);
 	}

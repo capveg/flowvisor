@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -10,10 +10,10 @@ package org.flowvisor.config;
 public class ConfigError extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public ConfigError(String err) {
 		super(err);
 	}

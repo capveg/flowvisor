@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message;
 
@@ -39,10 +39,10 @@ public class FVMessageFactory extends BasicFactory {
 	    FVStatisticsRequest.class,
 	    FVStatisticsReply.class,
 	    FVBarrierRequest.class,
-	    FVBarrierReply.class		
+	    FVBarrierReply.class
 	};
 
-	
+
 	@SuppressWarnings("unchecked")
 	static final Class convertActionsMap[] = {
 	    FVActionOutput.class,
@@ -59,29 +59,29 @@ public class FVMessageFactory extends BasicFactory {
 	    FVActionEnqueue.class,
 	    FVActionVendor.class
 	};
-  
+
 	@SuppressWarnings("unchecked")
 	static final Class convertStatsRequestMap[] = {
-		FVDescriptionStatistics.class, 
-		FVFlowStatisticsRequest.class, 
+		FVDescriptionStatistics.class,
+		FVFlowStatisticsRequest.class,
 		FVAggregateStatisticsRequest.class,
-		FVTableStatistics.class, 
-		FVPortStatisticsRequest.class, 
+		FVTableStatistics.class,
+		FVPortStatisticsRequest.class,
 		FVQueueStatisticsRequest.class,
 		FVVendorStatistics.class
 	};
-	
+
 	@SuppressWarnings("unchecked")
 	static final Class convertStatsReplyMap[] = {
-		FVDescriptionStatistics.class, 
-		FVFlowStatisticsReply.class, 
+		FVDescriptionStatistics.class,
+		FVFlowStatisticsReply.class,
 		FVAggregateStatisticsReply.class,
-		FVTableStatistics.class, 
-		FVPortStatisticsReply.class, 
+		FVTableStatistics.class,
+		FVPortStatisticsReply.class,
 		FVQueueStatisticsReply.class,
 		FVVendorStatistics.class
-	};	
-	
+	};
+
     @SuppressWarnings("unchecked")
 	@Override
     public OFMessage getMessage(OFType t) {

@@ -15,44 +15,44 @@ public class FlowVisor
 {
 	// VENDOR EXTENSION ID
 	public final static int FLOWVISOR_VENDOR_EXTENSION = 0x80000001;
-	
+
 	// VERSION
 	public final static String FLOVISOR_VERSION = "flowvisor-0.6-alpha";
-	
-	// Max slicename len ; used in LLDP for now; needs to be 1 byte 
+
+	// Max slicename len ; used in LLDP for now; needs to be 1 byte
 	public final static int MAX_SLICENAME_LEN = 255;
-	
+
 	/********/
 	String configFile;
 	ArrayList<FVEventHandler> handlers;
 	static FlowVisor instance;
-	
-	
+
+
 	public FlowVisor(String configFile) {
 		this.configFile=configFile;
 		this.handlers = new ArrayList<FVEventHandler>();
 	}
-	
+
 	public void run() throws IOException, ConfigError, UnhandledEvent  {
 		// register this flowvisor instance as THE flowvisor instance
 		FlowVisor.setInstance(this);
-		
+
 		// load  config from file
     	FVConfig.readFromFile(this.configFile);
-    	
+
     	// init polling loop
     	FVLog.log(LogLevel.INFO, null, "initializing poll loop");
     	FVEventLoop pollLoop = new FVEventLoop();
-    	  	
+
     	int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
-    	
+
     	// init switchAcceptor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
     										"ofswitchAcceptor",
-    										pollLoop, 
-    										port, 
+    										pollLoop,
+    										port,
     										16);
-    	handlers.add(acceptor);				
+    	handlers.add(acceptor);
     	// start XMLRPC UserAPI server; FIXME not async!
     	try {
 			APIServer.spawn();
@@ -63,33 +63,33 @@ public class FlowVisor
 		}
     	// start event processing
     	pollLoop.doEventLoop();
-    	
-    	/** 
+
+    	/**
     	 * FIXME add a cleanup call to event handlers
     	// now shut everything down
     	for (FVEventHandler fvh : handlers)
     		fvh.cleanup();
     	*/
-	
+
 	}
-	
+
 	/**
 	 * FlowVisor Daemon Executable Main
-	 * 
+	 *
 	 * Takes a config file as only parameter
 	 * @param args config file
 	 * @throws IOException
 	 * @throws UnhandledEvent
 	 * @throws ConfigError
 	 */
-	
+
     public static void main(String args[]) throws IOException,UnhandledEvent,ConfigError
     {
-    	
+
     	// FIXME :: do real arg parsing
     	if (args.length == 0 )
     		usage("need to specify config");
-    	
+
     	FlowVisor fv = new FlowVisor(args[0]);
     	fv.run();
     }
@@ -98,7 +98,7 @@ public class FlowVisor
      * Print usage message and warning string then exit
      * @param string warning
      */
-    
+
 	private static void usage(String string) {
 		System.err.println("err: " + string );
 		System.err.println("Usage: FlowVisor configfile.xml");
@@ -113,7 +113,7 @@ public class FlowVisor
 		return instance;
 	}
 
-	/** 
+	/**
 	 * Set the running fv instance
 	 * @param instance
 	 */
@@ -128,26 +128,26 @@ public class FlowVisor
 	public void addHandler(FVEventHandler handler) {
 		this.handlers.add(handler);
 	}
-	
+
 	public void removeHandler(FVEventHandler handler) {
 		this.handlers.remove(handler);
 	}
-	
+
 	public void setHandlers(ArrayList<FVEventHandler> handlers) {
 		this.handlers = handlers;
 	}
-	
+
 	/**
 	 * Save the running config back to disk
-	 * 
+	 *
 	 * Write to a temp file and only if it succeeds, move it into place
-	 * 
-	 * FIXME: add versioning 
+	 *
+	 * FIXME: add versioning
 	 */
 	public void checkPointConfig() {
 		String tmpFile = this.configFile + ".tmp";		// assumes no one else can write to same dir
 														// else security problem
-		
+
 		// do we want checkpointing?
 		try {
 			if (!FVConfig.getBoolean(FVConfig.CHECKPOINTING))
@@ -155,7 +155,7 @@ public class FlowVisor
 		} catch (ConfigError e1) {
 			FVLog.log(LogLevel.WARN, null, "Checkpointing config not set: assuming you want checkpointing");
 		}
-			
+
 		try {
 			FVConfig.writeToFile(tmpFile);
 		} catch (FileNotFoundException e) {
@@ -170,7 +170,7 @@ public class FlowVisor
 					tmpFile + "' but wrote empty file");
 			return;
 		}
-			
+
 		tmp.renameTo(new File(this.configFile));
 		FVLog.log(LogLevel.INFO, null, "Saved config to disk at " + this.configFile);
 	}

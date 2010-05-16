@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message;
 
@@ -8,14 +8,14 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * Given an echo request, just send an immediate response from the fv
- * 
+ *
  * FIXME consider sending these all the way through instead of faking
  * 	NEED to update regression tests
- * 
+ *
  * @author capveg
  *
  */
-public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest 
+public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 		implements Classifiable, Slicable {
 
 	/* (non-Javadoc)

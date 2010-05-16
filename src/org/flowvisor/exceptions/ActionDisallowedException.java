@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.exceptions;
 
@@ -15,7 +15,7 @@ public class ActionDisallowedException extends FVException {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

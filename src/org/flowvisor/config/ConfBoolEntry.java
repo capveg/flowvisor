@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -23,22 +23,22 @@ public class ConfBoolEntry extends ConfigEntry {
 	public boolean getBool() {
 		return bool;
 	}
-	
+
 	/**
 	 * @param bool the bool to set
 	 */
 	public void setBool(boolean bool) {
 		this.bool = bool;
 	}
-	
+
 	@Override
 	public String[] getValue() {
 		String[] ret = new String[1];
 		ret[0] = Boolean.toString(this.bool);
 		return ret;
 	}
-	
-	@Override 
+
+	@Override
 	public void setValue(String s) {
 		this.bool = Boolean.valueOf(s);
 	}

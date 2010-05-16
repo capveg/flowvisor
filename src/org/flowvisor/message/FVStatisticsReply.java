@@ -40,10 +40,10 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 	}
 
 	@Override
-	public String toString() {	
-		return super.toString() + 
-			";st=" + this.getStatisticType(); 
-			// ";mfr=" + this.getManufacturerDescription() + 
+	public String toString() {
+		return super.toString() +
+			";st=" + this.getStatisticType();
+			// ";mfr=" + this.getManufacturerDescription() +
 	}
 
 }

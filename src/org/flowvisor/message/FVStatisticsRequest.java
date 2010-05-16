@@ -35,10 +35,10 @@ public class FVStatisticsRequest extends OFStatisticsRequest implements
 	}
 
 	@Override
-	public String toString() {	
-		return super.toString() + 
-			";st=" + this.getStatisticType(); 
-			// ";mfr=" + this.getManufacturerDescription() + 
+	public String toString() {
+		return super.toString() +
+			";st=" + this.getStatisticType();
+			// ";mfr=" + this.getManufacturerDescription() +
 	}
-	
+
 }

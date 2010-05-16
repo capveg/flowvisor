@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.api;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author capveg
  *
  */
@@ -18,13 +18,13 @@ public class LinkAdvertisement {
 	int dstPort;
 	// list of key=value pairs, for extensibility
 	HashMap<String,String> attributes;
-	
+
 	protected LinkAdvertisement() {
 		// do nothing, for a java bean
 	}
 
-	
-	
+
+
 	public LinkAdvertisement(String srcDPID, int srcPort, String dstDPID,
 			int dstPort) {
 		super();
@@ -75,7 +75,7 @@ public class LinkAdvertisement {
 	public void setAttributes(HashMap<String, String> attributes) {
 		this.attributes = attributes;
 	}
-	
+
 	public void setAttribute(String key, String value) {
 		if(this.attributes == null)
 			this.attributes = new HashMap<String,String>();
@@ -84,7 +84,7 @@ public class LinkAdvertisement {
 
 	/**
 	 * I *SWEAR* XMLRPC is supposed to be able to handle this for me... :-(
-	 * 
+	 *
 	 * @return a key=value paired map of information on this link
 	 */
 
@@ -96,12 +96,12 @@ public class LinkAdvertisement {
 		map.put("dstPort",String.valueOf(dstPort));
 		String attribs = "";
 		for(String attrib : attributes.keySet()) {
-			if (!attribs.equals("")) 
+			if (!attribs.equals(""))
 				attribs+=",";
 			attribs+=attrib + "=" + attributes.get(attrib);
 		}
 		map.put("attributes",attribs);
 		return map;
 	}
-	
+
 }

@@ -22,7 +22,7 @@ import org.openflow.protocol.OFMatch;
  */
 public class DefaultConfig {
 
-			
+
 	static public void init(String rootPasswd) {
 		// setup a bunch of default things in the config
 		FlowMap flowMap = new LinearFlowMap();
@@ -34,11 +34,11 @@ public class DefaultConfig {
 		// short alicePorts[] = { 0 };
 		// String aliceMacs[] = {"00:00:00:00:00:02"};
 
-		
-		
+
+
 		int i,j;
 		match.setWildcards(OFMatch.OFPFW_ALL & ~(OFMatch.OFPFW_DL_SRC|OFMatch.OFPFW_IN_PORT));
-		
+
 		// add all of alice's rules
 		for(i=0; i< alicePorts.length; i++) {
 			match.setInputPort(alicePorts[i]);
@@ -48,13 +48,13 @@ public class DefaultConfig {
 			}
 		}
 
-		
+
 		short bobPorts[]  = { 1, 3};
 		String bobMacs[] = { "00:00:00:00:00:01", "00:01:00:00:00:01"};
 		// short bobPorts[]  = { 3};
 		// String bobMacs[] = { "00:01:00:00:00:01"};
 
-		
+
 		// add all of bob's rules
 		for(i=0; i< bobPorts.length; i++) {
 			match.setInputPort(bobPorts[i]);
@@ -82,20 +82,20 @@ public class DefaultConfig {
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException((Exception) e);
-		}	
+		}
 	}
 	/**
 	 * Print default config to stdout
 	 * @param args
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	
-	
+
+
 	public static void main(String args[]) throws FileNotFoundException {
 
 		if(args.length == 0) {
 			System.err.println("Generating default config");
-			DefaultConfig.init("CHANGEME");	
+			DefaultConfig.init("CHANGEME");
 		} else {
 			System.err.println("Reading config from: " + args[0]);
 			FVConfig.readFromFile(args[0]);

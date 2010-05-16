@@ -12,20 +12,20 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 
 	/**
 	 * Send to all slices with this port
-	 * 
+	 *
 	 * FIXME: decide if port_mod's can come *up* from switch?
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVLog.log(LogLevel.DEBUG, fvClassifier,"recv from switch: " + this);
-		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values()) 
+		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values())
 			if (fvSlicer.portInSlice(this.portNumber)) {
 				FVLog.log(LogLevel.DEBUG, fvSlicer,"sending to controller: " + this);
 				fvSlicer.getMsgStream().write(this);
 			}
 	}
 
-	
+
 	/**
 	 * First, check to see if this port is available in this slice
 	 * Second, check to see if they're changing the FLOOD bit
@@ -42,7 +42,7 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 		}
 		// Second, update the port's flood state
 		boolean oldValue = fvSlicer.getFloodPortStatus(this.portNumber);
-		fvSlicer.setFloodPortStatus(this.portNumber, 
+		fvSlicer.setFloodPortStatus(this.portNumber,
 				(this.mask& OFPhysicalPort.OFPortConfig.OFPPC_NO_FLOOD.ordinal()) == 0);
 		if (oldValue != fvSlicer.getFloodPortStatus(this.portNumber))
 			FVLog.log(LogLevel.CRIT, fvSlicer, "FIXME: need to implement FLOODING port changes");

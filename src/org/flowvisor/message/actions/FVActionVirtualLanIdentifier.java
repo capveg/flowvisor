@@ -19,7 +19,7 @@ public class FVActionVirtualLanIdentifier extends OFActionVirtualLanIdentifier
 			FVClassifier fvClassifier, FVSlicer fvSlicer)
 			throws ActionDisallowedException {
 		FVLog.log(LogLevel.CRIT, fvSlicer, "action slicing unimplemented for type: " + this);
-		approvedActions.add(this);	
+		approvedActions.add(this);
 	}
 
 }

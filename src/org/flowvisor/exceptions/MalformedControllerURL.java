@@ -3,7 +3,7 @@ package org.flowvisor.exceptions;
 public class MalformedControllerURL extends FVException {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

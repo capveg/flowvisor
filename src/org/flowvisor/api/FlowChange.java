@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.api;
 
@@ -28,8 +28,8 @@ public class FlowChange {
 	final static public String DPID_KEY="dpid";
 	final static public String ACTIONS_KEY="actions";
 	final static public String MATCH_KEY="match";
-	
-	
+
+
 	public enum FlowChangeOp {
 		ADD,
 		REMOVE,
@@ -41,27 +41,27 @@ public class FlowChange {
 	private int priority;
 	private long dpid;
 	private OFMatch match;
-	private List<OFAction> actions;	
+	private List<OFAction> actions;
 
 	/**
 	 * Convert this Map to a FlowChange
-	 * 
+	 *
 	 * @return a key=value map representing this flowchange
 	 */
 	public Map<String,String> toMap(){
 		Map<String,String> map = new HashMap<String,String>();
 		map.put(OP_KEY, operation.toString());
 		if(operation != FlowChangeOp.ADD)
-			map.put(ID_KEY, String.valueOf(id));		
+			map.put(ID_KEY, String.valueOf(id));
 		if(operation != FlowChangeOp.REMOVE) {
 			map.put(DPID_KEY, HexString.toHexString(dpid));
 			map.put(PRIORITY_KEY, String.valueOf(priority));
 			map.put(MATCH_KEY, match.toString());
-			map.put(ACTIONS_KEY,FlowSpaceUtil.toString(actions)); 
+			map.put(ACTIONS_KEY,FlowSpaceUtil.toString(actions));
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Convert a map to a FlowChange
 	 * that is, reverse the actions of toMap()
@@ -69,7 +69,7 @@ public class FlowChange {
 	 * @return
 	 * @throws MalformedFlowChange
 	 */
-	
+
 	public static FlowChange fromMap(Map<String,String> map) throws MalformedFlowChange{
 		FlowChange flowChange = new FlowChange();
 		String op = map.get(OP_KEY);
@@ -86,8 +86,8 @@ public class FlowChange {
 			// parse dpid
 			String dpidStr = map.get(DPID_KEY);
 			if ( dpidStr == null )
-				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
-						"requires key '" + DPID_KEY + "' from " + map.toString());		
+				throw new MalformedFlowChange("operation " + flowChange.getOperation() +
+						"requires key '" + DPID_KEY + "' from " + map.toString());
 			flowChange.setDpid(FlowSpaceUtil.parseDPID(dpidStr));
 
 			// parse priority
@@ -99,14 +99,14 @@ public class FlowChange {
 			// parse match
 			String matchStr = map.get(MATCH_KEY);
 			if ( matchStr== null )
-				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
+				throw new MalformedFlowChange("operation " + flowChange.getOperation() +
 						"requires key '" + MATCH_KEY + "' from " + map.toString());
 			OFMatch tmp = new OFMatch();
-			
+
 			// try as is first
-			try { 
+			try {
 				tmp.fromString(matchStr);
-			} catch (IllegalArgumentException e) { 
+			} catch (IllegalArgumentException e) {
 				// if that doesn't work, try wrapping with "OFMatch["
 				try {
 					tmp.fromString("OFMatch[" + matchStr + "]");
@@ -115,22 +115,22 @@ public class FlowChange {
 				}
 			}
 			flowChange.setMatch(tmp);
-			
+
 			// parse actions
 			String astr = map.get(ACTIONS_KEY);
 			if ( astr== null )
-				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
+				throw new MalformedFlowChange("operation " + flowChange.getOperation() +
 						"requires key '" + ACTIONS_KEY + "' from " + map.toString());
-			
+
 			String list[] = astr.split(",");
 			List<OFAction> alist = new LinkedList<OFAction>();
-			for (int i=0; i< list.length; i++ ) 
+			for (int i=0; i< list.length; i++ )
 				alist.add(SliceAction.fromString(list[i]));
 			flowChange.setActions(alist);
 		}
 		return flowChange;
 	}
-	
+
 	/**
 	 * Create a map from the parameters
 	 * @param add
@@ -152,8 +152,8 @@ public class FlowChange {
 		map.put(MATCH_KEY, match2);
 		map.put(ACTIONS_KEY, actions2);
 		return map;
-	}	
-	
+	}
+
 	//----------------------------- auto generated-----------------------------------
 	public FlowChange() {
 		// java beans constructor
@@ -179,8 +179,8 @@ public class FlowChange {
 		this.actions = actions;
 	}
 
-	
-	
+
+
 	public FlowChange(FlowChangeOp remove, Integer id) {
 		this(remove,id,-1,-1,null,null);
 	}
@@ -199,7 +199,7 @@ public class FlowChange {
 	public void setOperation(FlowChangeOp operation) {
 		this.operation = operation;
 	}
-	
+
 	/**
 	 * @return the id
 	 */
@@ -213,7 +213,7 @@ public class FlowChange {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	/**
 	 * @param priority the priority to set
 	 */

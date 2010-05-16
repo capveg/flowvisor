@@ -22,7 +22,7 @@ public class FVQueueStatisticsReply extends OFQueueStatisticsReply implements
 	/**
 	 * No need to rewrite response
 	 */
-	
+
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
@@ -34,5 +34,5 @@ public class FVQueueStatisticsReply extends OFQueueStatisticsReply implements
 		}
 	}
 
-	
+
 }

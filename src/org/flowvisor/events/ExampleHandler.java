@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.events;
 
@@ -8,17 +8,17 @@ import org.flowvisor.exceptions.*;
 /**
  * Basic implementation of an event handler
  *  Both for reference and used in derived classes
- *   
+ *
  * @author capveg
  *
  */
 public class ExampleHandler implements FVEventHandler {
 
 	FVEventLoop loop;
-	
-	/** 
+
+	/**
 	 * Construct a basic event handler
-	 * @param loop the event loop this handler will reside in 
+	 * @param loop the event loop this handler will reside in
 	 */
 	public ExampleHandler(FVEventLoop loop) {
 		this.loop = loop;
@@ -43,11 +43,11 @@ public class ExampleHandler implements FVEventHandler {
 		}
 		// do something with the event here
 		// ....
-		
+
 		// throw unhandled event for everthing else
 		throw new UnhandledEvent(e);
 	}
-	
+
 	/** (non-Javadoc)
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
@@ -61,7 +61,7 @@ public class ExampleHandler implements FVEventHandler {
 	@Override
 	public void tearDown() {
 		// do nothing
-		
+
 	}
 
 	@Override

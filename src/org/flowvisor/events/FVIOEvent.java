@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.events;
 
@@ -7,7 +7,7 @@ import org.flowvisor.events.FVEvent;
 import java.nio.channels.*;
 /**
  * Event: underlying socket has pending I/O
- * 
+ *
  * @author capveg
  *
  */
@@ -17,7 +17,7 @@ public class FVIOEvent extends FVEvent {
 		super(src,dst);
 		this.sk = sk;
 	}
-	
+
 	public SelectionKey getSelectionKey() {
 		return sk;
 	}

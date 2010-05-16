@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -8,7 +8,7 @@ package org.flowvisor.flows;
  *	Describe the overlap between matches A and B
  */
 public enum MatchType {
-	UNKNOWN,	// not yet calculated 
+	UNKNOWN,	// not yet calculated
 	NONE, 		// no overlap between A and B
 	SUBSET, 	// match A is a subset of B
 	SUPERSET, 	// match A is a superset of match B

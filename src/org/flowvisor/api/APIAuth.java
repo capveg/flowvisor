@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.api;
 
@@ -20,7 +20,7 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * Figure out if this request should be allowed or not
- * 
+ *
  * @author capveg
  *
  */
@@ -28,21 +28,21 @@ public class APIAuth implements AuthenticationHandler {
 
 	class AuthFailException extends Exception {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 1L;
 
 		public AuthFailException(String string) {
 			super(string);
 		}
-		
+
 	}
 	/* (non-Javadoc)
 	 * @see org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
 	 */
 	@Override
 	public boolean isAuthorized(XmlRpcRequest req) throws XmlRpcException {
-		
+
 		String method = req.getMethodName();
 		XmlRpcHttpRequestConfig config =
             (XmlRpcHttpRequestConfig) req.getConfig();
@@ -50,25 +50,25 @@ public class APIAuth implements AuthenticationHandler {
 		String passwd = config.getBasicPassword();
 		APIUserCred.setUserName(config.getBasicUserName());
 		try {
-			if(user == null) 
+			if(user == null)
 				throw new AuthFailException("client did not try to auth");
 			String salt = getPasswdElm(user, FVConfig.SLICE_SALT);
 			String crypt = getPasswdElm(user,FVConfig.SLICE_CRYPT);
 			String testCrypt = makeCrypt(salt,passwd);
 			if( !crypt.equals(testCrypt))
 				throw new AuthFailException("incorrect passwd for " + user);
-		
+
 		} catch (AuthFailException e) {
-			String err = "API auth failed for: " + 
+			String err = "API auth failed for: " +
 							method + "::" +e;
 			FVLog.log(LogLevel.WARN, null,err);
 			// throw new XmlRpcException(err);
 			return false;
 		}
-		FVLog.log(LogLevel.DEBUG, null, "API auth " + 
+		FVLog.log(LogLevel.DEBUG, null, "API auth " +
 				method + " for user '" + user + "'" );
 		// HACK to tie this thread to the user
-		
+
 		return true;
 	}
 	public static String makeCrypt(String salt, String passwd){
@@ -105,7 +105,7 @@ public class APIAuth implements AuthenticationHandler {
         return buf.toString();
     }
 
-	
+
 	private String getPasswdElm(String user,String elm) throws AuthFailException{
 		String base = FVConfig.SLICES + "." + user;
 			if(!FVConfig.confirm(base))
@@ -122,12 +122,12 @@ public class APIAuth implements AuthenticationHandler {
 		Random rand = new Random();
 		return Integer.valueOf(rand.nextInt()).toString();
 	}
-	
+
 	/**
 	 * Did changerSlice transitively create sliceName?
 	 * @param changerSlice the slice trying to perform a change
 	 * @param sliceName the slice being changes
-	 * @return 
+	 * @return
 	 */
 	public static boolean transitivelyCreated(String changerSlice,
 			String sliceName) {
@@ -138,7 +138,7 @@ public class APIAuth implements AuthenticationHandler {
 			if(user.equals(changerSlice))
 				return true;
 			try {
-				user = FVConfig.getString(FVConfig.SLICES + "." + user + "." + 
+				user = FVConfig.getString(FVConfig.SLICES + "." + user + "." +
 						FVConfig.SLICE_CREATOR);
 			} catch (ConfigError e) {
 				// FIXME: this config format is stupid

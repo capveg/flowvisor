@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -7,10 +7,10 @@ import org.openflow.protocol.*;
 
 /**
  * Describe the intersection between two FlowEntry's.
- * 
+ *
  * Contains an MatchType and if MatchType != NONE, then a dpid and OFMatch structure that
  * describes the overlap
- * 
+ *
  * @author capveg
  *
  */
@@ -21,7 +21,7 @@ public class FlowIntersect {
 	FlowEntry flowEntry;
 	public boolean maybeSubset;
 	public boolean maybeSuperset;
-	
+
 	public FlowIntersect(FlowEntry flowEntry) {
 		this.dpid = FlowEntry.ALL_DPIDS;
 		this.match =  (OFMatch) flowEntry.getRuleMatch().clone();
@@ -30,14 +30,14 @@ public class FlowIntersect {
 		this.maybeSubset = true;
 		this.maybeSuperset = true;
 	}
-	
+
 	public long getDPID() {
 		return this.dpid;
 	}
 	public void setDPID(long dpid) {
 		this.dpid = dpid;
 	}
-	
+
 	public MatchType getMatchType() {
 		return this.matchType;
 	}
@@ -45,9 +45,9 @@ public class FlowIntersect {
 		this.matchType = matchType;
 		return this;
 	}
-	
+
 	public OFMatch getMatch() {
-		return this.match;	
+		return this.match;
 	}
 	public void setMatch(OFMatch match) {
 		this.match = match;

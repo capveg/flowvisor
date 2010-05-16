@@ -1,11 +1,11 @@
 /**
- * 
+ *
  */
 package org.flowvisor.log;
 
-/** 
+/**
  * Logging Priority Levels (very similar to syslog)
- * Sorted in descending order of importance. 
+ * Sorted in descending order of importance.
  * @author capveg
  *
  */
@@ -17,7 +17,7 @@ public enum LogLevel {
 	INFO,				// Maybe worth knowing, maybe not -- not bad
 	DEBUG,				// Only worth knowing if debugging
 	MOBUG;				// more debugging; rarely worth knowing
-	
+
 	public String toString() {
 		return String.format("%5s", this.name());
 	}

@@ -13,16 +13,16 @@ import java.sql.Time;
  * External callers (e.g., eventLoop) do
  * 			addTimer()
  * and repeated call processTimer()
- * 
+ *
  * NOT threadsafe!
- * 
+ *
  * @author capveg
  *
  */
 public class FVTimer {
 	public static final long MAX_TIMEOUT = 5000;
 	public static final long MIN_TIMEOUT = 1;
-	
+
 	PriorityQueue<FVTimerEvent> pq;
 	public FVTimer()
 	{
@@ -30,7 +30,7 @@ public class FVTimer {
 		if(pq == null)
 			throw new NullPointerException();
 	}
-	 
+
 	public void addTimer(FVTimerEvent e)
 	{
 		System.err.println("Scheduleing event at t=" + new Time(System.currentTimeMillis()) +
@@ -40,7 +40,7 @@ public class FVTimer {
 	/***
 	 * Compare the current wall clock time to the next event in the queue.
 	 * If there is nothing in the queue, return MAX_TIMEOUT
-	 * If the time for this event has passed, process it (only one event per call) 
+	 * If the time for this event has passed, process it (only one event per call)
 	 * 	and return MIN_TIMEOUT
 	 * Else, return the time in milliseconds until the next event
 	 */
@@ -48,7 +48,7 @@ public class FVTimer {
 	{
 		long now = System.currentTimeMillis();
 		FVTimerEvent e = this.pq.peek();
-		
+
 		if(e == null)
 			return MAX_TIMEOUT;
 		long expire = e.getExpireTime();
@@ -78,6 +78,6 @@ public class FVTimer {
 				return true;
 			}
 		}
-		return false;	
+		return false;
 	}
 }

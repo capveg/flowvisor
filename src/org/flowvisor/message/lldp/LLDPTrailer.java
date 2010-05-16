@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message.lldp;
 
@@ -21,14 +21,14 @@ public class LLDPTrailer {
 	public final static int FLOWNAMELEN_LEN = 1;
 	public final static int TLV_LEN = 2;
 	public final static int CHASSIS_ID_LEN = 1;
-	public final static int TRAILER_HEADER_LEN = MAGIC_LEN + 
+	public final static int TRAILER_HEADER_LEN = MAGIC_LEN +
 								SLICENAMELEN_LEN +
 								FLOWNAMELEN_LEN +
-								TLV_LEN + 
+								TLV_LEN +
 								CHASSIS_ID_LEN;
 	String sliceName;
 	String flowVisorName;		// for cross-aggregate federated GENI identification
-	
+
 	public LLDPTrailer(String sliceName) {
 		this.sliceName = sliceName;
 		this.flowVisorName = "";
@@ -37,9 +37,9 @@ public class LLDPTrailer {
 		this.sliceName = sliceName;
 		this.flowVisorName = flowVisorName;
 	}
-	
-	
-	
+
+
+
 	public String getSliceName() {
 		return sliceName;
 	}
@@ -54,39 +54,39 @@ public class LLDPTrailer {
 	}
 	/**
 	 * Append this trailer to the packet out; update the length and everything
-	 * 
+	 *
 	 * @param po
 	 */
 	public void appendTo(FVPacketOut po) {
-		
+
 		int len = this.length();
 		byte[] embedded = po.getPacketData();
-		
+
 		ByteBuffer newPacket = ByteBuffer.allocate(embedded.length + len);
 		newPacket.put(embedded);
-		
+
 		short tlv = (short) (1 + (len << 7));
 		newPacket.putShort(tlv);
-		
+
 		newPacket.put(LLDP_CHASSIS_ID_LOCAL);
-		
+
 		StringByteSerializer.writeTo(newPacket, sliceName.length()+1, sliceName);
 		StringByteSerializer.writeTo(newPacket, flowVisorName.length()+1, flowVisorName);
-		
+
 		newPacket.put((byte) (sliceName.length()+1));
 		newPacket.put((byte) (flowVisorName.length()+1));
 		newPacket.putInt(MAGIC);
-		
+
 		po.setPacketData(newPacket.array());
 	}
-	
+
 	/**
 	 * Checks if the LLDP trailer exists
 	 *        and if so, parses it and removes it from the packet
 	 * @param po
 	 * @return
 	 */
-	
+
 	public static LLDPTrailer getTrailer(FVPacketIn pi) {
 		ByteBuffer packet = ByteBuffer.wrap(pi.getPacketData());
 		if (packet.capacity() < MIN_LENGTH)
@@ -111,9 +111,9 @@ public class LLDPTrailer {
 		pi.setPacketData(newPacket);
 		return trailer;
 	}
-	
+
 	public int length() {
-		// TRAILER_HEADER_LEN== 9 == 2 for TLV header + 1 for chassis id subtype 
+		// TRAILER_HEADER_LEN== 9 == 2 for TLV header + 1 for chassis id subtype
 		// 	    + 4 for magic + 1 for sliceName len + 1 for flowVisor name len
 		//      + 2 for each null to term the string
 		return Math.min(512,TRAILER_HEADER_LEN + this.sliceName.length() + this.flowVisorName.length() + 2);

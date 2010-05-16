@@ -16,7 +16,7 @@ public class SSLWebServer extends WebServer {
 		super(pPort);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	@Override
 	protected
 	ServerSocket createServerSocket(int pPort, int backlog, java.net.InetAddress addr){

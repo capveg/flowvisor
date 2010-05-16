@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -8,9 +8,9 @@ package org.flowvisor.config;
  *
  */
 public class ConfigNotFoundError extends ConfigError {
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

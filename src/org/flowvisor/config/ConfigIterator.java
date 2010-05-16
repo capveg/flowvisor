@@ -2,7 +2,7 @@ package org.flowvisor.config;
 
 /**
  * Interface to walk the config directory
- * 
+ *
  * @author capveg
  *
  */
@@ -13,5 +13,5 @@ public interface ConfigIterator {
 	 * @param path	The path to this entry, e.g.., "slices.alice"
 	 * @param entry The actual entry
 	 */
-	public void visit(String path, ConfigEntry entry);  
+	public void visit(String path, ConfigEntry entry);
 }

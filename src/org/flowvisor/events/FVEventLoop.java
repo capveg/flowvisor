@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.events;
 
@@ -33,23 +33,23 @@ public class FVEventLoop {
 		this.fvtimer  = new FVTimer();
 		this.eventQueue = new LinkedList<FVEvent>();
 	}
-	
+
     public void register(SelectableChannel ch, int ops, FVEventHandler handler)
     {
-    	try 
+    	try
     	{
     		ch.register(selector, ops, handler);
     	}
     	catch (ClosedChannelException e)
     	{
-    		FVLog.log(LogLevel.WARN, null, "Tried to register channel " + 
+    		FVLog.log(LogLevel.WARN, null, "Tried to register channel " +
     				ch + " but got :" + e);
     	}
     }
-    
+
     public void queueEvent(FVEvent e) {
     	synchronized (eventQueue) {
-        	eventQueue.add(e);			
+        	eventQueue.add(e);
 		}
     	selector.wakeup();	// tell the selector to come out of sleep: awesome call!
     }
@@ -57,7 +57,7 @@ public class FVEventLoop {
     public long getThreadContext() {
     	return Thread.currentThread().getId();
     }
-    
+
     /****
      * Pass a timer event on to the Timer class
      * @param e
@@ -66,8 +66,8 @@ public class FVEventLoop {
     {
     	fvtimer.addTimer(e);
     }
-    
-    /** 
+
+    /**
      * Tell this EventLoop to stop
      */
     public void shouldStop() {
@@ -78,8 +78,8 @@ public class FVEventLoop {
      * Main top-level IO loop
      * 	this dispatches all IO events and timer events together
      * I believe this is fairly efficient for processing IO events
-     * and events queued should cause the select to wake up 
-     * 
+     * and events queued should cause the select to wake up
+     *
      */
     public void doEventLoop() throws IOException,UnhandledEvent
     {
@@ -88,23 +88,23 @@ public class FVEventLoop {
     		long nextTimerEvent;
         	int nEvents;
         	List<FVEvent> tmpQueue = null;
-        	
+
         	// copy queued events out of the way and clear queue
-        	synchronized (eventQueue) {  
+        	synchronized (eventQueue) {
             	if (!eventQueue.isEmpty() ) {
             		tmpQueue = eventQueue;
             		eventQueue = new LinkedList<FVEvent>();
             	}
         	}
-    	
+
         	// process all queued events, if any
         	if (tmpQueue != null)
         		for (FVEvent e : tmpQueue)
         			e.getDst().handleEvent(e);
-        	
+
         	// calc time until next timer event
         	nextTimerEvent = this.fvtimer.processEvent();  // this fires off a timer event if it's ready
-    		
+
         	// update the interested ops for each event handler
         	int ops;
         	FVEventHandler handler;
@@ -123,15 +123,15 @@ public class FVEventLoop {
         			ops |= SelectionKey.OP_ACCEPT;
         		sk.interestOps(ops);
         	}
-        	
+
         	// wait until next IO event or timer event
         	nEvents = selector.select(nextTimerEvent);
     		if(nEvents > 0)
     		{
-    			for (SelectionKey sk : selector.selectedKeys()) 
+    			for (SelectionKey sk : selector.selectedKeys())
     			{
     				if(sk.isValid()) {  // skip any keys that have been canceled
-    					handler = (FVEventHandler)sk.attachment(); 
+    					handler = (FVEventHandler)sk.attachment();
     					FVLog.log(LogLevel.MOBUG, null, "sending IO Event= "+sk.readyOps()+
     							" to " + handler.getName());
     					handler.handleEvent(new FVIOEvent(sk, null, handler));

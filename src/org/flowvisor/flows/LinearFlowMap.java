@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -15,17 +15,17 @@ import org.openflow.protocol.OFMatch;
  *	Implements FlowMap, but in a slow and linear fashion.
  *
  * (Hopefully Peyman will implement something faster :-)
- * 
+ *
  */
 public class LinearFlowMap implements FlowMap {
 
-	
+
 	SortedSet<FlowEntry> rules;
-	
+
 	public LinearFlowMap () {
 		this.rules = new TreeSet<FlowEntry>();
 	}
- 	
+
 	@Override
 	public FlowEntry matches(long dpid, short inputPort, byte[] packetData) {
 		OFMatch m = new OFMatch();
@@ -78,7 +78,7 @@ public class LinearFlowMap implements FlowMap {
 	/**
 	 * Step through each FlowEntry in order and match on it.
 	 * If we get EQUALS or SUBSET, then stop.
-	 * 
+	 *
 	 * IF we get SUPERSET or INTERSECT, then keep going and merge the results.
 	 */
 
@@ -103,57 +103,57 @@ public class LinearFlowMap implements FlowMap {
 			if ((matchType == MatchType.INTERSECT) || (matchType == MatchType.SUPERSET))
 				needMerge = true;
 			else  // else, wtf?
-				throw new RuntimeException("Unknown MatchType = " + intersect.getMatchType());			
+				throw new RuntimeException("Unknown MatchType = " + intersect.getMatchType());
 		}
-		if(needMerge && ( results.size() > 1 )) 
+		if(needMerge && ( results.size() > 1 ))
 			return priorityMerge(results);	 // expensive, avoid if possible
-		else 
+		else
 			return results;
 	}
 
 	/**
 	 * Step through all of the partially computed results, compute the intersections
 	 * and remove the intersections by priority.
-	 * 
+	 *
 	 * Could be O(n^2) in worst case, but we expect that intersections are rare (?)
-	 * 
-	 * 
+	 *
+	 *
 	 * Uses the fact that the order of the list is also the priority order
-	 *  
+	 *
 	 *  FIXME :: come back and make this faster
-	 *  
-	 * @param mergeList List of all FlowEntry's from matches(), including overlaps. 
+	 *
+	 * @param mergeList List of all FlowEntry's from matches(), including overlaps.
 	 * @return A pruned list of just the non-completely-overlapping matches
 	 */
-	
+
 	List<FlowIntersect> priorityMerge(List<FlowIntersect> mergeList) {
 		List<FlowIntersect> results = new ArrayList<FlowIntersect>();
 		boolean eclipsed;
 		MatchType matchType;
 		results.add(mergeList.get(0));
 		mergeList.remove(0);
-		
+
 		for(FlowIntersect merge: mergeList) {
 			eclipsed = false;
 			for(FlowIntersect result : results) {
 				/* is this new match eclipsed by previous entries?
-				 *  
+				 *
 				 *  with each successive matches() call, the part that
 				 *  over laps result is removed, so that if a merge rule
 				 *  is not fully eclipsed by any one result, but is fully
 				 *  eclipsed by a sum of results, we will catch that too
-				 *  
+				 *
 				 *   FIXME: needs testing!
-				 */ 
-				merge = merge.getFlowEntry().matches(merge.getDpid(), 
+				 */
+				merge = merge.getFlowEntry().matches(merge.getDpid(),
 							result.getMatch());
 				matchType = merge.getMatchType();
 				if ((matchType == MatchType.EQUAL) || (matchType == MatchType.SUBSET)) {
 					eclipsed = true;
 					break;
-				}					
+				}
 			}
-			if (! eclipsed ) 			// add this match to the list iff it's 
+			if (! eclipsed ) 			// add this match to the list iff it's
 				results.add(merge);  	// not complete eclipsed by something before it
 		}
 		return results;
@@ -166,13 +166,13 @@ public class LinearFlowMap implements FlowMap {
 
 	/**
 	 * @param rules the rules to set
-	 * 
+	 *
 	 * DO NOT REMOVE!  This breaks XML encoding/decoding
 	 */
 	public void setRules(SortedSet<FlowEntry> rules) {
 		this.rules = rules;
 	}
-	
-	
+
+
 
 }

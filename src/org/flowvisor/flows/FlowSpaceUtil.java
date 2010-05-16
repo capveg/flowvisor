@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -24,10 +24,10 @@ public class FlowSpaceUtil {
 	/**
 	 * Consult the FlowSpace and get a list of all slices that
 	 * 	get connections to this switch, as specified by it's DPID
-	 * 
+	 *
 	 * This function is somewhat expensive (think DB join), so the results
 	 * should be cached, and then updated when the FlowSpace signals a change
-	 * 
+	 *
 	 * @param flowMap A map of flow entries, like that from FVConfig.getFlowSpaceFlowMap();
 	 * @param dpid As returned in OFFeaturesReply
 	 * @return A list of names of slices, i.e., "alice", "bob", etc.
@@ -37,7 +37,7 @@ public class FlowSpaceUtil {
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
 		List<FlowEntry> rules = flowMap.matches(dpid, match);
-		for(FlowEntry rule: rules) { 
+		for(FlowEntry rule: rules) {
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
 				ret.add(sliceAction.sliceName);
@@ -45,23 +45,23 @@ public class FlowSpaceUtil {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Return the flowspace controlled by this slice
 	 * Note that this correctly removes the "holes" caused
 	 * by higher priority flowspace entries
-	 *  
+	 *
 	 * @param sliceName
 	 * @return
 	 */
-	
+
 	public static FlowMap getSliceFlowSpace(String sliceName) {
 		OFMatch match = new OFMatch();
 		FlowMap ret = new LinearFlowMap();
 		match.setWildcards(OFMatch.OFPFW_ALL);
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 		List<FlowIntersect> intersections = flowSpace.intersects(FlowEntry.ALL_DPIDS, match);
-		for(FlowIntersect inter: intersections) { 
+		for(FlowIntersect inter: intersections) {
 			FlowEntry rule = inter.getFlowEntry();
 			FlowEntry neoRule = null;
 			try {
@@ -72,8 +72,8 @@ public class FlowSpaceUtil {
 			neoRule.setRuleMatch(inter.getMatch());
 			neoRule.setActionsList(new ArrayList<OFAction>());
 			for(OFAction action : rule.getActionsList()) {
-				// the flowspace should only contain SliceActions	
-				SliceAction sliceAction = (SliceAction) action;	
+				// the flowspace should only contain SliceActions
+				SliceAction sliceAction = (SliceAction) action;
 				if (sliceAction.getSliceName().equals(sliceName)) {
 					neoRule.getActionsList().add(sliceAction.clone());
 					ret.addRule(neoRule);
@@ -82,17 +82,17 @@ public class FlowSpaceUtil {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Consult the flowspace and return the set of ports that this slice
 	 * is supposed to use on this switch
-	 * 
+	 *
 	 * This function is somewhat expensive (think DB join), so the results
 	 * should be cached, and then updated when the FlowSpace signals a change
-	 * 
+	 *
 	 * OFPort.OFPP_ALL (0xfffc) is used to describe that all ports are supposed to be used.
-	 * If all ports are valid, then OFPP_ALL will be the only port returned. 
-	 * 
+	 * If all ports are valid, then OFPP_ALL will be the only port returned.
+	 *
 	 * @param dpid the switch identifier (from OFFeaturesReply)
 	 * @param slice The slices name, e.g., "alice"
 	 * @return Set of ports
@@ -104,40 +104,40 @@ public class FlowSpaceUtil {
 		match.setWildcards(OFMatch.OFPFW_ALL);
 		boolean allPorts = false;
 		List<FlowEntry> rules = flowmap.matches(dpid, match);
-		for(FlowEntry rule: rules) { 
+		for(FlowEntry rule: rules) {
 			for(OFAction action : rule.getActionsList()) {
 				SliceAction sliceAction = (SliceAction) action;	// the flowspace should only contain SliceActions
 				if (sliceAction.sliceName.equals(slice)) {
 					OFMatch ruleMatch = rule.getRuleMatch();
 					if ((ruleMatch.getWildcards()& OFMatch.OFPFW_IN_PORT) != 0)
 						allPorts = true;
-					else 
+					else
 						ret.add(ruleMatch.getInputPort());
-				}					
+				}
 			}
 		}
-		if (allPorts) {  // if we got one "match all ports", just replace everything 
+		if (allPorts) {  // if we got one "match all ports", just replace everything
 			ret.clear(); // with OFPP_ALL
 			ret.add(OFPort.OFPP_ALL.getValue());
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Mini-frontend for querying FlowSpace
 	 * @param args
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	
+
 	public static void main(String args[] ) throws FileNotFoundException {
 		if ((args.length != 2) && (args.length != 3)) {
 			System.err.println("Usage: FLowSpaceUtil config.xml <dpid> [slice]");
 			System.exit(1);
 		}
-		
+
 		FVConfig.readFromFile(args[0]);
 		long dpid = FlowSpaceUtil.parseDPID(args[1]);
-		
+
 		switch(args.length) {
 		case 2 :
 			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(FVConfig.getFlowSpaceFlowMap(),dpid);
@@ -147,7 +147,7 @@ public class FlowSpaceUtil {
 			break;
 		case 3 :
 			Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, args[2]);
-			System.out.println("Slice " + args[2] + " on switch " + args[1] + 
+			System.out.println("Slice " + args[2] + " on switch " + args[1] +
 					" has access to port:");
 			if (ports.size() == 1 && ports.contains(Short.valueOf(OFPort.OFPP_ALL.getValue())) )
 				System.out.println("ALL PORTS");
@@ -155,7 +155,7 @@ public class FlowSpaceUtil {
 				for(Short port: ports)
 					System.out.println("Port: " + port);
 		}
-			
+
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class FlowSpaceUtil {
 		List<FlowEntry> rules = flowMap.matches(dpid, match);
 		for (FlowEntry rule : rules)
 			flowMap.addRule(flowMap.countRules(), rule);
-		return neoFlowMap; 
+		return neoFlowMap;
 		*/
 	}
 

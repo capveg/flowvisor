@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -22,15 +22,15 @@ import java.beans.XMLEncoder;
 import java.beans.XMLDecoder;
 
 /**
- * Central collection of all configuration and policy information, e.g., 
+ * Central collection of all configuration and policy information, e.g.,
  * slice permissions, what port to run on, etc.
- * 
+ *
  * Uses get/set on a hierarchy of nodes like sysctl,snmp, etc.
  * getInt("flowvisor.list_port") --> 6633
  * setString("slice.alice.controller_hostname","alice-controller.controllers.org")
- * 
- * All of the set* operations will dynamically create the entry if it does not exist. 
- * 
+ *
+ * All of the set* operations will dynamically create the entry if it does not exist.
+ *
  * @author capveg
  *
  */
@@ -45,17 +45,17 @@ public class FVConfig {
 	final static public String SLICE_CONTROLLER_HOSTNAME = "controller_hostname";
 	final static public String SLICE_CONTROLLER_PORT = "controller_port";
 	final static public String SLICE_CONTACT_EMAIL	 = "contact_email";
-	public static final String SLICE_SALT = "passwd_salt";	
-	public static final String SLICE_CRYPT = "passwd_crypt";	
-	public static final String SLICE_CREATOR = "creator";	
-	
+	public static final String SLICE_SALT = "passwd_salt";
+	public static final String SLICE_CRYPT = "passwd_crypt";
+	public static final String SLICE_CREATOR = "creator";
+
 	final static public int	   OFP_TCP_PORT	    = 6633;
-	
-	
-	
+
+
+
 	static ConfDirEntry root = new ConfDirEntry("");  // base of all config info
-	
-	/** 
+
+	/**
 	 * Return the config entry specific in name
 	 * @param name
 	 * @return null if not found
@@ -73,33 +73,33 @@ public class FVConfig {
 			if (ret.getType() == ConfigType.DIR)
 				base = (ConfDirEntry) ret;
 			else
-				base = null;	
+				base = null;
 		}
 		return ret;
 	}
-	
+
 	static protected ConfigEntry create(String name, ConfigType type) throws ConfigError {
 		String[] parts = name.split("\\.");
 		int i;
 		ConfDirEntry base = FVConfig.root;
-		
+
 		// step through tree; creating as we go
 		for ( i=0 ; i < (parts.length -1) ; i++ ) {
 			ConfigEntry tmp = base.lookup(parts[i]);
-			
+
 			if (tmp == null ) {
 				tmp = new ConfDirEntry(parts[i]);
 				base.add(tmp);
 			} else if (tmp.getType() != ConfigType.DIR){
-				throw new ConfigCantCreateError("tried to create dir \"" + 
-						name + "\"" + 
+				throw new ConfigCantCreateError("tried to create dir \"" +
+						name + "\"" +
 						" but element " + i  +
-						" \"" + parts[i] + " is a " + 
+						" \"" + parts[i] + " is a " +
 						tmp.getType() + " not a directory");
 			}
-			base = (ConfDirEntry) tmp;			 				
+			base = (ConfDirEntry) tmp;
 		}
-		// magic up a new instance of 
+		// magic up a new instance of
 		Class<? extends ConfigEntry> c = type.toClass();
 		ConfigEntry entry;
 		try {
@@ -111,28 +111,28 @@ public class FVConfig {
 		base.add(entry);
 		return entry;
 	}
-	
-	/** 
+
+	/**
 	 * Sets an integer in the config
 	 * Will dynamically create the path if it does not exist
 	 * @param node e.g., "path.to.configname"
 	 * @param val any integer
 	 * @throws ConfigError If trying to create the path conflicted with existing config
 	 */
-	
+
 	static public void setInt(String node, int val) throws ConfigError {
 		ConfigEntry entry = FVConfig.lookup(node);
-		if (entry == null ) 
+		if (entry == null )
 			entry = create(node, ConfigType.INT);
 		else if(entry.type != ConfigType.INT)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to int");
 		ConfIntEntry ei = (ConfIntEntry)entry;
 		ei.setInt(val);
 	}
-	
-	/** 
+
+	/**
 	 * Return the integer associated with this node
-	 * 
+	 *
 	 * @param node Full path to node
 	 * @return integer
 	 * @throws ConfigError If entry not found or if not an int
@@ -148,12 +148,12 @@ public class FVConfig {
 
 	public static void setBoolean(String node, boolean on) throws ConfigError{
 		ConfigEntry entry = FVConfig.lookup(node);
-		if (entry == null ) 
+		if (entry == null )
 			entry = create(node, ConfigType.BOOL);
 		else if( entry.getType() != ConfigType.BOOL)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to boolean");
 		ConfBoolEntry ei = (ConfBoolEntry)entry;
-		ei.setBool(on);	
+		ei.setBool(on);
 	}
 
 	static public boolean getBoolean(String node) throws ConfigError {
@@ -164,27 +164,27 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("tried to get a boolean but got a " +  entry.getType());
 		return ((ConfBoolEntry)entry).getBool();
 	}
-	/** 
+	/**
 	 * Sets an integer in the config
 	 * Will dynamically create the path if it does not exist
 	 * @param node e.g., "path.to.configname"
 	 * @param val any integer
 	 * @throws ConfigError If trying to create the path conflicted with existing config
 	 */
-	
+
 	static public void setString(String node, String val) throws ConfigError {
 		ConfigEntry entry = FVConfig.lookup(node);
-		if (entry == null ) 
+		if (entry == null )
 			entry = create(node, ConfigType.STR);
 		else if( entry.getType() != ConfigType.STR)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to string");
 		ConfStrEntry ei = (ConfStrEntry)entry;
 		ei.setString(val);
 	}
-	
-	/** 
+
+	/**
 	 * Return the integer associated with this node
-	 * 
+	 *
 	 * @param node Full path to node
 	 * @return integer
 	 * @throws ConfigError If entry not found or if not an int
@@ -197,7 +197,7 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("tried to get a string but got a " +  entry.getType());
 		return ((ConfStrEntry)entry).getString();
 	}
-		
+
 	/**
 	 * Return the flowmap associated with this node
 	 * @param node
@@ -212,7 +212,7 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("tried to get a flowmap but got a " +  entry.getType());
 		return ((ConfFlowMapEntry)entry).getFlowMap();
 	}
-	
+
 	static public FlowMap getFlowSpaceFlowMap() {
 		FlowMap flowMap;
 		try {
@@ -222,7 +222,7 @@ public class FVConfig {
 		}
 		return flowMap;
 	}
-	
+
 	/**
 	 * Set the flowmap at this entry, creating it if it does not exist
 	 * @param node
@@ -231,16 +231,16 @@ public class FVConfig {
 	 */
 	static public void setFlowMap(String node, FlowMap val) throws ConfigError {
 		ConfigEntry entry = FVConfig.lookup(node);
-		if (entry == null ) 
+		if (entry == null )
 			entry = create(node, ConfigType.FLOWMAP);
 		else if(entry.getType() != ConfigType.FLOWMAP)
 			throw new ConfigWrongTypeError("tried to set an " + entry.getType() + " to a FlowMap");
 		ConfFlowMapEntry efm = (ConfFlowMapEntry)entry;
 		efm.setFlowMap(val);
 	}
-	
+
 	/**
-	 * Returns a list of nodes at this subdirectory 
+	 * Returns a list of nodes at this subdirectory
 	 * @param base
 	 * @return List of nodes
 	 * @throws ConfigError
@@ -253,14 +253,14 @@ public class FVConfig {
 			throw new ConfigWrongTypeError("node " + base + " is a "  +
 					e.getType() + ", not a DIR");
 		return ((ConfDirEntry)e).list();
-		
+
 	}
 	/**
 	 * Recusively step through the config tree from the root
-	 * and call walker on each non-directory node 
+	 * and call walker on each non-directory node
 	 * @param walker
 	 */
-	
+
 	public static List<String> getConfig(String name) {
 		ConfigEntry val = lookup(name);
 		// FIXME: change val.getValue() to return a list instead of an array
@@ -272,12 +272,12 @@ public class FVConfig {
 			stringList.add(strings[i]);
 		return stringList;
 	}
-	
+
 	public static void setConfig(String name, String val) {
 		ConfigEntry entry = lookup(name);
 		entry.setValue(val);
 	}
-	
+
 	static public void walk(ConfigIterator walker) {
 		walksubdir("", root, walker);
 	}
@@ -286,16 +286,16 @@ public class FVConfig {
 		ConfigEntry e = lookup(base);
 		walksubdir(base,e,walker);
 	}
-	
+
 	static private void walksubdir(String base, ConfigEntry e, ConfigIterator walker) {
 		if (e.getType() == ConfigType.DIR) {
 			ConfDirEntry dir = (ConfDirEntry) e;
-			for(ConfigEntry entry : dir.listEntries()) 
+			for(ConfigEntry entry : dir.listEntries())
 				walksubdir(base + "." + entry.getName(), entry, walker);
 		}
-		else 
+		else
 			walker.visit(base,e);
-		
+
 	}
 
 	public static void watch(FVEventHandler handler, String name){
@@ -305,7 +305,7 @@ public class FVConfig {
 		else
 			e.watch(handler);
 	}
-	
+
 	public static void unwatch(FVEventHandler handler, String name){
 		ConfigEntry e = lookup(name);
 		if (e == null)
@@ -313,28 +313,28 @@ public class FVConfig {
 		else
 			e.unwatch(handler);
 	}
-	
+
 	/**
 	 * Tell all of the FVHandler's that are watching this node
 	 * that the value has changed and they need to refresh it
-	 * 
+	 *
 	 * Fails silently if node does not exist
-	 * 
+	 *
 	 * @param node nodename
 	 */
 	public static void sendUpdates(String node){
 		ConfigEntry entry = lookup(node);
 		if (entry == null) {
-			FVLog.log(LogLevel.WARN, null, "tried to signal update for non-existent config node: " + 
+			FVLog.log(LogLevel.WARN, null, "tried to signal update for non-existent config node: " +
 					node);
 			return;
 		}
 		entry.sendUpdates();
 	}
-	
+
 	/**
 	 * Read XML-encoded config from filename
-	 * 
+	 *
 	 * @param filename fully qualified or relative pathname
 	 */
 	public static synchronized void readFromFile(String filename) throws FileNotFoundException {
@@ -345,10 +345,10 @@ public class FVConfig {
 					);
 		FVConfig.root = (ConfDirEntry) dec.readObject();
 	}
-	
+
 	/**
 	 * Write XML-encoded config to filename
-	 * 
+	 *
 	 * @param filename fully qualified or relative pathname
 	 */
 	public static synchronized void writeToFile(String filename) throws FileNotFoundException {
@@ -361,11 +361,11 @@ public class FVConfig {
 		enc.writeObject(FVConfig.root);
 		enc.close();
 	}
-	
+
 	public synchronized static void createSlice(
-			String sliceName, 
-			String controller_hostname, 
-			int controller_port, 
+			String sliceName,
+			String controller_hostname,
+			int controller_port,
 			String passwd,
 			String slice_email,
 			String creatorSlice) {
@@ -379,13 +379,13 @@ public class FVConfig {
 			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
 			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, APIAuth.makeCrypt(salt, passwd));
 			FVConfig.setString(base + "." + FVConfig.SLICE_CREATOR, creatorSlice);
-			
+
 		} catch (ConfigError e) {
 			throw new RuntimeException("failed to create slice " + sliceName + "::" + e);
-		}		
+		}
 	}
 
-	public static String readPasswd(String prompt) throws IOException { 
+	public static String readPasswd(String prompt) throws IOException {
 		System.err.println(prompt);
 		// FIXME turn off echo
 		return new BufferedReader(new InputStreamReader(System.in)).readLine();
@@ -412,11 +412,11 @@ public class FVConfig {
 
 	/**
 	 * Create a default config file and write it to arg1
-	 * 
+	 *
 	 * @param args filename
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
-	
+
 	public static void main(String args[]) throws FileNotFoundException, IOException {
 		if(args.length != 1) {
 			System.err.println("Usage: FVConfig filename");

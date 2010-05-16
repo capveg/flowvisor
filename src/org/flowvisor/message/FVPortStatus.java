@@ -9,7 +9,7 @@ import org.openflow.util.HexString;
 
 /**
  * Send the port status message to each slice that uses this port
- * 
+ *
  * @author capveg
  *
  */
@@ -20,7 +20,7 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		Short port = Short.valueOf(this.getDesc().getPortNumber());
-		FVLog.log(LogLevel.DEBUG, fvClassifier, "port status mac = " + 
+		FVLog.log(LogLevel.DEBUG, fvClassifier, "port status mac = " +
 				HexString.toHexString(this.getDesc().getHardwareAddress()));
 		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values()) {
 			if (fvSlicer.portInSlice(port)) {

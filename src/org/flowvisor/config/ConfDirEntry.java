@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -25,11 +25,11 @@ public class ConfDirEntry extends ConfigEntry {
 		super(name, ConfigType.DIR);
 		this.entries = new HashMap<String,ConfigEntry>();
 	}
-	
+
 	public ConfDirEntry() {
 		super(ConfigType.DIR);
 	}
-	
+
 	public HashMap<String, ConfigEntry> getEntries() {
 		return entries;
 	}
@@ -38,17 +38,17 @@ public class ConfDirEntry extends ConfigEntry {
 		this.entries = entries;
 	}
 
-	/** 
+	/**
 	 * Lookup an entry in this directory
 	 * @param name entry name
 	 * @return
 	 */
-	
+
 	public ConfigEntry lookup(String name) {
 		return entries.get(name);
 	}
 
-	/** 
+	/**
 	 * Add an entry to this directory
 	 * @param entry
 	 */
@@ -71,7 +71,7 @@ public class ConfDirEntry extends ConfigEntry {
 	public List<String> list() {
 		return new ArrayList<String>(entries.keySet());
 	}
-	
+
 	public Collection<ConfigEntry> listEntries() {
 		return entries.values();
 	}

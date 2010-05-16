@@ -20,7 +20,7 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 	/**
 	 * Current algorithm:
 	 * send this flow expiration to *anyone* who could have inserted this flow
-	 * 
+	 *
 	 * FIXME: this is dumb: we should record the state of who actually
 	 * sent it and only send it back to that person.
 	 */
@@ -44,7 +44,7 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 		for( String slice : slicesToUpdate) {
 			FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(slice);
 			if (fvSlicer == null) {
-				FVLog.log(LogLevel.CRIT, fvClassifier, "inconsistent state: missing fvSliver entry for: " 
+				FVLog.log(LogLevel.CRIT, fvClassifier, "inconsistent state: missing fvSliver entry for: "
 						+ slice);
 				continue;
 			}

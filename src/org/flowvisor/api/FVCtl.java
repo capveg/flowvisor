@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.api;
 
@@ -36,9 +36,9 @@ import org.flowvisor.exceptions.MalformedFlowChange;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
- *   
+ *
  * This is pretty hacky and just for testing; people should write their
- * own clients and/or call the XMLRPC directly  
+ * own clients and/or call the XMLRPC directly
  * @author capveg
  *
  */
@@ -46,7 +46,7 @@ public class FVCtl {
 	String URL;
 	XmlRpcClientConfigImpl config;
 	XmlRpcClient client;
-	static APICmd[] cmdlist = new APICmd[] { 
+	static APICmd[] cmdlist = new APICmd[] {
 		new APICmd("listFlowSpace",		0	),
 		new APICmd("listSlices",		0	),
 		new APICmd("listDevices",		0	),
@@ -78,19 +78,19 @@ public class FVCtl {
 			this(name,argCount,"");
 		}
 		@SuppressWarnings("unchecked")  // Need to figure out magic java sauce to fix this
-		void invoke(FVCtl client, String args[]) 
+		void invoke(FVCtl client, String args[])
 		throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 			Class<String>[] params = new Class[args.length];
 			for(int i=0; i< args.length; i++)
 				params[i]= String.class;
-			Method m = FVCtl.class.getMethod("run_" + 
+			Method m = FVCtl.class.getMethod("run_" +
 					this.name, params);
 			m.invoke(client, (Object[])args);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @param URL Server URL
 	 */
 	public FVCtl(String URL) {
@@ -99,8 +99,8 @@ public class FVCtl {
 
 	/**
 	 * Init connection to XMLRPC Server in URL
-	 * @throws MalformedURLException 
-	 * 
+	 * @throws MalformedURLException
+	 *
 	 * @throws Exception
 	 */
 	public void init(String user, String passwd) throws MalformedURLException {
@@ -110,13 +110,13 @@ public class FVCtl {
 		config.setBasicPassword(passwd);
 		config.setServerURL(new URL(this.URL));
 		config.setEnabledForExtensions(true);
-	    
+
 		client = new XmlRpcClient();
 		//client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));
 		//client.setTransportFactory(new )
 		client.setConfig(config);
 	}
-	
+
 	public void installDumbTrust() {
 
 	    // Create a trust manager that does not validate certificate chains
@@ -126,11 +126,11 @@ public class FVCtl {
 	            public X509Certificate[] getAcceptedIssuers() {
 	                return null;
 	            }
-	 
+
 	            public void checkClientTrusted(X509Certificate[] certs, String authType) {
 	                // Trust always
 	            }
-	 
+
 	            public void checkServerTrusted(X509Certificate[] certs, String authType) {
 	                // Trust always
 	            }
@@ -159,7 +159,7 @@ public class FVCtl {
 	    }
 
 	}
-	
+
 	public void run_listDevices() throws XmlRpcException {
 		Object[] reply = (Object[]) this.client.execute("api.listDevices", new Object[] {});
 		if(reply == null) {
@@ -171,7 +171,7 @@ public class FVCtl {
 			System.out.println("Device "+i+": " + dpid);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void run_getDeviceInfo(String dpidStr) throws XmlRpcException {
 		Map<String,Object> reply = (Map<String,Object>) this.client.execute("api.getDeviceInfo", new Object[] {dpidStr});
@@ -183,25 +183,25 @@ public class FVCtl {
 			System.out.println(key+"="+reply.get(key));
 		}
 	}
-	
+
 	public void run_getConfig(String name) throws XmlRpcException {
-		
-		Object reply = this.client.execute("api.getConfig", 
+
+		Object reply = this.client.execute("api.getConfig",
 				new Object[] { name});
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}
 		Object objects[] = (Object[]) reply;
-		if (objects.length == 1) 
+		if (objects.length == 1)
 			System.out.println(name + " = " + (String)objects[0]);
-		else 
-			for (int i=0; i< objects.length; i++) 
+		else
+			for (int i=0; i< objects.length; i++)
 				System.out.println(name + " " + i + " = "+ (String)objects[i]);
 	}
-	
+
 	public void run_setConfig(String name, String value) throws XmlRpcException {
-		Object reply = this.client.execute("api.setConfig", 
+		Object reply = this.client.execute("api.setConfig",
 				new Object[] { name, value});
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
@@ -218,9 +218,9 @@ public class FVCtl {
 		} else {
 			System.out.println("failure");
 			System.exit(-1);
-		}	
+		}
 	}
-	
+
 	public void run_getLinks() throws XmlRpcException {
 		Object[] reply = (Object[]) this.client.execute("api.getLinks", new Object[] {});
 		if(reply == null) {
@@ -232,25 +232,25 @@ public class FVCtl {
 			System.out.println("Device "+i+": " + ad);
 		}
 	}
-	
+
 	public void run_changePasswd(String sliceName) throws IOException, XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
-		Boolean reply = (Boolean) this.client.execute("api.changePasswd", 
+		Boolean reply = (Boolean) this.client.execute("api.changePasswd",
 						new Object[] {sliceName,passwd});
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}
-		if (reply) 
+		if (reply)
 			System.err.println("success!");
-		else 
+		else
 			System.err.println("failed!");
 	}
 
 	@SuppressWarnings("unchecked")
 	public void run_getSliceInfo(String sliceName) throws IOException, XmlRpcException {
-		
-		Object o =  this.client.execute("api.getSliceInfo", 
+
+		Object o =  this.client.execute("api.getSliceInfo",
 				new Object[] {sliceName});
 		if(o == null) {
 			System.err.println("Got 'null' for reply :-(");
@@ -258,27 +258,27 @@ public class FVCtl {
 		}
 		Map<String,String> reply = null;
 		if (o instanceof Map<?, ?>)
-			reply = (Map<String,String>) o; 
-			
+			reply = (Map<String,String>) o;
+
 		System.err.println("Got reply:");
-		for(String key: reply.keySet()) 
+		for(String key: reply.keySet())
 			System.out.println(key + "=" + reply.get(key));
 	}
-	
+
 	public void run_createSlice(String sliceName, String controller_url, String slice_email) throws IOException, XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
-		Boolean reply = (Boolean) this.client.execute("api.createSlice", 
+		Boolean reply = (Boolean) this.client.execute("api.createSlice",
 						new Object[] {sliceName,passwd,controller_url, slice_email});
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}
-		if (reply) 
+		if (reply)
 			System.err.println("success!");
-		else 
+		else
 			System.err.println("failed!");
 	}
-	
+
 	public void run_ping(String msg) throws XmlRpcException {
 		String reply = (String) this.client.execute("api.ping", new Object[] { msg });
 		if(reply != null) {
@@ -295,36 +295,36 @@ public class FVCtl {
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
-		}			
-		if (reply) 
+		}
+		if (reply)
 			System.err.println("success!");
-		else 
-			System.err.println("failed!");	
+		else
+			System.err.println("failed!");
 	}
 
 	public void run_removeFlowSpace(String indexStr) throws XmlRpcException {
 		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer.valueOf(indexStr));
 		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
 		mapList.add(change.toMap());
-		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace", 
+		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",
 				new Object[] { mapList  });
-					
+
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
-		}			
-		if (reply.length > 0) 
+		}
+		if (reply.length > 0)
 			System.err.println("success: " + (String)reply[0]);
-		else 
-			System.err.println("failed!");	
+		else
+			System.err.println("failed!");
 	}
 
-	public void run_addFlowSpace(String dpid, String priority, String match, String actions) 
+	public void run_addFlowSpace(String dpid, String priority, String match, String actions)
 					throws XmlRpcException, MalformedFlowChange {
 		do_flowSpaceChange(FlowChangeOp.ADD, dpid, null, priority, match, actions);
 	}
 
-	public void run_changeFlowSpace(String idStr, String dpid, String priority, String match, String actions) 
+	public void run_changeFlowSpace(String idStr, String dpid, String priority, String match, String actions)
 		throws XmlRpcException, MalformedFlowChange {
 		do_flowSpaceChange(FlowChangeOp.CHANGE, dpid, idStr, priority, match, actions);
 	}
@@ -334,26 +334,26 @@ public class FVCtl {
 		if ( match.equals("") || match.equals("any") || match.equals("all"))
 			match="OFMatch[]";
 		Map<String,String> map = FlowChange.makeMap(op, dpid, idStr, priority, match,actions);
-		
+
 		try {
 			FlowChange.fromMap(map);
 		} catch (MalformedFlowChange e) {
 			System.err.println("Local sanity check failed: " + e);
 			return;
-		}	
+		}
 		List<Map<String,String>> mapList = new LinkedList<Map<String,String>>();
 		mapList.add(map);
 		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace", new Object[] { mapList });
 		if(reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
-		}			
-		if (reply.length > 0 ) 
+		}
+		if (reply.length > 0 )
 			System.err.println("success: " + (String) reply[0]);
-		else 
-			System.err.println("failed!");			
+		else
+			System.err.println("failed!");
 	}
-	
+
 	public void run_listSlices() throws XmlRpcException {
 		Object[] reply = (Object[]) this.client.execute("api.listSlices", new Object[] {});
 		if(reply == null) {
@@ -364,7 +364,7 @@ public class FVCtl {
 			String slice = (String) reply[i];
 			System.out.println("Slice "+i+": " + slice);
 		}
-		
+
 	}
 
 	public void run_listFlowSpace() throws XmlRpcException {
@@ -386,47 +386,47 @@ public class FVCtl {
 	private static void usage(String string, boolean printFull) {
 		System.err.println(string);
 		if (printFull) {
-			System.err.println("Usage: FVCtl [--user=user] [--url=url] " + 
+			System.err.println("Usage: FVCtl [--user=user] [--url=url] " +
 					"[--passwd-file=filename] command [args...] ");
 			for(int i=0; i< FVCtl.cmdlist.length; i++) {
 				APICmd cmd = FVCtl.cmdlist[i];
-				System.err.println("\t" + cmd.name + " " + 
+				System.err.println("\t" + cmd.name + " " +
 						cmd.usage);
 			}
 		}
 		System.exit(-1);
-	}	
-	
+	}
+
 	/**
 	 * Front-end cmdline parser for FVCtl
-	 * 
+	 *
 	 * @param args
 	 * @throws SecurityException
 	 * @throws IllegalArgumentException
 	 * @throws NoSuchMethodException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static void main(String args[]) 
-		throws SecurityException, 
-			IllegalArgumentException, 
-			NoSuchMethodException, 
-			IllegalAccessException, 
+	public static void main(String args[])
+		throws SecurityException,
+			IllegalArgumentException,
+			NoSuchMethodException,
+			IllegalAccessException,
 			InvocationTargetException, IOException {
 		// FIXME: make URL a parameter
 		//FVCtl client = new FVCtl("https://root:joemama@localhost:8080/xmlrpc");
 		String URL = "https://localhost:8080/xmlrpc";
 		String user = "root";
 		String passwd = null;
-		
+
 		int cmdIndex=0;
 		// FIXME: find a decent java cmdline args parsing lib
 		while ((args.length > cmdIndex) && ( args[cmdIndex].startsWith("--"))) {
 			String params[] = args[cmdIndex].split("=");
 			if(params.length<2)
 				usage("parameter " + params[0] + " needs an argument");
-			if (params[0].equals("--url")) 
+			if (params[0].equals("--url"))
 				URL = params[1];
 			else if (params[0].equals("--user"))
 				user = params[1];
@@ -437,19 +437,19 @@ public class FVCtl {
 									)
 								).readLine();
 			}
-			else 
+			else
 				usage("unknown parameter: " + params[0]);
 			cmdIndex++;
 		}
 		if(args.length == cmdIndex)
 			usage("need to specify a command");
-		
+
 
 		APICmd cmd = APICmd.cmdlist.get(args[cmdIndex]);
 		if(cmd == null)
 			usage("command '" + args[cmdIndex] + "' does not exist");
 		if ( (args.length -1 - cmdIndex)  < cmd.argCount)
-			usage("command '" + args[cmdIndex] + "' takes " + cmd.argCount + 
+			usage("command '" + args[cmdIndex] + "' takes " + cmd.argCount +
 					" args: only " + (args.length -1 - cmdIndex) + " given\n" +
 					args[cmdIndex] + " " + cmd.usage, false);
 		String[] strippedArgs = new String[args.length-1-cmdIndex];

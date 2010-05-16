@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -12,18 +12,18 @@ public class ConfStrEntry extends ConfigEntry {
 	public ConfStrEntry(String name) {
 		super(name, ConfigType.STR);
 	}
-	
+
 	public ConfStrEntry() {
 		super(ConfigType.STR);
 	}
-	
+
 	@Override
 	public String[] getValue() {
 		String ret[] = new String[1];
 		ret[0] = this.val;
 		return ret;
 	}
-	
+
 	@Override
 	public void setValue(String val) {
 		this.val = val;

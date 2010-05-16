@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -10,7 +10,7 @@ package org.flowvisor.config;
 public class ConfigWrongTypeError extends ConfigError {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

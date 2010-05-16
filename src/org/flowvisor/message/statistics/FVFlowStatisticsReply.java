@@ -21,7 +21,7 @@ public class FVFlowStatisticsReply extends OFFlowStatisticsReply implements
 	/**
 	 * Rewrite flowstats replies to include only the stats that are in this slice's flowspace
 	 */
-	
+
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
 		// TODO : implement slicing here; remove irrelevant flows

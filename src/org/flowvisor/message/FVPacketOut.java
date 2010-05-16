@@ -22,9 +22,9 @@ import org.openflow.protocol.action.OFAction;
  * Verify that this packet_out operation is allowed by slice definition,
  * in terms of destination port, the flowspace of the embedded packet, the buffer_id,
  * and the actions.
- * 
+ *
  * Send an error msg back to controller if it's not
- * 
+ *
  * @author capveg
  *
  */
@@ -39,16 +39,16 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO verify the buffer_id is one we're allowed to use from a packet_in that went to us
-		
+
 		// if it's LLDP, pass off to the LLDP hack
 		if(LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
 			return;
-		
+
 		OFMatch match = new OFMatch();
 		match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
 		// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
 		List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
-				fvClassifier.getSwitchInfo().getDatapathId(), 
+				fvClassifier.getSwitchInfo().getDatapathId(),
 				match);
 		if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
@@ -73,7 +73,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		// if we've gotten this far, everything is kosher
 		fvClassifier.getMsgStream().write(this);
 	}
-		
+
 
 	private void sendActionsError(OFMessageAsyncStream out) {
 		out.write(FVMessageUtil.makeErrorMsg(OFBadRequestCode.OFPBRC_EPERM, this));
@@ -82,7 +82,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	private void sendEpermError(OFMessageAsyncStream out) {
 		out.write(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 	}
-	
+
 	// convenience function that Derickso doesn't want in main openflow.jar
 	@Override
 	public FVPacketOut setPacketData(byte[] packetData) {

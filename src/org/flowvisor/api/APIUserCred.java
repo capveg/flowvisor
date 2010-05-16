@@ -4,18 +4,18 @@ import org.flowvisor.api.APIUserCred;
 
 /**
  * Thread-local list of this User's credentials
- * 
+ *
  * used as a HACK to get around the fact that servlets are stateless
- * 
+ *
  * @author capveg
  *
  */
 public class APIUserCred {
 	String userName;
 	String ip;
-	
+
 	private final static ThreadLocal<APIUserCred> threadCred = new ThreadLocal<APIUserCred>();
-	
+
 	public APIUserCred() {
 		this.userName = "unknown";
 		this.ip = "unknown";
@@ -37,7 +37,7 @@ public class APIUserCred {
 		threadCred.set(cred);
 	}
 	static public APIUserCred getThreadCred() {
-		
+
 		APIUserCred cred = threadCred.get();
 		if (cred == null) {
 			cred = new APIUserCred();

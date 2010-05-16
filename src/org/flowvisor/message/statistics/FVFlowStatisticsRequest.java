@@ -13,7 +13,7 @@ import org.openflow.protocol.statistics.OFFlowStatisticsReply;
 public final class FVFlowStatisticsRequest extends OFFlowStatisticsReply
 		implements SlicableStatistic, ClassifiableStatistic {
 
-	
+
 	@Override
 	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO: rewrite/sanity check this request against the flowspace

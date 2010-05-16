@@ -15,7 +15,7 @@ public class FVSetConfig extends OFSetConfig implements Classifiable, Slicable {
 
 	/**
 	 * Record missSendLength param
-	 * 
+	 *
 	 * Save the missSendLength parameter <br>
 	 * Only send it if it's higher than previously asked for
 	 */

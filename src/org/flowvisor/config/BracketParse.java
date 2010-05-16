@@ -9,10 +9,10 @@ import org.openflow.protocol.OFMatch;
 
 /**
  * Takes a string of the form "foo[key1=[val1],key2=[val2],]" are returns a hashmap containg
- * ( key1 			=> val1, 
+ * ( key1 			=> val1,
  *   key2 			=> val2,
  *   "ObjectName" 	=> foo)
- *   
+ *
  *   Critically, values are untouched, i.e., if they contain more square brackets and commas,
  *   	they are unaffected
  * @author capveg
@@ -23,11 +23,11 @@ public class BracketParse {
 	final public static String OBJECTNAME="ObjectName";
 	/**
 	 * Parse a BacketParse encoded line
-	 * 
+	 *
 	 * @param line
 	 * @return null if unparsed, else a hashmap, as above
 	 */
-	
+
 	public static HashMap<String,String> decode(String line) {
 		HashMap<String,String> map = new LinkedHashMap<String,String>();
 		int index = line.indexOf("[");
@@ -42,7 +42,7 @@ public class BracketParse {
 		String value;
 		while(index < rest.length() ) {
 			switch(rest.charAt(index)) {
-			case '[':  
+			case '[':
 				if (bracketCount == 1) {  // begin of a value
 					rest = rest.substring(index+1);
 					index=-1;
@@ -78,7 +78,7 @@ public class BracketParse {
 		} // while
 		return map;
 	}
-	
+
 	public static String encode(HashMap<String,String> map) {
 		if ( !map.containsKey(OBJECTNAME) )
 			return null;		// needs to have a OBJECTNAME key
@@ -90,25 +90,25 @@ public class BracketParse {
 		}
 		return base + "]";
 	}
-	
-	/** 
+
+	/**
 	 * Test that FlowEntry marshalling/unmarshalling works
 	 * @param args
-	 * 
+	 *
 	 * FIXME: move me to JUnit
 	 */
 	public static void main(String args[]) {
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL& (~OFMatch.OFPFW_IN_PORT));
 		match.setInputPort((short)4);
-		
-		FlowEntry rule = new FlowEntry(FlowEntry.ALL_DPIDS, match, 
+
+		FlowEntry rule = new FlowEntry(FlowEntry.ALL_DPIDS, match,
 				new SliceAction("bob", SliceAction.WRITE));
 		String test = rule.toString();
 		FlowEntry testRule = FlowEntry.fromString(test);
-		if (testRule.equals(rule)) 
+		if (testRule.equals(rule))
 			System.out.println("Success");
-		else 
+		else
 			System.out.println("Failed");
 	}
 }

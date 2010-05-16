@@ -11,19 +11,19 @@ import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.action.OFAction;
 
-public class FVFlowMod extends org.openflow.protocol.OFFlowMod 
+public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 		implements Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVMessageUtil.dropUnexpectedMesg(this, fvClassifier);
 	}
-	
+
 	/**
 	 * FlowMod slicing
-	 * 
+	 *
 	 * 1) make sure all actions are ok
-	 * 
+	 *
 	 * 2) expand this FlowMod to the intersection of things in the given match
 	 *  and the slice's flowspace
 	 */
@@ -32,9 +32,9 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "recv from controller: " + this);
 		FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
-		
+
 		// FIXME: sanity check buffer id
-		
+
 		// make sure the list of actions is kosher
 		List<OFAction> actionsList = this.getActions();
 		try {
@@ -48,11 +48,11 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 		}
 
 		this.setActions(actionsList);
-		
+
 		// expand this match to everything that intersects the flowspace
 		List<FlowIntersect> intersections = fvSlicer.getFlowSpace().intersects(
-				fvClassifier.getDPID(), this.match); 
-		
+				fvClassifier.getDPID(), this.match);
+
 		for(FlowIntersect intersect : intersections) {
 			try {
 				FVFlowMod newFlowMod = (FVFlowMod) this.clone();
@@ -64,7 +64,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 				return;
 			}
 		}
-		
+
 	}
 
 }

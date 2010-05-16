@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.classifier;
 
@@ -12,7 +12,7 @@ import org.flowvisor.slicer.FVSlicer;
 public class XidPair {
 	int xid;
 	FVSlicer fvSlicer;
-	
+
 	public XidPair(int xid, FVSlicer fvSlicer) {
 		this.xid =xid;
 		this.fvSlicer = fvSlicer;

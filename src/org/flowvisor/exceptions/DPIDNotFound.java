@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.exceptions;
 
@@ -10,12 +10,12 @@ package org.flowvisor.exceptions;
 public class DPIDNotFound extends FVException {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
 	public DPIDNotFound(String arg0) {
 		super(arg0);
 	}
-	
+
 }

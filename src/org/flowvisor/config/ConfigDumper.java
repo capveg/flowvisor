@@ -5,7 +5,7 @@ import java.io.PrintStream;
 public class ConfigDumper implements ConfigIterator {
 
 	PrintStream out;
-	
+
 	public ConfigDumper(PrintStream out) {
 		this.out = out;
 	}
@@ -17,7 +17,7 @@ public class ConfigDumper implements ConfigIterator {
 		for (i=0; i < values.length; i++)
 			this.out.println(path + "::" + type +
 					" : " + values[i]);
-		
+
 	}
-	
+
 }

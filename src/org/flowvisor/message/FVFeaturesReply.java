@@ -21,7 +21,7 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply imple
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(this, fvClassifier);
 		if(fvSlicer == null ) {
-			FVLog.log(LogLevel.WARN, fvClassifier, 
+			FVLog.log(LogLevel.WARN, fvClassifier,
 					" dropping msg with un-untranslatable xid: " +
 					this);
 			return;
@@ -32,7 +32,7 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply imple
 		fvSlicer.getMsgStream().write(this);
 	}
 
-	// rewrite the ports list to only the set of ports allowed by the slice definition 
+	// rewrite the ports list to only the set of ports allowed by the slice definition
 	private void prunePorts(FVSlicer fvSlicer) {
 		List<OFPhysicalPort> newPorts = new ArrayList<OFPhysicalPort>();
 		for(OFPhysicalPort phyPort: this.getPorts()) {

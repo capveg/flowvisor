@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.api;
 
@@ -33,17 +33,17 @@ import org.openflow.util.HexString;
  * This is the actual UserAPI that gets wrapped via XMLRPC
  * In theory ("God willin' and the creek dun rise"), XMLRPC
  * calls will call these function directly
- * 
+ *
  * @author capveg
  *
  */
 public class FVUserAPIImpl implements FVUserAPI {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/** 
+	/**
 	 * For debugging
 	 * @param arg test string
 	 * @return response test string
@@ -52,10 +52,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String user = APIUserCred.getUserName();
 		return "PONG(" + user + "): " + arg;
 	}
-	
+
 	/**
 	 * Lists all the flowspace
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -72,10 +72,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 			fs[i++] = flowEntry.toString();
 		return fs;
 	}
-	
+
 	/**
 	 * Create a new slice (without flowspace)
-	 * 
+	 *
 	 * @param sliceName
 	 * @param passwd Cleartext! FIXME
 	 * @param controller_url Reference controller pseudo-url, e.g., tcp:hostname[:port]
@@ -83,7 +83,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @return success
 	 */
 	@Override
-	public boolean createSlice(String sliceName, String passwd, 
+	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email) throws MalformedControllerURL {
 		// FIXME: make sure this user has perms to do this OP
 		// for now, all slices can create other slices
@@ -100,18 +100,18 @@ public class FVUserAPIImpl implements FVUserAPI {
 			controller_port = Integer.valueOf(list[2]);
 		else
 			controller_port = FVConfig.OFP_TCP_PORT;
-		FVConfig.createSlice(sliceName, list[1], controller_port, passwd, slice_email, 
+		FVConfig.createSlice(sliceName, list[1], controller_port, passwd, slice_email,
 				APIUserCred.getUserName());
 		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
-	
+
 	/**
 	 * Change the password for this slice
-	 * 
+	 *
 	 * A slice is allowed to change its own password and the password
 	 * of any slice that it has (transitively) created
-	 * 
+	 *
 	 * @param sliceName
 	 * @param newPasswd
 	 */
@@ -120,15 +120,15 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String changerSlice = APIUserCred.getUserName();
 		if(!APIAuth.transitivelyCreated(changerSlice,sliceName) &&
 				!FVConfig.isSupervisor(changerSlice))
-			throw new PermissionDeniedException("Slice " + changerSlice + 
-					" does not have perms to change the passwd of " + sliceName); 
+			throw new PermissionDeniedException("Slice " + changerSlice +
+					" does not have perms to change the passwd of " + sliceName);
 		String salt = APIAuth.getSalt();
 		String crypt = APIAuth.makeCrypt(salt, newPasswd);
 		String base = FVConfig.SLICES + "." + sliceName;
 		try {
 			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
 			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, crypt);
-			
+
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -148,14 +148,14 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * For now, create a circular, bidirectional loop between existing switches
 	 * FIXME need to actually infer and calc real topology
 	 */
-	
+
 	@Override
 	public List<Map<String,String>> getLinks() {
 		List<String> devices = listDevices();
 		List<Map<String,String>> list = new LinkedList<Map<String,String>>();
 		for(int i=0;i<devices.size(); i++) {
 			// forward direction
-			LinkAdvertisement link = new LinkAdvertisement(); 
+			LinkAdvertisement link = new LinkAdvertisement();
 			link.srcDPID = devices.get(i);
 			link.dstDPID = devices.get((i+1)%devices.size());
 			link.srcPort = 0;
@@ -165,7 +165,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		return list;
 	}
-	
+
 	@Override
 	public List<String> listDevices(){
 		FlowVisor fv = FlowVisor.getInstance();
@@ -179,7 +179,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		return dpids;
 	}
-		
+
 	/* (non-Javadoc)
 	 * @see org.flowvisor.api.FVUserAPI#getDeviceInfo()
 	 */
@@ -209,8 +209,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public boolean deleteSlice(String sliceName) throws SliceNotFound, PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
 		if(!APIAuth.transitivelyCreated(changerSlice,sliceName))
-			throw new PermissionDeniedException("Slice " + changerSlice + 
-					" does not have perms to change the passwd of " + sliceName); 		
+			throw new PermissionDeniedException("Slice " + changerSlice +
+					" does not have perms to change the passwd of " + sliceName);
 		try {
 			FVConfig.deleteSlice(sliceName);
 		} catch (Exception e) {
@@ -223,18 +223,18 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Implements {@link org.flowvisor.api.FVUserAPI#changeFlowSpace}
-	 * 
+	 *
 	 * Allow this change if it affectst the flowspace delagated to this
-	 * slice.  
-	 * 
+	 * slice.
+	 *
 	 */
-	
+
 	@Override
 	public List<String> changeFlowSpace(List<Map<String,String>> changes) throws MalformedFlowChange{
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
-		List<String> returnIDs = new LinkedList<String>(); 
+		List<String> returnIDs = new LinkedList<String>();
 		String logMsg;
 		for(int i=0; i< changes.size(); i++) {
 			FlowChange change = FlowChange.fromMap(changes.get(i));
@@ -246,20 +246,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 				returnIDs.add(String.valueOf(change.getId()));
 			}
 			if (operation != FlowChangeOp.REMOVE) {
-				logMsg += 
-					" for dpid=" + FlowSpaceUtil.dpidToString(change.getDpid()) + 
+				logMsg +=
+					" for dpid=" + FlowSpaceUtil.dpidToString(change.getDpid()) +
 					" match=" + change.getMatch() +
-					" priority=" + change.getPriority() + 
+					" priority=" + change.getPriority() +
 					" actions=" + FlowSpaceUtil.toString(change.getActions());
-			
+
 				FlowEntry flowEntry = 		new FlowEntry(
 						change.getDpid(),
 						change.getMatch(),
 						change.getPriority(),
 						change.getActions()
 						);
-		
-				flowSpace.addRule(flowEntry); 
+
+				flowSpace.addRule(flowEntry);
 				if (operation == FlowChangeOp.ADD)
 					returnIDs.add(String.valueOf(flowEntry.getId()));
 			}
@@ -294,7 +294,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 				!APIAuth.transitivelyCreated(user, sliceName))
 			throw new PermissionDeniedException("not superuser or transitive slice creator");
 		String base = FVConfig.SLICES + "." + sliceName + ".";
-		
+
 		try {
 			map.put("contact_email", FVConfig.getString(base + "contact_email"));
 			map.put("controller_hostname", FVConfig.getString(base + "controller_hostname"));
@@ -304,7 +304,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			FVLog.log(LogLevel.CRIT, null, "malformed slice: " + e);
 			e.printStackTrace();
 		}
-		
+
 		return map;
 	}
 
@@ -325,11 +325,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 			PermissionDeniedException {
 		String user = APIUserCred.getUserName();
 		if(!FVConfig.isSupervisor(user)) {
-			FVLog.log(LogLevel.WARN, null, "blocked getConfig for user " + user + 
+			FVLog.log(LogLevel.WARN, null, "blocked getConfig for user " + user +
 					" on config " + nodeName);
 			throw new PermissionDeniedException("only superusers can call getConfig()");
 		}
-		FVLog.log(LogLevel.DEBUG, null, "getConfig for user " + user + 
+		FVLog.log(LogLevel.DEBUG, null, "getConfig for user " + user +
 				" on config " + nodeName);
 		return FVConfig.getConfig(nodeName);
 	}
@@ -342,13 +342,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 			PermissionDeniedException {
 		String user = APIUserCred.getUserName();
 		if(!FVConfig.isSupervisor(user)) {
-			FVLog.log(LogLevel.WARN, null, "blocked setConfig for user " + user + 
+			FVLog.log(LogLevel.WARN, null, "blocked setConfig for user " + user +
 					" on config " + nodeName + " to " + value);
 			throw new PermissionDeniedException("only superusers can call setConfig()");
 		}
 		FVConfig.setConfig(nodeName, value);
 		FlowVisor.getInstance().checkPointConfig();
-		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user + 
+		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user +
 				" on config " + nodeName + " to " + value);
 
 		return true;

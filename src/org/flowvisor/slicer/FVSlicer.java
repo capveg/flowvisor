@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.slicer;
 
@@ -54,7 +54,7 @@ public class FVSlicer implements FVEventHandler {
 	FlowMap localFlowSpace;
 
 	Map<Short,Boolean> allowedPorts;		// ports in this slice and whether they get OFPP_FLOOD'd
- 	
+
 	public FVSlicer(FVEventLoop loop, FVClassifier fvClassifier, String sliceName) {
 		this.loop = loop;
 		this.fvClassifier = fvClassifier;
@@ -71,14 +71,14 @@ public class FVSlicer implements FVEventHandler {
 		String sliceBase = FVConfig.SLICES + "." + this.sliceName;
 		// snag controller info from config
 		try {
-			hostname = FVConfig.getString(sliceBase+ 
+			hostname = FVConfig.getString(sliceBase+
 					"." + FVConfig.SLICE_CONTROLLER_HOSTNAME);
-			FVConfig.watch(this, sliceBase+ 
+			FVConfig.watch(this, sliceBase+
 					"." + FVConfig.SLICE_CONTROLLER_HOSTNAME);
-			port  = FVConfig.getInt(sliceBase+ 
+			port  = FVConfig.getInt(sliceBase+
 					"." + FVConfig.SLICE_CONTROLLER_PORT);
-			FVConfig.watch(this, sliceBase+ 
-					"." + FVConfig.SLICE_CONTROLLER_PORT);			
+			FVConfig.watch(this, sliceBase+
+					"." + FVConfig.SLICE_CONTROLLER_PORT);
 		} catch (ConfigError e) {
 			FVLog.log(LogLevel.CRIT, this, "ignoring slice " + sliceName + " malformed slice definition: " + e);
 			this.tearDown();
@@ -88,10 +88,10 @@ public class FVSlicer implements FVEventHandler {
 		this.reconnect();
 	}
 
-	
-	
+
+
 	private void updatePortList() {
-		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier.getSwitchInfo().getDatapathId(), 
+		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier.getSwitchInfo().getDatapathId(),
 				this.sliceName);
 		if (ports.contains(OFPort.OFPP_ALL.getValue())) {
 			// this switch has access to ALL PORTS; feed them in from the features request
@@ -123,8 +123,8 @@ public class FVSlicer implements FVEventHandler {
 	public Set<Short> getPorts() {
 		return this.allowedPorts.keySet();
 	}
-	
-	
+
+
 	/**
 	 * Return the list of ports that have flooding enabled for OFPP_FLOOD
 	 * @return
@@ -141,19 +141,19 @@ public class FVSlicer implements FVEventHandler {
 		return allowAllPorts;
 	}
 
-	/** 
+	/**
 	 * Set the OFPP_FLOOD flag for this port
 	 * silently fail if this port is not in the slice
 	 * @param port
 	 * @param status
 	 */
-	
+
 	public void setFloodPortStatus(Short port, Boolean status) {
 		if (this.allowedPorts.containsKey(port))
 			this.allowedPorts.put(port, status);
 	}
-	
-	/** 
+
+	/**
 	 * Is this port in this slice on this switch?
 	 * @param port
 	 * @return true is yes, false is no.. durh
@@ -161,7 +161,7 @@ public class FVSlicer implements FVEventHandler {
 	public boolean portInSlice(Short port) {
 		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
 	}
-	
+
 	public OFMessageAsyncStream getMsgStream() {
 		return msgStream;
 	}
@@ -181,15 +181,15 @@ public class FVSlicer implements FVEventHandler {
 	}
 
 	@Override
-	public boolean needsWrite() {	
+	public boolean needsWrite() {
 		if (this.msgStream == null) 	// want write events if msgStream wants them
 			return false;
 		return this.msgStream.needsFlush();
 	}
-	
-	
-	
-	
+
+
+
+
 	@Override
 	public boolean needsAccept() {
 		// TODO Auto-generated method stub
@@ -200,7 +200,7 @@ public class FVSlicer implements FVEventHandler {
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	@Override
-	public String getName() {		
+	public String getName() {
 		return "slicer_" + this.sliceName + "_"+  fvClassifier.getSwitchName();
 	}
 
@@ -229,7 +229,7 @@ public class FVSlicer implements FVEventHandler {
 		fvClassifier.tearDown(this.sliceName);	// tell the classifier to forget about us
 	}
 
-	
+
 	/* (non-Javadoc)
 	 * @see org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.FVEvent)
 	 */
@@ -242,7 +242,7 @@ public class FVSlicer implements FVEventHandler {
 		else
 			throw new UnhandledEvent(e);
 	}
-	
+
 	/**
 	 * We got a signal that something in the config changed
 	 * @param e
@@ -252,7 +252,7 @@ public class FVSlicer implements FVEventHandler {
 		String whatChanged = e.getConfig();
 		if (whatChanged.equals(FVConfig.FLOWSPACE))
 			updateFlowSpaceConfig(e);
-		else 
+		else
 			FVLog.log(LogLevel.WARN, this, "ignoring unhandled/implemented config update:" + e);
 	}
 
@@ -260,16 +260,16 @@ public class FVSlicer implements FVEventHandler {
 	 * The FlowSpace just changed; update all cached dependencies
 	 * @param e
 	 */
-	
+
 	private void updateFlowSpaceConfig(ConfigUpdateEvent e) {
 		updatePortList();
-		// FIXME: implement compare of old vs. new flowspace 
+		// FIXME: implement compare of old vs. new flowspace
 		// 		and remove flow entries that don't fit the difference
 		FVLog.log(LogLevel.CRIT, this, "FIXME: need to flush old flow entries");
 	}
 
 	private void reconnect() {
-		FVLog.log(LogLevel.INFO, this, "trying to connect to " + 
+		FVLog.log(LogLevel.INFO, this, "trying to connect to " +
 				this.hostname + ":" + this.port);
 		// reset our state to unconnected (might be a NOOP)
 		this.isConnected = false;
@@ -278,25 +278,25 @@ public class FVSlicer implements FVEventHandler {
 		try {
 			if (this.sock != null)
 				this.sock.close();
-			this.sock = SocketChannel.open(); 				
+			this.sock = SocketChannel.open();
 			sock.configureBlocking(false);	// set to non-blocking
 			this.isConnected = this.sock.connect(new InetSocketAddress(hostname, port)); // try to connect
 			// register into event loop
-			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);	
+			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
 			// TODO:: spawn a timer event to connect again later
 			FVLog.log(LogLevel.ALERT, this, "Giving up on reconnecting, got : " + e);
 			tearDown();
 		}
-		
+
 	}
-	
+
 	private void handleIOEvent(FVIOEvent e) {
 		if (!this.isConnected) {
 			try {
 				if (!this.sock.finishConnect())
 					return;	// not done yet
-				
+
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.DEBUG, this, "retrying connection got: " + e1 );
 				this.reconnect();
@@ -307,7 +307,7 @@ public class FVSlicer implements FVEventHandler {
 			try {
 				msgStream = new OFMessageAsyncStream(this.sock, new FVMessageFactory());
 			} catch (IOException e1) {
-				FVLog.log(LogLevel.ALERT, this, "Giving up; while creating OFMessageAsyncStream, got: " 
+				FVLog.log(LogLevel.ALERT, this, "Giving up; while creating OFMessageAsyncStream, got: "
 						+ e1);
 				this.tearDown();
 				return;
@@ -327,7 +327,7 @@ public class FVSlicer implements FVEventHandler {
 			FVLog.log(LogLevel.WARN, this, "got i/o error; tearing down and reconnecting: " + e1);
 			reconnect();
 		}
-		// no need to setup for next select; done in eventloop			
+		// no need to setup for next select; done in eventloop
 	}
 
 	void handleOFMsgFromController(OFMessage msg) {
@@ -338,7 +338,7 @@ public class FVSlicer implements FVEventHandler {
 
 	public void setMissSendLength(int missSendLength) {
 		this.missSendLength = missSendLength;
-		
+
 	}
 
 	public String getSliceName() {

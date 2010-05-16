@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.config;
 
@@ -22,24 +22,24 @@ public class ConfigEntry {
 	ConfigType type;
 	Set<FVEventHandler> watchList;		// never gets saved across sessions
 	boolean persistent;   				// does this config entry get saved across FV sessions?
-	
+
 	public ConfigEntry(ConfigType type) {
 		this.type = type;
 		this.watchList = new HashSet<FVEventHandler>();
 		// leave everything else undefined
 	}
-	
+
 	public ConfigEntry() {
 		// for java beans
 	}
-		
+
 	public ConfigEntry(String name, ConfigType type) {
 		this.name = name;
 		this.type = type;
 		this.persistent = true;
 		this.watchList = new HashSet<FVEventHandler>();
 	}
-		
+
 	public String getName() {
 		return name;
 	}
@@ -64,7 +64,7 @@ public class ConfigEntry {
 	public void watch(FVEventHandler eh) {
 		watchList.add(eh);
 	}
-	
+
 	/**
 	 * Remove this {@link FVEventHandler} from the list of things that get updated on config change
 	 * @param eh
@@ -72,7 +72,7 @@ public class ConfigEntry {
 	public void unwatch(FVEventHandler eh) {
 		watchList.remove(eh);
 	}
-	
+
 	/**
 	 * Convert from string to the given value
 	 * @param val
@@ -81,16 +81,16 @@ public class ConfigEntry {
 		// FIXME: find the java way of doing this
 		throw new RuntimeException("need to override this... ");
 	}
-	
-	/** 
+
+	/**
 	 * Convert the node's value to a string
 	 * @return
 	 */
 	public String[] getValue() {
-		// FIXME: find the compile-time java way of ensuring that this gets superclassed 
+		// FIXME: find the compile-time java way of ensuring that this gets superclassed
 		throw new RuntimeException("need to override this... ");
 	}
-	
+
 	void sendUpdates() {
 		for(FVEventHandler eh : watchList) {
 			try {
@@ -100,8 +100,8 @@ public class ConfigEntry {
 			}
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Does this config entry get saved across FV sessions?
 	 * Default is yes.
 	 * @return
@@ -109,8 +109,8 @@ public class ConfigEntry {
 	public boolean getPersistent() {
 		return this.persistent;
 	}
-	
-	/** 
+
+	/**
 	 * Set whether this config entry gets saved across FV sessions
 	 * @param val
 	 */

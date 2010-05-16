@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message;
 
@@ -10,7 +10,7 @@ import org.flowvisor.slicer.FVSlicer;
  * @author capveg
  *
  */
-public class FVHello extends org.openflow.protocol.OFHello 
+public class FVHello extends org.openflow.protocol.OFHello
 		implements Classifiable, Slicable {
 
 	/* (non-Javadoc)

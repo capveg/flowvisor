@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.events;
 
@@ -13,8 +13,8 @@ public class FVTimerEvent extends FVEvent {
 	static int ID = 0;
 	int id;
 	Object arg;
-	
-	/** 
+
+	/**
 	 * Send an event from src to dst at absolute time expireTime
 	 * @param expireTime Absolute wallclock time since the epoch in milliseconds
 	 * @param src event sender
@@ -29,15 +29,15 @@ public class FVTimerEvent extends FVEvent {
 			this.id = ID ++ ;
 		}
 	}
-	
+
 	public long getExpireTime () {
 		return expireTime;
 	}
-	
+
 	public int getID() {
 		return id;
 	}
-	
+
 	public Object getArg() {
 		return arg;
 	}

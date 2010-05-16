@@ -15,12 +15,12 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 
 	/**
 	 * route and rewrite packet_in messages from switch to controller
-	 * 
+	 *
 	 * if it's lldp, do the lldp decode stuff
 	 * else, look up the embedded packet's controller(s) by flowspace and
 	 * send to them
 	 */
-	
+
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		// handle LLDP as a special (hackish) case
@@ -36,7 +36,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 		int perms;
 		// grab single matching rule: only one because it's a point in flowspace
 		FlowEntry flowEntry = fvClassifier.getSwitchFlowMap().matches(
-					fvClassifier.getSwitchInfo().getDatapathId(), 
+					fvClassifier.getSwitchInfo().getDatapathId(),
 					this.getInPort(),
 					this.getPacketData()
 					);
@@ -44,7 +44,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this);
 			return;
 		}
-		// foreach slice in that rule 
+		// foreach slice in that rule
 		for(OFAction ofAction : flowEntry.getActionsList()) {
 			sliceAction = (SliceAction)  ofAction;
 			perms = sliceAction.getSlicePerms();

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.message.lldp;
 
@@ -21,11 +21,11 @@ public class LLDPUtil {
 	final public static short ETHER_LLDP = (short) 0x88cc;
 	final public static short ETHER_VLAN = (short) 0x8100;
 	/**
-	 * If this msg is lldp, then 
+	 * If this msg is lldp, then
 	 * 		  1) add a slice identifying trailer
 	 *        2) send to switch	  -- all slices can send lldp, no matter flowspace
 	 *        3) return true, we've handled this packet
-	 * else return false 
+	 * else return false
 	 * @param po message
 	 * @param fvClassifier switch classifier
 	 * @param fvSlicer slice polcies
@@ -40,14 +40,14 @@ public class LLDPUtil {
 		fvClassifier.getMsgStream().write(po);
 		return true;
 	}
-	
-	/** 
+
+	/**
 	 * Is this an lldp packet?
-	 * 
+	 *
 	 * @param po
-	 * @return 
+	 * @return
 	 */
-	
+
 	static private boolean LLDPCheck(byte[] packetArray) {
 		if((packetArray == null) || (packetArray.length < 14))
 			return false;	// not lddp if no packet exists or too short
@@ -78,7 +78,7 @@ public class LLDPUtil {
 		FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(trailer.getSliceName());
 		if (fvSlicer == null) {
 			FVLog.log(LogLevel.WARN, fvClassifier, "failed to undo llpd hack for unknown slice '" +
-					trailer.getSliceName() + "': " + 
+					trailer.getSliceName() + "': " +
 					pi);
 			return false;
 		}

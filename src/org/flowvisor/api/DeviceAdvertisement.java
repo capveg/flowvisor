@@ -6,7 +6,7 @@ import java.util.Map;
 public class DeviceAdvertisement {
 	long dpid;
 	// from ofp_stats_desc()
-	String mfr_desc;  
+	String mfr_desc;
 	String hw_desc;
 	String sw_desc;
 	String serial_num;
@@ -18,7 +18,7 @@ public class DeviceAdvertisement {
 	protected DeviceAdvertisement() {
 		// do nothing, for java beans
 	}
-	
+
 	public DeviceAdvertisement(long dpid, String mfrDesc, String hwDesc,
 			String swDesc, String serialNum, String dpDesc) {
 		super();
@@ -33,7 +33,7 @@ public class DeviceAdvertisement {
 	/**
 	 * This is a fugly hack to turn these structs into something
 	 * that our XMLRPC encoder can handler
-	 * 
+	 *
 	 * FIXME: figure out if a better XMLRPC encoder can solve this for us
 	 * @return
 	 */
@@ -47,7 +47,7 @@ public class DeviceAdvertisement {
 		map.put("dp_desc", this.dp_desc);
 		return map;
 	}
-	
+
 	public long getDpid() {
 		return dpid;
 	}
@@ -114,6 +114,6 @@ public class DeviceAdvertisement {
 		return this.attributes.get(key);
 	}
 
-	
+
 
 }

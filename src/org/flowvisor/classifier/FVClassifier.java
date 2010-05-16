@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-/** 
+/**
  * Map OF messages from the switch to the appropriate slice
- * 
- * Also handles all of the switch-specific but slice-general state and 
+ *
+ * Also handles all of the switch-specific but slice-general state and
  * rewriting.
- *   
+ *
  * @author capveg
  *
  */
@@ -42,7 +42,7 @@ public class FVClassifier implements FVEventHandler {
 	XidTranslator xidTranslator;
 	int missSendLength;
 	FlowMap switchFlowMap;
-	
+
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
 		this.switchName = "unidentified:"+sock.toString();
@@ -61,7 +61,7 @@ public class FVClassifier implements FVEventHandler {
 		this.switchFlowMap = null;
 	}
 
-	
+
 	public int getMissSendLength() {
 		return missSendLength;
 	}
@@ -84,12 +84,12 @@ public class FVClassifier implements FVEventHandler {
 
 	@Override
 	public boolean needsWrite() {
-		if (this.msgStream == null) 
+		if (this.msgStream == null)
 			return false;
 		return this.msgStream.needsFlush();
 	}
 
-	
+
 	@Override
 	public boolean needsAccept() {
 		return false;
@@ -136,14 +136,14 @@ public class FVClassifier implements FVEventHandler {
 	}
 
 
-	/** 
+	/**
 	 * on init, send HELLO, delete all flow entries, and send features request
 	 * @throws IOException
 	 */
-	
+
 	public void init() throws IOException {
 		FlowVisor.getInstance().addHandler(this);
-		// send initial handshake 
+		// send initial handshake
 		msgStream.write(new OFHello());
 		// delete all entries in the flowtable
 		OFMatch match = new OFMatch();
@@ -162,7 +162,7 @@ public class FVClassifier implements FVEventHandler {
 			ops |= SelectionKey.OP_WRITE;
 		loop.register(sock, ops, this);
 	}
-	
+
 	@Override
 	public String getName() {
 		return "classifier-" + switchName;
@@ -192,8 +192,8 @@ public class FVClassifier implements FVEventHandler {
 	 * Something in the config has changed
 	 * since we only register for FlowSpace changes, must
 	 * be a new FlowSpace
-	 * 
-	 * @param e 
+	 *
+	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
 		FVLog.log(LogLevel.DEBUG, this, "got update: " + e);
@@ -202,24 +202,24 @@ public class FVClassifier implements FVEventHandler {
 		// then tell everyone who depends on us (causality important :-)
 		for(FVSlicer fvSlicer: slicerMap.values())
 			try {
-				fvSlicer.handleEvent(e); 
+				fvSlicer.handleEvent(e);
 			} catch (UnhandledEvent e1) {} // don't worry if they don't handle event
 	}
 
 
 	void handleIOEvent(FVIOEvent e) {
 		int ops = e.getSelectionKey().readyOps();
-	
+
 		try {
 			// read stuff, if need be
 			if (( ops & SelectionKey.OP_READ) != 0) {
 			    List<OFMessage> newMsgs = msgStream.read();
-				if (newMsgs != null ) { 
+				if (newMsgs != null ) {
 				    for(OFMessage m : newMsgs) {
 	                    FVLog.log(LogLevel.DEBUG, this, "read " + m);
 				        if (switchInfo != null)
 							classifyOFMessage(m);
-						else 
+						else
 							handleOFMessage_unidenitified(m);
 					}
 				} else {
@@ -248,9 +248,9 @@ public class FVClassifier implements FVEventHandler {
 			this.sock.close();
 			// shutdown each of the connections to the controllers
 			Map<String,FVSlicer> tmpMap= slicerMap;
-			slicerMap=null;		// to prevent tearDown(slice) corruption 
-			for(FVSlicer fvSlicer : tmpMap.values()) 
-					fvSlicer.tearDown();	
+			slicerMap=null;		// to prevent tearDown(slice) corruption
+			for(FVSlicer fvSlicer : tmpMap.values())
+					fvSlicer.tearDown();
 		} catch (IOException e) {
 			// Silently ignore... already tearing down
 		}
@@ -268,16 +268,16 @@ public class FVClassifier implements FVEventHandler {
 
 	/** State machine for switches before we know
 	 * which switch it is
-	 * 
+	 *
 	 * Wait for FEATURES_REPLY; ignore everything else
-	 * 
+	 *
 	 * @param m incoming message
 	 */
 	private void handleOFMessage_unidenitified(OFMessage m) {
 		switch(m.getType()) {
 			case HELLO:  // aleady sent our hello; just NOOP here
 				if(m.getVersion() != OFMessage.OFP_VERSION) {
-					FVLog.log(LogLevel.ALERT, this, "Mismatched version from switch " + 
+					FVLog.log(LogLevel.ALERT, this, "Mismatched version from switch " +
 							sock + " Got: "+ m.getVersion() + " Wanted: " + OFMessage.OFP_VERSION);
 					this.tearDown();
 	                   throw new RuntimeException("!!!");
@@ -295,15 +295,15 @@ public class FVClassifier implements FVEventHandler {
 				stats.setStatisticType(OFStatisticsType.DESC);
 				*/
 				switchName = "dpid:" + String.format("%1$x", switchInfo.getDatapathId());
-				FVLog.log(LogLevel.INFO, this, 
-				        	"identified switch as " + 
-				        	switchName + " on " + 
+				FVLog.log(LogLevel.INFO, this,
+				        	"identified switch as " +
+				        	switchName + " on " +
 				        	this.sock);
 				FVConfig.watch(this, FVConfig.FLOWSPACE);	// register for FS updates
 				this.connectToControllers();  // connect to controllers
 				doneID = true;
 				break;
-			default : 
+			default :
 				// FIXME add logging
 				FVLog.log(LogLevel.WARN, this, "Got unknown message type " + m + " to unidentified switch");
 		}
@@ -313,9 +313,9 @@ public class FVClassifier implements FVEventHandler {
 	 * Figure out which slice's have access to the switch and spawn an Slicer
 	 * EventHandler for each of them.  Also, close the connection to any
 	 * slice that is no longer listed
-	 * 
-	 * Assumes The switch is already been identified; 
-	 * 
+	 *
+	 * Assumes The switch is already been identified;
+	 *
 	 */
 	private void connectToControllers() {
 		// FIXME: debug this optimization later
@@ -336,10 +336,10 @@ public class FVClassifier implements FVEventHandler {
 			if(!newSlices.contains(sliceName)) {
 				// this slice no longer has access to this switch
 				FVLog.log(LogLevel.INFO, this, "disconnecting: removed from FlowSpace: " + sliceName);
-				slicerMap.get(sliceName).tearDown();	
+				slicerMap.get(sliceName).tearDown();
 				slicerMap.remove(sliceName);
 			}
-		}		
+		}
 	}
 
 	public FlowMap getSwitchFlowMap() {

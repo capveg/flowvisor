@@ -20,7 +20,7 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 		fvClassifier.getMsgStream().write(msg);
 	}
 
-	
+
 	/**
 	 * NOTE: we no long do any DescriptionStatistics rewriting, now that 1.0 support
 	 * dp_desc field.
@@ -36,5 +36,5 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 			fvSlicer.getMsgStream().write(msg);
 		}
 	}
-	
+
 }
