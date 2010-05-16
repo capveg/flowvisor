@@ -569,7 +569,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	public int compareTo(FlowEntry other) {
 		// sort on priority, tie break on IDs
 		if (this.priority != other.priority)
-			return this.priority - other.priority;;
+			return other.priority - this.priority;;
 		return this.id - other.id;
 	}
 
