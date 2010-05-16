@@ -87,20 +87,22 @@ public class FlowChange {
 			String dpidStr = map.get(DPID_KEY);
 			if ( dpidStr == null )
 				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
-						"requires key '" + DPID_KEY + "' from " + map.toString());
-			
+						"requires key '" + DPID_KEY + "' from " + map.toString());		
 			flowChange.setDpid(FlowSpaceUtil.parseDPID(dpidStr));
+
 			// parse priority
 			String ind = map.get(PRIORITY_KEY);
 			if(ind == null)
 				throw new MalformedFlowChange("missing key '" + PRIORITY_KEY + "' from " + map.toString());
 			flowChange.setPriority(Integer.valueOf(ind));
+
 			// parse match
 			String matchStr = map.get(MATCH_KEY);
 			if ( matchStr== null )
 				throw new MalformedFlowChange("operation " + flowChange.getOperation() + 
 						"requires key '" + MATCH_KEY + "' from " + map.toString());
 			OFMatch tmp = new OFMatch();
+			
 			// try as is first
 			try { 
 				tmp.fromString(matchStr);
@@ -113,6 +115,7 @@ public class FlowChange {
 				}
 			}
 			flowChange.setMatch(tmp);
+			
 			// parse actions
 			String astr = map.get(ACTIONS_KEY);
 			if ( astr== null )
@@ -210,7 +213,7 @@ public class FlowChange {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
 	/**
 	 * @param priority the priority to set
 	 */
@@ -261,7 +264,6 @@ public class FlowChange {
 	}
 
 	public int getPriority() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.priority;
 	}
 }
