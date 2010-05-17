@@ -42,7 +42,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 		} catch (ActionDisallowedException e) {
 			// FIXME : embed the error code in the ActionDisallowedException and pull it out here
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
-			fvSlicer.getMsgStream().write(
+			fvSlicer.sendMsg(
 					FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 			return;
 		}

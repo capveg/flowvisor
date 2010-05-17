@@ -16,8 +16,7 @@ public class FVAggregateStatisticsRequest extends
 	@Override
 	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
-		fvSlicer.getMsgStream().write(msg);
+		fvSlicer.sendMsg(msg);
 	}
 
 	@Override

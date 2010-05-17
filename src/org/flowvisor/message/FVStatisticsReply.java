@@ -26,10 +26,8 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 			FVSlicer fvSlicer = FVMessageUtil.untranslateXid(this, fvClassifier);
 			if (fvSlicer == null )
 				FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this);
-			else {
-				FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + this);
-				fvSlicer.getMsgStream().write(this);
-			}
+			else
+				fvSlicer.sendMsg(this);
 		}
 	}
 

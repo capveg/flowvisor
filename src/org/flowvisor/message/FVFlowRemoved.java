@@ -48,8 +48,7 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 						+ slice);
 				continue;
 			}
-			FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + this);
-			fvSlicer.getMsgStream().write(this);	// actually send it to this slice
+			fvSlicer.sendMsg(this);	// actually send it to this slice
 		}
 	}
 

@@ -19,10 +19,8 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVLog.log(LogLevel.DEBUG, fvClassifier,"recv from switch: " + this);
 		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values())
-			if (fvSlicer.portInSlice(this.portNumber)) {
-				FVLog.log(LogLevel.DEBUG, fvSlicer,"sending to controller: " + this);
-				fvSlicer.getMsgStream().write(this);
-			}
+			if (fvSlicer.portInSlice(this.portNumber)) 
+				fvSlicer.sendMsg(this);
 	}
 
 
@@ -35,7 +33,7 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// First, check if this port is in the slice
 		if (!fvSlicer.portInSlice(this.portNumber)) {
-			fvSlicer.getMsgStream().write(
+			fvSlicer.sendMsg(
 					FVMessageUtil.makeErrorMsg(OFPortModFailedCode.OFPPMFC_BAD_PORT,this)
 					);
 			return;

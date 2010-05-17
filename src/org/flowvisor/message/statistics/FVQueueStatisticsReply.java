@@ -28,10 +28,8 @@ public class FVQueueStatisticsReply extends OFQueueStatisticsReply implements
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
 		if (fvSlicer == null )
 			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
-		else {
-			FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
-			fvSlicer.getMsgStream().write(msg);
-		}
+		else 
+			fvSlicer.sendMsg(msg);
 	}
 
 

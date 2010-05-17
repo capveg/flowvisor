@@ -24,8 +24,7 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 				HexString.toHexString(this.getDesc().getHardwareAddress()));
 		for(FVSlicer fvSlicer: fvClassifier.getSlicerMap().values()) {
 			if (fvSlicer.portInSlice(port)) {
-				FVLog.log(LogLevel.DEBUG, fvSlicer, "sending msg to controller: " + this);
-				fvSlicer.getMsgStream().write(this);
+				fvSlicer.sendMsg(this);
 			}
 		}
 	}

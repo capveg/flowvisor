@@ -162,12 +162,21 @@ public class FVSlicer implements FVEventHandler {
 		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
 	}
 
-	public OFMessageAsyncStream getMsgStream() {
+	protected OFMessageAsyncStream getMsgStream() {
 		return msgStream;
 	}
 
-	public void setMsgStream(OFMessageAsyncStream msgStream) {
+	protected void setMsgStream(OFMessageAsyncStream msgStream) {
 		this.msgStream = msgStream;
+	}
+	
+	public void sendMsg(OFMessage msg) {
+		if ( this.msgStream != null ) {
+			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
+			this.msgStream.write(msg);
+		} else {
+			FVLog.log(LogLevel.WARN, this, "dropping msg: controller not connected: " + msg);
+		}
 	}
 
 	@Override

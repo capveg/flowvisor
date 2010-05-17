@@ -10,7 +10,6 @@ import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.slicer.FVSlicer;
 
-import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketOut;
 import org.openflow.protocol.OFPort;
@@ -52,7 +51,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 					match);
 			if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
 				FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
-				this.sendEpermError(fvSlicer.getMsgStream());
+				fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 				return;
 			}
 		} catch (java.nio.BufferUnderflowException e) { 
@@ -66,7 +65,8 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 			actionsList= FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer);
 		} catch (ActionDisallowedException e) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
-			this.sendActionsError(fvSlicer.getMsgStream());
+			
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadRequestCode.OFPBRC_EPERM, this));
 			return;
 		}
 
@@ -77,15 +77,6 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count +this.getPacketData().length));
 		// if we've gotten this far, everything is kosher
 		fvClassifier.getMsgStream().write(this);
-	}
-
-
-	private void sendActionsError(OFMessageAsyncStream out) {
-		out.write(FVMessageUtil.makeErrorMsg(OFBadRequestCode.OFPBRC_EPERM, this));
-	}
-
-	private void sendEpermError(OFMessageAsyncStream out) {
-		out.write(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 	}
 
 	// convenience function that Derickso doesn't want in main openflow.jar

@@ -20,7 +20,7 @@ public final class FVFlowStatisticsRequest extends OFFlowStatisticsReply
 		FVLog.log(LogLevel.WARN, fvSlicer, "need to implement flowstats request slicing");
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
-		fvSlicer.getMsgStream().write(msg);
+		fvSlicer.sendMsg(msg);
 	}
 
 	@Override

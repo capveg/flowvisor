@@ -83,7 +83,7 @@ public class LLDPUtil {
 			return false;
 		}
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: " + pi);
-		fvSlicer.getMsgStream().write(pi);
+		fvSlicer.sendMsg(pi);
 		return true;
 	}
 }

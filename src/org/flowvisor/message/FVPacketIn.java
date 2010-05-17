@@ -52,8 +52,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 				// lookup slice and send msg to them
 				// TODO record buffer id for later validation
 				FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(sliceAction.getSliceName());
-				FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + this);
-				fvSlicer.getMsgStream().write(this);
+				fvSlicer.sendMsg(this);
 			}
 		}
 	}

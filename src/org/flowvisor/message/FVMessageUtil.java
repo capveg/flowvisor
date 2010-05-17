@@ -111,7 +111,7 @@ public class FVMessageUtil {
 			return;
 		}
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
-		fvSlicer.getMsgStream().write(msg);
+		fvSlicer.sendMsg(msg);
 	}
 
 	public static OFMessage makeErrorMsg(OFPortModFailedCode code,
