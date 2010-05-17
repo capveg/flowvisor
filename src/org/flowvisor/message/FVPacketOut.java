@@ -43,17 +43,22 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		// if it's LLDP, pass off to the LLDP hack
 		if(LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
 			return;
-
 		OFMatch match = new OFMatch();
-		match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
-		// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
-		List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
-				fvClassifier.getSwitchInfo().getDatapathId(),
-				match);
-		if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
-			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
-			this.sendEpermError(fvSlicer.getMsgStream());
-			return;
+		try {
+			match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
+			// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
+			List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
+					fvClassifier.getSwitchInfo().getDatapathId(),
+					match);
+			if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
+				FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
+				this.sendEpermError(fvSlicer.getMsgStream());
+				return;
+			}
+		} catch (java.nio.BufferUnderflowException e) { 
+			// packet was too short to match entire header; just ignore
+			FVLog.log(LogLevel.CRIT, fvSlicer, "couldn't parse short packet: "  +
+					this.getPacketData());
 		}
 		List<OFAction> actionsList = this.getActions();
 		match.setInputPort(this.getInPort());
