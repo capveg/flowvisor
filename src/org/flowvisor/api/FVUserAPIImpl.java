@@ -353,4 +353,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 		return true;
 	}
+
+	@Override
+	public boolean registerTopologyChangeCallback(String URL, String cookie) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

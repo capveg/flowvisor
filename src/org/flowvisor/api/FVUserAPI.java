@@ -195,4 +195,15 @@ public interface FVUserAPI {
 	 */
 	public boolean revertToLastCheckpoint();
 
+	
+	/**
+	 * Register an XMLRPC URL to be called when the topology changes.
+	 * 
+	 * When the topology changes, FV will make a XMLRPC  call to URL with parameter "cookie" 
+	 * 
+	 * @param URL XMLRPC Address/proceedure 
+	 * @param cookie opaque string with some meaningful state from the caller
+	 * @return success on registering the callback
+	 */
+	public boolean registerTopologyChangeCallback(String URL, String cookie);
 }
