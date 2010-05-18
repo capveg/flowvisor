@@ -82,9 +82,9 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 
 	}
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	public FVActionOutput clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
-		return super.clone();
+		return (FVActionOutput) super.clone();
 	}
 
 	@Override

@@ -12,7 +12,8 @@ import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.action.OFAction;
 
 public class FVFlowMod extends org.openflow.protocol.OFFlowMod
-		implements Classifiable, Slicable {
+		implements Classifiable, Slicable, Cloneable {
+
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
@@ -66,5 +67,4 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 		}
 
 	}
-
 }

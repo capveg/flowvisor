@@ -20,7 +20,6 @@ public class FVPortStatisticsRequest extends OFPortStatisticsRequest implements
 		if (fvSlicer == null )
 			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
 		else {
-			FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
 			fvSlicer.sendMsg(msg);
 		}
 	}
