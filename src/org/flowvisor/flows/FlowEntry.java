@@ -26,7 +26,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	public static final long ALL_DPIDS 		= Long.MIN_VALUE;
 	public static final String ALL_DPIDS_STR 	= "all_dpids";
 	private static final int DefaultPriority = 32000;
-	static int UNIQUE_FLOW_ID = 1000;
+	static int UNIQUE_FLOW_ID = 5000;  // FIXME: search to verify non-conflicts
 	OFMatch ruleMatch;
 	List<OFAction> actionsList;
 	long dpid;
