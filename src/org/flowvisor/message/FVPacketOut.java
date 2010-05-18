@@ -97,5 +97,14 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		return this;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString() + ";actions=" + FVMessageUtil.actionsToString(this.getActions());
+	}
+
+	
 
 }

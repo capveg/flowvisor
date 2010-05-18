@@ -140,4 +140,16 @@ public class FVMessageUtil {
 		err.setOffendingMsg(msg);
 		return err;
 	}
+
+	public static String actionsToString(List<OFAction> actions) {
+		if ((actions == null ) || (actions.size() == 0))
+				return "DROP";
+		String ret = "";
+		for(OFAction action: actions) {
+			if (!ret.equals("")) 
+				ret += ",";
+			ret += action.toString();
+		}
+		return ret;
+	}
 }

@@ -33,7 +33,8 @@ public class FVError extends org.openflow.protocol.OFError implements Classifiab
 	 */
 	@Override
 	public String toString() {
-		return super.toString()+";msg=" + offendingMsg.toString();
+		return super.toString()+";c=" + this.getErrorCode() + ";t=" + getErrorType() + 
+				";msg=" + offendingMsg.toString();
 	}
 
 }

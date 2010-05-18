@@ -66,6 +66,13 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 				return;
 			}
 		}
-
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString() + ";actions=" + FVMessageUtil.actionsToString(this.getActions());
 	}
 }
