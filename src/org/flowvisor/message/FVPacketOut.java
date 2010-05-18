@@ -16,6 +16,7 @@ import org.openflow.protocol.OFPort;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.OFError.OFBadRequestCode;
 import org.openflow.protocol.action.OFAction;
+import org.openflow.util.HexString;
 
 /**
  * Verify that this packet_out operation is allowed by slice definition,
@@ -43,21 +44,25 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		if(LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
 			return;
 		OFMatch match = new OFMatch();
-		try {
-			match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
-			// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
-			List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
-					fvClassifier.getSwitchInfo().getDatapathId(),
-					match);
-			if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
-				FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
-				fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
-				return;
+		byte[] packet = this.getPacketData();
+		if( packet != null && packet.length >  0) {
+			try {
+				match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
+				// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
+				List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
+						fvClassifier.getSwitchInfo().getDatapathId(),
+						match);
+				if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
+					FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
+					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
+					return;
+				}
+			} catch (java.nio.BufferUnderflowException e) { 
+				// packet was too short to match entire header; just ignore
+				FVLog.log(LogLevel.CRIT, fvSlicer, "couldn't parse short packet: "  +
+						HexString.toHexString(this.getPacketData()) + " :: " 
+						+ e.getStackTrace());
 			}
-		} catch (java.nio.BufferUnderflowException e) { 
-			// packet was too short to match entire header; just ignore
-			FVLog.log(LogLevel.CRIT, fvSlicer, "couldn't parse short packet: "  +
-					this.getPacketData());
 		}
 		List<OFAction> actionsList = this.getActions();
 		match.setInputPort(this.getInPort());

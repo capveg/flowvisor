@@ -354,6 +354,14 @@ try:
             TestEvent( "send","guest",'bob', packet_out2_flood),
             TestEvent( "recv","switch",'switch1', packet_out2_flood_aftr),
             ])
+
+
+    short_test = FvRegress.OFVERSION + '''0d 00 18 00 00 00 00 00 00 04 7a 00 0b 00 08
+        00 00 00 08 00 02 00 00'''
+    h.runTest(name="packet_out short ", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', short_test),
+            TestEvent( "recv","switch",'switch1', short_test),
+            ])
 #########################################
 # more tests for this setup HERE
 #################################### End Tests
