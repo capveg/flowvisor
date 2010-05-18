@@ -47,9 +47,10 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 					FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
 			return;
 		}
-
+		int oldALen = FVMessageUtil.countActionsLen(this.getActions());
 		this.setActions(actionsList);
-
+		// set new length as a function of old length and old actions length
+		this.setLength((short) (getLength()-oldALen + FVMessageUtil.countActionsLen(actionsList)));
 		// expand this match to everything that intersects the flowspace
 		List<FlowIntersect> intersections = fvSlicer.getFlowSpace().intersects(
 				fvClassifier.getDPID(), this.match);
