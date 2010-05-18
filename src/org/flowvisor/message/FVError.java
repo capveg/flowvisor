@@ -28,4 +28,12 @@ public class FVError extends org.openflow.protocol.OFError implements Classifiab
 		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return super.toString()+";msg=" + offendingMsg.toString();
+	}
+
 }
