@@ -29,13 +29,14 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction, Cl
 	public void slice(List<OFAction> approvedActions, OFMatch match,
 			FVClassifier fvClassifier, FVSlicer fvSlicer)
 			throws ActionDisallowedException {
-		if ((port < OFPort.OFPP_MAX.getValue() ||
-				(port == OFPort.OFPP_LOCAL.getValue())) ||
+		if ((port >= 0 ) ||		// physical port
+				(port == OFPort.OFPP_LOCAL.getValue()) ||
 				(port == OFPort.OFPP_NORMAL.getValue())) {
 			if (fvSlicer.portInSlice(port))
 				approvedActions.add(this);
 			else
 				throw new ActionDisallowedException("port not in slice" + port);
+			return;
 		}
 		if((port == OFPort.OFPP_ALL.getValue()) || (port == OFPort.OFPP_FLOOD.getValue()))
 			expandPort(approvedActions, match, fvSlicer);
