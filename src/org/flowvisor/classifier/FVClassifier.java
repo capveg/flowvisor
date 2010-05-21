@@ -40,7 +40,7 @@ public class FVClassifier implements FVEventHandler {
 	OFFeaturesReply switchInfo;
 	Map<String,FVSlicer> slicerMap;
 	XidTranslator xidTranslator;
-	int missSendLength;
+	short missSendLength;
 	FlowMap switchFlowMap;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
@@ -62,12 +62,12 @@ public class FVClassifier implements FVEventHandler {
 	}
 
 
-	public int getMissSendLength() {
+	public short getMissSendLength() {
 		return missSendLength;
 	}
 
 
-	public void setMissSendLength(int missSendLength) {
+	public void setMissSendLength(short missSendLength) {
 		this.missSendLength = missSendLength;
 	}
 
@@ -381,6 +381,18 @@ public class FVClassifier implements FVEventHandler {
 		return this.switchInfo.getDatapathId();
 	}
 
+	/** 
+	 * Send a message to the switch connected to this classifier
+	 * 
+	 * @param msg OFMessage
+	 */
 
-
+	public void sendMsg(OFMessage msg) {
+		if (this.msgStream != null) {
+			FVLog.log(LogLevel.DEBUG, this, "send to switch:" + msg);
+			this.msgStream.write(msg);	
+		}
+		else 
+			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: " + msg);
+	}
 }

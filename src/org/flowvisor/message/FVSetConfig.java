@@ -1,8 +1,6 @@
 package org.flowvisor.message;
 
 import org.flowvisor.classifier.FVClassifier;
-import org.flowvisor.log.FVLog;
-import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFSetConfig;
 
@@ -14,19 +12,27 @@ public class FVSetConfig extends OFSetConfig implements Classifiable, Slicable {
 	}
 
 	/**
-	 * Record missSendLength param
+	 * Fake variable missSendLength parameters
 	 *
-	 * Save the missSendLength parameter <br>
-	 * Only send it if it's higher than previously asked for
+	 * Save the missSendLength parameter for this slice and the switch<br>
+	 * 
+	 * The switch should always use the MAX missLen of all the slices.
+	 * 
+	 * Update the switch's missLen if it's larger than previously asked for
+	 * Replace the missSendLength param with with one for the switch and
+	 * send it on the switch
+	 * 
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		int missSendLength = this.getMissSendLength();
+		short missSendLength = this.getMissSendLength();
 		fvSlicer.setMissSendLength(missSendLength);
-		if (fvClassifier.getMissSendLength() < missSendLength) {
+		// check to see if this is a larger missLen param then previously asked for
+		if (fvClassifier.getMissSendLength() < missSendLength) 
 			fvClassifier.setMissSendLength(missSendLength);
-			FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: " + this);
-		}
+		else
+			this.setMissSendLength(fvClassifier.getMissSendLength());
+		FVMessageUtil.translateXidAndSend(this, fvClassifier, fvSlicer);
 	}
 
 }

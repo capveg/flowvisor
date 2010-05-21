@@ -51,7 +51,7 @@ public class FVSlicer implements FVEventHandler {
 	int port;							// the tcp port of our controller
 	boolean isConnected;
 	OFMessageAsyncStream msgStream;
-	int missSendLength;
+	short missSendLength;
 	boolean allowAllPorts;
 	FlowMap localFlowSpace;
 
@@ -142,6 +142,21 @@ public class FVSlicer implements FVEventHandler {
 
 	public boolean isAllowAllPorts() {
 		return allowAllPorts;
+	}
+	
+
+	/**
+	 * @return the missSendLength
+	 */
+	public short getMissSendLength() {
+		return missSendLength;
+	}
+
+	/**
+	 * @param missSendLength the missSendLength to set
+	 */
+	public void setMissSendLength(short missSendLength) {
+		this.missSendLength = missSendLength;
 	}
 
 	/**
@@ -357,10 +372,7 @@ public class FVSlicer implements FVEventHandler {
 		this.loop.addTimer(new ReconnectEvent(this.reconnectSeconds,this));
 	}
 
-	public void setMissSendLength(int missSendLength) {
-		this.missSendLength = missSendLength;
 
-	}
 
 	public String getSliceName() {
 		return this.sliceName;
