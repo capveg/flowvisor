@@ -362,6 +362,13 @@ try:
             TestEvent( "send","guest",'alice', short_test),
             TestEvent( "recv","switch",'switch1', short_test),
             ])
+
+    vendor_test = FvRegress.OFVERSION + '''04 00 18 00 00 00 00 00 00 23 20 00 00 00 08
+            00 00 00 00 00 00 00 00'''
+    h.runTest(name="vendor test ", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', vendor_test),
+            TestEvent( "recv","switch",'switch1', vendor_test),
+            ])
 #########################################
 # more tests for this setup HERE
 #################################### End Tests
