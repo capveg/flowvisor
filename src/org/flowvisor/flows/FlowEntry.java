@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
+import org.flowvisor.config.FVConfig;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.*;
 import org.openflow.protocol.action.*;
 import org.openflow.util.HexString;
@@ -26,7 +29,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	public static final long ALL_DPIDS 		= Long.MIN_VALUE;
 	public static final String ALL_DPIDS_STR 	= "all_dpids";
 	private static final int DefaultPriority = 32000;
-	static int UNIQUE_FLOW_ID = 5000;  // FIXME: search to verify non-conflicts
+	static int UNIQUE_FLOW_ID = -1;  
 	OFMatch ruleMatch;
 	List<OFAction> actionsList;
 	long dpid;
@@ -73,7 +76,19 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	}
 
 	synchronized static int getUniqueId() {
-		return FlowEntry.UNIQUE_FLOW_ID++;
+		// find a unique entry if this is the first call or wrapped
+		if (FlowEntry.UNIQUE_FLOW_ID < 0 ) {
+			for (FlowEntry flowEntry : FVConfig.getFlowSpaceFlowMap().getRules() )
+				if ( FlowEntry.UNIQUE_FLOW_ID <= flowEntry.getId())
+					FlowEntry.UNIQUE_FLOW_ID = flowEntry.getId()+1;
+			if (FlowEntry.UNIQUE_FLOW_ID < 0){
+				String msg = "unable to find a free flow ID!";
+				FVLog.log(LogLevel.FATAL, null, msg);
+				throw new RuntimeException(msg);
+			}
+				
+		}
+		return FlowEntry.UNIQUE_FLOW_ID;
 	}
 
 	public long getDPID() {
