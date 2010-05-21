@@ -5,6 +5,7 @@ package org.flowvisor.api;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -408,18 +409,14 @@ public class FVCtl {
 	 * @throws InvocationTargetException
 	 * @throws IOException
 	 */
-	public static void main(String args[])
-		throws SecurityException,
-			IllegalArgumentException,
-			NoSuchMethodException,
-			IllegalAccessException,
-			InvocationTargetException, IOException {
+	public static void main(String args[]) {
 		// FIXME: make URL a parameter
 		//FVCtl client = new FVCtl("https://root:joemama@localhost:8080/xmlrpc");
 		String URL = "https://localhost:8080/xmlrpc";
 		String user = "root";
 		String passwd = null;
-
+		boolean debug = false;
+		
 		int cmdIndex=0;
 		// FIXME: find a decent java cmdline args parsing lib
 		while ((args.length > cmdIndex) && ( args[cmdIndex].startsWith("--"))) {
@@ -431,11 +428,18 @@ public class FVCtl {
 			else if (params[0].equals("--user"))
 				user = params[1];
 			else if (params[0].equals("--passwd-file")) {
-				passwd = new BufferedReader(
-								new FileReader(
-									new File(params[1])
-									)
-								).readLine();
+				
+				try {
+					passwd = new BufferedReader(
+									new FileReader(
+										new File(params[1])
+										)
+									).readLine();
+				} catch (FileNotFoundException e) {
+					die(debug,"file: '" + params[1] + "' :: ",e);
+				} catch (IOException e) {
+					die(debug,"IO: ", e);
+				}
 			}
 			else
 				usage("unknown parameter: " + params[0]);
@@ -454,11 +458,26 @@ public class FVCtl {
 					args[cmdIndex] + " " + cmd.usage, false);
 		String[] strippedArgs = new String[args.length-1-cmdIndex];
 		System.arraycopy(args, cmdIndex+1, strippedArgs, 0, strippedArgs.length);
-		if (passwd == null)
-			passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
-		FVCtl client = new FVCtl(URL);
-		client.init(user,passwd);
-		cmd.invoke(client, strippedArgs);
+		try {
+			if (passwd == null)
+				passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
+			FVCtl client = new FVCtl(URL);
+			client.init(user,passwd);
+			cmd.invoke(client, strippedArgs);
+		} catch (Exception e) {
+			die(debug, "error: ", e);
+		}
+	}
+
+	private static void die(boolean debug, String string,
+			Exception e) {
+		Throwable cause = e;
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		System.err.println(string + cause);
+		if (debug)
+			e.printStackTrace(System.err);
+		System.exit(-1);
 	}
 
 }
