@@ -46,6 +46,8 @@ public class FVSlicer implements FVEventHandler {
 	FVEventLoop loop;
 	SocketChannel sock;
 	String hostname;
+	int reconnectSeconds;
+	final int maxReconnectSeconds = 15;
 	int port;							// the tcp port of our controller
 	boolean isConnected;
 	OFMessageAsyncStream msgStream;
@@ -64,6 +66,7 @@ public class FVSlicer implements FVEventHandler {
 		this.missSendLength=128;		// openflow default (?) findout...  TODO
 		this.allowedPorts = null;
 		this.allowAllPorts = false;
+		this.reconnectSeconds = 0;
 	}
 
 	public void init() {
@@ -248,6 +251,8 @@ public class FVSlicer implements FVEventHandler {
 			handleIOEvent((FVIOEvent) e);
 		else if (e instanceof ConfigUpdateEvent)
 			updateConfig((ConfigUpdateEvent)e);
+		else if (e instanceof ReconnectEvent)
+			this.reconnect();
 		else
 			throw new UnhandledEvent(e);
 	}
@@ -307,8 +312,11 @@ public class FVSlicer implements FVEventHandler {
 					return;	// not done yet
 
 			} catch (IOException e1) {
-				FVLog.log(LogLevel.DEBUG, this, "retrying connection got: " + e1 );
-				this.reconnect();
+				// exponential back off
+				this.reconnectSeconds= Math.min(2*this.reconnectSeconds + 1, this.maxReconnectSeconds);
+				FVLog.log(LogLevel.INFO, this, "retrying connection in " + 
+						this.reconnectSeconds + " seconds; got: " + e1 );
+				this.reconnectLater();
 				return;
 			}
 			FVLog.log(LogLevel.DEBUG, this, "connected");
@@ -330,8 +338,13 @@ public class FVSlicer implements FVEventHandler {
 			List<OFMessage> msgs = this.msgStream.read();	// read any new messages
 			if (msgs == null)
 				throw new IOException("got null from read()");
-			for(OFMessage msg: msgs)
-				handleOFMsgFromController(msg);				// process new messages
+			for(OFMessage msg: msgs) {
+				FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
+				if (msg instanceof Slicable) 
+					((Slicable) msg).sliceFromController(fvClassifier, this);
+				else 
+					FVLog.log(LogLevel.CRIT, this, "dropping unclassifiable msg: " +  msg);	
+			}
 		} catch(IOException e1) {
 			FVLog.log(LogLevel.WARN, this, "got i/o error; tearing down and reconnecting: " + e1);
 			reconnect();
@@ -339,10 +352,9 @@ public class FVSlicer implements FVEventHandler {
 		// no need to setup for next select; done in eventloop
 	}
 
-	void handleOFMsgFromController(OFMessage msg) {
-		// FIXME: for now, just blindly pass on to switch
-		FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
-		((Slicable)msg).sliceFromController(fvClassifier, this);
+
+	private void reconnectLater() {
+		this.loop.addTimer(new ReconnectEvent(this.reconnectSeconds,this));
 	}
 
 	public void setMissSendLength(int missSendLength) {

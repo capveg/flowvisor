@@ -2,6 +2,8 @@ package org.flowvisor.fvtimer;
 
 import org.flowvisor.events.*;
 import org.flowvisor.exceptions.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 
 import java.util.Iterator;
 import java.util.PriorityQueue;
@@ -21,7 +23,7 @@ import java.sql.Time;
  */
 public class FVTimer {
 	public static final long MAX_TIMEOUT = 5000;
-	public static final long MIN_TIMEOUT = 1;
+	public static final long MIN_TIMEOUT = 1;  // timeout == 0 implies infinite!
 
 	PriorityQueue<FVTimerEvent> pq;
 	public FVTimer()
@@ -33,9 +35,11 @@ public class FVTimer {
 
 	public void addTimer(FVTimerEvent e)
 	{
-		System.err.println("Scheduleing event at t=" + new Time(System.currentTimeMillis()) +
+		FVLog.log(LogLevel.DEBUG, e.getSrc(), "Scheduleing event " + e.getId() + 
+				" at t=" + new Time(System.currentTimeMillis()) +
 					" to happen at " + new Time(e.getExpireTime()));
 		pq.add(e);
+		FVLog.log(LogLevel.DEBUG, null, "Events in timer queue: " + pq.size());
 	}
 	/***
 	 * Compare the current wall clock time to the next event in the queue.
@@ -49,17 +53,17 @@ public class FVTimer {
 		long now = System.currentTimeMillis();
 		FVTimerEvent e = this.pq.peek();
 
-		if(e == null)
-			return MAX_TIMEOUT;
-		long expire = e.getExpireTime();
-		if(now >= expire)
-		{
+		while ((e != null) && (e.getExpireTime() <= now)) {
 			pq.remove();
-			e.getSrc().handleEvent(e);
-			return MIN_TIMEOUT;
-		}
+			FVLog.log(LogLevel.DEBUG, e.getDst(), "processing event " + e.getId() + " scheduling err = " +
+					(now-e.getExpireTime()));
+			e.getDst().handleEvent(e);
+			e=this.pq.peek();
+		}		
+		if (e == null)
+			return MAX_TIMEOUT;
 		else
-			return expire - now;
+			return Math.min(e.getExpireTime() - now, MAX_TIMEOUT);
 	}
 	/****
 	 * Cancels a timer that has previously been added via addTimer()

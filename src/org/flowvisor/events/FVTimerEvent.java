@@ -8,7 +8,7 @@ package org.flowvisor.events;
  * @author capveg
  *
  */
-public class FVTimerEvent extends FVEvent {
+public class FVTimerEvent extends FVEvent  implements Comparable<FVTimerEvent>{
 	long expireTime;
 	static int ID = 0;
 	int id;
@@ -40,5 +40,44 @@ public class FVTimerEvent extends FVEvent {
 
 	public Object getArg() {
 		return arg;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param expireTime the expireTime to set
+	 */
+	public void setExpireTime(long expireTime) {
+		this.expireTime = expireTime;
+	}
+
+	/**
+	 * @param arg the arg to set
+	 */
+	public void setArg(Object arg) {
+		this.arg = arg;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(FVTimerEvent timerEvent) {
+		if (timerEvent.expireTime != this.expireTime)
+			return (int) (timerEvent.expireTime - this.expireTime);
+		else
+			return this.id - timerEvent.id;
 	}
 }

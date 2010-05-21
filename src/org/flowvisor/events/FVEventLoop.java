@@ -125,6 +125,7 @@ public class FVEventLoop {
         	}
 
         	// wait until next IO event or timer event
+        	FVLog.log(LogLevel.MOBUG, null, "calling select with timeout=" + nextTimerEvent);
         	nEvents = selector.select(nextTimerEvent);
     		if(nEvents > 0)
     		{
