@@ -3,10 +3,6 @@ package org.flowvisor.config;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import org.flowvisor.flows.FlowEntry;
-import org.flowvisor.flows.SliceAction;
-import org.openflow.protocol.OFMatch;
-
 /**
  * Takes a string of the form "foo[key1=[val1],key2=[val2],]" are returns a hashmap containg
  * ( key1 			=> val1,
@@ -89,27 +85,6 @@ public class BracketParse {
 			base += key + "=[" + map.get(key) + "],";
 		}
 		return base + "]";
-	}
-
-	/**
-	 * Test that FlowEntry marshalling/unmarshalling works
-	 * @param args
-	 *
-	 * FIXME: move me to JUnit
-	 */
-	public static void main(String args[]) {
-		OFMatch match = new OFMatch();
-		match.setWildcards(OFMatch.OFPFW_ALL& (~OFMatch.OFPFW_IN_PORT));
-		match.setInputPort((short)4);
-
-		FlowEntry rule = new FlowEntry(FlowEntry.ALL_DPIDS, match,
-				new SliceAction("bob", SliceAction.WRITE));
-		String test = rule.toString();
-		FlowEntry testRule = FlowEntry.fromString(test);
-		if (testRule.equals(rule))
-			System.out.println("Success");
-		else
-			System.out.println("Failed");
 	}
 }
 

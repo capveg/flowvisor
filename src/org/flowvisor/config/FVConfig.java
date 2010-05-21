@@ -410,6 +410,14 @@ public class FVConfig {
 		return "root".equals(user);
 	}
 
+	public static String quote(String str) {
+		return str.replaceAll("\\.", "\\\\.");
+	}
+	
+	public static String unquote(String str) {
+		return str.replaceAll("\\", "");
+	}
+	
 	/**
 	 * Create a default config file and write it to arg1
 	 *
