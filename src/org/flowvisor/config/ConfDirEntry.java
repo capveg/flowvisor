@@ -75,4 +75,8 @@ public class ConfDirEntry extends ConfigEntry {
 	public Collection<ConfigEntry> listEntries() {
 		return entries.values();
 	}
+	@Override
+	public String[] getValue() {
+		return (String[]) entries.keySet().toArray(new String[entries.size()]);
+	}
 }

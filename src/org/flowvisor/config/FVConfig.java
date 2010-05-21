@@ -262,15 +262,28 @@ public class FVConfig {
 	 */
 
 	public static List<String> getConfig(String name) {
-		ConfigEntry val = lookup(name);
+		ConfigEntry val;
+		if ( name.equals(".") ) 
+			val = FVConfig.root;
+		else 
+			val = lookup(name);
 		// FIXME: change val.getValue() to return a list instead of an array
 		if (val == null)
 			return null;
-		String[] strings = val.getValue();
-		List<String> stringList = new LinkedList<String>();
-		for (int i=0; i<strings.length; i++)
-			stringList.add(strings[i]);
-		return stringList;
+		if ( val instanceof ConfDirEntry) {
+			ConfigPrinter configPrinter = new ConfigPrinter("");
+			if (name.equals("."))
+				FVConfig.walk(configPrinter);
+			else
+				FVConfig.walksubdir(name, configPrinter);
+			return configPrinter.getOut();
+		} else {
+			String[] strings = val.getValue();
+			List<String> stringList = new LinkedList<String>();
+			for (int i=0; i<strings.length; i++)
+				stringList.add(strings[i]);
+			return stringList;
+		}
 	}
 
 	public static void setConfig(String name, String val) {

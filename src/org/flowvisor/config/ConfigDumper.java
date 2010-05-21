@@ -17,7 +17,5 @@ public class ConfigDumper implements ConfigIterator {
 		for (i=0; i < values.length; i++)
 			this.out.println(path + "::" + type +
 					" : " + values[i]);
-
 	}
-
 }
