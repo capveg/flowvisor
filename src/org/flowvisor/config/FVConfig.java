@@ -415,7 +415,7 @@ public class FVConfig {
 	}
 	
 	public static String unquote(String str) {
-		return str.replaceAll("\\", "");
+		return str.replaceAll("\\\\", "");
 	}
 	
 	/**
