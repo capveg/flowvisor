@@ -124,11 +124,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 					" does not have perms to change the passwd of " + sliceName);
 		String salt = APIAuth.getSalt();
 		String crypt = APIAuth.makeCrypt(salt, newPasswd);
-		String base = FVConfig.SLICES + "." + sliceName;
+		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
 		try {
-			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
-			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, crypt);
-
+			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
+			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -293,7 +292,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		if(!FVConfig.isSupervisor(user)&&
 				!APIAuth.transitivelyCreated(user, sliceName))
 			throw new PermissionDeniedException("not superuser or transitive slice creator");
-		String base = FVConfig.SLICES + "." + sliceName + ".";
+		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS;
 
 		try {
 			map.put("contact_email", FVConfig.getString(base + "contact_email"));

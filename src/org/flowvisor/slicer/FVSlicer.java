@@ -71,17 +71,17 @@ public class FVSlicer implements FVEventHandler {
 
 	public void init() {
 		FVLog.log(LogLevel.DEBUG, this, "initializing new FVSlicer");
-		String sliceBase = FVConfig.SLICES + "." + this.sliceName;
+		String sliceBase = FVConfig.SLICES + FVConfig.FS + this.sliceName;
 		// snag controller info from config
 		try {
 			hostname = FVConfig.getString(sliceBase+
-					"." + FVConfig.SLICE_CONTROLLER_HOSTNAME);
+					FVConfig.FS + FVConfig.SLICE_CONTROLLER_HOSTNAME);
 			FVConfig.watch(this, sliceBase+
-					"." + FVConfig.SLICE_CONTROLLER_HOSTNAME);
+					FVConfig.FS + FVConfig.SLICE_CONTROLLER_HOSTNAME);
 			port  = FVConfig.getInt(sliceBase+
-					"." + FVConfig.SLICE_CONTROLLER_PORT);
+					FVConfig.FS + FVConfig.SLICE_CONTROLLER_PORT);
 			FVConfig.watch(this, sliceBase+
-					"." + FVConfig.SLICE_CONTROLLER_PORT);
+					FVConfig.FS + FVConfig.SLICE_CONTROLLER_PORT);
 		} catch (ConfigError e) {
 			FVLog.log(LogLevel.CRIT, this, "ignoring slice " + sliceName + " malformed slice definition: " + e);
 			this.tearDown();

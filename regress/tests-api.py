@@ -13,7 +13,7 @@ import xmlrpclib
 
 def test_failed(str):
     print "TEST FAILED!!!: " + str
-    sys.exit(1)
+    sys.exit(0)
 
 try:
 
@@ -95,8 +95,8 @@ try:
     if not s.api.createSlice("cathy","cathyPass","tcp:localhost:54323",lame_email) :
         print "Got false from creating slice for cathy"
         test_failed("slice creation")
-    x = s.api.getConfig("slices.cathy.contact_email")
-    if x == None or x[0] != lame_email: 
+    x = s.api.getConfig("slices!cathy!contact_email")
+    if (len(x) < 1) or x[0] != lame_email: 
         print "Failed to get correct email for cathy: wanted " + lame_email + " but got " + str(x)
         test_failed("slice creation")
     print "     passed"
@@ -105,7 +105,7 @@ try:
     if not s.api.createSlice("doug.e.fresh", "theOriginal", "tcp:localhost:54324", cool_email) :
         print "Got false from creating slice for doug (with periods)"
         test_failed("slice creation with periods")
-    x = s.api.getConfig("slices.doug\\.e\\.fresh.contact_email")
+    x = s.api.getConfig("slices!doug.e.fresh!contact_email")
     if (len(x) < 1)  or x[0] != cool_email: 
         print "Failed to get correct email for doug: wanted " + cool_email + " but got " + str(x)
         test_failed("slice creation with periods")

@@ -107,11 +107,11 @@ public class APIAuth implements AuthenticationHandler {
 
 
 	private String getPasswdElm(String user,String elm) throws AuthFailException{
-		String base = FVConfig.SLICES + "." + user;
+		String base = FVConfig.SLICES + FVConfig.FS + user;
 			if(!FVConfig.confirm(base))
 				throw new AuthFailException("unknown user " + user);
 			try {
-				return FVConfig.getString(base + "." + elm);
+				return FVConfig.getString(base + FVConfig.FS + elm);
 			} catch (ConfigError e) {
 				String err = "server error: no " + elm + " found(!!) for user " + user;
 				FVLog.log(LogLevel.ALERT, null,err );
@@ -138,8 +138,8 @@ public class APIAuth implements AuthenticationHandler {
 			if(user.equals(changerSlice))
 				return true;
 			try {
-				user = FVConfig.getString(FVConfig.SLICES + "." + user + "." +
-						FVConfig.SLICE_CREATOR);
+				user = FVConfig.getString(FVConfig.SLICES + FVConfig.FS + user + 
+						FVConfig.FS + FVConfig.SLICE_CREATOR);
 			} catch (ConfigError e) {
 				// FIXME: this config format is stupid
 				e.printStackTrace();

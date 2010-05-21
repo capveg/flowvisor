@@ -35,9 +35,10 @@ import java.beans.XMLDecoder;
  *
  */
 public class FVConfig {
-	final static public String LISTEN_PORT 			= "flowvisor.listen_port";
-	public static final String API_WEBSERVER_PORT 	= "flowvisor.api_webserver_port";
-	public static final String CHECKPOINTING 		= "flowvisor.checkpointing";
+	public static final String FS = "!";
+	final static public String LISTEN_PORT 			= "flowvisor"+ FS + "listen_port";
+	public static final String API_WEBSERVER_PORT 	= "flowvisor" + FS + "api_webserver_port";
+	public static final String CHECKPOINTING 		= "flowvisor" + FS + "checkpointing";
 	final static public String VERSION_STR			= "version";
 	final static public String SLICES 				= "slices";
 	final static public String SWITCHES 			= "switches";
@@ -49,6 +50,8 @@ public class FVConfig {
 	public static final String SLICE_CRYPT = "passwd_crypt";
 	public static final String SLICE_CREATOR = "creator";
 
+	
+	
 	final static public int	   OFP_TCP_PORT	    = 6633;
 
 
@@ -61,7 +64,7 @@ public class FVConfig {
 	 * @return null if not found
 	 */
 	static private ConfigEntry lookup(String name) {
-		List<String> parts = Arrays.asList(name.split("\\."));
+		List<String> parts = Arrays.asList(name.split(FS));
 		ConfigEntry ret = null;
 		ConfDirEntry base = FVConfig.root;
 		for(String part: parts) {
@@ -79,7 +82,7 @@ public class FVConfig {
 	}
 
 	static protected ConfigEntry create(String name, ConfigType type) throws ConfigError {
-		String[] parts = name.split("\\.");
+		String[] parts = name.split(FS);
 		int i;
 		ConfDirEntry base = FVConfig.root;
 
@@ -304,7 +307,7 @@ public class FVConfig {
 		if (e.getType() == ConfigType.DIR) {
 			ConfDirEntry dir = (ConfDirEntry) e;
 			for(ConfigEntry entry : dir.listEntries())
-				walksubdir(base + "." + entry.getName(), entry, walker);
+				walksubdir(base + FS + entry.getName(), entry, walker);
 		}
 		else
 			walker.visit(base,e);
@@ -382,16 +385,16 @@ public class FVConfig {
 			String passwd,
 			String slice_email,
 			String creatorSlice) {
-		String base = FVConfig.SLICES + "."+ sliceName;
+		String base = FVConfig.SLICES + FS + sliceName;
 		try {
 			FVConfig.create(base, ConfigType.DIR);
-			FVConfig.setString(base + "." + FVConfig.SLICE_CONTACT_EMAIL, slice_email);
-			FVConfig.setString(base + "." + FVConfig.SLICE_CONTROLLER_HOSTNAME, controller_hostname);
-			FVConfig.setInt(base + "." + FVConfig.SLICE_CONTROLLER_PORT, controller_port);
+			FVConfig.setString(base + FS + FVConfig.SLICE_CONTACT_EMAIL, slice_email);
+			FVConfig.setString(base + FS + FVConfig.SLICE_CONTROLLER_HOSTNAME, controller_hostname);
+			FVConfig.setInt(base + FS + FVConfig.SLICE_CONTROLLER_PORT, controller_port);
 			String salt = APIAuth.getSalt();
-			FVConfig.setString(base + "." + FVConfig.SLICE_SALT, salt);
-			FVConfig.setString(base + "." + FVConfig.SLICE_CRYPT, APIAuth.makeCrypt(salt, passwd));
-			FVConfig.setString(base + "." + FVConfig.SLICE_CREATOR, creatorSlice);
+			FVConfig.setString(base + FS + FVConfig.SLICE_SALT, salt);
+			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT, APIAuth.makeCrypt(salt, passwd));
+			FVConfig.setString(base + FS + FVConfig.SLICE_CREATOR, creatorSlice);
 
 		} catch (ConfigError e) {
 			throw new RuntimeException("failed to create slice " + sliceName + "::" + e);
@@ -424,11 +427,11 @@ public class FVConfig {
 	}
 
 	public static String quote(String str) {
-		return str.replaceAll("\\.", "\\\\.");
+		return str.replaceAll(FS, "\\" + FS );
 	}
 	
 	public static String unquote(String str) {
-		return str.replaceAll("\\\\", "");
+		return str.replaceAll("\\"+FS, "");
 	}
 	
 	/**
