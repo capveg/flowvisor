@@ -90,6 +90,27 @@ try:
         for key,val in link.iteritems():
             print "                 " + key  + "=" + val 
     print "     passed"
+    print "Slice creation: Cathy"
+    lame_email = "cathy@foo.com"
+    if not s.api.createSlice("cathy","cathyPass","tcp:localhost:54323",lame_email) :
+        print "Got false from creating slice for cathy"
+        test_failed("slice creation")
+    x = s.api.getConfig("slices.cathy.contact_email")
+    if x == None or x[0] != lame_email: 
+        print "Failed to get correct email for cathy: wanted " + lame_email + " but got " + str(x)
+        test_failed("slice creation")
+    print "     passed"
+    print "Slice creation: Doug (with periods)"
+    cool_email = "laudi@daudi.com"
+    if not s.api.createSlice("doug.e.fresh", "theOriginal", "tcp:localhost:54324", cool_email) :
+        print "Got false from creating slice for doug (with periods)"
+        test_failed("slice creation with periods")
+    x = s.api.getConfig("slices.doug\\.e\\.fresh.contact_email")
+    if (len(x) < 1)  or x[0] != cool_email: 
+        print "Failed to get correct email for doug: wanted " + cool_email + " but got " + str(x)
+        test_failed("slice creation with periods")
+    print "     passed"
+
 
 #################################### Start Alice Tests
     user="alice"
