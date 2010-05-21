@@ -385,6 +385,7 @@ public class FVConfig {
 			String passwd,
 			String slice_email,
 			String creatorSlice) {
+		sliceName = FVConfig.sanitize(sliceName);
 		String base = FVConfig.SLICES + FS + sliceName;
 		try {
 			FVConfig.create(base, ConfigType.DIR);
@@ -408,6 +409,7 @@ public class FVConfig {
 	}
 
 	public static void deleteSlice(String sliceName) throws ConfigNotFoundError{
+		sliceName = FVConfig.sanitize(sliceName);
 		ConfDirEntry sliceList= (ConfDirEntry) lookup(FVConfig.SLICES);
 		if(!sliceList.entries.containsKey(sliceName))
 			throw new ConfigNotFoundError("slice does not exist: " + sliceName);
@@ -426,12 +428,8 @@ public class FVConfig {
 		return "root".equals(user);
 	}
 
-	public static String quote(String str) {
-		return str.replaceAll(FS, "\\" + FS );
-	}
-	
-	public static String unquote(String str) {
-		return str.replaceAll("\\"+FS, "");
+	public static String sanitize(String str) {
+		return str.replaceAll(FS, "_");
 	}
 	
 	/**

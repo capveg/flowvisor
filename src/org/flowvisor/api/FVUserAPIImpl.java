@@ -75,8 +75,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Create a new slice (without flowspace)
+	 * 
+	 * Slices that contain the field separator are rewritten with underscores 
 	 *
-	 * @param sliceName
+	 * @param sliceName Cannot contain FVConfig.FS == '!'
 	 * @param passwd Cleartext! FIXME
 	 * @param controller_url Reference controller pseudo-url, e.g., tcp:hostname[:port]
 	 * @param slice_email As a contract for the slice
@@ -124,6 +126,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 					" does not have perms to change the passwd of " + sliceName);
 		String salt = APIAuth.getSalt();
 		String crypt = APIAuth.makeCrypt(salt, newPasswd);
+		sliceName = FVConfig.sanitize(sliceName);
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
 		try {
 			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
