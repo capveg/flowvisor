@@ -78,6 +78,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	synchronized static int getUniqueId() {
 		// find a unique entry if this is the first call or wrapped
 		if (FlowEntry.UNIQUE_FLOW_ID < 0 ) {
+			FlowEntry.UNIQUE_FLOW_ID = 0;
 			for (FlowEntry flowEntry : FVConfig.getFlowSpaceFlowMap().getRules() )
 				if ( FlowEntry.UNIQUE_FLOW_ID <= flowEntry.getId())
 					FlowEntry.UNIQUE_FLOW_ID = flowEntry.getId()+1;
@@ -88,7 +89,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 			}
 				
 		}
-		return FlowEntry.UNIQUE_FLOW_ID;
+		return FlowEntry.UNIQUE_FLOW_ID++;
 	}
 
 	public long getDPID() {
