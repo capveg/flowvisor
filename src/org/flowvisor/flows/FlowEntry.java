@@ -4,13 +4,13 @@
 package org.flowvisor.flows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
+import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -79,9 +79,14 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 		// find a unique entry if this is the first call or wrapped
 		if (FlowEntry.UNIQUE_FLOW_ID < 0 ) {
 			FlowEntry.UNIQUE_FLOW_ID = 0;
-			for (FlowEntry flowEntry : FVConfig.getFlowSpaceFlowMap().getRules() )
-				if ( FlowEntry.UNIQUE_FLOW_ID <= flowEntry.getId())
-					FlowEntry.UNIQUE_FLOW_ID = flowEntry.getId()+1;
+			
+			try {
+				for (FlowEntry flowEntry : FVConfig.getFlowMap(FVConfig.FLOWSPACE).getRules() )
+					if ( FlowEntry.UNIQUE_FLOW_ID <= flowEntry.getId())
+						FlowEntry.UNIQUE_FLOW_ID = flowEntry.getId()+1;
+			} catch (ConfigError e) {
+				// no flowspace, nothing to conflict with!
+			}
 			if (FlowEntry.UNIQUE_FLOW_ID < 0){
 				String msg = "unable to find a free flow ID!";
 				FVLog.log(LogLevel.FATAL, null, msg);
@@ -106,178 +111,25 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 		this.actionsList = actionsList;
 	}
 
-	private enum TestOp {
-		LEFT,				// no test, just return the LEFT param
-		RIGHT,				// no test, just return the RIGHT param
-		EQUAL,				// test if they are equal
-		WILD				// no test, both are wildcards
-	}
 
-	/**
-	 * Test whether the passed fields match and if so, how
-     *
-     * Code is a bit hackish, but not sure how to improve
-	 *
-	 * @author capveg
-	 */
-	private class TestField {
-		/**
-		 * What type of test should we do on these params?
-		 *
-		 * This is the common code for all of the tests
-		 *
-		 * @param flowIntersect
-		 * @param wildIndex
-		 * @param wildX
-		 * @param wildY
-		 * @return
-		 */
-		TestOp whichTest(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY) {
-			TestOp ret ;
-			if (( (wildX & wildIndex) == 0 ) &&
-					( (wildY & wildIndex) == 0 )) {		// is neither field wildcarded?
-				ret = TestOp.EQUAL;
-			}
-			else if ((wildX & wildIndex) != 0 ) {  	// is just X wildcarded?
-				ret = TestOp.RIGHT;
-				flowIntersect.maybeSubset = false;
-			}
-			else if ((wildY & wildIndex) != 0 ) {		// is just Y wildcarded?
-				ret = TestOp.LEFT;
-				flowIntersect.maybeSuperset = false;
-			}
-			else
-				ret = TestOp.WILD;
-
-			OFMatch interMatch = flowIntersect.getMatch();
-			int wildCards = interMatch.getWildcards();
-			if (ret != TestOp.WILD)
-				interMatch.setWildcards(wildCards& (~wildIndex)); 	// disable wildCards for this field
-			else
-				interMatch.setWildcards(wildCards|wildIndex);		// enable wildCards for this field
-			return ret;
-		}
-
-		short testFieldShort(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, short x, short y) {
-
-			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
-			case EQUAL:
-				if (x != y)
-					flowIntersect.setMatchType(MatchType.NONE);
-				return x;		// or y; doesn't matter if they are equal
-			case LEFT:
-				return x;
-			case WILD:			// or y; doesn't matter if they are wild
-			case RIGHT:
-				return y;
-			}
-			assert(false);		// should never get here
-			return -1;
-		}
-
-		long testFieldLong(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, long x, long y) {
-
-			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
-			case EQUAL:
-				if (x != y)
-					flowIntersect.setMatchType(MatchType.NONE);
-				return x;		// or y; doesn't matter if they are equal
-			case LEFT:
-				return x;
-			case WILD:			// or y; doesn't matter if they are wild
-			case RIGHT:
-				return y;
-			}
-			assert(false);		// should never get here
-			return -1;
-		}
-		byte testFieldByte(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, byte x, byte y) {
-
-			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
-			case EQUAL:
-				if (x != y)
-					flowIntersect.setMatchType(MatchType.NONE);
-				return x;		// or y; doesn't matter if they are equal
-			case LEFT:
-				return x;
-			case WILD:			// or y; doesn't matter if they are wild
-			case RIGHT:
-				return y;
-			}
-			assert(false);		// should never get here
-			return -1;
-		}
-
-		byte[] testFieldByteArray(FlowIntersect flowIntersect, int wildIndex, int wildX, int wildY, byte x[], byte y[]) {
-
-			switch(whichTest(flowIntersect, wildIndex, wildX, wildY)) {
-			case EQUAL:
-				if (!Arrays.equals(x, y))
-					flowIntersect.setMatchType(MatchType.NONE);
-				return x;		// or y; doesn't matter if they are equal
-			case LEFT:
-				return x;
-			case WILD:			// or y; doesn't matter if they are wild
-			case RIGHT:
-				return y;
-			}
-			assert(false);		// should never get here
-			return null;
-		}
-
-
-
-		// see if ip prefix x/masklenX intersects with y/masklenY (CIDR-style)
-		int testFieldMask(FlowIntersect flowIntersect, int maskShift,
-				int masklenX, int masklenY,
-				int x, int y) {
-			int min = Math.min(masklenX, masklenY);  // get the less specific address
-			if (min >= 32) {  // silly work around to deal with lack of unsigned
-				if (x != y)
-					flowIntersect.setMatchType(MatchType.NONE);
-				return x;
-			}
-
-			int mask = (1 << min) -1;	// min < 32, so no signed issues
-			int min_encoded = 32-min;	// because OpenFlow does it backwards... grr
-			if ((x & mask) != (y & mask))
-				flowIntersect.setMatchType(MatchType.NONE);
-			// else there is some overlap
-			OFMatch interMatch = flowIntersect.getMatch();
-			int wildCards = interMatch.getWildcards();
-			// turn off all bits for this match and then turn on the used ones
-			wildCards = (wildCards& ~((1 << OFMatch.OFPFW_NW_SRC_BITS) - 1) << maskShift) |
-						min_encoded << maskShift;
-			if (masklenX < masklenY )
-				flowIntersect.maybeSubset=false;
-			else if (masklenX > masklenY )
-				flowIntersect.maybeSuperset = false;
-			// note that b/c of how CIDR addressing works, there is no overlap that is not a SUB or SUPERSET
-
-			return (x & mask);
-		}
-
-	}
 
 	/**
 	 * Describe the overlap between the passed (dpid, match) argument
 	 * with this rule and return the information in a FlowIntersect structure
-	 * SUBSET implies that the arguments matches a subset of this rule
-	 * SUPERSET that the arguments matches a superset of this rule
+	 * <p>
+	 * SUPERSET implies that the parameter matches a superset of this rule ( rule < param ) <br>
+	 * SUBSET that the parameter matches a subset of this rule  ( rule > param ) <br>
+	 * EQUAL means they have perfect overlap (rule == param) <br>
+	 * NONE  means they do not have any overlap ( rule ^  param == 0 ) <br>
 	 *
 	 * General algorithm: step through each possible element of match (dpid, src_ip, etc.)
-	 *
-	 * for each element, check if they are both wildcarded
-	 * 	if arg is a wild card but rule is not, then not a subset
-	 *  if arg is not a wild card, but rule is, then not a super set
-	 *  if neither are wildcard, then make sure the values match else return NONE
 	 *
 	 * NOTE: if you want to match a packet against a rule, first convert the packet to
 	 * 	an OFMatch using match.loadFromPacket()
 	 *
 	 * @param dpid switch's DPID or
 	 * @param match
-	 * @return An FlowIntersect struture that describes the match
+	 * @return An FlowIntersect structure that describes the match
 	 */
 	public FlowIntersect matches(long dpid, OFMatch argMatch) {
 		FlowIntersect intersection = new FlowIntersect(this);
@@ -291,12 +143,11 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// FIXME: lots of untested code
 
-		TestField tester = new TestField();
 		OFMatch interMatch = intersection.getMatch();
 
 		// test DPID: 1<<31 == unused wildcard field -- hack!
 		intersection.setDPID(
-				tester.testFieldLong(intersection, 1<<31, dpid == ALL_DPIDS ? 1<<31 : 0 , this.dpid == ALL_DPIDS? 1<<31: 0,
+				FlowTestOp.testFieldLong(intersection, 1<<31, dpid == ALL_DPIDS ? 1<<31 : 0 , this.dpid == ALL_DPIDS? 1<<31: 0,
 						dpid, this.dpid)
 		);
 		if (intersection.getMatchType() == MatchType.NONE)
@@ -304,7 +155,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test in_port
 		interMatch.setInputPort(
-				tester.testFieldShort(intersection, OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldShort(intersection, OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards,
 						argMatch.getInputPort(),
 						ruleMatch.getInputPort())
 		);
@@ -314,7 +165,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ether_dst
 		interMatch.setDataLayerDestination(
-				tester.testFieldByteArray(intersection, OFMatch.OFPFW_DL_DST, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldByteArray(intersection, OFMatch.OFPFW_DL_DST, argWildcards, ruleWildcards,
 						argMatch.getDataLayerDestination(),
 						ruleMatch.getDataLayerDestination())
 		);
@@ -323,7 +174,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ether_src
 		interMatch.setDataLayerSource(
-				tester.testFieldByteArray(intersection, OFMatch.OFPFW_DL_SRC, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldByteArray(intersection, OFMatch.OFPFW_DL_SRC, argWildcards, ruleWildcards,
 						argMatch.getDataLayerSource(),
 						ruleMatch.getDataLayerSource())
 		);
@@ -332,7 +183,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ether_type
 		interMatch.setDataLayerType(
-				tester.testFieldShort(intersection, OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldShort(intersection, OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards,
 						argMatch.getDataLayerType(),
 						ruleMatch.getDataLayerType())
 		);
@@ -341,7 +192,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test vlan_type
 		interMatch.setDataLayerVirtualLan(
-				tester.testFieldShort(intersection, OFMatch.OFPFW_DL_VLAN, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldShort(intersection, OFMatch.OFPFW_DL_VLAN, argWildcards, ruleWildcards,
 						argMatch.getDataLayerVirtualLan(),
 						ruleMatch.getDataLayerVirtualLan())
 				);
@@ -350,7 +201,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test vlan_pcp
 		interMatch.setDataLayerVirtualLanPriorityCodePoint(
-				tester.testFieldByte(intersection, OFMatch.OFPFW_DL_VLAN_PCP, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldByte(intersection, OFMatch.OFPFW_DL_VLAN_PCP, argWildcards, ruleWildcards,
 						argMatch.getDataLayerVirtualLanPriorityCodePoint(),
 						ruleMatch.getDataLayerVirtualLanPriorityCodePoint())
 		);
@@ -359,7 +210,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ip_dst
 		interMatch.setNetworkDestination(
-				tester.testFieldMask(intersection, OFMatch.OFPFW_NW_DST_SHIFT,
+				FlowTestOp.testFieldMask(intersection, OFMatch.OFPFW_NW_DST_SHIFT,
 						argMatch.getNetworkDestinationMaskLen(),
 						ruleMatch.getNetworkDestinationMaskLen(),
 						argMatch.getNetworkDestination(),
@@ -370,7 +221,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ip_src
 		interMatch.setNetworkSource(
-				tester.testFieldMask(intersection, OFMatch.OFPFW_NW_SRC_SHIFT,
+				FlowTestOp.testFieldMask(intersection, OFMatch.OFPFW_NW_SRC_SHIFT,
 						argMatch.getNetworkSourceMaskLen(),
 						ruleMatch.getNetworkSourceMaskLen(),
 						argMatch.getNetworkSource(),
@@ -383,16 +234,25 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test ip_proto
 		interMatch.setNetworkProtocol(
-				tester.testFieldByte(intersection, OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldByte(intersection, OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards,
 						argMatch.getNetworkProtocol(),
 						ruleMatch.getNetworkProtocol())
 		);
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection;	// shortcut back
 
+		// test ip_tos
+		interMatch.setNetworkTypeOfService(
+				FlowTestOp.testFieldByte(intersection, OFMatch.OFPFW_NW_TOS, argWildcards, ruleWildcards,
+						argMatch.getNetworkTypeOfService(),
+						ruleMatch.getNetworkTypeOfService())
+		);
+		if (intersection.getMatchType() == MatchType.NONE)
+			return intersection;	// shortcut back
+		
 		// test tp_src
 		interMatch.setTransportSource(
-				tester.testFieldShort(intersection, OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldShort(intersection, OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards,
 						argMatch.getTransportSource(),
 						ruleMatch.getTransportSource())
 		);
@@ -401,7 +261,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 
 		// test tp_dst
 		interMatch.setTransportDestination(
-				tester.testFieldShort(intersection, OFMatch.OFPFW_TP_DST, argWildcards, ruleWildcards,
+				FlowTestOp.testFieldShort(intersection, OFMatch.OFPFW_TP_DST, argWildcards, ruleWildcards,
 						argMatch.getTransportDestination(),
 						ruleMatch.getTransportDestination())
 		);

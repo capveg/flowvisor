@@ -23,20 +23,21 @@ try:
     else:
         wantPause = False
         timeout=5
-        h.spawnFlowVisor(configFile="tests-base.xml")
+        h.spawnFlowVisor(configFile="tests-match.xml")
 
-    h.lamePause()
+    h.lamePause(pause=1)
     h.addSwitch(name='switch1',port=port)
+    h.lamePause(pause=1)
 
     feature_request = 	 FvRegress.OFVERSION + '05 0008 2d47 c5eb'
-    feature_request_after =  FvRegress.OFVERSION + '05 0008 0901 0000'
+    feature_request_after =  FvRegress.OFVERSION + '05000800000108'
     h.runTest(name="feature_request",timeout=timeout,  events= [
     		TestEvent( "send","guest","alice", feature_request),
     		TestEvent( "recv","switch","switch1", feature_request_after,strict=True),
     		])
 
     ############################################################
-    feature_reply  =     FvRegress.OFVERSION + '''06 00e0 0901 0000 0000 76a9
+    feature_reply  =     FvRegress.OFVERSION + '''06 00e0 0000 0108 0000 76a9
     			d40d 2548 0000 0100 0200 0000 0000 001f
     			0000 03ff 0000 1ac1 51ff ef8a 7665 7468
     			3100 0000 0000 0000 0000 0000 0000 0000

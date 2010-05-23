@@ -444,9 +444,9 @@ class FvRegress:
             raise(e)
         print "############ Test %s SUCCEEDED!" % name
         return True
-    def lamePause(self):
-        print " Sleeping a little to let FV initialize"
-        time.sleep(1.0)
+    def lamePause(self,msg="Sleeping to let FV initalize", pause=1.0):
+        print msg + ": " + str(pause) + " seconds"
+        time.sleep(pause)
     def runSendTest(self,event,count):
         msg= "%s packet %d from %s %s" % ( event.action, count, event.actor, event.actorID)
         #packet = binascii.unhexlify(event.packet)
