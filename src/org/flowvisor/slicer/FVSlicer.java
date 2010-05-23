@@ -54,6 +54,7 @@ public class FVSlicer implements FVEventHandler {
 	short missSendLength;
 	boolean allowAllPorts;
 	FlowMap localFlowSpace;
+	boolean isShutdown;
 
 	Map<Short,Boolean> allowedPorts;		// ports in this slice and whether they get OFPP_FLOOD'd
 
@@ -67,6 +68,7 @@ public class FVSlicer implements FVEventHandler {
 		this.allowedPorts = null;
 		this.allowAllPorts = false;
 		this.reconnectSeconds = 0;
+		this.isShutdown = false;
 	}
 
 	public void init() {
@@ -247,6 +249,7 @@ public class FVSlicer implements FVEventHandler {
 	@Override
 	public void tearDown() {
 		FVLog.log(LogLevel.DEBUG, this, "tearing down");
+		this.isShutdown = true;
 		if (this.sock != null)
 			try {
 				this.sock.close();		// FIXME will this also cancel()  the key in the event loop?
@@ -262,6 +265,8 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
+		if ( isShutdown)
+			return;		// don't process any events after shutdown
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
 		else if (e instanceof ConfigUpdateEvent)
