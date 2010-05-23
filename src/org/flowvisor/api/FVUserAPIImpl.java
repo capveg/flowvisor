@@ -261,9 +261,12 @@ public class FVUserAPIImpl implements FVUserAPI {
 						change.getActions()
 						);
 
-				flowSpace.addRule(flowEntry);
 				if (operation == FlowChangeOp.ADD)
 					returnIDs.add(String.valueOf(flowEntry.getId()));
+				else
+					flowEntry.setId(change.getId());	// keep id on change
+				flowSpace.addRule(flowEntry);
+				
 			}
 			FVLog.log(LogLevel.INFO, null, logMsg );
 		}
