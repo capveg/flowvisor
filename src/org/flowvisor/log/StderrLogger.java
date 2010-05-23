@@ -3,6 +3,9 @@
  */
 package org.flowvisor.log;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.flowvisor.events.FVEventHandler;
 
 /**
@@ -11,15 +14,27 @@ import org.flowvisor.events.FVEventHandler;
  */
 public class StderrLogger implements FVLogInterface {
 
+	DateFormat df;
+	/* (non-Javadoc)
+	 * @see org.flowvisor.log.FVLogInterface#init()
+	 */
+	@Override
+	public void init() {
+		//this.df = DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT);
+		this.df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+	}
+
 	/* (non-Javadoc)
 	 * @see org.flowvisor.log.FVLogInterface#log(org.flowvisor.log.FVLogLevel, org.flowvisor.events.FVEventHandler, java.lang.String)
 	 */
 	@Override
-	public void log(LogLevel level, FVEventHandler source, String msg) {
+	public void log(LogLevel level, long time, FVEventHandler source, String msg) {
+		String srcString=null;
 		if (source != null)
-			System.err.println(level.toString() + ":" + source.getName() + ":: " + msg);
-		else
-			System.err.println(level.toString() + ":none:: " + msg);
+			srcString = source.getName();
+		else 
+			srcString = "none";
+		System.err.println(level.toString() + ":" + df.format(time) + ":" + srcString + ":: " + msg);
 	}
 
 }

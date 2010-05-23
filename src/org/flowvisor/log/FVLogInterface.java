@@ -13,11 +13,16 @@ import org.flowvisor.events.FVEventHandler;
 public interface FVLogInterface {
 
 	/**
+	 * Do any sort of logging method initializations
+	 */
+	public void init();
+	
+	/**
 	 * Log a message
 	 *
 	 * @param level Priority of message
 	 * @param source Source of message; might be null
 	 * @param msg  Actual message
 	 */
-	public void log(LogLevel level, FVEventHandler source, String msg);
+	public void log(LogLevel level, long time, FVEventHandler source, String msg);
 }
