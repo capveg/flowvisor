@@ -30,3 +30,20 @@ FVConfig.readPasswd() echo's the password
 Regression Test Suite: weird (irrelevant) errors on shutdown:
     intermittent... doesn't happen all of the time
     <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'error'                                                                               
+
+
+DEBUG:classifier-dpid:1760023474e2ec0:: received from switch: ofmsg:v=1;t=STATS_REPLY;l=140;x=34094;st=TABLE
+DEBUG:slicer_srini_dpid:1760023474e2ec0:: send to controller: ofmsg:v=1;t=STATS_REPLY;l=140;x=0;st=TABLE
+    Exception in thread "main" java.lang.RuntimeException: Message length exceeds buffer capacity: 140
+    at org.openflow.io.OFMessageAsyncStream.appendMessageToOutBuf(Unknown Source)
+    at org.openflow.io.OFMessageAsyncStream.write(Unknown Source)
+    at org.flowvisor.slicer.FVSlicer.sendMsg(FVSlicer.java:176)
+    at org.flowvisor.message.statistics.FVTableStatistics.classifyFromSwitch(FVTableStatistics.java:32)
+    at org.flowvisor.message.FVStatisticsReply.classifyFromSwitch(FVStatisticsReply.java:23)
+    at org.flowvisor.classifier.FVClassifier.classifyOFMessage(FVClassifier.java:266)
+    at org.flowvisor.classifier.FVClassifier.handleIOEvent(FVClassifier.java:221)
+    at org.flowvisor.classifier.FVClassifier.handleEvent(FVClassifier.java:184)
+    at org.flowvisor.events.FVEventLoop.doEventLoop(FVEventLoop.java:137)
+    at org.flowvisor.FlowVisor.run(FlowVisor.java:65)
+at org.flowvisor.FlowVisor.main(FlowVisor.java:94)
+

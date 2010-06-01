@@ -41,7 +41,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 					this.getPacketData()
 					);
 		if(flowEntry == null) {
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this);
+			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this.toVerboseString());
 			return;
 		}
 		// foreach slice in that rule
@@ -55,6 +55,15 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 				fvSlicer.sendMsg(this);
 			}
 		}
+	}
+
+	private String toVerboseString() {
+		String pkt;
+		if (this.packetData != null)
+			pkt = new OFMatch().loadFromPacket(this.packetData, this.inPort).toString();
+		else
+			pkt ="empty";
+		return this.toString() + ";pkt=" + pkt;
 	}
 
 	@Override

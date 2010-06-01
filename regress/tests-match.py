@@ -14,6 +14,7 @@ try:
     h.addController("frank",     54326)
     h.addController("george",    54327)
     h.addController("hank",      54328)
+    h.addController("ingrid",    54329)
 
     if len(sys.argv) > 1 :
         wantPause = False
@@ -30,14 +31,14 @@ try:
     h.lamePause(pause=1)
 
     feature_request = 	 FvRegress.OFVERSION + '05 0008 2d47 c5eb'
-    feature_request_after =  FvRegress.OFVERSION + '05000800000108'
+    feature_request_after =  FvRegress.OFVERSION + '05000800000109'
     h.runTest(name="feature_request",timeout=timeout,  events= [
     		TestEvent( "send","guest","alice", feature_request),
     		TestEvent( "recv","switch","switch1", feature_request_after,strict=True),
     		])
 
     ############################################################
-    feature_reply  =     FvRegress.OFVERSION + '''06 00e0 0000 0108 0000 76a9
+    feature_reply  =     FvRegress.OFVERSION + '''06 00e0 0000 0109 0000 76a9
     			d40d 2548 0000 0100 0200 0000 0000 001f
     			0000 03ff 0000 1ac1 51ff ef8a 7665 7468
     			3100 0000 0000 0000 0000 0000 0000 0000
@@ -94,7 +95,7 @@ try:
 # match vlan_pcp 
 
     ping_in = FvRegress.OFVERSION + '''0a 00 78 00 00 00 00 00 00 35 db 00 62 00 01
-    00 00 00 1c f0 ed 98 5a 00 22 41 fa 73 01 81 00 00 00 
+    00 00 00 1c f0 ed 98 5a 00 22 41 fa 73 01 81 00 60 00 
     08 00
     45 00 00 54 f3 b9 00 00 40 01 00 97 10 09 09 09
     13 04 04 05 08 00 06 05 0d 07 00 37 d8 0c b1 49
@@ -208,7 +209,7 @@ try:
 
     ping_in = FvRegress.OFVERSION + '''0a 00 74 00 00 00 00 00 00 35 db 00 62 00 01
     00 00 00 1c f0 ed 98 5a 00 22 41 fa 73 01 08 00
-    45 03 00 54 f3 b9 00 00 40 01 00 97 00 00 00 00
+    45 30 00 54 f3 b9 00 00 40 01 00 97 00 00 00 00
     00 00 00 00 00 ff 06 05 0d 07 00 37 d8 0c b1 49
     6b 63 05 00 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13
     14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23
