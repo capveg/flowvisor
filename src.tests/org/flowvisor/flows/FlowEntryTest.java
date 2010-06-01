@@ -62,4 +62,18 @@ public class FlowEntryTest extends TestCase {
 		TestCase.assertEquals(MatchType.SUPERSET, flowEntry24.matches(1, l8match).getMatchType());
 		TestCase.assertEquals(MatchType.NONE, flowEntry24.matches(1, l32badmatch).getMatchType());			
 	}
+	
+	public void testDL_VLAN_PCP() {
+		OFMatch vpcp = new OFMatch();
+		vpcp.setWildcards(~OFMatch.OFPFW_DL_VLAN_PCP);
+		vpcp.setDataLayerVirtualLanPriorityCodePoint((byte) 3);
+		
+		OFMatch vpcp2 = new OFMatch();
+		vpcp2.fromString("dl_vpcp=3");
+		
+		FlowEntry flowEntry = new FlowEntry(1, vpcp, (OFAction)null);
+		TestCase.assertEquals(MatchType.EQUAL, flowEntry.matches(1, vpcp).getMatchType());
+		TestCase.assertEquals(MatchType.EQUAL, flowEntry.matches(1, vpcp2).getMatchType());
+
+	}
 }
