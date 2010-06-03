@@ -48,7 +48,6 @@ public class FlowVisor
 
     	// init switchAcceptor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
-    										"ofswitchAcceptor",
     										pollLoop,
     										port,
     										16);

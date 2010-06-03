@@ -13,14 +13,13 @@ import java.util.*;
 
 public class OFSwitchAcceptor implements FVEventHandler
 {
-    String name;
     FVEventLoop pollLoop;
 
     int backlog;
     int listenPort;
     ServerSocketChannel ssc;
     List<FVClassifier> switches;
-    public OFSwitchAcceptor(String name, FVEventLoop pollLoop, int port, int backlog) throws IOException
+    public OFSwitchAcceptor(FVEventLoop pollLoop, int port, int backlog) throws IOException
     {
         this.listenPort = port;
         this.backlog = backlog;
