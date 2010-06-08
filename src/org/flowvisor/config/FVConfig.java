@@ -289,8 +289,11 @@ public class FVConfig {
 		}
 	}
 
-	public static void setConfig(String name, String val) {
+	public static void setConfig(String name, String val)
+			throws ConfigNotFoundError {
 		ConfigEntry entry = lookup(name);
+		if (entry == null)
+			throw new ConfigNotFoundError("config entry not found: " + name);
 		entry.setValue(val);
 	}
 
