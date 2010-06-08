@@ -11,6 +11,7 @@ import org.openflow.io.OFMessageAsyncStream;
 import org.flowvisor.slicer.FVSlicer;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.message.*;
+import org.flowvisor.ofswitch.TopologyController;
 import org.openflow.protocol.*;
 import org.flowvisor.log.*;
 
@@ -310,9 +311,11 @@ public class FVClassifier implements FVEventHandler {
 	}
 
 	/**
-	 * Figure out which slice's have access to the switch and spawn an Slicer
+	 * Figure out which slices have access to the switch and spawn a Slicer
 	 * EventHandler for each of them.  Also, close the connection to any
 	 * slice that is no longer listed
+	 * 
+	 * Also make a connection for the topology discovery daemon here if configured
 	 *
 	 * Assumes The switch is already been identified;
 	 *
@@ -322,6 +325,8 @@ public class FVClassifier implements FVEventHandler {
 		// this.switchFlowMap = FlowSpaceUtil.getSubFlowMap(this.switchInfo.getDatapathId());
 		this.switchFlowMap = FVConfig.getFlowSpaceFlowMap();
 		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(this.switchFlowMap,this.switchInfo.getDatapathId());
+		if (TopologyController.isConfigured())
+			newSlices.add(TopologyController.getTopoUser());
 		// foreach slice, make sure it has access to this switch
 		for(String sliceName : newSlices ) {
 			if(! slicerMap.containsKey(sliceName)) {

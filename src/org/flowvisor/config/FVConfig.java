@@ -36,6 +36,8 @@ import java.beans.XMLDecoder;
  */
 public class FVConfig {
 	public static final String FS = "!";
+	public static final String TOPOLOGY_SERVER = "flowvisor" + FS
+			+ "run_topology_server";
 	final static public String LISTEN_PORT 			= "flowvisor"+ FS + "listen_port";
 	public static final String API_WEBSERVER_PORT 	= "flowvisor" + FS + "api_webserver_port";
 	public static final String CHECKPOINTING 		= "flowvisor" + FS + "checkpointing";

@@ -460,6 +460,20 @@
           </void> 
          </object> 
         </void> 
+        <void method="put"> 
+         <string>run_topology_server</string> 
+         <object class="org.flowvisor.config.ConfBoolEntry"> 
+          <void property="bool"> 
+           <boolean>true</boolean> 
+          </void> 
+          <void property="name"> 
+           <string>run_topology_server</string> 
+          </void> 
+          <void property="persistent"> 
+           <boolean>true</boolean> 
+          </void> 
+         </object> 
+        </void> 
        </object> 
       </void> 
       <void property="name"> 

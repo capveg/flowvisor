@@ -21,7 +21,6 @@ public class OFSwitchAcceptor implements FVEventHandler
     List<FVClassifier> switches;
     public OFSwitchAcceptor(FVEventLoop pollLoop, int port, int backlog) throws IOException
     {
-        this.listenPort = port;
         this.backlog = backlog;
         this.pollLoop = pollLoop;
 
@@ -29,7 +28,9 @@ public class OFSwitchAcceptor implements FVEventHandler
         ssc.socket().setReuseAddress(true);
         ssc.socket().bind(new InetSocketAddress(port), backlog);
         ssc.configureBlocking(false);
-    	FVLog.log(LogLevel.INFO, this, "Listenning on port " + port);
+        this.listenPort = ssc.socket().getLocalPort();
+
+    	FVLog.log(LogLevel.INFO, this, "Listenning on port " + this.listenPort);
 
         switches = new ArrayList<FVClassifier>();
         // register this module with the polling loop
@@ -56,6 +57,15 @@ public class OFSwitchAcceptor implements FVEventHandler
 	@Override
 	public boolean needsAccept() {
 		return true;
+	}
+
+
+
+	/**
+	 * @return the listenPort
+	 */
+	public int getListenPort() {
+		return listenPort;
 	}
 
 

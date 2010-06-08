@@ -69,6 +69,8 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
+			// topology server on by default
+			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
 			// create slices
 			FVConfig.createSlice("root", 	"none", 0, rootPasswd, "root@localhost",
 					"root");

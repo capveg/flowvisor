@@ -7,6 +7,7 @@ import org.flowvisor.exceptions.*;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
+import org.flowvisor.ofswitch.TopologyController;
 import org.flowvisor.events.*;
 import org.flowvisor.api.APIServer;
 import org.flowvisor.config.*;
@@ -46,6 +47,10 @@ public class FlowVisor
 
     	int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
 
+    	// init topology discovery, if configured for it
+    	if (TopologyController.isConfigured())
+    		handlers.add(TopologyController.spawn(pollLoop));
+    	
     	// init switchAcceptor
     	OFSwitchAcceptor acceptor	= new OFSwitchAcceptor(
     										pollLoop,

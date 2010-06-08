@@ -3,22 +3,23 @@ package org.flowvisor.message;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.SliceAction;
-
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.lldp.LLDPUtil;
+import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
-import org.openflow.protocol.*;
+import org.openflow.protocol.OFMatch;
+import org.openflow.protocol.OFPacketIn;
 import org.openflow.protocol.action.OFAction;
 
-public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
+public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
+		TopologyControllable {
 
 	/**
 	 * route and rewrite packet_in messages from switch to controller
-	 *
-	 * if it's lldp, do the lldp decode stuff
-	 * else, look up the embedded packet's controller(s) by flowspace and
-	 * send to them
+	 * 
+	 * if it's lldp, do the lldp decode stuff else, look up the embedded
+	 * packet's controller(s) by flowspace and send to them
 	 */
 
 	@Override
@@ -26,7 +27,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 		// handle LLDP as a special (hackish) case
 		if (LLDPUtil.handleLLDPFromSwitch(this, fvClassifier))
 			return;
-		// TODO add  ARP special case
+		// TODO add ARP special case
 		this.lookupByFlowSpace(fvClassifier);
 
 	}
@@ -36,22 +37,22 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 		int perms;
 		// grab single matching rule: only one because it's a point in flowspace
 		FlowEntry flowEntry = fvClassifier.getSwitchFlowMap().matches(
-					fvClassifier.getSwitchInfo().getDatapathId(),
-					this.getInPort(),
-					this.getPacketData()
-					);
-		if(flowEntry == null) {
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + this.toVerboseString());
+				fvClassifier.getSwitchInfo().getDatapathId(), this.getInPort(),
+				this.getPacketData());
+		if (flowEntry == null) {
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping unclassifiable msg: " + this.toVerboseString());
 			return;
 		}
 		// foreach slice in that rule
-		for(OFAction ofAction : flowEntry.getActionsList()) {
-			sliceAction = (SliceAction)  ofAction;
+		for (OFAction ofAction : flowEntry.getActionsList()) {
+			sliceAction = (SliceAction) ofAction;
 			perms = sliceAction.getSlicePerms();
-			if ( (perms & (SliceAction.READ|SliceAction.WRITE)) != 0) {
+			if ((perms & (SliceAction.READ | SliceAction.WRITE)) != 0) {
 				// lookup slice and send msg to them
 				// TODO record buffer id for later validation
-				FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(sliceAction.getSliceName());
+				FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(
+						sliceAction.getSliceName());
 				fvSlicer.sendMsg(this);
 			}
 		}
@@ -60,9 +61,10 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 	private String toVerboseString() {
 		String pkt;
 		if (this.packetData != null)
-			pkt = new OFMatch().loadFromPacket(this.packetData, this.inPort).toString();
+			pkt = new OFMatch().loadFromPacket(this.packetData, this.inPort)
+					.toString();
 		else
-			pkt ="empty";
+			pkt = "empty";
 		return this.toString() + ";pkt=" + pkt;
 	}
 
@@ -74,12 +76,20 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable {
 	@Override
 	public FVPacketIn setPacketData(byte[] packetData) {
 		if (packetData == null)
-			this.length = (short)(MINIMUM_LENGTH);
+			this.length = (short) (MINIMUM_LENGTH);
 		else
-			this.length = (short)(MINIMUM_LENGTH +
-					packetData.length);
+			this.length = (short) (MINIMUM_LENGTH + packetData.length);
 		this.packetData = packetData;
 		return this;
+	}
+
+	/**
+	 * The topologyController handles LLDP messages and ignores everything else
+	 */
+	@Override
+	public void topologyController(TopologyConnection topologyConnection) {
+		FVLog.log(LogLevel.WARN, topologyConnection,
+				"FIXME: implement FVPacketIn handling");
 	}
 
 }
