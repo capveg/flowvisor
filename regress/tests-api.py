@@ -62,6 +62,8 @@ try:
     print "GetDevices Test"
     x =  s.api.listDevices()
     valid_len = 2
+    for device in x : 
+        print "                 " + device
     if len(x) != valid_len :
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listDevices root test1")
