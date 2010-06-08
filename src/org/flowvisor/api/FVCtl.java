@@ -387,7 +387,7 @@ public class FVCtl {
 	private static void usage(String string, boolean printFull) {
 		System.err.println(string);
 		if (printFull) {
-			System.err.println("Usage: FVCtl [--user=user] [--url=url] " +
+			System.err.println("Usage: FVCtl [--debug=true] [--user=user] [--url=url] " +
 					"[--passwd-file=filename] command [args...] ");
 			for(int i=0; i< FVCtl.cmdlist.length; i++) {
 				APICmd cmd = FVCtl.cmdlist[i];
@@ -427,6 +427,8 @@ public class FVCtl {
 				URL = params[1];
 			else if (params[0].equals("--user"))
 				user = params[1];
+			else if (params[0].equals("--debug"))
+				debug = Boolean.valueOf(params[1]);
 			else if (params[0].equals("--passwd-file")) {
 				
 				try {
