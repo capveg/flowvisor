@@ -9,6 +9,7 @@ tests="\
 tests-base.py \
 tests-api.py \
 tests-ports.py \
+tests-safety.py \
 "
 
     

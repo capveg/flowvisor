@@ -152,6 +152,29 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace bob test")
     print "     passed"
+#################################### Start Root Tests
+    user="root"
+    passwd="0fw0rk"
+    s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+    print "Root ping test(2)"
+    x= s.api.ping("Joe mama")
+    valid = "PONG(root): Joe mama"
+    if(x != valid) : 
+        print "Got '"+ x + "' but wanted '" + valid + "'"
+        test_failed("ping test")
+    print "     passed"
+    print "Root deleteSlice(alice)"
+    if not s.api.deleteSlice('alice') :
+        print "Got false!"
+        test_failed("remove slice test")
+    x = s.api.listFlowSpace()
+    #for x in  s.api.listFlowSpace():
+    #        print x
+    valid_len = 4
+    if len(x) != valid_len: 
+        print "Got " + str(len(x)) + " entries but wanted " + str(valid_len) + " :: FlowSpace delete failed"
+        test_failed("listFlowSpace root test")
+    print "     passed"
 
 
 #################################### Start Tests
