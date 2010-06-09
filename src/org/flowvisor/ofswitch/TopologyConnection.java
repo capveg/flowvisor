@@ -4,6 +4,7 @@
 package org.flowvisor.ofswitch;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
@@ -20,14 +21,21 @@ import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVFeaturesReply;
 import org.flowvisor.message.FVMessageFactory;
+import org.flowvisor.message.FVMessageUtil;
 import org.flowvisor.message.TopologyControllable;
+import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.message.statistics.FVDescriptionStatistics;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFPacketOut;
+import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.protocol.OFStatisticsRequest;
 import org.openflow.protocol.OFType;
-import org.openflow.protocol.statistics.OFStatistics;
+import org.openflow.protocol.action.OFAction;
+import org.openflow.protocol.action.OFActionOutput;
+import org.openflow.protocol.action.OFActionType;
 import org.openflow.protocol.statistics.OFStatisticsType;
+import org.openflow.util.HexString;
 
 /**
  * @author capveg
@@ -208,10 +216,13 @@ public class TopologyConnection implements FVEventHandler {
 		// build stats desc request : FIXME: make this cleaner
 		OFStatisticsRequest request = (OFStatisticsRequest) this.fvMessageFactory
 				.getMessage(OFType.STATS_REQUEST);
-		List<OFStatistics> statistics = new LinkedList<OFStatistics>();
-		statistics.add(this.fvMessageFactory.getStatistics(
-				OFType.STATS_REQUEST, OFStatisticsType.DESC));
-		request.setStatistics(statistics);
+		request.setStatisticType(OFStatisticsType.DESC);
+		/*
+		 * List<OFStatistics> statistics = new LinkedList<OFStatistics>();
+		 * statistics.add(this.fvMessageFactory.getStatistics(
+		 * OFType.STATS_REQUEST, OFStatisticsType.DESC));
+		 * request.setStatistics(statistics);
+		 */
 		msgStream.write(request);
 
 		msgStream.flush();
@@ -263,7 +274,11 @@ public class TopologyConnection implements FVEventHandler {
 	 *            the featuresReply to set
 	 */
 	public void setFeaturesReply(FVFeaturesReply featuresReply) {
+		FVLog.log(LogLevel.DEBUG, this, "got featuresReply: " + featuresReply);
+		boolean wasConnected = this.isConnected();
 		this.featuresReply = featuresReply;
+		if (isConnected() && !wasConnected)
+			this.doJustConnected();
 	}
 
 	/**
@@ -279,7 +294,49 @@ public class TopologyConnection implements FVEventHandler {
 	 */
 	public void setDescriptionStatistics(
 			FVDescriptionStatistics descriptionStatistics) {
+		boolean wasConnected = this.isConnected();
+		FVLog.log(LogLevel.DEBUG, this, "got descStats: "
+				+ descriptionStatistics);
 		this.descriptionStatistics = descriptionStatistics;
+		if (isConnected() && !wasConnected)
+			this.doJustConnected();
 	}
 
+	private void doJustConnected() {
+		this.name = "topoDpid="
+				+ HexString.toHexString(this.featuresReply.getDatapathId());
+		// FIXME: just one time; do more often
+		for (OFPhysicalPort port : featuresReply.getPorts())
+			sendLLDP(port);
+	}
+
+	private void sendLLDP(OFPhysicalPort port) {
+		OFPacketOut packetOut = (OFPacketOut) this.fvMessageFactory
+				.getMessage(OFType.PACKET_OUT);
+		List<OFAction> actionsList = new LinkedList<OFAction>();
+		OFActionOutput out = (OFActionOutput) this.fvMessageFactory
+				.getAction(OFActionType.OUTPUT);
+		out.setPort(port.getPortNumber());
+		actionsList.add(out);
+		packetOut.setActions(actionsList);
+		short alen = FVMessageUtil.countActionsLen(actionsList);
+		byte[] lldp = makeLLDP(port.getPortNumber(), port.getHardwareAddress());
+		packetOut.setActionsLength(alen);
+		packetOut.setPacketData(lldp);
+		packetOut
+				.setLength((short) (OFPacketOut.MINIMUM_LENGTH + alen + lldp.length));
+		this.msgStream.write(packetOut);
+	}
+
+	private byte[] makeLLDP(short portNumber, byte[] hardwareAddress) {
+		// TODO steal a real LLDP implementation
+		byte[] buf = new byte[24];
+		ByteBuffer bb = ByteBuffer.wrap(buf);
+		bb.put(LLDPUtil.LLDP_MULTICAST); // dst addr
+		bb.put(hardwareAddress); // src addr
+		bb.putShort(LLDPUtil.ETHER_LLDP);
+		bb.putLong(this.featuresReply.getDatapathId());
+		bb.putShort(portNumber);
+		return buf;
+	}
 }
