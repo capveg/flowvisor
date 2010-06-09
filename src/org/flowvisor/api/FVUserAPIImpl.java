@@ -240,8 +240,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 		} catch (Exception e) {
 			throw new SliceNotFound("slice does not exist: " + sliceName);
 		}
+		FVLog.log(LogLevel.DEBUG, null, "API removeSlice(" + sliceName
+				+ ") by: " + APIUserCred.getUserName());
+		FlowSpaceUtil.deleteFlowSpaceBySlice(sliceName);
+		FVConfig.sendUpdates(FVConfig.FLOWSPACE); // signal that FS has changed
 		FlowVisor.getInstance().checkPointConfig();
-		// TODO: remove all of the relevant FlowSpace as well
 		return true;
 	}
 

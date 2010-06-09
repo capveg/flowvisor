@@ -231,4 +231,35 @@ public class FlowSpaceUtil {
 			return FlowEntry.ALL_DPIDS_STR;
 		return HexString.toHexString(dpid);
 	}
+
+	/**
+	 * Remove all of the flowSpace associated with a slice
+	 * 
+	 * Does NOT send updates to classifiers
+	 * 
+	 * DOES lock the flowSpace for synchronization
+	 * 
+	 * @param sliceName
+	 */
+	public static void deleteFlowSpaceBySlice(String sliceName) {
+		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
+		SliceAction sliceAction = null;
+		synchronized (flowSpace) {
+			for (Iterator<FlowEntry> flowIter = flowSpace.getRules().iterator(); flowIter
+					.hasNext();) {
+				FlowEntry flowEntry = flowIter.next();
+				for (Iterator<OFAction> actIter = flowEntry.getActionsList()
+						.iterator(); actIter.hasNext();) {
+					OFAction ofAction = actIter.next();
+					if (!(ofAction instanceof SliceAction))
+						continue;
+					sliceAction = (SliceAction) ofAction;
+					if (sliceName.equals(sliceAction.getSliceName()))
+						actIter.remove(); // remove this action from the entry
+				}
+				if (flowEntry.getActionsList().size() == 0)
+					flowIter.remove(); // remove the entry if no more actions
+			}
+		}
+	}
 }
