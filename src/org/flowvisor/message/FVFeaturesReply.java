@@ -45,6 +45,11 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply
 		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ";ports=" + this.getPorts().size();
+	}
+
 	/**
 	 * If a topologyConnection gets this message, then register it
 	 * 
