@@ -62,6 +62,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public String[] listFlowSpace() {
 		String sliceName = APIUserCred.getUserName();
+		FVLog.log(LogLevel.DEBUG, null, "API listFlowSpace() by: " + sliceName);
 		FlowMap flowMap;
 		if (FVConfig.isSupervisor(sliceName))
 			flowMap = FVConfig.getFlowSpaceFlowMap();
@@ -166,6 +167,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<Map<String, String>> getLinks() {
+		FVLog.log(LogLevel.DEBUG, null, "API getLinks() by: "
+				+ APIUserCred.getUserName());
 		List<String> devices = listDevices();
 		List<Map<String, String>> list = new LinkedList<Map<String, String>>();
 		for (int i = 0; i < devices.size(); i++) {
@@ -183,6 +186,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> listDevices() {
+		FVLog.log(LogLevel.DEBUG, null, "API listDevices() by: "
+				+ APIUserCred.getUserName());
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
 		List<String> dpids = new ArrayList<String>();
@@ -231,10 +236,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public boolean deleteSlice(String sliceName) throws SliceNotFound,
 			PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
-		if (!APIAuth.transitivelyCreated(changerSlice, sliceName))
+		if (!APIAuth.transitivelyCreated(changerSlice, sliceName)) {
+			FVLog.log(LogLevel.WARN, null, "API deletSlice(" + sliceName
+					+ ") failed by: " + APIUserCred.getUserName());
 			throw new PermissionDeniedException("Slice " + changerSlice
 					+ " does not have perms to change the passwd of "
 					+ sliceName);
+		}
 		try {
 			FVConfig.deleteSlice(sliceName);
 		} catch (Exception e) {
