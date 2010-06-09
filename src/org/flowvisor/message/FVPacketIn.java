@@ -53,6 +53,14 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 				// TODO record buffer id for later validation
 				FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(
 						sliceAction.getSliceName());
+				if (fvSlicer == null) {
+					FVLog.log(LogLevel.WARN, fvClassifier,
+							"tried to send msg to non-existing slice: "
+									+ sliceAction.getSliceName()
+									+ "corrupted flowspace?" + this);
+					continue;
+				}
+
 				fvSlicer.sendMsg(this);
 			}
 		}
