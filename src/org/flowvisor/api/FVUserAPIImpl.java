@@ -270,34 +270,39 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 		List<String> returnIDs = new LinkedList<String>();
-		String logMsg;
-		for (int i = 0; i < changes.size(); i++) {
-			FlowChange change = FlowChange.fromMap(changes.get(i));
-			FlowChangeOp operation = change.getOperation();
-			logMsg = "user " + user + " " + operation;
-			if (operation != FlowChangeOp.ADD) {
-				logMsg += " id=" + change.getId();
-				flowSpace.removeRule(change.getId());
-				returnIDs.add(String.valueOf(change.getId()));
+
+		synchronized (flowSpace) { // prevent multiple API clients from stomping
+									// on each other
+			String logMsg;
+			for (int i = 0; i < changes.size(); i++) {
+				FlowChange change = FlowChange.fromMap(changes.get(i));
+				FlowChangeOp operation = change.getOperation();
+				logMsg = "user " + user + " " + operation;
+				if (operation != FlowChangeOp.ADD) {
+					logMsg += " id=" + change.getId();
+					flowSpace.removeRule(change.getId());
+					returnIDs.add(String.valueOf(change.getId()));
+				}
+				if (operation != FlowChangeOp.REMOVE) {
+					logMsg += " for dpid="
+							+ FlowSpaceUtil.dpidToString(change.getDpid())
+							+ " match=" + change.getMatch() + " priority="
+							+ change.getPriority() + " actions="
+							+ FlowSpaceUtil.toString(change.getActions());
+
+					FlowEntry flowEntry = new FlowEntry(change.getDpid(),
+							change.getMatch(), change.getPriority(), change
+									.getActions());
+
+					if (operation == FlowChangeOp.ADD)
+						returnIDs.add(String.valueOf(flowEntry.getId()));
+					else
+						flowEntry.setId(change.getId()); // keep id on change
+					flowSpace.addRule(flowEntry);
+
+				}
+				FVLog.log(LogLevel.INFO, null, logMsg);
 			}
-			if (operation != FlowChangeOp.REMOVE) {
-				logMsg += " for dpid="
-						+ FlowSpaceUtil.dpidToString(change.getDpid())
-						+ " match=" + change.getMatch() + " priority="
-						+ change.getPriority() + " actions="
-						+ FlowSpaceUtil.toString(change.getActions());
-
-				FlowEntry flowEntry = new FlowEntry(change.getDpid(), change
-						.getMatch(), change.getPriority(), change.getActions());
-
-				if (operation == FlowChangeOp.ADD)
-					returnIDs.add(String.valueOf(flowEntry.getId()));
-				else
-					flowEntry.setId(change.getId()); // keep id on change
-				flowSpace.addRule(flowEntry);
-
-			}
-			FVLog.log(LogLevel.INFO, null, logMsg);
 		}
 		// update the indexes at the end, not with each rule
 		FlowVisor.getInstance().checkPointConfig();
