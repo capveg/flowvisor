@@ -60,7 +60,6 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 									+ "corrupted flowspace?" + this);
 					continue;
 				}
-
 				fvSlicer.sendMsg(this);
 			}
 		}
