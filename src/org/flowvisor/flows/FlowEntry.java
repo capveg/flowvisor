@@ -132,7 +132,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	 * @return An FlowIntersect structure that describes the match
 	 */
 	public FlowIntersect matches(long dpid, OFMatch argMatch) {
-		FlowIntersect intersection = new FlowIntersect(this);
+		FlowIntersect intersection;
+		intersection = new FlowIntersect(this.clone());
+
 		int argWildcards = argMatch.getWildcards();
 		int ruleWildcards = this.ruleMatch.getWildcards();
 
