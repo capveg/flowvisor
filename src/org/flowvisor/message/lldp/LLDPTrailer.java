@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 
 /**
  * @author capveg
- *
+ * 
  */
 public class LLDPTrailer {
 	public final static int MAGIC = 0xdeadcafe;
@@ -21,40 +21,40 @@ public class LLDPTrailer {
 	public final static int FLOWNAMELEN_LEN = 1;
 	public final static int TLV_LEN = 2;
 	public final static int CHASSIS_ID_LEN = 1;
-	public final static int TRAILER_HEADER_LEN = MAGIC_LEN +
-								SLICENAMELEN_LEN +
-								FLOWNAMELEN_LEN +
-								TLV_LEN +
-								CHASSIS_ID_LEN;
+	public final static int TRAILER_HEADER_LEN = MAGIC_LEN + SLICENAMELEN_LEN
+			+ FLOWNAMELEN_LEN + TLV_LEN + CHASSIS_ID_LEN;
 	String sliceName;
-	String flowVisorName;		// for cross-aggregate federated GENI identification
+	String flowVisorName; // for cross-aggregate federated GENI identification
 
 	public LLDPTrailer(String sliceName) {
 		this.sliceName = sliceName;
 		this.flowVisorName = "";
 	}
-	public LLDPTrailer(String sliceName, String flowVisorName){
+
+	public LLDPTrailer(String sliceName, String flowVisorName) {
 		this.sliceName = sliceName;
 		this.flowVisorName = flowVisorName;
 	}
-
-
 
 	public String getSliceName() {
 		return sliceName;
 	}
+
 	public void setSliceName(String sliceName) {
 		this.sliceName = sliceName;
 	}
+
 	public String getFlowVisorName() {
 		return flowVisorName;
 	}
+
 	public void setFlowVisorName(String flowVisorName) {
 		this.flowVisorName = flowVisorName;
 	}
+
 	/**
 	 * Append this trailer to the packet out; update the length and everything
-	 *
+	 * 
 	 * @param po
 	 */
 	public void appendTo(FVPacketOut po) {
@@ -70,19 +70,22 @@ public class LLDPTrailer {
 
 		newPacket.put(LLDP_CHASSIS_ID_LOCAL);
 
-		StringByteSerializer.writeTo(newPacket, sliceName.length()+1, sliceName);
-		StringByteSerializer.writeTo(newPacket, flowVisorName.length()+1, flowVisorName);
+		StringByteSerializer.writeTo(newPacket, sliceName.length() + 1,
+				sliceName);
+		StringByteSerializer.writeTo(newPacket, flowVisorName.length() + 1,
+				flowVisorName);
 
-		newPacket.put((byte) (sliceName.length()+1));
-		newPacket.put((byte) (flowVisorName.length()+1));
+		newPacket.put((byte) (sliceName.length() + 1));
+		newPacket.put((byte) (flowVisorName.length() + 1));
 		newPacket.putInt(MAGIC);
 
 		po.setPacketData(newPacket.array());
 	}
 
 	/**
-	 * Checks if the LLDP trailer exists
-	 *        and if so, parses it and removes it from the packet
+	 * Checks if the LLDP trailer exists and if so, parses it and removes it
+	 * from the packet
+	 * 
 	 * @param po
 	 * @return
 	 */
@@ -94,17 +97,16 @@ public class LLDPTrailer {
 		// work backwards through the trailer
 		int offset = packet.capacity() - MAGIC_LEN;
 		if (packet.getInt(offset) != MAGIC)
-			return null;	// didn't find MAGIC trailer
+			return null; // didn't find MAGIC trailer
 		offset -= FLOWNAMELEN_LEN;
 		byte flowLen = packet.get(offset);
 		offset -= SLICENAMELEN_LEN;
 		byte sliceLen = packet.get(offset);
 		offset -= flowLen + sliceLen;
 		packet.position(offset);
-		LLDPTrailer trailer =  new LLDPTrailer(
-				StringByteSerializer.readFrom(packet, sliceLen),
-				StringByteSerializer.readFrom(packet, flowLen)
-				);
+		LLDPTrailer trailer = new LLDPTrailer(StringByteSerializer.readFrom(
+				packet, sliceLen), StringByteSerializer.readFrom(packet,
+				flowLen));
 		byte[] newPacket = new byte[packet.capacity() - trailer.length()];
 		packet.position(0);
 		packet.get(newPacket);
@@ -114,8 +116,9 @@ public class LLDPTrailer {
 
 	public int length() {
 		// TRAILER_HEADER_LEN== 9 == 2 for TLV header + 1 for chassis id subtype
-		// 	    + 4 for magic + 1 for sliceName len + 1 for flowVisor name len
-		//      + 2 for each null to term the string
-		return Math.min(512,TRAILER_HEADER_LEN + this.sliceName.length() + this.flowVisorName.length() + 2);
+		// + 4 for magic + 1 for sliceName len + 1 for flowVisor name len
+		// + 2 for each null to term the string
+		return Math.min(512, TRAILER_HEADER_LEN + this.sliceName.length()
+				+ this.flowVisorName.length() + 2);
 	}
 }

@@ -11,9 +11,8 @@ import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.action.OFAction;
 
-public class FVFlowMod extends org.openflow.protocol.OFFlowMod
-		implements Classifiable, Slicable, Cloneable {
-
+public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
+		Classifiable, Slicable, Cloneable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
@@ -22,11 +21,11 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 
 	/**
 	 * FlowMod slicing
-	 *
+	 * 
 	 * 1) make sure all actions are ok
-	 *
+	 * 
 	 * 2) expand this FlowMod to the intersection of things in the given match
-	 *  and the slice's flowspace
+	 * and the slice's flowspace
 	 */
 
 	@Override
@@ -39,40 +38,49 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod
 		// make sure the list of actions is kosher
 		List<OFAction> actionsList = this.getActions();
 		try {
-			actionsList= FVMessageUtil.approveActions(actionsList, this.match, fvClassifier, fvSlicer);
+			actionsList = FVMessageUtil.approveActions(actionsList, this.match,
+					fvClassifier, fvSlicer);
 		} catch (ActionDisallowedException e) {
-			// FIXME : embed the error code in the ActionDisallowedException and pull it out here
+			// FIXME : embed the error code in the ActionDisallowedException and
+			// pull it out here
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
-			fvSlicer.sendMsg(
-					FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+					OFBadActionCode.OFPBAC_EPERM, this));
 			return;
 		}
 		int oldALen = FVMessageUtil.countActionsLen(this.getActions());
 		this.setActions(actionsList);
 		// set new length as a function of old length and old actions length
-		this.setLength((short) (getLength()-oldALen + FVMessageUtil.countActionsLen(actionsList)));
+		this.setLength((short) (getLength() - oldALen + FVMessageUtil
+				.countActionsLen(actionsList)));
 		// expand this match to everything that intersects the flowspace
 		List<FlowIntersect> intersections = fvSlicer.getFlowSpace().intersects(
 				fvClassifier.getDPID(), this.match);
 
-		for(FlowIntersect intersect : intersections) {
+		for (FlowIntersect intersect : intersections) {
 			try {
 				FVFlowMod newFlowMod = (FVFlowMod) this.clone();
-				newFlowMod.setMatch(intersect.getMatch());  // replace match with the intersection
-				FVLog.log(LogLevel.DEBUG, fvClassifier, "send to switch: " + this);
+				newFlowMod.setMatch(intersect.getMatch()); // replace match with
+															// the intersection
+				FVLog.log(LogLevel.DEBUG, fvClassifier, "send to switch: "
+						+ this);
 				fvClassifier.getMsgStream().write(newFlowMod);
 			} catch (CloneNotSupportedException e) {
-				FVLog.log(LogLevel.CRIT, fvSlicer, "FlowMod does not implement clone()!?: " + e);
+				FVLog.log(LogLevel.CRIT, fvSlicer,
+						"FlowMod does not implement clone()!?: " + e);
 				return;
 			}
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return super.toString() + ";actions=" + FVMessageUtil.actionsToString(this.getActions());
+		return super.toString() + ";actions="
+				+ FVMessageUtil.actionsToString(this.getActions());
 	}
 }

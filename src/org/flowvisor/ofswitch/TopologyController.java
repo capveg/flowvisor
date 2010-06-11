@@ -94,7 +94,7 @@ public class TopologyController extends OFSwitchAcceptor {
 			tc.init();
 			topologyConnections.add(tc);
 		} catch (IOException e) // ignore IOExceptions -- is this the right
-								// thing to do?
+		// thing to do?
 		{
 			System.err.println("Got IOException for " + sock != null ? sock
 					: "unknown socket");

@@ -14,59 +14,59 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * This is stolen pretty directly from the apache-xml example code.
- *
- * FIXME: Come back and make asynchronous
- * FIXME: address all of the issues with the WebServer code that the author's bring up
+ * 
+ * FIXME: Come back and make asynchronous FIXME: address all of the issues with
+ * the WebServer code that the author's bring up
+ * 
  * @author capveg
- *
+ * 
  */
 
 public class APIServer {
 
 	// FIXME: replace with a FVConfig entry
-    private static final int default_port = 8080;
+	private static final int default_port = 8080;
 
-    public static int getDefaultPort() {
-    	return default_port;
-    }
+	public static int getDefaultPort() {
+		return default_port;
+	}
 
-    /**
-     * Spawn a thread to run the XMLRPC FlowVisor UserAPI WebServer
-     * @return the webServer
-     * @throws XmlRpcException
-     * @throws IOException
-     * @throws Exception
-     */
-    public static WebServer spawn() throws XmlRpcException, IOException  {
-        int port;
+	/**
+	 * Spawn a thread to run the XMLRPC FlowVisor UserAPI WebServer
+	 * 
+	 * @return the webServer
+	 * @throws XmlRpcException
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static WebServer spawn() throws XmlRpcException, IOException {
+		int port;
 
-        try {
+		try {
 			port = FVConfig.getInt(FVConfig.API_WEBSERVER_PORT);
 		} catch (ConfigError e) {
-			port = default_port;	// not explicitly configured
+			port = default_port; // not explicitly configured
 		}
 
+		WebServer webServer = new SSLWebServer(port);
 
+		XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
 
+		PropertyHandlerMapping phm = new PropertyHandlerMapping();
 
-    	WebServer webServer = new SSLWebServer(port);
+		phm.addHandler("api", org.flowvisor.api.FVUserAPIImpl.class);
+		phm.setAuthenticationHandler(new APIAuth());
+		xmlRpcServer.setHandlerMapping(phm);
 
-        XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
-
-        PropertyHandlerMapping phm = new PropertyHandlerMapping();
-
-        phm.addHandler("api", org.flowvisor.api.FVUserAPIImpl.class);
-        phm.setAuthenticationHandler(new APIAuth());
-        xmlRpcServer.setHandlerMapping(phm);
-
-        XmlRpcServerConfigImpl serverConfig =
-            (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
-        serverConfig.setEnabledForExtensions(true);
-        serverConfig.setContentLengthOptional(false);
-        FVLog.log(LogLevel.INFO, null, "initializing FlowVisor UserAPI XMLRPC SSL WebServer on port " + port);
-        webServer.start();
-        return webServer;
-    }
-
+		XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer
+				.getConfig();
+		serverConfig.setEnabledForExtensions(true);
+		serverConfig.setContentLengthOptional(false);
+		FVLog.log(LogLevel.INFO, null,
+				"initializing FlowVisor UserAPI XMLRPC SSL WebServer on port "
+						+ port);
+		webServer.start();
+		return webServer;
+	}
 
 }

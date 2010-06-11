@@ -5,7 +5,7 @@ package org.flowvisor.config;
 
 /**
  * @author capveg
- *
+ * 
  */
 public class ConfBoolEntry extends ConfigEntry {
 	private boolean bool;
@@ -13,6 +13,7 @@ public class ConfBoolEntry extends ConfigEntry {
 	public ConfBoolEntry() {
 		super(ConfigType.BOOL);
 	}
+
 	public ConfBoolEntry(String name) {
 		super(name, ConfigType.BOOL);
 	}
@@ -25,7 +26,8 @@ public class ConfBoolEntry extends ConfigEntry {
 	}
 
 	/**
-	 * @param bool the bool to set
+	 * @param bool
+	 *            the bool to set
 	 */
 	public void setBool(boolean bool) {
 		this.bool = bool;

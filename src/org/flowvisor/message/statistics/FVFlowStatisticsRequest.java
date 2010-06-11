@@ -13,11 +13,12 @@ import org.openflow.protocol.statistics.OFFlowStatisticsReply;
 public final class FVFlowStatisticsRequest extends OFFlowStatisticsReply
 		implements SlicableStatistic, ClassifiableStatistic {
 
-
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		// TODO: rewrite/sanity check this request against the flowspace
-		FVLog.log(LogLevel.WARN, fvSlicer, "need to implement flowstats request slicing");
+		FVLog.log(LogLevel.WARN, fvSlicer,
+				"need to implement flowstats request slicing");
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
 		fvSlicer.sendMsg(msg);
@@ -25,7 +26,8 @@ public final class FVFlowStatisticsRequest extends OFFlowStatisticsReply
 
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + msg);
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: "
+				+ msg);
 	}
 
 }

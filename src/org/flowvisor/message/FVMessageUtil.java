@@ -25,23 +25,22 @@ import org.openflow.protocol.OFError.OFErrorType;
 import org.openflow.protocol.OFError.OFPortModFailedCode;
 import org.openflow.protocol.action.OFAction;
 
-
 /**
  * @author capveg
- *
+ * 
  */
 public class FVMessageUtil {
 
 	/**
 	 * Translate the XID of a message from controller-unique to switch unique
 	 * Also, record the <oldXid,FVSlicer> mapping so we can reverse this later
-	 *
+	 * 
 	 * @param msg
 	 * @param fvClassifier
 	 * @param fvSlicer
 	 */
 	static public void translateXid(OFMessage msg, FVClassifier fvClassifier,
-					FVSlicer fvSlicer) {
+			FVSlicer fvSlicer) {
 		XidTranslator xidTranslator = fvClassifier.getXidTranslator();
 		int newXid = xidTranslator.translate(msg.getXid(), fvSlicer);
 		msg.setXid(newXid);
@@ -49,11 +48,14 @@ public class FVMessageUtil {
 
 	/**
 	 * Undo the effect of translateXID, and return the FVSlicer this came from
+	 * 
 	 * @param msg
 	 * @param fvClassifier
-	 * @return the fvSlicer that was input in the translate step or null if not found
+	 * @return the fvSlicer that was input in the translate step or null if not
+	 *         found
 	 */
-	static public FVSlicer untranslateXid(OFMessage msg, FVClassifier fvClassifier) {
+	static public FVSlicer untranslateXid(OFMessage msg,
+			FVClassifier fvClassifier) {
 		XidTranslator xidTranslator = fvClassifier.getXidTranslator();
 		XidPair pair = xidTranslator.untranslate(msg.getXid());
 		if (pair == null)
@@ -62,39 +64,43 @@ public class FVMessageUtil {
 		return pair.getFvSlicer();
 	}
 
-
 	/**
-	 * Is this slice allowed to use this list of actions with this ofmatch structure?
-	 *
-	 * Return a (potentially edited) list of actions or throw an exception if not allowed
-	 *
+	 * Is this slice allowed to use this list of actions with this ofmatch
+	 * structure?
+	 * 
+	 * Return a (potentially edited) list of actions or throw an exception if
+	 * not allowed
+	 * 
 	 * @param actionList
-	 * @param match inPort is encapsulated in the match
+	 * @param match
+	 *            inPort is encapsulated in the match
 	 * @param fvClassifier
 	 * @param fvSlicer
 	 * @return A list of actions the slice is actually allowed to send
 	 * @throws ActionDisallowedException
 	 */
-	static public List<OFAction> approveActions(List<OFAction> actionList, OFMatch match,
-				FVClassifier fvClassifier, FVSlicer fvSlicer) throws ActionDisallowedException {
+	static public List<OFAction> approveActions(List<OFAction> actionList,
+			OFMatch match, FVClassifier fvClassifier, FVSlicer fvSlicer)
+			throws ActionDisallowedException {
 		List<OFAction> approvedList = new ArrayList<OFAction>();
 
 		if (actionList == null)
 			return null;
-		for(OFAction action : actionList )
-			((SlicableAction)action).slice(approvedList, match, fvClassifier, fvSlicer);
+		for (OFAction action : actionList)
+			((SlicableAction) action).slice(approvedList, match, fvClassifier,
+					fvSlicer);
 		return approvedList;
 	}
 
 	public static short countActionsLen(List<OFAction> actionsList) {
-		short count=0;
-		for(OFAction act: actionsList)
+		short count = 0;
+		for (OFAction act : actionsList)
 			count += act.getLength();
 		return count;
 	}
 
-	public static void translateXidAndSend(OFMessage msg, FVClassifier fvClassifier,
-			FVSlicer fvSlicer) {
+	public static void translateXidAndSend(OFMessage msg,
+			FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
 		fvClassifier.getMsgStream().write(msg);
@@ -104,18 +110,19 @@ public class FVMessageUtil {
 		FVLog.log(LogLevel.WARN, handler, "dropping unexpected msg: " + msg);
 	}
 
-	public static void untranslateXidAndSend(OFMessage msg, FVClassifier fvClassifier) {
+	public static void untranslateXidAndSend(OFMessage msg,
+			FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if( fvSlicer == null ) {
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping msg with unknown xid: " + msg);
+		if (fvSlicer == null) {
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping msg with unknown xid: " + msg);
 			return;
 		}
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
 		fvSlicer.sendMsg(msg);
 	}
 
-	public static OFMessage makeErrorMsg(OFPortModFailedCode code,
-			OFMessage msg) {
+	public static OFMessage makeErrorMsg(OFPortModFailedCode code, OFMessage msg) {
 		OFError err = new FVError();
 		err.setErrorType(OFErrorType.OFPET_PORT_MOD_FAILED);
 		err.setErrorCode(code);
@@ -123,8 +130,7 @@ public class FVMessageUtil {
 		return err;
 	}
 
-	public static OFMessage makeErrorMsg(OFBadRequestCode code,
-			OFMessage msg) {
+	public static OFMessage makeErrorMsg(OFBadRequestCode code, OFMessage msg) {
 		OFError err = new FVError();
 		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
 		err.setErrorCode(code);
@@ -132,8 +138,7 @@ public class FVMessageUtil {
 		return err;
 	}
 
-	public static OFMessage makeErrorMsg(OFBadActionCode code,
-			OFMessage msg) {
+	public static OFMessage makeErrorMsg(OFBadActionCode code, OFMessage msg) {
 		OFError err = new FVError();
 		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
 		err.setErrorCode(code);
@@ -142,11 +147,11 @@ public class FVMessageUtil {
 	}
 
 	public static String actionsToString(List<OFAction> actions) {
-		if ((actions == null ) || (actions.size() == 0))
-				return "DROP";
+		if ((actions == null) || (actions.size() == 0))
+			return "DROP";
 		String ret = "";
-		for(OFAction action: actions) {
-			if (!ret.equals("")) 
+		for (OFAction action : actions) {
+			if (!ret.equals(""))
 				ret += ",";
 			ret += action.toString();
 		}

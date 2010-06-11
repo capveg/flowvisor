@@ -19,59 +19,69 @@ import org.openflow.protocol.action.OFAction;
 import org.openflow.util.HexString;
 
 /**
- * Verify that this packet_out operation is allowed by slice definition,
- * in terms of destination port, the flowspace of the embedded packet, the buffer_id,
- * and the actions.
- *
+ * Verify that this packet_out operation is allowed by slice definition, in
+ * terms of destination port, the flowspace of the embedded packet, the
+ * buffer_id, and the actions.
+ * 
  * Send an error msg back to controller if it's not
- *
+ * 
  * @author capveg
- *
+ * 
  */
 
 public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		FVMessageUtil.dropUnexpectedMesg(this,fvClassifier);
+		FVMessageUtil.dropUnexpectedMesg(this, fvClassifier);
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO verify the buffer_id is one we're allowed to use from a packet_in that went to us
+		// TODO verify the buffer_id is one we're allowed to use from a
+		// packet_in that went to us
 
 		// if it's LLDP, pass off to the LLDP hack
-		if(LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
+		if (LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
 			return;
 		OFMatch match = new OFMatch();
 		byte[] packet = this.getPacketData();
-		if( packet != null && packet.length >  0) {
+		if (packet != null && packet.length > 0) {
 			try {
-				match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL.getValue());
-				// TODO : for efficiency, do this lookup on the slice flowspace, not the switch
-				List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap().matches(
-						fvClassifier.getSwitchInfo().getDatapathId(),
-						match);
-				if ((flowEntries == null) ||(flowEntries.size() < 1)) {  	// didn't match anything
-					FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad encap packet: " + this);
-					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadActionCode.OFPBAC_EPERM, this));
+				match.loadFromPacket(this.getPacketData(), OFPort.OFPP_ALL
+						.getValue());
+				// TODO : for efficiency, do this lookup on the slice flowspace,
+				// not the switch
+				List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap()
+						.matches(fvClassifier.getSwitchInfo().getDatapathId(),
+								match);
+				if ((flowEntries == null) || (flowEntries.size() < 1)) { // didn't
+																			// match
+																			// anything
+					FVLog.log(LogLevel.WARN, fvSlicer,
+							"EPERM bad encap packet: " + this);
+					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+							OFBadActionCode.OFPBAC_EPERM, this));
 					return;
 				}
-			} catch (java.nio.BufferUnderflowException e) { 
+			} catch (java.nio.BufferUnderflowException e) {
 				// packet was too short to match entire header; just ignore
-				FVLog.log(LogLevel.CRIT, fvSlicer, "couldn't parse short packet: "  +
-						HexString.toHexString(this.getPacketData()) + " :: " 
-						+ e.getStackTrace());
+				FVLog.log(LogLevel.CRIT, fvSlicer,
+						"couldn't parse short packet: "
+								+ HexString.toHexString(this.getPacketData())
+								+ " :: " + e.getStackTrace());
 			}
 		}
 		List<OFAction> actionsList = this.getActions();
 		match.setInputPort(this.getInPort());
 		try {
-			actionsList= FVMessageUtil.approveActions(actionsList, match, fvClassifier, fvSlicer);
+			actionsList = FVMessageUtil.approveActions(actionsList, match,
+					fvClassifier, fvSlicer);
 		} catch (ActionDisallowedException e) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
-			
-			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(OFBadRequestCode.OFPBRC_EPERM, this));
+
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+					OFBadRequestCode.OFPBRC_EPERM, this));
 			return;
 		}
 
@@ -79,7 +89,8 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		// really annoying; should be in the base class
 		short count = FVMessageUtil.countActionsLen(actionsList);
 		this.setActionsLength(count);
-		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count +this.getPacketData().length));
+		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count + this
+				.getPacketData().length));
 		// if we've gotten this far, everything is kosher
 		fvClassifier.getMsgStream().write(this);
 	}
@@ -88,23 +99,22 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	@Override
 	public FVPacketOut setPacketData(byte[] packetData) {
 		if (packetData == null)
-			this.length = (short)(MINIMUM_LENGTH + actionsLength);
+			this.length = (short) (MINIMUM_LENGTH + actionsLength);
 		else
-			this.length = (short)(MINIMUM_LENGTH +
-					actionsLength +
-					packetData.length);
+			this.length = (short) (MINIMUM_LENGTH + actionsLength + packetData.length);
 		this.packetData = packetData;
 		return this;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return super.toString() + ";actions=" + FVMessageUtil.actionsToString(this.getActions());
+		return super.toString() + ";actions="
+				+ FVMessageUtil.actionsToString(this.getActions());
 	}
-
-	
 
 }

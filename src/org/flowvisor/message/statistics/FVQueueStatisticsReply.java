@@ -13,9 +13,9 @@ import org.openflow.protocol.statistics.OFQueueStatisticsReply;
 public class FVQueueStatisticsReply extends OFQueueStatisticsReply implements
 		ClassifiableStatistic, SlicableStatistic {
 
-
 	@Override
-	public void sliceFromController(OFMessage msg,FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: " + msg);
 	}
 
@@ -26,11 +26,11 @@ public class FVQueueStatisticsReply extends OFQueueStatisticsReply implements
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if (fvSlicer == null )
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
-		else 
+		if (fvSlicer == null)
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping unclassifiable msg: " + msg);
+		else
 			fvSlicer.sendMsg(msg);
 	}
-
 
 }

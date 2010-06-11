@@ -14,6 +14,7 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Get the node's value
+	 * 
 	 * @return
 	 */
 	public int getInt() {
@@ -22,6 +23,7 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Set the node's value
+	 * 
 	 * @param val
 	 */
 	public void setInt(int val) {
@@ -30,12 +32,15 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Convert val to an integer and store it
-	 * @param val e.g., "12345"
+	 * 
+	 * @param val
+	 *            e.g., "12345"
 	 */
 	@Override
 	public void setValue(String val) {
 		this.val = Integer.decode(val);
 	}
+
 	@Override
 	/**
 	 * @return an string representation of value
@@ -43,6 +48,6 @@ public class ConfIntEntry extends ConfigEntry {
 	public String[] getValue() {
 		String[] ret = new String[1];
 		ret[0] = Integer.toString(this.val);
-		return ret ;
+		return ret;
 	}
 }

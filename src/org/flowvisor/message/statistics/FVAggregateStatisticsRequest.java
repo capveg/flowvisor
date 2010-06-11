@@ -14,14 +14,16 @@ public class FVAggregateStatisticsRequest extends
 		SlicableStatistic, ClassifiableStatistic {
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		fvSlicer.sendMsg(msg);
 	}
 
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + msg);
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: "
+				+ msg);
 	}
 
 }

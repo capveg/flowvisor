@@ -6,11 +6,11 @@ package org.flowvisor.events;
 import org.flowvisor.exceptions.*;
 
 /**
- * Basic implementation of an event handler
- *  Both for reference and used in derived classes
- *
+ * Basic implementation of an event handler Both for reference and used in
+ * derived classes
+ * 
  * @author capveg
- *
+ * 
  */
 public class ExampleHandler implements FVEventHandler {
 
@@ -18,12 +18,17 @@ public class ExampleHandler implements FVEventHandler {
 
 	/**
 	 * Construct a basic event handler
-	 * @param loop the event loop this handler will reside in
+	 * 
+	 * @param loop
+	 *            the event loop this handler will reside in
 	 */
 	public ExampleHandler(FVEventLoop loop) {
 		this.loop = loop;
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.flowvisor.events.FVEventHandler#getThreadContext()
 	 */
 	@Override
@@ -31,15 +36,19 @@ public class ExampleHandler implements FVEventHandler {
 		return loop.getThreadContext();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.FVEvent)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.
+	 * FVEvent)
 	 */
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
-		if ( Thread.currentThread().getId() != this.getThreadContext() )	{
+		if (Thread.currentThread().getId() != this.getThreadContext()) {
 			// this event was sent from a different thread context
-			loop.queueEvent(e);  				// queue event
-			return;								// and process later
+			loop.queueEvent(e); // queue event
+			return; // and process later
 		}
 		// do something with the event here
 		// ....
@@ -48,7 +57,9 @@ public class ExampleHandler implements FVEventHandler {
 		throw new UnhandledEvent(e);
 	}
 
-	/** (non-Javadoc)
+	/**
+	 * (non-Javadoc)
+	 * 
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	public String getName() {
@@ -66,22 +77,23 @@ public class ExampleHandler implements FVEventHandler {
 
 	@Override
 	public boolean needsConnect() {
-		return false;		// this event never wants connect events
+		return false; // this event never wants connect events
 	}
+
 	@Override
 	public boolean needsRead() {
-		return true;		// we always want read events
+		return true; // we always want read events
 	}
+
 	@Override
 	public boolean needsWrite() {
-		return false;		// never want write events
+		return false; // never want write events
 	}
+
 	@Override
 	public boolean needsAccept() {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-
 
 }

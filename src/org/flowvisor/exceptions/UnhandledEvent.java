@@ -15,7 +15,7 @@ public class UnhandledEvent extends FVException {
 	}
 
 	public UnhandledEvent(FVEvent e) {
-		super ("Unhandled event: " + e.toString());
+		super("Unhandled event: " + e.toString());
 	}
 
 }

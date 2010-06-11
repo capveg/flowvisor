@@ -272,7 +272,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		List<String> returnIDs = new LinkedList<String>();
 
 		synchronized (flowSpace) { // prevent multiple API clients from stomping
-									// on each other
+			// on each other
 			String logMsg;
 			for (int i = 0; i < changes.size(); i++) {
 				FlowChange change = FlowChange.fromMap(changes.get(i));

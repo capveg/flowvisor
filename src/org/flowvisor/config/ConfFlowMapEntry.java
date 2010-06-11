@@ -3,17 +3,17 @@
  */
 package org.flowvisor.config;
 
-
 import org.flowvisor.flows.*;
 
 /**
  * @author capveg
- *
+ * 
  */
 public class ConfFlowMapEntry extends ConfigEntry {
 	FlowMap flowMap;
+
 	public ConfFlowMapEntry(String name) {
-		super(name,ConfigType.FLOWMAP);
+		super(name, ConfigType.FLOWMAP);
 	}
 
 	public ConfFlowMapEntry() {
@@ -23,6 +23,7 @@ public class ConfFlowMapEntry extends ConfigEntry {
 	public FlowMap getFlowMap() {
 		return flowMap;
 	}
+
 	public void setFlowMap(FlowMap flowMap) {
 		this.flowMap = flowMap;
 	}
@@ -30,9 +31,9 @@ public class ConfFlowMapEntry extends ConfigEntry {
 	@Override
 	public String[] getValue() {
 		String[] ret = new String[flowMap.countRules()];
-		int i =0;
+		int i = 0;
 
-		for( FlowEntry rule: flowMap.getRules()) {
+		for (FlowEntry rule : flowMap.getRules()) {
 			ret[i] = "" + i + " " + rule.toString();
 			i++;
 		}
@@ -45,9 +46,9 @@ public class ConfFlowMapEntry extends ConfigEntry {
 	@Override
 	public void setValue(String val) {
 		String[] tokens = val.split(" ");
-		if (tokens.length <2 )
-			throw new IllegalArgumentException("Expected <rule num> <flow entry> but got '" +
-					val + "'");
+		if (tokens.length < 2)
+			throw new IllegalArgumentException(
+					"Expected <rule num> <flow entry> but got '" + val + "'");
 		FlowEntry rule = FlowEntry.fromString(tokens[1]);
 		flowMap.addRule(rule);
 	}

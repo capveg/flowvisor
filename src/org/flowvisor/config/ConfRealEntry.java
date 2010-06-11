@@ -5,7 +5,7 @@ package org.flowvisor.config;
 
 /**
  * @author capveg
- *
+ * 
  */
 public class ConfRealEntry extends ConfigEntry {
 	double val;

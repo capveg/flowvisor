@@ -3,62 +3,37 @@
  */
 package org.flowvisor.flows;
 
-import org.openflow.protocol.*;
+import org.openflow.protocol.OFMatch;
 
 /**
  * Describe the intersection between two FlowEntry's.
- *
- * Contains an MatchType and if MatchType != NONE, then a dpid and OFMatch structure that
- * describes the overlap
- *
+ * 
+ * Contains an MatchType and if MatchType != NONE, then a FlowEntry structure
+ * that describes the overlap
+ * 
  * @author capveg
- *
+ * 
  */
 public class FlowIntersect {
 	MatchType matchType;
-	long dpid;
-	OFMatch match;
 	FlowEntry flowEntry;
 	public boolean maybeSubset;
 	public boolean maybeSuperset;
 
 	public FlowIntersect(FlowEntry flowEntry) {
-		this.dpid = FlowEntry.ALL_DPIDS;
-		this.match =  (OFMatch) flowEntry.getRuleMatch().clone();
 		this.matchType = MatchType.UNKNOWN;
 		this.flowEntry = flowEntry;
 		this.maybeSubset = true;
 		this.maybeSuperset = true;
 	}
 
-	public long getDPID() {
-		return this.dpid;
-	}
-	public void setDPID(long dpid) {
-		this.dpid = dpid;
-	}
-
 	public MatchType getMatchType() {
 		return this.matchType;
 	}
-	public FlowIntersect setMatchType( MatchType matchType) {
+
+	public FlowIntersect setMatchType(MatchType matchType) {
 		this.matchType = matchType;
 		return this;
-	}
-
-	public OFMatch getMatch() {
-		return this.match;
-	}
-	public void setMatch(OFMatch match) {
-		this.match = match;
-	}
-
-	public long getDpid() {
-		return dpid;
-	}
-
-	public void setDpid(long dpid) {
-		this.dpid = dpid;
 	}
 
 	public FlowEntry getFlowEntry() {
@@ -68,4 +43,32 @@ public class FlowIntersect {
 	public void setFlowEntry(FlowEntry flowEntry) {
 		this.flowEntry = flowEntry;
 	}
+
+	public OFMatch getMatch() {
+		return this.flowEntry.getRuleMatch();
+	}
+
+	public void setMatch(OFMatch match) {
+		this.flowEntry.setRuleMatch(match);
+	}
+
+	public long getDpid() {
+		return this.flowEntry.getDpid();
+	}
+
+	public void setDpid(long dpid) {
+		this.flowEntry.setDpid(dpid);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FlowIntersect[matchType=" + matchType + ",flowEntry="
+				+ flowEntry + "]";
+	}
+
 }

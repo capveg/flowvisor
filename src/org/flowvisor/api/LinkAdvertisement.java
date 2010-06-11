@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * 
  * @author capveg
- *
+ * 
  */
 public class LinkAdvertisement {
 	String srcDPID;
@@ -17,13 +17,11 @@ public class LinkAdvertisement {
 	String dstDPID;
 	int dstPort;
 	// list of key=value pairs, for extensibility
-	HashMap<String,String> attributes;
+	HashMap<String, String> attributes;
 
 	protected LinkAdvertisement() {
 		// do nothing, for a java bean
 	}
-
-
 
 	public LinkAdvertisement(String srcDPID, int srcPort, String dstDPID,
 			int dstPort) {
@@ -33,8 +31,6 @@ public class LinkAdvertisement {
 		this.dstDPID = dstDPID;
 		this.dstPort = dstPort;
 	}
-
-
 
 	public String getSrcDPID() {
 		return srcDPID;
@@ -77,30 +73,30 @@ public class LinkAdvertisement {
 	}
 
 	public void setAttribute(String key, String value) {
-		if(this.attributes == null)
-			this.attributes = new HashMap<String,String>();
-		this.attributes.put(key,value);
+		if (this.attributes == null)
+			this.attributes = new HashMap<String, String>();
+		this.attributes.put(key, value);
 	}
 
 	/**
 	 * I *SWEAR* XMLRPC is supposed to be able to handle this for me... :-(
-	 *
+	 * 
 	 * @return a key=value paired map of information on this link
 	 */
 
 	public Map<String, String> toMap() {
-		Map<String,String> map = new HashMap<String,String>();
+		Map<String, String> map = new HashMap<String, String>();
 		map.put("srcDPID", srcDPID);
-		map.put("srcPort",String.valueOf(srcPort));
+		map.put("srcPort", String.valueOf(srcPort));
 		map.put("dstDPID", dstDPID);
-		map.put("dstPort",String.valueOf(dstPort));
+		map.put("dstPort", String.valueOf(dstPort));
 		String attribs = "";
-		for(String attrib : attributes.keySet()) {
+		for (String attrib : attributes.keySet()) {
 			if (!attribs.equals(""))
-				attribs+=",";
-			attribs+=attrib + "=" + attributes.get(attrib);
+				attribs += ",";
+			attribs += attrib + "=" + attributes.get(attrib);
 		}
-		map.put("attributes",attribs);
+		map.put("attributes", attribs);
 		return map;
 	}
 

@@ -7,14 +7,14 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * @author capveg
- *
+ * 
  */
 public class XidPair {
 	int xid;
 	FVSlicer fvSlicer;
 
 	public XidPair(int xid, FVSlicer fvSlicer) {
-		this.xid =xid;
+		this.xid = xid;
 		this.fvSlicer = fvSlicer;
 	}
 

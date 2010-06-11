@@ -18,19 +18,21 @@ public class SSLWebServer extends WebServer {
 	}
 
 	@Override
-	protected
-	ServerSocket createServerSocket(int pPort, int backlog, java.net.InetAddress addr){
+	protected ServerSocket createServerSocket(int pPort, int backlog,
+			java.net.InetAddress addr) {
 		try {
-			SSLServerSocketFactory sslFactory= new SSLServerSocketFactoryImpl();
+			SSLServerSocketFactory sslFactory = new SSLServerSocketFactoryImpl();
 			String[] ciphers = sslFactory.getDefaultCipherSuites();
-			if(ciphers.length == 0 )
-				throw new RuntimeException("Need to configure SSL: no ciphers found");
+			if (ciphers.length == 0)
+				throw new RuntimeException(
+						"Need to configure SSL: no ciphers found");
 			else {
-				FVLog.log(LogLevel.DEBUG, null, "SSL Supports " + ciphers.length + " Ciphers:: ");
-				for(int i=0 ; i < ciphers.length; i++)
+				FVLog.log(LogLevel.DEBUG, null, "SSL Supports "
+						+ ciphers.length + " Ciphers:: ");
+				for (int i = 0; i < ciphers.length; i++)
 					FVLog.log(LogLevel.DEBUG, null, "		" + ciphers[i]);
 			}
-			return sslFactory.createServerSocket(pPort,backlog,addr);
+			return sslFactory.createServerSocket(pPort, backlog, addr);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

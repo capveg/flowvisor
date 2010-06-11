@@ -15,11 +15,13 @@ public class FVQueueStatisticsRequest extends OFQueueStatisticsRequest
 
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + msg);
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: "
+				+ msg);
 	}
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
 		fvSlicer.sendMsg(msg);

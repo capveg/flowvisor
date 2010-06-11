@@ -14,12 +14,14 @@ public class FVFlowStatisticsReply extends OFFlowStatisticsReply implements
 		SlicableStatistic, ClassifiableStatistic {
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: " + msg);
 	}
 
 	/**
-	 * Rewrite flowstats replies to include only the stats that are in this slice's flowspace
+	 * Rewrite flowstats replies to include only the stats that are in this
+	 * slice's flowspace
 	 */
 
 	@Override
@@ -27,8 +29,9 @@ public class FVFlowStatisticsReply extends OFFlowStatisticsReply implements
 		// TODO : implement slicing here; remove irrelevant flows
 		// TODO: serve this from cache?
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if (fvSlicer == null )
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
+		if (fvSlicer == null)
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping unclassifiable msg: " + msg);
 		else {
 			fvSlicer.sendMsg(msg);
 		}

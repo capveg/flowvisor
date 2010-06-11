@@ -5,8 +5,9 @@ package org.flowvisor.exceptions;
 
 /**
  * Signal that an action in an actions list was not allowed
+ * 
  * @author capveg
- *
+ * 
  */
 public class ActionDisallowedException extends FVException {
 

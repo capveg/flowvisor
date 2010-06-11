@@ -4,10 +4,11 @@
 package org.flowvisor.events;
 
 /**
- * Basic unit of information passed between FV's logical units
- * Derived classes express the specific msg information
+ * Basic unit of information passed between FV's logical units Derived classes
+ * express the specific msg information
+ * 
  * @author capveg
- *
+ * 
  */
 public class FVEvent {
 	private FVEventHandler src, dst;
@@ -19,6 +20,7 @@ public class FVEvent {
 
 	/**
 	 * Get the sending msg handler (could be null)
+	 * 
 	 * @return
 	 */
 	public FVEventHandler getSrc() {
@@ -27,7 +29,9 @@ public class FVEvent {
 
 	/**
 	 * Set the sending Event handler
-	 * @param src could be null
+	 * 
+	 * @param src
+	 *            could be null
 	 */
 	public void setSrc(FVEventHandler src) {
 		this.src = src;
@@ -35,13 +39,16 @@ public class FVEvent {
 
 	/**
 	 * Get the destination of this message
+	 * 
 	 * @return dst dst reference
 	 */
 	public FVEventHandler getDst() {
 		return dst;
 	}
+
 	/**
 	 * Set the destination Event handler
+	 * 
 	 * @param dst
 	 */
 	public void setDst(FVEventHandler dst) {

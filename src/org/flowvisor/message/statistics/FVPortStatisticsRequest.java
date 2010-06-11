@@ -17,16 +17,19 @@ public class FVPortStatisticsRequest extends OFPortStatisticsRequest implements
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
 		// TODO: make sure to prune response (OFPP_ALL?)
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if (fvSlicer == null )
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
+		if (fvSlicer == null)
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping unclassifiable msg: " + msg);
 		else {
 			fvSlicer.sendMsg(msg);
 		}
 	}
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + msg);
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: "
+				+ msg);
 	}
 
 }

@@ -18,7 +18,8 @@ public class FVActionVirtualLanPriorityCodePoint extends
 	public void slice(List<OFAction> approvedActions, OFMatch match,
 			FVClassifier fvClassifier, FVSlicer fvSlicer)
 			throws ActionDisallowedException {
-		FVLog.log(LogLevel.CRIT, fvSlicer, "action slicing unimplemented for type: " + this);
+		FVLog.log(LogLevel.CRIT, fvSlicer,
+				"action slicing unimplemented for type: " + this);
 		approvedActions.add(this);
 	}
 

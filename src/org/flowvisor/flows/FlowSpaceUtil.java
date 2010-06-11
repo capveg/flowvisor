@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.flowvisor.config.FVConfig;
-import org.flowvisor.log.FVLog;
-import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPort;
 import org.openflow.protocol.action.OFAction;
@@ -55,8 +53,10 @@ public class FlowSpaceUtil {
 	}
 
 	/**
-	 * Return the flowspace controlled by this slice Note that this correctly
-	 * removes the "holes" caused by higher priority flowspace entries
+	 * Return the flowspace controlled by this slice
+	 * 
+	 * Note that this correctly removes the "holes" caused by higher priority
+	 * flowspace entries
 	 * 
 	 * @param sliceName
 	 * @return
@@ -206,13 +206,12 @@ public class FlowSpaceUtil {
 
 	public static FlowMap getSubFlowMap(FlowMap flowMap, long dpid,
 			OFMatch match) {
-		// TODO
-		throw new RuntimeException("buggy!  need to fix!");
-		/*
-		 * FlowMap neoFlowMap = new LinearFlowMap(); List<FlowEntry> rules =
-		 * flowMap.matches(dpid, match); for (FlowEntry rule : rules)
-		 * flowMap.addRule(flowMap.countRules(), rule); return neoFlowMap;
-		 */
+		FlowMap neoFlowMap = new LinearFlowMap();
+		List<FlowIntersect> flowIntersects = flowMap.intersects(dpid, match);
+		for (FlowIntersect flowIntersect : flowIntersects)
+			neoFlowMap.addRule(flowIntersect.getFlowEntry().clone());
+
+		return neoFlowMap;
 	}
 
 	public static String toString(List<OFAction> actionsList) {

@@ -11,18 +11,16 @@ import java.util.TreeSet;
 import org.openflow.protocol.OFMatch;
 
 /**
- * @author capveg
- *	Implements FlowMap, but in a slow and linear fashion.
- *
- * (Hopefully Peyman will implement something faster :-)
- *
+ * @author capveg Implements FlowMap, but in a slow and linear fashion.
+ * 
+ *         (Hopefully Peyman will implement something faster :-)
+ * 
  */
 public class LinearFlowMap implements FlowMap {
 
-
 	SortedSet<FlowEntry> rules;
 
-	public LinearFlowMap () {
+	public LinearFlowMap() {
 		this.rules = new TreeSet<FlowEntry>();
 	}
 
@@ -33,8 +31,8 @@ public class LinearFlowMap implements FlowMap {
 		List<FlowEntry> list = matches(dpid, m);
 		// we should match zero or one thing
 		int size = list.size();
-		assert(size <= 1);		// should not get more than 1 result here
-		if ( size == 1)
+		assert (size <= 1); // should not get more than 1 result here
+		if (size == 1)
 			return list.get(0);
 		return null;
 	}
@@ -50,12 +48,12 @@ public class LinearFlowMap implements FlowMap {
 	}
 
 	/**
-	 * Lame: linear search to delete something in a sorted set
-	 * ... but it's sorted by priority, not ID
+	 * Lame: linear search to delete something in a sorted set ... but it's
+	 * sorted by priority, not ID
 	 */
 	@Override
 	public void removeRule(int id) {
-		for(FlowEntry flowEntry: this.getRules())
+		for (FlowEntry flowEntry : this.getRules())
 			if (flowEntry.getId() == id) {
 				this.rules.remove(flowEntry);
 				break;
@@ -69,16 +67,16 @@ public class LinearFlowMap implements FlowMap {
 	public List<FlowEntry> matches(long dpid, OFMatch match) {
 		List<FlowEntry> results = new ArrayList<FlowEntry>();
 		List<FlowIntersect> interList = intersects(dpid, match);
-		for(FlowIntersect inter: interList) {
+		for (FlowIntersect inter : interList) {
 			results.add(inter.getFlowEntry());
 		}
 		return results;
 	}
 
 	/**
-	 * Step through each FlowEntry in order and match on it.
-	 * If we get EQUALS or SUBSET, then stop.
-	 *
+	 * Step through each FlowEntry in order and match on it. If we get EQUALS or
+	 * SUBSET, then stop.
+	 * 
 	 * IF we get SUPERSET or INTERSECT, then keep going and merge the results.
 	 */
 
@@ -90,39 +88,45 @@ public class LinearFlowMap implements FlowMap {
 		MatchType matchType;
 		boolean needMerge = false;
 
-		for(FlowEntry rule : rules) {
+		for (FlowEntry rule : rules) {
 			intersect = rule.matches(dpid, match);
 			matchType = intersect.getMatchType();
 
-			if(matchType == MatchType.NONE)
+			if (matchType == MatchType.NONE)
 				continue;
 
 			results.add(intersect);
-			if ((matchType == MatchType.EQUAL) || (matchType == MatchType.SUBSET))
+			if ((matchType == MatchType.EQUAL)
+					|| (matchType == MatchType.SUBSET))
 				break;
-			if ((matchType == MatchType.INTERSECT) || (matchType == MatchType.SUPERSET))
+			if ((matchType == MatchType.INTERSECT)
+					|| (matchType == MatchType.SUPERSET))
 				needMerge = true;
-			else  // else, wtf?
-				throw new RuntimeException("Unknown MatchType = " + intersect.getMatchType());
+			else
+				// else, wtf?
+				throw new RuntimeException("Unknown MatchType = "
+						+ intersect.getMatchType());
 		}
-		if(needMerge && ( results.size() > 1 ))
-			return priorityMerge(results);	 // expensive, avoid if possible
+		if (needMerge && (results.size() > 1))
+			return priorityMerge(results); // expensive, avoid if possible
 		else
 			return results;
 	}
 
 	/**
-	 * Step through all of the partially computed results, compute the intersections
-	 * and remove the intersections by priority.
-	 *
-	 * Could be O(n^2) in worst case, but we expect that intersections are rare (?)
-	 *
-	 *
+	 * Step through all of the partially computed results, compute the
+	 * intersections and remove the intersections by priority.
+	 * 
+	 * Could be O(n^2) in worst case, but we expect that intersections are rare
+	 * (?)
+	 * 
+	 * 
 	 * Uses the fact that the order of the list is also the priority order
-	 *
-	 *  FIXME :: come back and make this faster
-	 *
-	 * @param mergeList List of all FlowEntry's from matches(), including overlaps.
+	 * 
+	 * FIXME :: come back and make this faster
+	 * 
+	 * @param mergeList
+	 *            List of all FlowEntry's from matches(), including overlaps.
 	 * @return A pruned list of just the non-completely-overlapping matches
 	 */
 
@@ -133,28 +137,29 @@ public class LinearFlowMap implements FlowMap {
 		results.add(mergeList.get(0));
 		mergeList.remove(0);
 
-		for(FlowIntersect merge: mergeList) {
+		for (FlowIntersect merge : mergeList) {
 			eclipsed = false;
-			for(FlowIntersect result : results) {
-				/* is this new match eclipsed by previous entries?
-				 *
-				 *  with each successive matches() call, the part that
-				 *  over laps result is removed, so that if a merge rule
-				 *  is not fully eclipsed by any one result, but is fully
-				 *  eclipsed by a sum of results, we will catch that too
-				 *
-				 *   FIXME: needs testing!
+			for (FlowIntersect result : results) {
+				/*
+				 * is this new match eclipsed by previous entries?
+				 * 
+				 * with each successive matches() call, the part that over laps
+				 * result is removed, so that if a merge rule is not fully
+				 * eclipsed by any one result, but is fully eclipsed by a sum of
+				 * results, we will catch that to
 				 */
-				merge = merge.getFlowEntry().matches(merge.getDpid(),
-							result.getMatch());
+				merge = merge.getFlowEntry().matches(result.getDpid(),
+						result.getMatch());
 				matchType = merge.getMatchType();
-				if ((matchType == MatchType.EQUAL) || (matchType == MatchType.SUBSET)) {
+				if ((matchType == MatchType.EQUAL)
+						|| (matchType == MatchType.SUBSET)) {
 					eclipsed = true;
 					break;
 				}
 			}
-			if (! eclipsed ) 			// add this match to the list iff it's
-				results.add(merge);  	// not complete eclipsed by something before it
+			if (!eclipsed) // add this match to the list iff it's
+				results.add(merge); // not complete eclipsed by something before
+			// it
 		}
 		return results;
 	}
@@ -165,14 +170,13 @@ public class LinearFlowMap implements FlowMap {
 	}
 
 	/**
-	 * @param rules the rules to set
-	 *
-	 * DO NOT REMOVE!  This breaks XML encoding/decoding
+	 * @param rules
+	 *            the rules to set
+	 * 
+	 *            DO NOT REMOVE! This breaks XML encoding/decoding
 	 */
 	public void setRules(SortedSet<FlowEntry> rules) {
 		this.rules = rules;
 	}
-
-
 
 }

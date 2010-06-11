@@ -3,27 +3,29 @@
  */
 package org.flowvisor.config;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * A directory in the config hierarchy.
- * Does not support multiple nodes with the same name; they will overwrite
+ * A directory in the config hierarchy. Does not support multiple nodes with the
+ * same name; they will overwrite
+ * 
  * @author capveg
- *
+ * 
  */
 public class ConfDirEntry extends ConfigEntry {
-	HashMap<String,ConfigEntry> entries;
+	HashMap<String, ConfigEntry> entries;
+
 	/**
 	 * A directory entry in the Config Hierarchy
+	 * 
 	 * @param name
 	 */
 	public ConfDirEntry(String name) {
 		super(name, ConfigType.DIR);
-		this.entries = new HashMap<String,ConfigEntry>();
+		this.entries = new HashMap<String, ConfigEntry>();
 	}
 
 	public ConfDirEntry() {
@@ -40,7 +42,9 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Lookup an entry in this directory
-	 * @param name entry name
+	 * 
+	 * @param name
+	 *            entry name
 	 * @return
 	 */
 
@@ -50,6 +54,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Add an entry to this directory
+	 * 
 	 * @param entry
 	 */
 	public void add(ConfigEntry entry) {
@@ -58,7 +63,9 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Remove an entry from this direclty
-	 * @param name name of entry
+	 * 
+	 * @param name
+	 *            name of entry
 	 */
 	public void remove(String name) {
 		entries.remove(name);
@@ -66,6 +73,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Return a list of entries for this node
+	 * 
 	 * @return
 	 */
 	public List<String> list() {
@@ -75,6 +83,7 @@ public class ConfDirEntry extends ConfigEntry {
 	public Collection<ConfigEntry> listEntries() {
 		return entries.values();
 	}
+
 	@Override
 	public String[] getValue() {
 		return (String[]) entries.keySet().toArray(new String[entries.size()]);

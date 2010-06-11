@@ -14,15 +14,17 @@ public class FVPortStatisticsReply extends OFPortStatisticsReply implements
 		SlicableStatistic, ClassifiableStatistic {
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		FVLog.log(LogLevel.WARN, fvSlicer, "dropping unexpected msg: " + msg);
 	}
 
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
 		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if (fvSlicer == null )
-			FVLog.log(LogLevel.WARN, fvClassifier, "dropping unclassifiable msg: " + msg);
+		if (fvSlicer == null)
+			FVLog.log(LogLevel.WARN, fvClassifier,
+					"dropping unclassifiable msg: " + msg);
 		else {
 			fvSlicer.sendMsg(msg);
 		}

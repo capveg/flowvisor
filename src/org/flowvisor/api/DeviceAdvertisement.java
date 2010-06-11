@@ -13,7 +13,7 @@ public class DeviceAdvertisement {
 	String dp_desc;
 
 	// list of key=value pairs, for extensibility
-	HashMap<String,String> attributes;
+	HashMap<String, String> attributes;
 
 	protected DeviceAdvertisement() {
 		// do nothing, for java beans
@@ -31,16 +31,17 @@ public class DeviceAdvertisement {
 	}
 
 	/**
-	 * This is a fugly hack to turn these structs into something
-	 * that our XMLRPC encoder can handler
-	 *
+	 * This is a fugly hack to turn these structs into something that our XMLRPC
+	 * encoder can handler
+	 * 
 	 * FIXME: figure out if a better XMLRPC encoder can solve this for us
+	 * 
 	 * @return
 	 */
-	public Map<String,Object> toMap(){
-		Map<String, Object> map = new HashMap<String,Object>();
-		map.put("dpid",this.dpid);
-		map.put("mfr_desc",this.mfr_desc);
+	public Map<String, Object> toMap() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("dpid", this.dpid);
+		map.put("mfr_desc", this.mfr_desc);
 		map.put("hw_desc", this.hw_desc);
 		map.put("sw_desc", this.sw_desc);
 		map.put("serial_num", this.serial_num);
@@ -103,17 +104,17 @@ public class DeviceAdvertisement {
 	public void setAttributes(HashMap<String, String> attributes) {
 		this.attributes = attributes;
 	}
+
 	public void setAttribute(String key, String value) {
-		if(this.attributes == null)
-			this.attributes = new HashMap<String,String>();
+		if (this.attributes == null)
+			this.attributes = new HashMap<String, String>();
 		this.attributes.put(key, value);
 	}
+
 	public String getAttribute(String key) {
 		if (this.attributes == null)
 			return null;
 		return this.attributes.get(key);
 	}
-
-
 
 }

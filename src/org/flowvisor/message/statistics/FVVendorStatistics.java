@@ -7,11 +7,12 @@ import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.statistics.*;
 
-public class FVVendorStatistics extends OFVendorStatistics implements SlicableStatistic,
-		ClassifiableStatistic {
+public class FVVendorStatistics extends OFVendorStatistics implements
+		SlicableStatistic, ClassifiableStatistic {
 
 	@Override
-	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier, FVSlicer fvSlicer) {
+	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
+			FVSlicer fvSlicer) {
 		// TODO Auto-generated method stub
 
 	}

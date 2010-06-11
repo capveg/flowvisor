@@ -15,30 +15,33 @@ public class FVStatisticsRequest extends OFStatisticsRequest implements
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
-		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: " + this);
+		FVLog.log(LogLevel.WARN, fvClassifier, "dropping unexpected msg: "
+				+ this);
 	}
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		// TODO: come back and retool FV stats handling to make this less fugly
 		List<OFStatistics> statsList = this.getStatistics();
-		if(statsList.size() > 0) {	// if there is a body, do body specific parsing
+		if (statsList.size() > 0) { // if there is a body, do body specific
+									// parsing
 			OFStatistics stat = statsList.get(0);
-			assert(stat instanceof SlicableStatistic);
-			((SlicableStatistic)stat).sliceFromController(this, fvClassifier, fvSlicer);
+			assert (stat instanceof SlicableStatistic);
+			((SlicableStatistic) stat).sliceFromController(this, fvClassifier,
+					fvSlicer);
 		} else {
 			// else just slice by xid and hope for the best
 			FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
-			FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: " + this);
+			FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: "
+					+ this);
 			fvClassifier.getMsgStream().write(this);
 		}
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() +
-			";st=" + this.getStatisticType();
-			// ";mfr=" + this.getManufacturerDescription() +
+		return super.toString() + ";st=" + this.getStatisticType();
+		// ";mfr=" + this.getManufacturerDescription() +
 	}
 
 }

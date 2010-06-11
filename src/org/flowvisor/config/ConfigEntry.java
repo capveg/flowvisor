@@ -11,17 +11,17 @@ import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 
-
 /**
  * An abstract class entry in the Config
+ * 
  * @author capveg
- *
+ * 
  */
 public class ConfigEntry {
 	String name;
 	ConfigType type;
-	Set<FVEventHandler> watchList;		// never gets saved across sessions
-	boolean persistent;   				// does this config entry get saved across FV sessions?
+	Set<FVEventHandler> watchList; // never gets saved across sessions
+	boolean persistent; // does this config entry get saved across FV sessions?
 
 	public ConfigEntry(ConfigType type) {
 		this.type = type;
@@ -57,8 +57,9 @@ public class ConfigEntry {
 	}
 
 	/**
-	 * Add this {@link FVEventHandler} to the list of things that get updated if this
-	 * config entry changes
+	 * Add this {@link FVEventHandler} to the list of things that get updated if
+	 * this config entry changes
+	 * 
 	 * @param eh
 	 */
 	public void watch(FVEventHandler eh) {
@@ -66,7 +67,9 @@ public class ConfigEntry {
 	}
 
 	/**
-	 * Remove this {@link FVEventHandler} from the list of things that get updated on config change
+	 * Remove this {@link FVEventHandler} from the list of things that get
+	 * updated on config change
+	 * 
 	 * @param eh
 	 */
 	public void unwatch(FVEventHandler eh) {
@@ -75,6 +78,7 @@ public class ConfigEntry {
 
 	/**
 	 * Convert from string to the given value
+	 * 
 	 * @param val
 	 */
 	public void setValue(String val) {
@@ -84,26 +88,30 @@ public class ConfigEntry {
 
 	/**
 	 * Convert the node's value to a string
+	 * 
 	 * @return
 	 */
 	public String[] getValue() {
-		// FIXME: find the compile-time java way of ensuring that this gets superclassed
+		// FIXME: find the compile-time java way of ensuring that this gets
+		// superclassed
 		throw new RuntimeException("need to override this... ");
 	}
 
 	void sendUpdates() {
-		for(FVEventHandler eh : watchList) {
+		for (FVEventHandler eh : watchList) {
 			try {
 				eh.handleEvent(new ConfigUpdateEvent(eh, this.name));
 			} catch (UnhandledEvent e) {
-				FVLog.log(LogLevel.CRIT, eh, "Doesn't handle ConfigUpdateEvent but asked for them !?");
+				FVLog
+						.log(LogLevel.CRIT, eh,
+								"Doesn't handle ConfigUpdateEvent but asked for them !?");
 			}
 		}
 	}
 
 	/**
-	 * Does this config entry get saved across FV sessions?
-	 * Default is yes.
+	 * Does this config entry get saved across FV sessions? Default is yes.
+	 * 
 	 * @return
 	 */
 	public boolean getPersistent() {
@@ -112,6 +120,7 @@ public class ConfigEntry {
 
 	/**
 	 * Set whether this config entry gets saved across FV sessions
+	 * 
 	 * @param val
 	 */
 	public void setPersistent(boolean val) {
