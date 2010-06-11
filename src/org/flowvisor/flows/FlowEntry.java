@@ -455,16 +455,11 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable{
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public FlowEntry clone() throws CloneNotSupportedException {
-		FlowEntry ret= new FlowEntry(
-				this.dpid,
-				this.ruleMatch.clone(),
-				this.priority,
-				actionsList);
+	public FlowEntry clone() {
+		FlowEntry ret = new FlowEntry(this.dpid, this.ruleMatch.clone(),
+				this.priority, actionsList); // fixme
 		ret.setId(this.id);
+		ret.setActionsList(new LinkedList<OFAction>(actionsList));
 		return ret;
 	}
-
-
-
 }

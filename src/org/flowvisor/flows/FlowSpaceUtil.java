@@ -72,12 +72,7 @@ public class FlowSpaceUtil {
 		for (FlowIntersect inter : intersections) {
 			FlowEntry rule = inter.getFlowEntry();
 			FlowEntry neoRule = null;
-			try {
-				neoRule = rule.clone();
-			} catch (CloneNotSupportedException e) {
-				FVLog.log(LogLevel.FATAL, null,
-						"WTF!? FlowEntry not cloneable? " + e);
-			}
+			neoRule = rule.clone();
 			neoRule.setRuleMatch(inter.getMatch());
 			neoRule.setActionsList(new ArrayList<OFAction>());
 			for (OFAction action : rule.getActionsList()) {
