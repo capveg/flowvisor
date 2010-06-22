@@ -5,11 +5,11 @@ REQUIREMENTS:
 BUILD:
     - run `make` (or `ant` : Makefile is just a wrapper)
 
-CONFIGURE:
-    - Edit scripts/envs.sh to install dir (FIXME!)
-    - Create SSL and FlowVisor configs:
-        use ./scripts/config-gen-default.sh
-        - creates default-config.xml
+INSTALL:
+    - make install
+
+    This puts scripts and jars into a specified $prefix
+
 RUN: 
     To run flowvisor:
         ./scripts/flowvisor.sh config.xml
