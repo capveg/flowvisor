@@ -1,11 +1,17 @@
 #!/bin/sh
 
-base=`dirname $0`/..
+#base=PREFIX
 
-if [ -f $base/scripts/envs.sh ] ; then
-    . $base/scripts/envs.sh
+if [ -z $base ] ; then
+    envs=`dirname $0`/../scripts/envs.sh
 else
-    echo "Could not find envs.sh: dying..." >&2
+    envs=$base/etc/flowvisor/envs.sh
+fi
+
+if [ -f $envs ] ; then
+    . $envs
+else
+    echo "Could not find $envs: dying..." >&2
     exit 1
 fi
 
@@ -17,7 +23,7 @@ else
     keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keyalg RSA
 fi
 
-echo "Generating default FlowVisor config file to $config"
-java -cp $classpath org.flowvisor.config.FVConfig $config
+echo "Generating default FlowVisor config file to $@"
+java -cp $classpath org.flowvisor.config.FVConfig $@
 
 echo "You will need to create new slices using the root account"

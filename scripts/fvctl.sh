@@ -1,13 +1,18 @@
 #!/bin/sh
 
-base=`dirname $0`/..
+#base=PREFIX
 
-if [ -f $base/scripts/envs.sh ] ; then
-    . $base/scripts/envs.sh
+if [ -z $base ] ; then
+    envs=`dirname $0`/../scripts/envs.sh
 else
-    echo "Could not find envs.sh: dying..." >&2
-    exit 1
+    envs=$base/etc/flowvisor/envs.sh
 fi
 
+if [ -f $envs ] ; then
+    . $envs
+else
+    echo "Could not find $envs: dying..." >&2
+    exit 1
+fi
 
 exec java -cp $classpath org.flowvisor.api.FVCtl $@

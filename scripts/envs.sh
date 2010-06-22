@@ -2,22 +2,29 @@
 
 SSL_KEYPASSWD=CHANGEME_PASSWD
 
-# base of source tree; needs rewrite for distribution
-base=/home/capveg/git/proj/flowvisor/flowvisor-nwo-java
+#configbase=PREFIX
 
-SSL_KEYSTORE=$base/mySSLKeyStore
+if [ -z $configbase ] ; then
+    configbase=`dirname $0`/..
+    jars=$configbase/lib
+    dist=$configbase/dist
+    SSL_KEYSTORE=$configbase/mySSLKeyStore
+else
+    jars=$configbase/libexec/flowvisor
+    dist=$configbase/libexec/flowvisor
+    SSL_KEYSTORE=$configbase/etc/flowvisor/mySSLKeyStore
+fi
 
-config=$base/default-config.xml
 
 # Setup some environmental variables
-classpath=$base/lib/openflow.jar:\
-$base/lib/xmlrpc-client-3.1.3.jar:\
-$base/lib/xmlrpc-common-3.1.3.jar:\
-$base/lib/xmlrpc-server-3.1.3.jar:\
-$base/lib/commons-logging-1.1.jar:\
-$base/lib/ws-commons-util-1.0.2.jar:\
-$base/lib/jsse.jar:\
-$base/dist/flowvisor.jar
+classpath=$jars/openflow.jar:\
+$jars/xmlrpc-client-3.1.3.jar:\
+$jars/xmlrpc-common-3.1.3.jar:\
+$jars/xmlrpc-server-3.1.3.jar:\
+$jars/commons-logging-1.1.jar:\
+$jars/ws-commons-util-1.0.2.jar:\
+$jars/jsse.jar:\
+$dist/flowvisor.jar
 
 # ssl options for the jvm
 

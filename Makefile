@@ -20,5 +20,8 @@ run:
 count: 
 	@find src -name \*.java | xargs wc -l | sort -n
 
+install:
+	./scripts/install-script.sh
+
 clean:
 	ant clean

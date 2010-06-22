@@ -2,6 +2,7 @@
 
 #base=PREFIX
 
+
 if [ -z $base ] ; then
     envs=`dirname $0`/../scripts/envs.sh
 else
@@ -15,5 +16,5 @@ else
     exit 1
 fi
 
-echo Staring FlowVisor >&2 
-exec java $sslopts -cp $classpath org.flowvisor.FlowVisor $@
+# just in case we have to invoke things by hand
+javac -cp $classpath $@
