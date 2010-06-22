@@ -1,10 +1,10 @@
 package org.flowvisor.flows;
 
+import junit.framework.TestCase;
+
 import org.flowvisor.config.DefaultConfig;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
-
-import junit.framework.TestCase;
 
 public class FlowEntryTest extends TestCase {
 
@@ -88,5 +88,24 @@ public class FlowEntryTest extends TestCase {
 		TestCase.assertEquals(MatchType.EQUAL, flowEntry.matches(1, vpcp2)
 				.getMatchType());
 
+	}
+
+	public void testClone() {
+		OFMatch match = new OFMatch();
+		match.fromString("nw_src=128.8.0.0/16");
+		FlowEntry flowEntry = new FlowEntry(1, match, new SliceAction("alice",
+				SliceAction.WRITE));
+		FlowEntry neo = flowEntry.clone();
+
+		TestCase.assertEquals(match, neo.getRuleMatch());
+	}
+
+	public void testIntersect() {
+		OFMatch match = new OFMatch();
+		match.fromString("nw_src=128.8.0.0/16");
+		FlowEntry flowEntry = new FlowEntry(1, match, new SliceAction("alice",
+				SliceAction.WRITE));
+		FlowIntersect intersect = flowEntry.matches(1, match);
+		TestCase.assertEquals(match, intersect.getMatch());
 	}
 }
