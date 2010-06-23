@@ -59,4 +59,9 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ";" + this.getMatch().toString();
+	}
+
 }
