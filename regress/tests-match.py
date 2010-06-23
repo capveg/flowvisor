@@ -239,8 +239,18 @@ try:
     00 00 00 0b 00 00 00 00 00 00 00 00 00 00 01 e1
     00 00 00 00 00 00 02 58
     '''
-    h.runTest(name="flow_expire in for None ",timeout=timeout,  events= [
+    h.runTest(name="flow_expire in for All ",timeout=timeout,  events= [
     		TestEvent( "send","switch","switch1", flow_expire ),
+    		TestEvent( "recv","guest","alice",  flow_expire),
+    		TestEvent( "recv","guest","bob",  flow_expire),
+    		TestEvent( "recv","guest","cathy",  flow_expire),
+    		TestEvent( "recv","guest","doug",  flow_expire),
+    		TestEvent( "recv","guest","eric",  flow_expire),
+    		TestEvent( "recv","guest","frank",  flow_expire),
+    		TestEvent( "recv","guest","george",  flow_expire),
+    		TestEvent( "recv","guest","hank",  flow_expire),
+    		TestEvent( "recv","guest","ingrid",  flow_expire),
+            TestEvent( "clear?","switch","switch1", 'nil')
     		])
     flow_expire = FvRegress.OFVERSION + '''0b 00 58 00 00 00 01 00 3f ff bf 00 00 00 00
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -252,6 +262,12 @@ try:
     h.runTest(name="flow_expire in for doug ",timeout=timeout,  events= [
     		TestEvent( "send","switch","switch1", flow_expire ),
     		TestEvent( "recv","guest","doug",  flow_expire),
+    		TestEvent( "recv","guest","eric",  flow_expire),
+    		TestEvent( "recv","guest","frank",  flow_expire),
+    		TestEvent( "recv","guest","george",  flow_expire),
+    		TestEvent( "recv","guest","hank",  flow_expire),
+    		TestEvent( "recv","guest","ingrid",  flow_expire),
+            TestEvent( "clear?","switch","switch1", 'nil')
     		])
     flow_expire = FvRegress.OFVERSION + '''0b 00 58 00 00 00 03 00 3f ff 7f 00 00 00 00
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -263,6 +279,11 @@ try:
     h.runTest(name="flow_expire in for eric ",timeout=timeout,  events= [
     		TestEvent( "send","switch","switch1", flow_expire ),
     		TestEvent( "recv","guest","eric",  flow_expire),
+    		TestEvent( "recv","guest","frank",  flow_expire),
+    		TestEvent( "recv","guest","george",  flow_expire),
+    		TestEvent( "recv","guest","hank",  flow_expire),
+    		TestEvent( "recv","guest","ingrid",  flow_expire),
+            TestEvent( "clear?","switch","switch1", 'nil')
     		])
 
 #########################################
