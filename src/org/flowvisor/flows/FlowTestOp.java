@@ -28,9 +28,9 @@ public class FlowTestOp {
 			int wildX, int wildY) {
 		TestOp ret;
 		if (((wildX & wildIndex) == 0) && ((wildY & wildIndex) == 0)) { // is
-																		// neither
-																		// field
-																		// wildcarded?
+			// neither
+			// field
+			// wildcarded?
 			ret = TestOp.EQUAL;
 		} else if ((wildX & wildIndex) == 0) { // is just X not wildcarded?
 			ret = TestOp.LEFT;
@@ -45,11 +45,11 @@ public class FlowTestOp {
 		int wildCards = interMatch.getWildcards();
 		if (ret != TestOp.WILD)
 			interMatch.setWildcards(wildCards & (~wildIndex)); // disable
-																// wildCards for
-																// this field
+		// wildCards for
+		// this field
 		else
 			interMatch.setWildcards(wildCards | wildIndex); // enable wildCards
-															// for this field
+		// for this field
 		return ret;
 	}
 
@@ -146,14 +146,17 @@ public class FlowTestOp {
 		// turn off all bits for this match and then turn on the used ones
 		wildCards = (wildCards & ~((1 << OFMatch.OFPFW_NW_SRC_BITS) - 1) << maskShift)
 				| min_encoded << maskShift;
-		if (masklenX < masklenY)
+		if (masklenX < masklenY) {
 			flowIntersect.maybeSubset = false;
-		else if (masklenX > masklenY)
+			return y;
+		} else if (masklenX > masklenY) {
 			flowIntersect.maybeSuperset = false;
+			return x;
+		}
+
 		// note that b/c of how CIDR addressing works, there is no overlap that
 		// is not a SUB or SUPERSET
-
-		return (x & mask);
+		return x; // x == y; doesn't matter
 	}
 
 }
