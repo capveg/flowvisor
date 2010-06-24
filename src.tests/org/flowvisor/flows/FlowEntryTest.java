@@ -109,16 +109,4 @@ public class FlowEntryTest extends TestCase {
 		TestCase.assertEquals(match, intersect.getMatch());
 	}
 
-	public void testIntersectPort() {
-		OFMatch match = new OFMatch();
-		match.fromString("dl_src=00:00:00:00:00:02");
-		FlowEntry flowEntry = new FlowEntry(match, new SliceAction("alice",
-				SliceAction.WRITE));
-		OFMatch testMatch = new OFMatch();
-		testMatch.fromString("in_port=1,dl_src=00:00:00:00:00:01");
-		FlowIntersect flowIntersect = flowEntry.matches(2, testMatch);
-		TestCase.assertEquals(MatchType.NONE, flowIntersect.getMatchType());
-		// now, critically, make sure this is not modified
-		TestCase.assertEquals(match, flowIntersect.getMatch());
-	}
 }

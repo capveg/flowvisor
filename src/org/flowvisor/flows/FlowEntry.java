@@ -140,9 +140,11 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 	 * packet to an OFMatch using match.loadFromPacket()
 	 * 
 	 * @param dpid
-	 *            switch's DPID or
+	 *            switch's DPID
 	 * @param match
-	 * @return An FlowIntersect structure that describes the match
+	 * @return An FlowIntersect structure that describes the match. If
+	 *         matchType!=NONE, then the flowIntersect.getMatch() describes the
+	 *         intersection else flowIntersect.getMatch() is undefined
 	 */
 	public FlowIntersect matches(long dpid, OFMatch argMatch) {
 		FlowIntersect intersection;
