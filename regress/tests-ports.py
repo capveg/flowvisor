@@ -101,7 +101,7 @@ try:
             c9 01 00 01 00 00 00 1e d7 c3 cd c0 25 1b e6 dc
             ea 0c 72 6d 97 3f 2b 71 c2 e4 1b 6f bc 11 82 50'''
     h.runTest(name="packet_out; valid", timeout=timeout, events= [
-            # alice sends a FLOOD packet_out
+            # alice sends a FLOOD packet_out; alice has access to all ports
             TestEvent( "send","guest","alice", packet=packet_out_pAll),
             # fv expands it to ports=1,153,2,3 (yes, 153... to ensure there aren't huge jumps)
             TestEvent( "recv","switch","switch1", packet=packet_out_p0_aftr_port0),
