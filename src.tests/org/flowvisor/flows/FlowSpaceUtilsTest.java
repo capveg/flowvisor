@@ -44,10 +44,19 @@ public class FlowSpaceUtilsTest extends TestCase {
 
 	public void testByPortAll() {
 		// matches all ports and all dpids
-		FlowEntry flowEntry = new FlowEntry(new OFMatch(), new SliceAction(
+		OFMatch aliceMatch = new OFMatch();
+		aliceMatch.fromString("dl_src=00:00:00:00:00:01");
+		FlowEntry flowEntry1 = new FlowEntry(aliceMatch, new SliceAction(
 				"alice", SliceAction.WRITE));
+		flowEntry1.setPriority(1);
+		OFMatch bobMatch = new OFMatch();
+		bobMatch.fromString("in_port=3,dl_src=00:00:00:00:00:02");
+		FlowEntry flowEntry2 = new FlowEntry(bobMatch, new SliceAction("bob",
+				SliceAction.WRITE));
+		flowEntry2.setPriority(2); // has higher priority over fe1
 		FlowMap flowMap = new LinearFlowMap();
-		flowMap.addRule(flowEntry);
+		flowMap.addRule(flowEntry1);
+		flowMap.addRule(flowEntry2);
 		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(1, "alice", flowMap);
 		TestCase.assertEquals(1, ports.size());
 		TestCase.assertTrue(ports.contains(OFPort.OFPP_ALL.getValue()));
@@ -57,7 +66,6 @@ public class FlowSpaceUtilsTest extends TestCase {
 		ports = FlowSpaceUtil.getPortsBySlice(1, "alice", subFlowMap);
 		TestCase.assertEquals(1, ports.size());
 		TestCase.assertTrue(ports.contains(OFPort.OFPP_ALL.getValue()));
-
 	}
 
 	public void testGetSubFlowSpace() {

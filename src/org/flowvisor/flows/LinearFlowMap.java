@@ -148,14 +148,19 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 				 * eclipsed by any one result, but is fully eclipsed by a sum of
 				 * results, we will catch that to
 				 */
-				merge = merge.getFlowEntry().matches(result.getDpid(),
-						result.getMatch());
-				matchType = merge.getMatchType();
+				FlowIntersect tmpIntersect = merge.getFlowEntry().matches(
+						result.getDpid(), result.getMatch());
+				matchType = tmpIntersect.getMatchType();
+
 				if ((matchType == MatchType.EQUAL)
 						|| (matchType == MatchType.SUBSET)) {
 					eclipsed = true;
 					break;
+				} else if (matchType == MatchType.SUPERSET) {
+					merge = tmpIntersect; // then update with the intersection
 				}
+				// note: if matchtype == NONE, then tmpIntersect.getMatch() is
+				// undefined
 			}
 			if (!eclipsed) // add this match to the list iff it's
 				results.add(merge); // not complete eclipsed by something before
