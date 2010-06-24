@@ -104,9 +104,9 @@ public class FlowSpaceUtil {
 	 *            The slices name, e.g., "alice"
 	 * @return Set of ports
 	 */
-	public static Set<Short> getPortsBySlice(long dpid, String slice) {
+	public static Set<Short> getPortsBySlice(long dpid, String slice,
+			FlowMap flowmap) {
 		Set<Short> ret = new HashSet<Short>();
-		FlowMap flowmap = FVConfig.getFlowSpaceFlowMap();
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
 		boolean allPorts = false;
@@ -161,7 +161,8 @@ public class FlowSpaceUtil {
 				System.out.println(slice);
 			break;
 		case 3:
-			Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, args[2]);
+			Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, args[2],
+					FVConfig.getFlowSpaceFlowMap());
 			System.out.println("Slice " + args[2] + " on switch " + args[1]
 					+ " has access to port:");
 			if (ports.size() == 1

@@ -32,7 +32,8 @@ public class FlowSpaceUtilsTest extends TestCase {
 
 	public void testByPort() {
 		long dpid = 1;
-		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, "alice");
+		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(dpid, "alice",
+				FVConfig.getFlowSpaceFlowMap());
 		TestCase.assertEquals(3, ports.size());
 		TestCase.assertTrue(ports.contains(Short.valueOf((short) 0)));
 		TestCase.assertTrue(ports.contains(Short.valueOf((short) 2)));

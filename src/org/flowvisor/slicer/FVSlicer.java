@@ -4,7 +4,6 @@
 package org.flowvisor.slicer;
 
 import java.io.IOException;
-
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -25,9 +24,10 @@ import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
-import org.flowvisor.message.*;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.message.FVMessageFactory;
+import org.flowvisor.message.Slicable;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMessage;
@@ -56,7 +56,8 @@ public class FVSlicer implements FVEventHandler {
 	boolean isShutdown;
 
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
-										// get OFPP_FLOOD'd
+
+	// get OFPP_FLOOD'd
 
 	public FVSlicer(FVEventLoop loop, FVClassifier fvClassifier,
 			String sliceName) {
@@ -96,8 +97,10 @@ public class FVSlicer implements FVEventHandler {
 	}
 
 	private void updatePortList() {
+		this.localFlowSpace = this.fvClassifier.getSwitchFlowMap().clone();
 		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier
-				.getSwitchInfo().getDatapathId(), this.sliceName);
+				.getSwitchInfo().getDatapathId(), this.sliceName,
+				this.localFlowSpace);
 		if (ports.contains(OFPort.OFPP_ALL.getValue())) {
 			// this switch has access to ALL PORTS; feed them in from the
 			// features request
@@ -262,12 +265,12 @@ public class FVSlicer implements FVEventHandler {
 		if (this.sock != null)
 			try {
 				this.sock.close(); // FIXME will this also cancel() the key in
-									// the event loop?
+				// the event loop?
 			} catch (IOException e) {
 				// ignore if error... we're shutting down already
 			}
 		fvClassifier.tearDown(this.sliceName); // tell the classifier to forget
-												// about us
+		// about us
 	}
 
 	/*
@@ -378,7 +381,7 @@ public class FVSlicer implements FVEventHandler {
 			if (msgStream.needsFlush()) // flush any pending messages
 				msgStream.flush();
 			List<OFMessage> msgs = this.msgStream.read(); // read any new
-															// messages
+			// messages
 			if (msgs == null)
 				throw new IOException("got null from read()");
 			for (OFMessage msg : msgs) {
