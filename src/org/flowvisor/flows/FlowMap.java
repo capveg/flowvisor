@@ -1,8 +1,9 @@
 package org.flowvisor.flows;
 
-import org.openflow.protocol.OFMatch;
 import java.util.List;
 import java.util.SortedSet;
+
+import org.openflow.protocol.OFMatch;
 
 /**
  * Interface for computing intersections in flowspace.
@@ -112,4 +113,10 @@ public interface FlowMap {
 
 	public SortedSet<FlowEntry> getRules();
 
+	/**
+	 * Clone()
+	 * 
+	 * @return Return a deep copy of the flowmap
+	 */
+	public FlowMap clone();
 }

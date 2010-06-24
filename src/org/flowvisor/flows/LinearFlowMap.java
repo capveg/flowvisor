@@ -16,7 +16,7 @@ import org.openflow.protocol.OFMatch;
  *         (Hopefully Peyman will implement something faster :-)
  * 
  */
-public class LinearFlowMap implements FlowMap {
+public class LinearFlowMap implements FlowMap, Cloneable {
 
 	SortedSet<FlowEntry> rules;
 
@@ -177,6 +177,19 @@ public class LinearFlowMap implements FlowMap {
 	 */
 	public void setRules(SortedSet<FlowEntry> rules) {
 		this.rules = rules;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public FlowMap clone() {
+		LinearFlowMap flowMap = new LinearFlowMap();
+		for (FlowEntry flowEntry : this.rules)
+			flowMap.addRule(flowEntry.clone());
+		return flowMap;
 	}
 
 }
