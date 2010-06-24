@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 
 import org.flowvisor.config.DefaultConfig;
 import org.flowvisor.config.FVConfig;
+import org.openflow.protocol.OFMatch;
+import org.openflow.protocol.OFPort;
 
 public class FlowSpaceUtilsTest extends TestCase {
 
@@ -38,6 +40,24 @@ public class FlowSpaceUtilsTest extends TestCase {
 		TestCase.assertTrue(ports.contains(Short.valueOf((short) 0)));
 		TestCase.assertTrue(ports.contains(Short.valueOf((short) 2)));
 		TestCase.assertTrue(ports.contains(Short.valueOf((short) 3)));
+	}
+
+	public void testByPortAll() {
+		// matches all ports and all dpids
+		FlowEntry flowEntry = new FlowEntry(new OFMatch(), new SliceAction(
+				"alice", SliceAction.WRITE));
+		FlowMap flowMap = new LinearFlowMap();
+		flowMap.addRule(flowEntry);
+		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(1, "alice", flowMap);
+		TestCase.assertEquals(1, ports.size());
+		TestCase.assertTrue(ports.contains(OFPort.OFPP_ALL.getValue()));
+		// get this subFlowMap with dpid=1
+		FlowMap subFlowMap = FlowSpaceUtil.getSubFlowMap(flowMap, 1,
+				new OFMatch());
+		ports = FlowSpaceUtil.getPortsBySlice(1, "alice", subFlowMap);
+		TestCase.assertEquals(1, ports.size());
+		TestCase.assertTrue(ports.contains(OFPort.OFPP_ALL.getValue()));
+
 	}
 
 	public void testGetSubFlowSpace() {
