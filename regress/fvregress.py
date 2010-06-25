@@ -278,6 +278,7 @@ class FvRegress:
         self.dpid2name = {}
         self.unique_dpid = 1
         self.firstTest = True
+        self.fv_child=None
     def setDpid2Name(self, dpid,name):
         self.dpid2name[dpid]=name
         self.name2dpid[name]=dpid

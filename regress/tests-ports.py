@@ -185,6 +185,7 @@ try:
         raise "FAILED: FlowSpace Change failed!"
     else :
         print "SUCCESS: FLowSpace Changed: removed Alice's access"
+    h.lamePause("Sleeping to let FV and test suite drop switch", 0.5)
     h.runTest(name="dropped Alice", timeout=timeout, events= [
             # Make sure Alice has no switches connected to her
             TestEvent( "countSwitches","guest","alice", actorID2=0,packet=None),
