@@ -10,6 +10,7 @@ tests-base.py \
 tests-api.py \
 tests-ports.py \
 tests-safety.py \
+tests-deleteSlice.py \
 "
 
     
