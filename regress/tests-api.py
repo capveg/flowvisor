@@ -102,17 +102,14 @@ try:
         print "Failed to get correct email for cathy: wanted " + lame_email + " but got " + str(x)
         test_failed("slice creation")
     print "     passed"
-    print "Slice creation: Doug (with FieldSeparator)"
+    print "Slice creation: Doug (with FieldSeparator) -- should be blocked"
     cool_email = "laudi@daudi.com"
-    if not s.api.createSlice("doug!e!fresh", "theOriginal", "tcp:localhost:54324", cool_email) :
-        print "Got false from creating slice for doug (with FieldSeparator)"
+    try:
+        s.api.createSlice("doug!e!fresh", "theOriginal", "tcp:localhost:54324", cool_email)
+        print "Failed:  created a slice with an '!' when that should be disallowed"
         test_failed("slice creation with FieldSeparator")
-    x = s.api.getConfig("slices!doug_e_fresh!contact_email")
-    if (len(x) < 1)  or x[0] != cool_email: 
-        print "Failed to get correct email for doug: wanted " + cool_email + " but got " + str(x)
-        test_failed("slice creation with FieldSeparator")
-    print "     passed"
-
+    except (xmlrpclib.Fault):
+        print "     passed"
 
 #################################### Start Alice Tests
     user="alice"

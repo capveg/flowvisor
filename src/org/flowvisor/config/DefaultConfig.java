@@ -68,6 +68,7 @@ public class DefaultConfig {
 			// topology server on by default
 			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
 			// create slices
+
 			FVConfig.createSlice("root", "none", 0, rootPasswd,
 					"root@localhost", "root");
 			FVConfig.createSlice("alice", "localhost", 54321, "alicePass",
@@ -78,6 +79,9 @@ public class DefaultConfig {
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);
 		} catch (ConfigError e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} catch (InvalidSliceName e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}

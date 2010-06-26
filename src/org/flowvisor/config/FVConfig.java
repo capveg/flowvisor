@@ -416,8 +416,10 @@ public class FVConfig {
 
 	public synchronized static void createSlice(String sliceName,
 			String controller_hostname, int controller_port, String passwd,
-			String slice_email, String creatorSlice) {
-		sliceName = FVConfig.sanitize(sliceName);
+			String slice_email, String creatorSlice) throws InvalidSliceName {
+		if (sliceName.contains(FS))
+			throw new InvalidSliceName("invalid slicename: cannot contain '"
+					+ FS + "' : " + sliceName);
 		String base = FVConfig.SLICES + FS + sliceName;
 		try {
 			FVConfig.create(base, ConfigType.DIR);

@@ -14,6 +14,7 @@ import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
@@ -89,11 +90,12 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @param slice_email
 	 *            As a contract for the slice
 	 * @return success
+	 * @throws InvalidSliceName
 	 */
 	@Override
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
-			throws MalformedControllerURL {
+			throws MalformedControllerURL, InvalidSliceName {
 		// FIXME: make sure this user has perms to do this OP
 		// for now, all slices can create other slices
 		// FIXME: for now, only handle tcp, not ssl controller url

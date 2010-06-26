@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.ConfigError;
+import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
@@ -39,11 +40,12 @@ public interface FVUserAPI {
 	 * @param slice_email
 	 *            As a contract for the slice
 	 * @return success
+	 * @throws InvalidSliceName
 	 */
 
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
-			throws MalformedControllerURL;
+			throws MalformedControllerURL, InvalidSliceName;
 
 	public Map<String, String> getSliceInfo(String sliceName)
 			throws PermissionDeniedException;
