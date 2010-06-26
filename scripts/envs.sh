@@ -4,15 +4,17 @@ SSL_KEYPASSWD=CHANGEME_PASSWD
 
 #configbase=PREFIX
 
+#install_root is for installing to a new directory, e.g., for chroot()
+
 if [ -z $configbase ] ; then
     configbase=`dirname $0`/..
     jars=$configbase/lib
     dist=$configbase/dist
     SSL_KEYSTORE=$configbase/mySSLKeyStore
 else
-    jars=$configbase/libexec/flowvisor
-    dist=$configbase/libexec/flowvisor
-    SSL_KEYSTORE=$configbase/etc/flowvisor/mySSLKeyStore
+    jars=$install_root$configbase/libexec/flowvisor
+    dist=$install_root$configbase/libexec/flowvisor
+    SSL_KEYSTORE=$install_root$configbase/etc/flowvisor/mySSLKeyStore
 fi
 
 

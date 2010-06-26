@@ -131,4 +131,4 @@ echo Installing configs
 cd $owd
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $scriptd/envs $root$prefix/etc/flowvisor/envs.sh
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $base/mySSLKeyStore $root$prefix/etc/flowvisor
-$prefix/sbin/config-gen-default $root$prefix/etc/flowvisor/$config
+install_root=$root $root$prefix/sbin/config-gen-default $root$prefix/etc/flowvisor/$config
