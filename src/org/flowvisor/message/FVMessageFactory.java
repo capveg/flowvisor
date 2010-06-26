@@ -3,14 +3,37 @@
  */
 package org.flowvisor.message;
 
-import org.openflow.protocol.*;
+import org.flowvisor.message.actions.FVActionDataLayerDestination;
+import org.flowvisor.message.actions.FVActionDataLayerSource;
+import org.flowvisor.message.actions.FVActionEnqueue;
+import org.flowvisor.message.actions.FVActionNetworkLayerDestination;
+import org.flowvisor.message.actions.FVActionNetworkLayerSource;
+import org.flowvisor.message.actions.FVActionNetworkTypeOfService;
+import org.flowvisor.message.actions.FVActionOutput;
+import org.flowvisor.message.actions.FVActionStripVirtualLan;
+import org.flowvisor.message.actions.FVActionTransportLayerDestination;
+import org.flowvisor.message.actions.FVActionTransportLayerSource;
+import org.flowvisor.message.actions.FVActionVendor;
+import org.flowvisor.message.actions.FVActionVirtualLanIdentifier;
+import org.flowvisor.message.actions.FVActionVirtualLanPriorityCodePoint;
+import org.flowvisor.message.statistics.FVAggregateStatisticsReply;
+import org.flowvisor.message.statistics.FVAggregateStatisticsRequest;
+import org.flowvisor.message.statistics.FVDescriptionStatistics;
+import org.flowvisor.message.statistics.FVFlowStatisticsReply;
+import org.flowvisor.message.statistics.FVFlowStatisticsRequest;
+import org.flowvisor.message.statistics.FVPortStatisticsReply;
+import org.flowvisor.message.statistics.FVPortStatisticsRequest;
+import org.flowvisor.message.statistics.FVQueueStatisticsReply;
+import org.flowvisor.message.statistics.FVQueueStatisticsRequest;
+import org.flowvisor.message.statistics.FVTableStatistics;
+import org.flowvisor.message.statistics.FVVendorStatistics;
+import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFType;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionType;
 import org.openflow.protocol.factory.BasicFactory;
 import org.openflow.protocol.statistics.OFStatistics;
 import org.openflow.protocol.statistics.OFStatisticsType;
-import org.flowvisor.message.actions.*;
-import org.flowvisor.message.statistics.*;
 
 /**
  * @author capveg
@@ -60,8 +83,13 @@ public class FVMessageFactory extends BasicFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public OFMessage getMessage(OFType t) {
-		Class<? extends OFMessage> c = (Class<? extends OFMessage>) convertMap[t
-				.getTypeValue()];
+		if (t == null)
+			throw new IllegalArgumentException("expected OFType, got null");
+		byte mtype = t.getTypeValue();
+		if (mtype >= convertMap.length)
+			throw new IllegalArgumentException("OFMessage type " + mtype
+					+ " unknown to FV");
+		Class<? extends OFMessage> c = convertMap[mtype];
 		try {
 			return c.getConstructor(new Class[] {}).newInstance();
 		} catch (Exception e) {
@@ -72,8 +100,7 @@ public class FVMessageFactory extends BasicFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public OFAction getAction(OFActionType t) {
-		Class<? extends OFAction> c = (Class<? extends OFAction>) convertActionsMap[t
-				.getTypeValue()];
+		Class<? extends OFAction> c = convertActionsMap[t.getTypeValue()];
 		try {
 			return c.getConstructor(new Class[] {}).newInstance();
 		} catch (Exception e) {
@@ -87,11 +114,9 @@ public class FVMessageFactory extends BasicFactory {
 	public OFStatistics getStatistics(OFType t, OFStatisticsType st) {
 		Class<? extends OFStatistics> c;
 		if (t == OFType.STATS_REPLY)
-			c = (Class<? extends OFStatistics>) convertStatsReplyMap[st
-					.getTypeValue()];
+			c = convertStatsReplyMap[st.getTypeValue()];
 		else if (t == OFType.STATS_REQUEST)
-			c = (Class<? extends OFStatistics>) convertStatsRequestMap[st
-					.getTypeValue()];
+			c = convertStatsRequestMap[st.getTypeValue()];
 		else
 			throw new RuntimeException("non-stats type in stats factory: " + t);
 		try {
