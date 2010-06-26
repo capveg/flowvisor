@@ -448,7 +448,8 @@ public class FVConfig {
 		return new BufferedReader(new InputStreamReader(System.in)).readLine();
 	}
 
-	public static void deleteSlice(String sliceName) throws ConfigNotFoundError {
+	public static synchronized void deleteSlice(String sliceName)
+			throws ConfigNotFoundError {
 		sliceName = FVConfig.sanitize(sliceName);
 		ConfDirEntry sliceList = (ConfDirEntry) lookup(FVConfig.SLICES);
 		if (!sliceList.entries.containsKey(sliceName))
