@@ -338,6 +338,8 @@ public class FVClassifier implements FVEventHandler {
 			newSlices.add(TopologyController.getTopoUser());
 		// foreach slice, make sure it has access to this switch
 		for (String sliceName : newSlices) {
+			if (slicerMap == null)
+				throw new NullPointerException("slicerMap is null!?");
 			if (!slicerMap.containsKey(sliceName)) {
 				FVLog.log(LogLevel.INFO, this, "connecting to slice "
 						+ sliceName);
