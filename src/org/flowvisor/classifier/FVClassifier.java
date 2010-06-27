@@ -218,6 +218,16 @@ public class FVClassifier implements FVEventHandler {
 				List<OFMessage> newMsgs = msgStream.read();
 				if (newMsgs != null) {
 					for (OFMessage m : newMsgs) {
+						if (m == null) {
+							FVLog
+									.log(
+											LogLevel.ALERT,
+											this,
+											"got an unparsable OF Message "
+													+ "(msgStream.read() returned a null):"
+													+ "trying to ignore it");
+							continue;
+						}
 						FVLog.log(LogLevel.DEBUG, this, "read " + m);
 						if (switchInfo != null)
 							classifyOFMessage(m);
