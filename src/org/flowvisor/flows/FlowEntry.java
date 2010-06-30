@@ -160,7 +160,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 
 		// should maybe try to void this: kinda an inner loop
 		// need this to be fresh state or unittests break
-		OFMatch interMatch = intersection.getMatch().clone();
+		OFMatch interMatch = intersection.getMatch();
 
 		// test DPID: 1<<31 == unused wildcard field -- hack!
 		intersection.setDpid(FlowTestOp.testFieldLong(intersection, 1 << 31,
