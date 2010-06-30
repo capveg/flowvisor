@@ -9,9 +9,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -19,14 +26,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -257,7 +256,7 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		if (reply)
-			System.err.println("success!");
+			System.out.println("success!");
 		else
 			System.err.println("failed!");
 	}
@@ -276,7 +275,7 @@ public class FVCtl {
 		if (o instanceof Map<?, ?>)
 			reply = (Map<String, String>) o;
 
-		System.err.println("Got reply:");
+		System.out.println("Got reply:");
 		for (String key : reply.keySet())
 			System.out.println(key + "=" + reply.get(key));
 	}
@@ -292,7 +291,7 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		if (reply)
-			System.err.println("success!");
+			System.out.println("success!");
 		else
 			System.err.println("failed!");
 	}
@@ -301,7 +300,7 @@ public class FVCtl {
 		String reply = (String) this.client.execute("api.ping",
 				new Object[] { msg });
 		if (reply != null) {
-			System.err.println("Got reply:");
+			System.out.println("Got reply:");
 			System.out.println(reply);
 		} else {
 			System.err.println("Got 'null' for reply :-(");
@@ -316,7 +315,7 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		if (reply)
-			System.err.println("success!");
+			System.out.println("success!");
 		else
 			System.err.println("failed!");
 	}
@@ -334,7 +333,7 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		if (reply.length > 0)
-			System.err.println("success: " + (String) reply[0]);
+			System.out.println("success: " + (String) reply[0]);
 		else
 			System.err.println("failed!");
 	}
@@ -375,7 +374,7 @@ public class FVCtl {
 			System.exit(-1);
 		}
 		if (reply.length > 0)
-			System.err.println("success: " + (String) reply[0]);
+			System.out.println("success: " + (String) reply[0]);
 		else
 			System.err.println("failed!");
 	}
@@ -398,10 +397,10 @@ public class FVCtl {
 		Object[] result2 = (Object[]) client.execute("api.listFlowSpace",
 				new Object[] {});
 		if (result2 != null) {
-			System.err.println("Got reply:");
+			System.out.println("Got reply:");
 			int i;
 			for (i = 0; i < result2.length; i++)
-				System.err.println("rule " + i + ": " + (String) result2[i]);
+				System.out.println("rule " + i + ": " + (String) result2[i]);
 		} else {
 			System.err.println("Got 'null' for reply :-(");
 		}
