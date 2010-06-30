@@ -1,11 +1,13 @@
 package org.flowvisor.message;
 
+import org.flowvisor.api.LinkAdvertisement;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.SliceAction;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.lldp.LLDPUtil;
+import org.flowvisor.ofswitch.DPIDandPort;
 import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMatch;
@@ -95,8 +97,22 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 	 */
 	@Override
 	public void topologyController(TopologyConnection topologyConnection) {
-		FVLog.log(LogLevel.WARN, topologyConnection,
-				"FIXME: implement FVPacketIn handling");
+		synchronized (topologyConnection) {
+			DPIDandPort dpidandport = TopologyConnection.parseLLDP(this
+					.getPacketData());
+			if (dpidandport == null) {
+				FVLog.log(LogLevel.DEBUG, topologyConnection,
+						"ignoring non-lldp packetin: " + this);
+				return;
+			}
+			LinkAdvertisement linkAdvertisement = new LinkAdvertisement(
+					dpidandport.getDpid(), dpidandport.getPort(),
+					topologyConnection.getFeaturesReply().getDatapathId(),
+					this.inPort);
+			topologyConnection.getTopologyController().reportProbe(
+					linkAdvertisement);
+			topologyConnection.signalFastPort(this.inPort);
+		}
 	}
 
 }

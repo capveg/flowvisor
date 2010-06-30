@@ -7,10 +7,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.flowvisor.api.LinkAdvertisement;
 import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
@@ -38,6 +42,10 @@ import org.openflow.protocol.statistics.OFStatisticsType;
 import org.openflow.util.HexString;
 
 /**
+ * Divide ports on a switch in to "slowPorts" and "fastPorts" send topology
+ * discovery probes the fastPorts more often then slowports if we get an lldp
+ * message on a port, make it a fast port
+ * 
  * @author capveg
  * 
  */
@@ -51,6 +59,16 @@ public class TopologyConnection implements FVEventHandler {
 	FVMessageFactory fvMessageFactory;
 	FVFeaturesReply featuresReply;
 	FVDescriptionStatistics descriptionStatistics;
+	private boolean isShutdown;
+	private final long fastProbeRate;
+	private final long probesPerPeriod; // this is the safety rate: this many
+	private final Set<Short> slowPorts;
+	private final Set<Short> fastPorts;
+	private Iterator<Short> slowIterator;
+	private final Map<Short, OFPhysicalPort> phyMap;
+
+	// probes can be dropped before a link
+	// down event
 
 	public TopologyConnection(TopologyController topologyController,
 			FVEventLoop pollLoop, SocketChannel sock) {
@@ -68,6 +86,12 @@ public class TopologyConnection implements FVEventHandler {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
 		}
+		this.probesPerPeriod = 3;
+		this.fastProbeRate = this.topologyController.getUpdatePeriod()
+				/ this.getProbesPerPeriod();
+		this.slowPorts = new HashSet<Short>();
+		this.fastPorts = new HashSet<Short>();
+		this.phyMap = new HashMap<Short, OFPhysicalPort>();
 	}
 
 	/*
@@ -99,6 +123,8 @@ public class TopologyConnection implements FVEventHandler {
 	 */
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
+		if (this.isShutdown)
+			return; // ignore events if we've done the teardown
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
 		else if (e instanceof FVTimerEvent)
@@ -107,9 +133,35 @@ public class TopologyConnection implements FVEventHandler {
 			throw new UnhandledEvent(e);
 	}
 
+	/*
+	 * Handle a timer event
+	 * 
+	 * On each timer event:<br>
+	 * 
+	 * <ul> <li> send a probe to each fast Port
+	 * 
+	 * <li> send a probe to the next slow port
+	 * 
+	 * <li> reschedule timer
+	 * 
+	 * </ul>
+	 */
 	private void handleTimerEvent(FVTimerEvent e) {
-		// TODO Auto-generated method stub
-
+		// send a probe per fast port
+		for (Iterator<Short> fastIterator = this.fastPorts.iterator(); fastIterator
+				.hasNext();) {
+			Short port = fastIterator.next();
+			sendLLDP(this.phyMap.get(port));
+		}
+		// send a probe for the next slow port
+		if (this.slowPorts.size() > 0) {
+			if (!this.slowIterator.hasNext())
+				this.slowIterator = this.slowPorts.iterator();
+			sendLLDP(this.phyMap.get(this.slowIterator.next()));
+		}
+		// reschedule timer
+		this.pollLoop.addTimer(new FVTimerEvent(this.fastProbeRate, this, this,
+				null));
 	}
 
 	private void handleIOEvent(FVIOEvent e) {
@@ -196,6 +248,7 @@ public class TopologyConnection implements FVEventHandler {
 	public void tearDown() {
 		try {
 			sock.close();
+			this.isShutdown = true;
 		} catch (IOException e) {
 			FVLog.log(LogLevel.ALERT, this, "ignoring error on shutdown: " + e);
 		}
@@ -258,10 +311,6 @@ public class TopologyConnection implements FVEventHandler {
 			return featuresReply.getDatapathId();
 	}
 
-	public void getLinks(List<LinkAdvertisement> links) {
-		// TODO Auto-generated method stub
-	}
-
 	/**
 	 * @return the featuresReply
 	 */
@@ -305,9 +354,16 @@ public class TopologyConnection implements FVEventHandler {
 	private void doJustConnected() {
 		this.name = "topoDpid="
 				+ HexString.toHexString(this.featuresReply.getDatapathId());
-		// FIXME: just one time; do more often
-		for (OFPhysicalPort port : featuresReply.getPorts())
+		// just one time; the timer event will cause them more often
+		for (OFPhysicalPort port : featuresReply.getPorts()) {
 			sendLLDP(port);
+			this.slowPorts.add(Short.valueOf(port.getPortNumber()));
+			this.phyMap.put(Short.valueOf(port.getPortNumber()), port);
+		}
+		// schedule timer
+		this.pollLoop.addTimer(new FVTimerEvent(this.fastProbeRate, this, this,
+				null));
+		this.slowIterator = this.slowPorts.iterator();
 	}
 
 	private void sendLLDP(OFPhysicalPort port) {
@@ -338,5 +394,68 @@ public class TopologyConnection implements FVEventHandler {
 		bb.putLong(this.featuresReply.getDatapathId());
 		bb.putShort(portNumber);
 		return buf;
+	}
+
+	/**
+	 * @return the topologyController
+	 */
+	public TopologyController getTopologyController() {
+		return topologyController;
+	}
+
+	/**
+	 * @param topologyController
+	 *            the topologyController to set
+	 */
+	public void setTopologyController(TopologyController topologyController) {
+		this.topologyController = topologyController;
+	}
+
+	static public DPIDandPort parseLLDP(byte[] packet) {
+		if (packet == null || packet.length != 24)
+			return null; // invalid lldp
+		ByteBuffer bb = ByteBuffer.wrap(packet);
+		byte[] dst = new byte[6];
+		bb.get(dst);
+		if (!dst.equals(LLDPUtil.LLDP_MULTICAST))
+			return null;
+		bb.position(12);
+		short etherType = bb.getShort();
+		if (etherType != LLDPUtil.ETHER_LLDP)
+			return null;
+		bb.position(14);
+		long dpid = bb.getLong();
+		short port = bb.getShort();
+		return new DPIDandPort(dpid, port);
+	}
+
+	public long getProbesPerPeriod() {
+		return probesPerPeriod;
+	}
+
+	synchronized void signalPortTimeout(short port) {
+		Short sPort = Short.valueOf(port);
+		if (this.fastPorts.contains(sPort)) {
+			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: "
+					+ port);
+			this.fastPorts.remove(sPort);
+			this.slowPorts.add(sPort);
+		} else if (!this.slowPorts.contains(sPort)) {
+			FVLog.log(LogLevel.WARN, this,
+					"got signalPortTimeout for non-existant port: " + port);
+		}
+	}
+
+	public synchronized void signalFastPort(short port) {
+		Short sPort = Short.valueOf(port);
+		if (this.slowPorts.contains(sPort)) {
+			FVLog.log(LogLevel.MOBUG, this, "setting slow port to fast: "
+					+ port);
+			this.slowPorts.remove(sPort);
+			this.fastPorts.add(sPort);
+		} else if (!this.fastPorts.contains(sPort)) {
+			FVLog.log(LogLevel.WARN, this,
+					"got signalFastPort for non-existant port: " + port);
+		}
 	}
 }

@@ -1,13 +1,13 @@
 package org.flowvisor.fvtimer;
 
-import org.flowvisor.events.*;
-import org.flowvisor.exceptions.*;
-import org.flowvisor.log.FVLog;
-import org.flowvisor.log.LogLevel;
-
+import java.sql.Time;
 import java.util.Iterator;
 import java.util.PriorityQueue;
-import java.sql.Time;
+
+import org.flowvisor.events.FVTimerEvent;
+import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 
 /***
  * A priority queue of timer events does NOT actually call events directly.
@@ -32,11 +32,11 @@ public class FVTimer {
 	}
 
 	public void addTimer(FVTimerEvent e) {
-		FVLog.log(LogLevel.DEBUG, e.getSrc(), "Scheduleing event " + e.getId()
+		FVLog.log(LogLevel.MOBUG, e.getSrc(), "Scheduleing event " + e.getId()
 				+ " at t=" + new Time(System.currentTimeMillis())
 				+ " to happen at " + new Time(e.getExpireTime()));
 		pq.add(e);
-		FVLog.log(LogLevel.DEBUG, null, "Events in timer queue: " + pq.size());
+		FVLog.log(LogLevel.MOBUG, null, "Events in timer queue: " + pq.size());
 	}
 
 	/***
@@ -51,7 +51,7 @@ public class FVTimer {
 
 		while ((e != null) && (e.getExpireTime() <= now)) {
 			pq.remove();
-			FVLog.log(LogLevel.DEBUG, e.getDst(), "processing event "
+			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event "
 					+ e.getId() + " scheduling err = "
 					+ (now - e.getExpireTime()));
 			e.getDst().handleEvent(e);

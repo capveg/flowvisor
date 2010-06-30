@@ -27,6 +27,7 @@ import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.ofswitch.TopologyController;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.util.HexString;
@@ -166,6 +167,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public List<Map<String, String>> getLinks() {
 		FVLog.log(LogLevel.DEBUG, null, "API getLinks() by: "
 				+ APIUserCred.getUserName());
+		TopologyController topologyController = TopologyController
+				.getRunningInstance();
+		if (topologyController == null)
+			return getFakeLinks();
+		List<Map<String, String>> list = new LinkedList<Map<String, String>>();
+		for (LinkAdvertisement linkAdvertisement : topologyController
+				.getLinks())
+			list.add(linkAdvertisement.toMap());
+		return list;
+	}
+
+	protected List<Map<String, String>> getFakeLinks() {
+		FVLog.log(LogLevel.ALERT, null,
+				"API: topology server not running: faking getLinks()");
 		List<String> devices = listDevices();
 		List<Map<String, String>> list = new LinkedList<Map<String, String>>();
 		for (int i = 0; i < devices.size(); i++) {

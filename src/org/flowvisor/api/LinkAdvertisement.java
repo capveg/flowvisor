@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.flowvisor.exceptions.MapUnparsable;
+import org.flowvisor.flows.FlowSpaceUtil;
 
 /**
  * 
@@ -15,9 +16,9 @@ import org.flowvisor.exceptions.MapUnparsable;
  */
 public class LinkAdvertisement {
 	String srcDPID;
-	int srcPort;
+	short srcPort;
 	String dstDPID;
-	int dstPort;
+	short dstPort;
 	// list of key=value pairs, for extensibility
 	HashMap<String, String> attributes;
 
@@ -25,13 +26,19 @@ public class LinkAdvertisement {
 		// do nothing, for a java bean
 	}
 
-	public LinkAdvertisement(String srcDPID, int srcPort, String dstDPID,
-			int dstPort) {
+	public LinkAdvertisement(String srcDPID, short srcPort, String dstDPID,
+			short dstPort) {
 		super();
 		this.srcDPID = srcDPID;
 		this.srcPort = srcPort;
 		this.dstDPID = dstDPID;
 		this.dstPort = dstPort;
+	}
+
+	public LinkAdvertisement(long srcDPID, short srcPort, long dstDPID,
+			short dstPort) {
+		this(FlowSpaceUtil.dpidToString(srcDPID), srcPort, FlowSpaceUtil
+				.dpidToString(dstDPID), dstPort);
 	}
 
 	public String getSrcDPID() {
@@ -42,11 +49,11 @@ public class LinkAdvertisement {
 		this.srcDPID = srcDPID;
 	}
 
-	public int getSrcPort() {
+	public short getSrcPort() {
 		return srcPort;
 	}
 
-	public void setSrcPort(int srcPort) {
+	public void setSrcPort(short srcPort) {
 		this.srcPort = srcPort;
 	}
 
@@ -58,11 +65,11 @@ public class LinkAdvertisement {
 		this.dstDPID = dstDPID;
 	}
 
-	public int getDstPort() {
+	public short getDstPort() {
 		return dstPort;
 	}
 
-	public void setDstPort(int dstPort) {
+	public void setDstPort(short dstPort) {
 		this.dstPort = dstPort;
 	}
 
