@@ -75,4 +75,23 @@ public class FlowSpaceUtilsTest extends TestCase {
 		for (FlowEntry flowEntry : flowMap.getRules())
 			TestCase.assertEquals(dpid, flowEntry.getDpid());
 	}
+	/*
+	 * TODO: Need to fix!
+	 * 
+	 * public void testDPID2Str() { long dpid = 0xffffffffffffffffl; String
+	 * good_str = "ff:ff:ff:ff:ff:ff:ff:ff"; String test_str =
+	 * FlowSpaceUtil.dpidToString(dpid); TestCase.assertEquals(good_str,
+	 * test_str); long test_dpid = FlowSpaceUtil.parseDPID(test_str);
+	 * TestCase.assertEquals(dpid, test_dpid); }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * public void testDPID2Str2() { long dpid = 0x9fffffffffffaf00l; String
+	 * good_str = "9f:ff:ff:ff:ff:ff:af:00"; String test_str =
+	 * FlowSpaceUtil.dpidToString(dpid); TestCase.assertEquals(good_str,
+	 * test_str); long test_dpid = FlowSpaceUtil.parseDPID(test_str);
+	 * TestCase.assertEquals(dpid, test_dpid); }
+	 */
 }
