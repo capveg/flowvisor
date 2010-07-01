@@ -35,18 +35,19 @@ try:
     # fm from controller to setup arp
     flow_mod_arp_before = FvRegress.OFVERSION + \
                         '''0e 00 50 40 00 90 b6 00 00 00 00 00 05 00 0c
-                            29 82 59 5b 00 0c 29 c6 36 8d ff ff 00 8d 08 06
-                            00 02 08 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                            29 82 59 5b 00 0c 29 c6 36 8d ff ff 00 00 08 06
+                            00 02 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
                             00 00 00 00 00 00 00 00 00 00 00 05 00 00 80 00
                             00 00 01 6f 00 00 00 01 00 00 00 08 00 30 00 00'''
 
 
-    flow_mod_arp_after = FvRegress.OFVERSION + \
-                    '''0e 00 50 00 00 01 01 00 0f ff 00 00 05 00 0c
-                    29 82 59 5b 00 0c 29 c6 36 8d ff ff 00 00 08 06
-                    00 02 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
-                    00 00 00 00 00 00 00 00 00 00 00 05 00 00 80 00
-                    00 00 01 6f 00 00 00 01 00 00 00 08 00 30 00 00'''
+    flow_mod_arp_after = flow_mod_arp_before
+#    flow_mod_arp_after = FvRegress.OFVERSION + \
+#                    '''0e 00 50 00 00 01 01 00 0f ff 00 00 05 00 0c
+#                    29 82 59 5b 00 0c 29 c6 36 8d ff ff 00 00 08 06
+#                    00 02 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+#                    00 00 00 00 00 00 00 00 00 00 00 05 00 00 80 00
+#                    00 00 01 6f 00 00 00 01 00 00 00 08 00 30 00 00'''
     h.runTest(name="flow_mod install arp",timeout=timeout,  events= [
             # send flow_mod
             TestEvent( "send","guest",'josh', flow_mod_arp_before),

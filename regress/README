@@ -16,3 +16,5 @@ NOTES:
     running FlowVisor, i.e., for debugging
     ./tests-base.py 6633
 3) By default, FlowVisor starts up on port 16633 and API server on 18080
+4) FlowVisor by defaults zeros pad varriables where nox does not,
+    so this can cause issues with exact string matches

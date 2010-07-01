@@ -129,8 +129,12 @@ public class FlowTestOp {
 	static int testFieldMask(FlowIntersect flowIntersect, int maskShift,
 			int masklenX, int masklenY, int x, int y) {
 		int min = Math.min(masklenX, masklenY); // get the less specific address
-
+		int max = Math.max(masklenX, masklenY); // get the more specific address
 		int min_encoded = 32 - min; // because OpenFlow does it backwards... grr
+		int max_encoded = 32 - max; // because OpenFlow does it backwards... grr
+		if (max_encoded >= 32) // set all the bits if this is in fact fully
+			max_encoded = 63; // wildcarded; if only for wireshark's sake
+
 		int mask;
 		if (min == 0)
 			mask = 0; // nasty work around for stupid signed ints
@@ -144,8 +148,15 @@ public class FlowTestOp {
 		OFMatch interMatch = flowIntersect.getMatch();
 		int wildCards = interMatch.getWildcards();
 		// turn off all bits for this match and then turn on the used ones
-		wildCards = (wildCards & ~((1 << OFMatch.OFPFW_NW_SRC_BITS) - 1) << maskShift)
-				| min_encoded << maskShift;
+		// use MAX not MIN, because we want the most specific intersection
+		// split into two ops, so we can see intermediate step in debugger
+		// assumes SRC mask == DST mask
+		// turn off all bits for this match (making it an exact match)
+		wildCards = wildCards
+				& ~(((1 << OFMatch.OFPFW_NW_SRC_BITS) - 1) << maskShift);
+		// turn on the bits for the intersection
+		wildCards = wildCards | max_encoded << maskShift;
+		interMatch.setWildcards(wildCards);
 		if (masklenX < masklenY) {
 			flowIntersect.maybeSubset = false;
 			return y;
@@ -158,5 +169,4 @@ public class FlowTestOp {
 		// is not a SUB or SUPERSET
 		return x; // x == y; doesn't matter
 	}
-
 }

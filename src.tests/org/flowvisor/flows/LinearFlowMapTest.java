@@ -31,6 +31,6 @@ public class LinearFlowMapTest extends TestCase {
 		List<FlowIntersect> intersects = submap.intersects(1, packet);
 		TestCase.assertEquals(1, intersects.size());
 		TestCase.assertEquals(MatchType.SUBSET, intersects.get(0)
-				.getFlowEntry().matches(1, packet).getMatchType());
+				.getMatchType());
 	}
 }

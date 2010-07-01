@@ -102,11 +102,37 @@ public class FlowEntryTest extends TestCase {
 
 	public void testIntersect() {
 		OFMatch match = new OFMatch();
-		match.fromString("nw_src=128.8.0.0/16");
+		match.fromString("nw_src=118.8.0.0/16");
 		FlowEntry flowEntry = new FlowEntry(1, match, new SliceAction("alice",
 				SliceAction.WRITE));
 		FlowIntersect intersect = flowEntry.matches(1, match);
+		int good_src_mask = match.getNetworkSourceMaskLen();
+		int test_src_mask = intersect.getMatch().getNetworkSourceMaskLen();
+		TestCase.assertEquals(good_src_mask, test_src_mask);
+		int good_dst_mask = match.getNetworkDestinationMaskLen();
+		int test_dst_mask = match.getNetworkDestinationMaskLen();
+		TestCase.assertEquals(good_dst_mask, test_dst_mask);
+		int wc1 = match.getWildcards();
+		int wc2 = intersect.getMatch().getWildcards();
+		TestCase.assertEquals(wc1, wc2);
 		TestCase.assertEquals(match, intersect.getMatch());
 	}
 
+	public void testIntersectExact() {
+		OFMatch pingMatch = new OFMatch();
+		OFMatch allMatch = new OFMatch();
+		FlowEntry pingFE = new FlowEntry(pingMatch, new SliceAction("alice",
+				SliceAction.WRITE));
+		FlowEntry allFE = new FlowEntry(allMatch, new SliceAction("alice",
+				SliceAction.WRITE));
+		pingMatch
+				.fromString("dl_src=00:11:22:33:44:55,dl_dst=66:77:88:99:aa:bb,"
+						+ "dl_type=8100,"
+						+ "nw_src=1.2.3.4,nw_dst=5.6.7.8,nw_proto=1,tp_src=0,tp_dst=0");
+		FlowIntersect pingIntoAll = allFE.matches(1, pingMatch);
+		TestCase.assertEquals(pingMatch, pingIntoAll.getMatch());
+		FlowIntersect allIntoPing = pingFE.matches(1, allMatch);
+		TestCase.assertEquals(pingMatch, allIntoPing.getMatch());
+
+	}
 }
