@@ -78,6 +78,14 @@ try:
     x = s.api.getDeviceInfo("00:00:00:00:00:00:00:01")
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
+    portList= x["portList"]
+    if not portList : 
+        print "getDeviceInfo failed to return a portList"
+        test_failed("listDevices root test4")
+    right_portlist = "0,1,2,3"
+    if portList != right_portlist : 
+        print "getDeviceInfo return wrong port list: wanted " + right_portlist + " but got " + portList
+        test_failed("listDevices root test5")
     print "     passed"
     print "Root getLinks test"
     x = s.api.getLinks()

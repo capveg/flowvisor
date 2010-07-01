@@ -5,6 +5,7 @@ package org.flowvisor.api;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.OFFeaturesReply;
+import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.util.HexString;
 
 /**
@@ -230,6 +232,15 @@ public class FVUserAPIImpl implements FVUserAPI {
 		OFFeaturesReply config = fvClassifier.getSwitchInfo();
 		map.put("dpid", String.valueOf(dpid));
 		map.put("nPorts", String.valueOf(config.getPorts().size()));
+		String portList = "";
+		for (Iterator<OFPhysicalPort> it = config.getPorts().iterator(); it
+				.hasNext();) {
+			OFPhysicalPort port = it.next();
+			portList += port.getPortNumber();
+			if (it.hasNext())
+				portList += ",";
+		}
+		map.put("portList", portList);
 		map.put("remote", String.valueOf(fvClassifier.getRemoteIP()));
 		return map;
 	}
