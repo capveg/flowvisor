@@ -1,15 +1,20 @@
 package org.flowvisor;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
-import org.flowvisor.exceptions.*;
+
+import org.flowvisor.api.APIServer;
+import org.flowvisor.config.ConfigError;
+import org.flowvisor.config.FVConfig;
+import org.flowvisor.events.FVEventHandler;
+import org.flowvisor.events.FVEventLoop;
+import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.ofswitch.TopologyController;
-import org.flowvisor.events.*;
-import org.flowvisor.api.APIServer;
-import org.flowvisor.config.*;
 
 public class FlowVisor {
 	// VENDOR EXTENSION ID
@@ -29,6 +34,18 @@ public class FlowVisor {
 	public FlowVisor(String configFile) {
 		this.configFile = configFile;
 		this.handlers = new ArrayList<FVEventHandler>();
+	}
+
+	/*
+	 * Unregister this event handler from the system
+	 */
+
+	public boolean unregisterHandler(FVEventHandler handler) {
+		if (handlers.contains(handler)) {
+			handlers.remove(handler);
+			return true;
+		}
+		return false;
 	}
 
 	public void run() throws IOException, ConfigError, UnhandledEvent {
@@ -148,7 +165,7 @@ public class FlowVisor {
 	 */
 	public void checkPointConfig() {
 		String tmpFile = this.configFile + ".tmp"; // assumes no one else can
-													// write to same dir
+		// write to same dir
 		// else security problem
 
 		// do we want checkpointing?
