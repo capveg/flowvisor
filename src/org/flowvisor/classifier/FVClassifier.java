@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.flowvisor.FlowVisor;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.events.FVEvent;
@@ -56,6 +55,7 @@ public class FVClassifier implements FVEventHandler {
 	XidTranslator xidTranslator;
 	short missSendLength;
 	FlowMap switchFlowMap;
+	private boolean shutdown;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -145,7 +145,6 @@ public class FVClassifier implements FVEventHandler {
 	 */
 
 	public void init() throws IOException {
-		FlowVisor.getInstance().addHandler(this);
 		// send initial handshake
 		msgStream.write(new OFHello());
 		// delete all entries in the flowtable
@@ -163,6 +162,7 @@ public class FVClassifier implements FVEventHandler {
 		int ops = SelectionKey.OP_READ;
 		if (msgStream.needsFlush())
 			ops |= SelectionKey.OP_WRITE;
+		// this now calls FlowVisor.addHandler()
 		loop.register(sock, ops, this);
 	}
 
@@ -178,6 +178,10 @@ public class FVClassifier implements FVEventHandler {
 
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
+		if (this.shutdown) {
+			FVLog.log(LogLevel.WARN, this, "is shutdown: ignoring: " + e);
+			return;
+		}
 		if (Thread.currentThread().getId() != this.getThreadContext()) {
 			// this event was sent from a different thread context
 			loop.queueEvent(e); // queue event
@@ -257,6 +261,8 @@ public class FVClassifier implements FVEventHandler {
 	@Override
 	public void tearDown() {
 		FVLog.log(LogLevel.WARN, this, "tearing down");
+		this.loop.unregister(this.sock, this);
+		this.shutdown = true;
 		try {
 			this.sock.close();
 			// shutdown each of the connections to the controllers
@@ -384,8 +390,7 @@ public class FVClassifier implements FVEventHandler {
 	 * 
 	 * @param sliceName
 	 */
-	public void tearDown(String sliceName) {
-		FlowVisor.getInstance().removeHandler(this);
+	public void tearDownSlice(String sliceName) {
 		if (slicerMap != null) {
 			slicerMap.remove(sliceName);
 			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName

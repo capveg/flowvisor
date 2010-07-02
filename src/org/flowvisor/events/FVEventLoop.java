@@ -11,11 +11,11 @@ import java.nio.channels.Selector;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.fvtimer.FVTimer;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
-import org.flowvisor.events.FVEvent;
 
 /**
  * @author capveg
@@ -35,7 +35,16 @@ public class FVEventLoop {
 		this.eventQueue = new LinkedList<FVEvent>();
 	}
 
+	/**
+	 * Register a new event listener with socket
+	 * 
+	 * @param ch
+	 * @param ops
+	 * @param handler
+	 */
+
 	public void register(SelectableChannel ch, int ops, FVEventHandler handler) {
+		FlowVisor.getInstance().addHandler(handler);
 		try {
 			ch.register(selector, ops, handler);
 		} catch (ClosedChannelException e) {
@@ -44,12 +53,26 @@ public class FVEventLoop {
 		}
 	}
 
+	/**
+	 * Clean up after a dying event handler
+	 * 
+	 * @param ch
+	 *            the socket that was previous registered
+	 * @param handler
+	 *            the handler that was previously registered
+	 */
+	public void unregister(SelectableChannel ch, FVEventHandler handler) {
+		// note, apparently you don't have to manually cancel a selectable
+		// channel; it's handled by socket.close()
+		FlowVisor.getInstance().removeHandler(handler);
+	}
+
 	public void queueEvent(FVEvent e) {
 		synchronized (eventQueue) {
 			eventQueue.add(e);
 		}
 		selector.wakeup(); // tell the selector to come out of sleep: awesome
-							// call!
+		// call!
 	}
 
 	public long getThreadContext() {
@@ -99,8 +122,8 @@ public class FVEventLoop {
 
 			// calc time until next timer event
 			nextTimerEvent = this.fvtimer.processEvent(); // this fires off a
-															// timer event if
-															// it's ready
+			// timer event if
+			// it's ready
 
 			// update the interested ops for each event handler
 			int ops;

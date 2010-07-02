@@ -262,15 +262,18 @@ public class FVSlicer implements FVEventHandler {
 	public void tearDown() {
 		FVLog.log(LogLevel.DEBUG, this, "tearing down");
 		this.isShutdown = true;
-		if (this.sock != null)
+		this.loop.unregister(this.sock, this);
+		if (this.sock != null) {
 			try {
 				this.sock.close(); // FIXME will this also cancel() the key in
 				// the event loop?
 			} catch (IOException e) {
 				// ignore if error... we're shutting down already
 			}
-		fvClassifier.tearDown(this.sliceName); // tell the classifier to forget
-		// about us
+		}
+		// tell the classifier to forget about us
+		fvClassifier.tearDownSlice(this.sliceName);
+
 	}
 
 	/*
@@ -282,8 +285,10 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	@Override
 	public void handleEvent(FVEvent e) throws UnhandledEvent {
-		if (isShutdown)
+		if (isShutdown) {
+			FVLog.log(LogLevel.WARN, this, "is shutdown; ignoring: " + e);
 			return; // don't process any events after shutdown
+		}
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
 		else if (e instanceof ConfigUpdateEvent)
