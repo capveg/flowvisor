@@ -5,6 +5,7 @@ import java.util.List;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.flows.FlowIntersect;
+import org.flowvisor.flows.SliceAction;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
@@ -57,20 +58,28 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 		List<FlowIntersect> intersections = fvSlicer.getFlowSpace().intersects(
 				fvClassifier.getDPID(), this.match);
 
+		int expansions = 0;
 		for (FlowIntersect intersect : intersections) {
 			try {
-				FVFlowMod newFlowMod = (FVFlowMod) this.clone();
-				newFlowMod.setMatch(intersect.getMatch()); // replace match with
-															// the intersection
-				FVLog.log(LogLevel.DEBUG, fvClassifier, "send to switch: "
-						+ this);
-				fvClassifier.getMsgStream().write(newFlowMod);
+				if (intersect.getFlowEntry().hasPermissions(
+						fvSlicer.getSliceName(), SliceAction.WRITE)) {
+					expansions++;
+					FVFlowMod newFlowMod = (FVFlowMod) this.clone();
+					// replace match with the intersection
+					newFlowMod.setMatch(intersect.getMatch());
+					fvClassifier.getMsgStream().write(newFlowMod);
+				}
 			} catch (CloneNotSupportedException e) {
 				FVLog.log(LogLevel.CRIT, fvSlicer,
 						"FlowMod does not implement clone()!?: " + e);
 				return;
 			}
 		}
+		if (expansions == 0)
+			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: " + this);
+		else
+			FVLog.log(LogLevel.DEBUG, fvSlicer, "expanded fm " + expansions
+					+ " times: " + this);
 	}
 
 	/*

@@ -466,4 +466,26 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 		ret.setActionsList(new LinkedList<OFAction>(actionsList));
 		return ret;
 	}
+
+	/**
+	 * Does this slice have permissions 'perms' for this flowEntry
+	 * 
+	 * @param sliceName
+	 * @param perms
+	 * @return true == yes, false == no
+	 */
+	public boolean hasPermissions(String sliceName, int perms) {
+		for (OFAction ofaction : this.actionsList) {
+			if (ofaction instanceof SliceAction) {
+				SliceAction sliceAction = (SliceAction) ofaction;
+				if (sliceName.equals(sliceAction.getSliceName())) {
+					if ((sliceAction.getSlicePerms() & perms) == perms)
+						return true;
+					else
+						return false;
+				}
+			}
+		}
+		return false;
+	}
 }
