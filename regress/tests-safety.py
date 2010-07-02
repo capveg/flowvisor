@@ -74,7 +74,7 @@ try:
         00 00 00 00 00 00 00 00 00 03 00 00 00 00 00 00
         ff ff ff ff ff ff 00 00'''
 
-    error = FvRegress.OFVERSION + '''01 00 0c 00 00 00 00 00 03 00 02'''
+    error = FvRegress.OFVERSION + '''01 00 0c 00 00 01 02 00 03 00 02'''
     h.runTest(name="parse null-body error message", timeout=timeout, events = [
         TestEvent( "send","guest","alice", flow_mod),
         TestEvent( "recv","switch",'switch1', flow_mod_after1),

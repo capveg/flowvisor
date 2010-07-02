@@ -43,8 +43,13 @@ public class FVError extends org.openflow.protocol.OFError implements
 	 */
 	@Override
 	public String toString() {
-		return super.toString() + ";c=" + this.getErrorCode() + ";t="
-				+ getErrorType() + ";msg=" + offendingMsg.toString();
+		String ret = super.toString() + ";c=" + this.getErrorCode() + ";t="
+				+ getErrorType();
+		if (offendingMsg != null)
+			ret += ";msg=" + offendingMsg.toString();
+		else
+			ret += ";msg=NONE(!?)";
+		return ret;
 	}
 
 }
