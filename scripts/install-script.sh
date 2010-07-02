@@ -56,22 +56,22 @@ done
 echo "Using source dir: $base"
 
 test -z "$prefix" && read -p "Installation prefix ($prefix_default): " prefix
-if [ "X$prefix" == "X" ] ; then
+if [ "X$prefix" = "X" ] ; then
     prefix=$prefix_default
 fi
 
 test -z "$fvuser" && read -p "FlowVisor User ($fvuser_default): " fvuser
-if [ "X$fvuser" == "X" ] ; then
+if [ "X$fvuser" = "X" ] ; then
     fvuser=$fvuser_default
 fi
 
 test -z "$fvgroup" && read -p "FlowVisor Group ($fvgroup_default): " fvgroup
-if [ "X$fvgroup" == "X" ] ; then
+if [ "X$fvgroup" = "X" ] ; then
     fvgroup=$group_default
 fi
 
 test -z "$root" && read -p "Install to different root directory ($root_default) " root
-if [ "X$root" == "X" ] ; then
+if [ "X$root" = "X" ] ; then
     root=$root_default
 fi
 
