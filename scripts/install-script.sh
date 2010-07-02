@@ -4,9 +4,18 @@
 # apologies in advance to anyone who has to debug this
 
 prefix_default=/usr/local
-fvuser_default=flowvisor
-fvgroup_default=flowvisor
 root_default=""
+binuser_default=$USER
+bingroup_default=`groups | cut -f1 -d\ `
+ 
+# if root is installing, then assume they don't want to run fv as root
+if [ "X$USER" = "Xroot" ] ; then
+	fvuser_default=flowvisor
+	fvgroup_default=flowvisor
+else
+	fvuser_default=$binuser_default
+	fvgroup_default=$bingroup_default
+fi
 
 install=install
 base=`dirname $0`/..
@@ -67,7 +76,15 @@ fi
 
 test -z "$fvgroup" && read -p "FlowVisor Group ($fvgroup_default): " fvgroup
 if [ "X$fvgroup" = "X" ] ; then
-    fvgroup=$group_default
+    fvgroup=$fvgroup_default
+fi
+
+if [ "X$binuser" = "X" ] ; then
+    binuser=$binuser_default
+fi
+
+if [ "X$bingroup" = "X" ] ; then
+    bingroup=$bingroup_default
 fi
 
 test -z "$root" && read -p "Install to different root directory ($root_default) " root
@@ -107,28 +124,37 @@ for script in $bin_SCRIPTS $sbin_SCRIPTS envs ; do
 done
 
 echo Creating directories
-for d in bin sbin libexec/flowvisor etc/flowvisor ; do 
+
+for d in bin sbin libexec/flowvisor etc ; do 
     echo Creating $prefix/$d
-    $install $verbose --owner=$fvuser --group=$fvgroup --mode=755 -d $root$prefix/$d
+    $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$prefix/$d
 done
 
+echo "Creating $prefix/etc/flowvisor (owned by user=$fvuser  group=$fvgroup)"
+$install $verbose --owner=$fvuser --group=$fvgroup --mode=2750 -d $root$prefix/etc/flowvisor
+
 echo Installing scripts
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=755 -D $bin_SCRIPTS $root$prefix/bin
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=755 -D $sbin_SCRIPTS $root$prefix/sbin
+$install $verbose --owner=$binuser --group=$bingroup --mode=755 $bin_SCRIPTS $root$prefix/bin
+$install $verbose --owner=$binuser --group=$bingroup --mode=755 $sbin_SCRIPTS $root$prefix/sbin
 
 
 echo Installing jars
 cd $owd
 cd $libs
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=644 -D $LIBS $root$prefix/libexec/flowvisor/.
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 $LIBS $root$prefix/libexec/flowvisor
 
 echo Installing flowvisor.jar
 cd $owd
 cd $dist
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=644 -D flowvisor.jar  $root$prefix/libexec/flowvisor/.
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.jar  $root$prefix/libexec/flowvisor
 
 echo Installing configs
 cd $owd
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $scriptd/envs $root$prefix/etc/flowvisor/envs.sh
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $base/mySSLKeyStore $root$prefix/etc/flowvisor
 install_root=$root $root$prefix/sbin/config-gen-default $root$prefix/etc/flowvisor/$config
+if [ $USER != $fvuser ] ; then
+	echo "Setting owner on config file"
+	chown $fvuser $root$prefix/etc/flowvisor/$config
+	chgrp $fvgroup $root$prefix/etc/flowvisor/$config
+fi
