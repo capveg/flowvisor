@@ -29,10 +29,15 @@ public class FlowVisor {
 	/********/
 	String configFile;
 	ArrayList<FVEventHandler> handlers;
+
+	private int port;
 	static FlowVisor instance;
 
-	public FlowVisor(String configFile) {
-		this.configFile = configFile;
+	public FlowVisor(String config[]) {
+		this.configFile = config[0];
+		this.port = 0;
+		if (config.length > 1)
+			this.port = Integer.valueOf(config[1]);
 		this.handlers = new ArrayList<FVEventHandler>();
 	}
 
@@ -59,7 +64,8 @@ public class FlowVisor {
 		FVLog.log(LogLevel.INFO, null, "initializing poll loop");
 		FVEventLoop pollLoop = new FVEventLoop();
 
-		int port = FVConfig.getInt(FVConfig.LISTEN_PORT);
+		if (port == 0)
+			port = FVConfig.getInt(FVConfig.LISTEN_PORT);
 
 		// init topology discovery, if configured for it
 		if (TopologyController.isConfigured())
@@ -105,7 +111,7 @@ public class FlowVisor {
 		if (args.length == 0)
 			usage("need to specify config");
 
-		FlowVisor fv = new FlowVisor(args[0]);
+		FlowVisor fv = new FlowVisor(args);
 		fv.run();
 	}
 
@@ -118,7 +124,7 @@ public class FlowVisor {
 
 	private static void usage(String string) {
 		System.err.println("err: " + string);
-		System.err.println("Usage: FlowVisor configfile.xml");
+		System.err.println("Usage: FlowVisor configfile.xml [port]");
 		System.exit(-1);
 	}
 
