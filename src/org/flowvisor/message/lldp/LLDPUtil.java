@@ -84,8 +84,8 @@ public class LLDPUtil {
 		LLDPTrailer trailer = LLDPTrailer.getTrailer(pi);
 		if (trailer == null)
 			return false;
-		FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(
-				trailer.getSliceName());
+		FVSlicer fvSlicer = fvClassifier
+				.getSlicerByName(trailer.getSliceName());
 		if (fvSlicer == null) {
 			FVLog.log(LogLevel.WARN, fvClassifier,
 					"failed to undo llpd hack for unknown slice '"

@@ -51,8 +51,8 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 			if ((perms & (SliceAction.READ | SliceAction.WRITE)) != 0) {
 				// lookup slice and send msg to them
 				// TODO record buffer id for later validation
-				FVSlicer fvSlicer = fvClassifier.getSlicerMap().get(
-						sliceAction.getSliceName());
+				FVSlicer fvSlicer = fvClassifier.getSlicerByName(sliceAction
+						.getSliceName());
 				if (fvSlicer == null) {
 					FVLog.log(LogLevel.WARN, fvClassifier,
 							"tried to send msg to non-existing slice: "

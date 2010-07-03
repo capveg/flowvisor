@@ -3,7 +3,9 @@ package org.flowvisor.classifier;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,12 +124,10 @@ public class FVClassifier implements FVEventHandler {
 		this.switchInfo = switchInfo;
 	}
 
-	public Map<String, FVSlicer> getSlicerMap() {
-		return slicerMap;
-	}
-
-	public void setSlicerMap(Map<String, FVSlicer> slicerMap) {
-		this.slicerMap = slicerMap;
+	public FVSlicer getSlicerByName(String sliceName) {
+		synchronized (slicerMap) {
+			return slicerMap.get(sliceName);
+		}
 	}
 
 	public XidTranslator getXidTranslator() {
@@ -182,6 +182,8 @@ public class FVClassifier implements FVEventHandler {
 			FVLog.log(LogLevel.WARN, this, "is shutdown: ignoring: " + e);
 			return;
 		}
+		long thisThread = Thread.currentThread().getId();
+		long classifierThread = this.getThreadContext();
 		if (Thread.currentThread().getId() != this.getThreadContext()) {
 			// this event was sent from a different thread context
 			loop.queueEvent(e); // queue event
@@ -366,13 +368,14 @@ public class FVClassifier implements FVEventHandler {
 			}
 		}
 		// foreach slice with previous access, make sure it still has access
-		for (String sliceName : slicerMap.keySet()) {
+		for (Iterator<String> it = slicerMap.keySet().iterator(); it.hasNext();) {
+			String sliceName = it.next();
 			if (!newSlices.contains(sliceName)) {
 				// this slice no longer has access to this switch
 				FVLog.log(LogLevel.INFO, this,
 						"disconnecting: removed from FlowSpace: " + sliceName);
 				slicerMap.get(sliceName).tearDown();
-				slicerMap.remove(sliceName);
+				it.remove();
 			}
 		}
 	}
@@ -427,5 +430,10 @@ public class FVClassifier implements FVEventHandler {
 		} else
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
 					+ msg);
+	}
+
+	public Collection<FVSlicer> getSlicers() {
+		// TODO: figure out if this is a copy and could have SYNCH issues
+		return slicerMap.values();
 	}
 }

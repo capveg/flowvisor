@@ -22,7 +22,7 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 		Short port = Short.valueOf(this.getDesc().getPortNumber());
 		FVLog.log(LogLevel.DEBUG, fvClassifier, "port status mac = "
 				+ HexString.toHexString(this.getDesc().getHardwareAddress()));
-		for (FVSlicer fvSlicer : fvClassifier.getSlicerMap().values()) {
+		for (FVSlicer fvSlicer : fvClassifier.getSlicers()) {
 			if (fvSlicer.portInSlice(port)) {
 				fvSlicer.sendMsg(this);
 			}

@@ -106,6 +106,7 @@ public class FlowSpaceUtil {
 	 */
 	public static Set<Short> getPortsBySlice(long dpid, String slice,
 			FlowMap flowmap) {
+		// SYNCH flowmap
 		Set<Short> ret = new HashSet<Short>();
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
