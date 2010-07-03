@@ -22,7 +22,7 @@ import org.flowvisor.log.LogLevel;
  * 
  */
 public class FVEventLoop {
-	int thread_id;
+	long thread_id;
 	boolean shouldStop;
 	Selector selector;
 	FVTimer fvtimer;
@@ -76,7 +76,7 @@ public class FVEventLoop {
 	}
 
 	public long getThreadContext() {
-		return Thread.currentThread().getId();
+		return thread_id;
 	}
 
 	/****
@@ -102,6 +102,7 @@ public class FVEventLoop {
 	 * 
 	 */
 	public void doEventLoop() throws IOException, UnhandledEvent {
+		this.thread_id = Thread.currentThread().getId();
 		while (!shouldStop) {
 			long nextTimerEvent;
 			int nEvents;
