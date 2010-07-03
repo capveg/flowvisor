@@ -15,6 +15,7 @@ def test_failed(str):
     print "TEST FAILED!!!: " + str
     sys.exit(0)
 
+wantPause = True
 try:
 
     h= FvRegress()

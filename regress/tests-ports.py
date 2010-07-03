@@ -3,6 +3,8 @@ from fvregress import *
 import string     # really?  you have to do this?
 import xmlrpclib
 
+wantPause = True
+
 test="ports"
 try:
 

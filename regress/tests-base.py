@@ -9,6 +9,7 @@ import sys
 #h= HyperTest(guests=[('localhost',54321),('localhost',54322)],
 #    hyperargs=["-v0", "-a", "flowvisor-conf.d-base", "ptcp:%d"% HyperTest.OFPORT],valgrind=valgrindArgs)
 
+wantPause = True
 
 try:
 

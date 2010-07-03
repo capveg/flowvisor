@@ -2,6 +2,8 @@
 from fvregress import *
 import string 	# really?  you have to do this?
 
+wantPause = True
+
 #################################### Start Tests
 try:
     h= FvRegress()

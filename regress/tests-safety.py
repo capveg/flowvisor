@@ -11,6 +11,7 @@ passwd="0fw0rk"
 rpcport=18080
 # start up a flowvisor with 1 switch (default) and two guests
 
+wantPause = True
 
 try:
 
