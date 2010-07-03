@@ -496,11 +496,14 @@ public class FVCtl {
 
 	private static void die(boolean debug, String string, Exception e) {
 		Throwable cause = e;
-		while (cause.getCause() != null)
+		while (cause.getCause() != null) {
+			if (debug)
+				cause.printStackTrace(System.err);
 			cause = cause.getCause();
-		System.err.println(string + cause);
+		}
 		if (debug)
-			e.printStackTrace(System.err);
+			cause.printStackTrace(System.err);
+		System.err.println(string + cause);
 		System.exit(-1);
 	}
 
