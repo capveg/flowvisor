@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -367,17 +367,23 @@ public class FVClassifier implements FVEventHandler {
 				newSlicer.init(); // and start it up
 			}
 		}
+
 		// foreach slice with previous access, make sure it still has access
-		for (Iterator<String> it = slicerMap.keySet().iterator(); it.hasNext();) {
-			String sliceName = it.next();
+		List<String> deletelist = new LinkedList<String>();
+		for (String sliceName : slicerMap.keySet()) {
 			if (!newSlices.contains(sliceName)) {
 				// this slice no longer has access to this switch
 				FVLog.log(LogLevel.INFO, this,
 						"disconnecting: removed from FlowSpace: " + sliceName);
 				slicerMap.get(sliceName).tearDown();
-				it.remove();
+				deletelist.add(sliceName);
 			}
 		}
+		// delete anything we marked in prev pass
+		// should be able to do this in one loop, but can't
+		// seem to iterate over a Map's keys and del inline
+		for (String deleteSlice : deletelist)
+			slicerMap.remove(deleteSlice);
 	}
 
 	public FlowMap getSwitchFlowMap() {
