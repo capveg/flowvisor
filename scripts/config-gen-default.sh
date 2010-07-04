@@ -17,7 +17,8 @@ fi
 
 if [ "X$1" = "X" ] ; then
     echo "$0 newconfig.xml [SSLinfo]" >&2
-    echo "e.g., $0 /tmp/new-config.xml \"cn=Mark Jones, ou=JavaSoft, o=Sun, c=US\"" >&2
+    echo "e.g., $0 /tmp/new-config.xml 192.168.1.53" >&2
+    echo "      make a sslcert with \"cn=192.168.1.53, ou=JavaSoft, o=Sun, c=US\"" >&2
     exit 1
 fi
 
@@ -27,7 +28,7 @@ if [ -f $SSL_KEYSTORE ] ; then
 else
     echo "Trying to generate SSL Server Key with passwd from scripts/envs.sh" >&2
     if [ "X$2" != "X" ] ; then
-        dname="-dname $2"
+        dname="-dname cn=$2"
     fi
     keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keyalg RSA $dname
 fi
