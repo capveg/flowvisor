@@ -182,8 +182,6 @@ public class FVClassifier implements FVEventHandler {
 			FVLog.log(LogLevel.WARN, this, "is shutdown: ignoring: " + e);
 			return;
 		}
-		long thisThread = Thread.currentThread().getId();
-		long classifierThread = this.getThreadContext();
 		if (Thread.currentThread().getId() != this.getThreadContext()) {
 			// this event was sent from a different thread context
 			loop.queueEvent(e); // queue event
