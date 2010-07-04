@@ -16,7 +16,7 @@ else
 fi
 
 if [ "X$1" = "X" ] ; then
-    echo "$0 newconfig.xml [SSLinfo]" >&2
+    echo "$0 newconfig.xml [SSLinfo] [FV_root_password]" >&2
     echo "e.g., $0 /tmp/new-config.xml 192.168.1.53" >&2
     echo "      make a sslcert with \"cn=192.168.1.53, ou=JavaSoft, o=Sun, c=US\"" >&2
     exit 1
@@ -30,10 +30,10 @@ else
     if [ "X$2" != "X" ] ; then
         dname="-dname cn=$2"
     fi
-    keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keyalg RSA $dname
+    keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
 fi
 
 echo "Generating default FlowVisor config file to $1"
-java -cp $classpath org.flowvisor.config.FVConfig $1
+java -cp $classpath org.flowvisor.config.FVConfig $1 $3
 
 echo "You will need to create new slices using the root account"

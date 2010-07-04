@@ -489,8 +489,12 @@ public class FVConfig {
 			System.exit(1);
 		}
 		String filename = args[0];
-		String passwd = FVConfig
-				.readPasswd("Enter password for account 'root' on the flowvisor (will be echo'd!):");
+		String passwd;
+		if (args.length >= 2)
+			passwd = args[1];
+		else
+			passwd = FVConfig
+					.readPasswd("Enter password for account 'root' on the flowvisor (will be echo'd!):");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
 		FVConfig.writeToFile(filename);
