@@ -271,7 +271,7 @@ public class FVClassifier implements FVEventHandler {
 			Map<String, FVSlicer> tmpMap = slicerMap;
 			slicerMap = null; // to prevent tearDown(slice) corruption
 			for (FVSlicer fvSlicer : tmpMap.values())
-				fvSlicer.tearDown();
+				fvSlicer.closeDown(false);
 		} catch (IOException e) {
 			// Silently ignore... already tearing down
 		}
@@ -375,7 +375,7 @@ public class FVClassifier implements FVEventHandler {
 				// this slice no longer has access to this switch
 				FVLog.log(LogLevel.INFO, this,
 						"disconnecting: removed from FlowSpace: " + sliceName);
-				slicerMap.get(sliceName).tearDown();
+				slicerMap.get(sliceName).closeDown(false);
 				deletelist.add(sliceName);
 			}
 		}

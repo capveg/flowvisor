@@ -261,6 +261,10 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	@Override
 	public void tearDown() {
+		closeDown(true);
+	}
+
+	public void closeDown(boolean unregisterClassifier) {
 		FVLog.log(LogLevel.DEBUG, this, "tearing down");
 		this.isShutdown = true;
 		this.loop.unregister(this.sock, this);
@@ -273,7 +277,8 @@ public class FVSlicer implements FVEventHandler {
 			}
 		}
 		// tell the classifier to forget about us
-		fvClassifier.tearDownSlice(this.sliceName);
+		if (unregisterClassifier)
+			fvClassifier.tearDownSlice(this.sliceName);
 
 	}
 
