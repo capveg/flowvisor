@@ -143,15 +143,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String salt = APIAuth.getSalt();
 		String crypt = APIAuth.makeCrypt(salt, newPasswd);
 		sliceName = FVConfig.sanitize(sliceName);
-		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
-		try {
-			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
-			FVConfig
-					.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
-		} catch (ConfigError e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
+		FVConfig.setPasswd(sliceName, salt, crypt);
 		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}

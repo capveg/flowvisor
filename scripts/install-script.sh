@@ -103,6 +103,7 @@ sbin_SCRIPTS="\
     config-dump \
     config-gen-default \
     config-query \
+    config-chpasswd \
     flowvisor \
     "
 

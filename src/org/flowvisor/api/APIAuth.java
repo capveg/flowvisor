@@ -3,13 +3,14 @@
  */
 package org.flowvisor.api;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import org.apache.xmlrpc.XmlRpcException;
-
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.AuthenticationHandler;
@@ -158,5 +159,39 @@ public class APIAuth implements AuthenticationHandler {
 		}
 		// changerSlice is not on the transitive path of who created sliceName
 		return false;
+	}
+
+	/**
+	 * Load a config, and reset the passwd for a given user
+	 * 
+	 * @param args
+	 *            <config.xml> <user>
+	 * 
+	 * @throws FileNotFoundException
+	 */
+
+	public static void main(String args[]) throws FileNotFoundException,
+			IOException {
+		if (args.length != 2) {
+			System.err.println("Usage: APIAuth config.xml sliceName");
+			System.err.println("      change the passwd for a given slice");
+			System.exit(1);
+		}
+		String filename = args[0];
+		String user = args[1];
+		String passwd = FVConfig.readPasswd("Enter password for account '"
+				+ user + "' on the flowvisor (will be echo'd!):");
+		String passwd2 = FVConfig.readPasswd("Enter password again");
+		if (!passwd.equals(passwd2)) {
+			System.err.println("Passwords do not match: please try again");
+			System.exit(1);
+		}
+		System.err.println("Reading config from " + filename);
+		FVConfig.readFromFile(filename);
+		String salt = APIAuth.getSalt();
+		String crypt = APIAuth.makeCrypt(salt, passwd);
+		FVConfig.setPasswd(user, salt, crypt);
+		System.err.println("Writing config back to " + filename);
+		FVConfig.writeToFile(filename);
 	}
 }

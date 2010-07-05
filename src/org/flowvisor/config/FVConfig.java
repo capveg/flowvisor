@@ -500,4 +500,15 @@ public class FVConfig {
 		FVConfig.writeToFile(filename);
 	}
 
+	public static void setPasswd(String sliceName, String salt, String crypt) {
+		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
+		try {
+			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
+			FVConfig
+					.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
+		} catch (ConfigError e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
 }
