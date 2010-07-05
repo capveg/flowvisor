@@ -480,23 +480,34 @@ public class FVConfig {
 	 * @param args
 	 *            filename
 	 * @throws FileNotFoundException
+	 * @throws ConfigError
+	 * @throws NumberFormatException
 	 */
 
 	public static void main(String args[]) throws FileNotFoundException,
-			IOException {
-		if (args.length != 1) {
-			System.err.println("Usage: FVConfig filename");
+			IOException, NumberFormatException, ConfigError {
+		if (args.length < 1) {
+			System.err
+					.println("Usage: FVConfig config.xml [root_passwd] [of_listen_port] [rpc_listen_port]");
 			System.exit(1);
 		}
 		String filename = args[0];
 		String passwd;
-		if (args.length >= 2)
+		if (args.length > 1)
 			passwd = args[1];
 		else
 			passwd = FVConfig
 					.readPasswd("Enter password for account 'root' on the flowvisor (will be echo'd!):");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
+		// set the listen port, if requested
+		if (args.length > 2)
+			FVConfig.setInt(FVConfig.LISTEN_PORT, Integer.valueOf(args[2]));
+		// set the api listen port, if requested
+		if (args.length > 3)
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, Integer
+					.valueOf(args[3]));
+
 		FVConfig.writeToFile(filename);
 	}
 
