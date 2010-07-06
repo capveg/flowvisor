@@ -153,10 +153,10 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 				matchType = tmpIntersect.getMatchType();
 
 				if ((matchType == MatchType.EQUAL)
-						|| (matchType == MatchType.SUBSET)) {
+						|| (matchType == MatchType.SUPERSET)) {
 					eclipsed = true;
 					break;
-				} else if (matchType == MatchType.SUPERSET) {
+				} else if (matchType == MatchType.SUBSET) {
 					merge = tmpIntersect; // then update with the intersection
 				}
 				// note: if matchtype == NONE, then tmpIntersect.getMatch() is

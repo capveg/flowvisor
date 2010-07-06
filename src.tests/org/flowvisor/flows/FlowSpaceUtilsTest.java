@@ -8,6 +8,7 @@ import org.flowvisor.config.DefaultConfig;
 import org.flowvisor.config.FVConfig;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPort;
+import org.openflow.util.U16;
 
 public class FlowSpaceUtilsTest extends TestCase {
 
@@ -74,6 +75,36 @@ public class FlowSpaceUtilsTest extends TestCase {
 		TestCase.assertEquals(10, flowMap.countRules());
 		for (FlowEntry flowEntry : flowMap.getRules())
 			TestCase.assertEquals(dpid, flowEntry.getDpid());
+	}
+
+	/**
+	 * this is a junit test of tests-vlan.py: this must pass before that can
+	 * pass
+	 * 
+	 * Make sure that a higher priority FlowEntry with a specific vlan does not
+	 * eclipse a match all entry
+	 * 
+	 */
+	public void testVlanEclipe() {
+		FlowMap flowMap = new LinearFlowMap();
+		OFMatch matchVlan = new OFMatch();
+		matchVlan.fromString("dl_vlan=512");
+		FlowEntry feVlan = new FlowEntry(matchVlan, new SliceAction("alice",
+				SliceAction.WRITE));
+		feVlan.setPriority(1000);
+		flowMap.addRule(feVlan);
+
+		TestCase.assertEquals(512, U16.f(feVlan.getRuleMatch()
+				.getDataLayerVirtualLan()));
+		FlowEntry feAll = new FlowEntry(new OFMatch(), new SliceAction("bob",
+				SliceAction.WRITE));
+		feAll.setPriority(500);
+		flowMap.addRule(feAll);
+
+		Set<String> slices = FlowSpaceUtil.getSlicesByDPID(flowMap, 1);
+		TestCase.assertTrue(slices.contains("alice"));
+		TestCase.assertTrue(slices.contains("bob"));
+		TestCase.assertEquals(2, slices.size());
 	}
 	/*
 	 * TODO: Need to fix!
