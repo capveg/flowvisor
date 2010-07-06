@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.flowvisor.config.DefaultConfig;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
+import org.openflow.util.U16;
 
 public class FlowEntryTest extends TestCase {
 
@@ -134,5 +135,12 @@ public class FlowEntryTest extends TestCase {
 		FlowIntersect allIntoPing = pingFE.matches(1, allMatch);
 		TestCase.assertEquals(pingMatch, allIntoPing.getMatch());
 
+	}
+
+	public void testOFMatchFormat() {
+		OFMatch match = new OFMatch();
+		match.fromString("tp_dst=51365,nw_src=108.22.0.0/15");
+		// works if doesn't fail assert?
+		TestCase.assertEquals(51365, U16.f(match.getTransportDestination()));
 	}
 }
