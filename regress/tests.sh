@@ -12,6 +12,7 @@ tests-ports.py \
 tests-safety.py \
 tests-deleteSlice.py \
 tests-josh-arp.py \
+tests-vlan.py \
 "
 
     

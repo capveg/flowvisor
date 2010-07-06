@@ -4,6 +4,7 @@
 package org.flowvisor.flows;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,10 +30,8 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 		OFMatch m = new OFMatch();
 		m.loadFromPacket(packetData, inputPort);
 		List<FlowEntry> list = matches(dpid, m);
-		// we should match zero or one thing
-		int size = list.size();
-		assert (size <= 1); // should not get more than 1 result here
-		if (size == 1)
+		// if we match more than one thing, return the highest priority
+		if (list.size() > 0)
 			return list.get(0);
 		return null;
 	}
@@ -65,10 +64,10 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 	 */
 	@Override
 	public List<FlowEntry> matches(long dpid, OFMatch match) {
-		List<FlowEntry> results = new ArrayList<FlowEntry>();
-		List<FlowIntersect> interList = intersects(dpid, match);
-		for (FlowIntersect inter : interList) {
-			results.add(inter.getFlowEntry());
+		List<FlowEntry> results = new LinkedList<FlowEntry>();
+		for (FlowEntry rule : this.rules) {
+			if (rule.matches(dpid, match).getMatchType() != MatchType.NONE)
+				results.add(rule);
 		}
 		return results;
 	}

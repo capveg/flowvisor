@@ -105,6 +105,14 @@ public class FlowSpaceUtilsTest extends TestCase {
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
 		TestCase.assertEquals(2, slices.size());
+
+		FlowMap subMap = FlowSpaceUtil.getSubFlowMap(flowMap, 1, new OFMatch());
+
+		slices = FlowSpaceUtil.getSlicesByDPID(subMap, 1);
+		TestCase.assertTrue(slices.contains("alice"));
+		TestCase.assertTrue(slices.contains("bob"));
+		TestCase.assertEquals(2, slices.size());
+
 	}
 	/*
 	 * TODO: Need to fix!

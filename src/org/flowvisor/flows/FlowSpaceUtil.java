@@ -209,9 +209,12 @@ public class FlowSpaceUtil {
 	public static FlowMap getSubFlowMap(FlowMap flowMap, long dpid,
 			OFMatch match) {
 		FlowMap neoFlowMap = new LinearFlowMap();
-		List<FlowIntersect> flowIntersects = flowMap.intersects(dpid, match);
-		for (FlowIntersect flowIntersect : flowIntersects)
-			neoFlowMap.addRule(flowIntersect.getFlowEntry().clone());
+		List<FlowEntry> flowEntries = flowMap.matches(dpid, match);
+		for (FlowEntry flowEntry : flowEntries) {
+			FlowEntry neoFlowEntry = flowEntry.clone();
+			neoFlowEntry.setDpid(dpid);
+			neoFlowMap.addRule(neoFlowEntry);
+		}
 
 		return neoFlowMap;
 	}

@@ -50,7 +50,7 @@ try:
             3354 51d5 0036'''
     h.runTest(name="switch2controller packet_in routing - shared port", timeout=timeout, events= [
             TestEvent( "send","switch",'switch1', packet_no_vlan1),
-            TestEvent( "recv","guest",'bob', packet_to_no_vlan1),
+            TestEvent( "recv","guest",'bob', packet_no_vlan1),
             TestEvent( "send","switch",'switch1', packet_no_vlan2),
             TestEvent( "recv","guest",'bob', packet_no_vlan2),
             ])
