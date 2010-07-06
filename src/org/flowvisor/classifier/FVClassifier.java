@@ -352,13 +352,22 @@ public class FVClassifier implements FVEventHandler {
 				this.switchFlowMap, this.switchInfo.getDatapathId());
 		if (TopologyController.isConfigured())
 			newSlices.add(TopologyController.getTopoUser());
+		StringBuffer strbuf = new StringBuffer();
+		for (String sliceName : newSlices) {
+			if (strbuf.length() > 0) // prune the last
+				strbuf.append(',');
+			strbuf.append(sliceName);
+		}
+
+		FVLog.log(LogLevel.DEBUG, this, "slices with access="
+				+ strbuf.toString());
 		// foreach slice, make sure it has access to this switch
 		for (String sliceName : newSlices) {
 			if (slicerMap == null)
 				throw new NullPointerException("slicerMap is null!?");
 			if (!slicerMap.containsKey(sliceName)) {
-				FVLog.log(LogLevel.INFO, this, "connecting to slice "
-						+ sliceName);
+				FVLog.log(LogLevel.INFO, this,
+						"making new connection to slice " + sliceName);
 				FVSlicer newSlicer = new FVSlicer(this.loop, this, sliceName);
 				slicerMap.put(sliceName, newSlicer); // create new slicer in
 				// this same EventLoop
