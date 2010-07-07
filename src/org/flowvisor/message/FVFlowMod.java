@@ -10,6 +10,7 @@ import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError.OFBadActionCode;
+import org.openflow.protocol.OFError.OFFlowModFailedCode;
 import org.openflow.protocol.action.OFAction;
 
 public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
@@ -75,9 +76,11 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 				return;
 			}
 		}
-		if (expansions == 0)
+		if (expansions == 0) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: " + this);
-		else
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+					OFFlowModFailedCode.OFPFMFC_EPERM, this));
+		} else
 			FVLog.log(LogLevel.DEBUG, fvSlicer, "expanded fm " + expansions
 					+ " times: " + this);
 	}

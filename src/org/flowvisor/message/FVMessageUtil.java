@@ -11,17 +11,17 @@ import org.flowvisor.classifier.XidPair;
 import org.flowvisor.classifier.XidTranslator;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.ActionDisallowedException;
-import org.flowvisor.slicer.*;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
-import org.flowvisor.message.actions.*;
-
+import org.flowvisor.message.actions.SlicableAction;
+import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.OFError.OFBadRequestCode;
 import org.openflow.protocol.OFError.OFErrorType;
+import org.openflow.protocol.OFError.OFFlowModFailedCode;
 import org.openflow.protocol.OFError.OFPortModFailedCode;
 import org.openflow.protocol.action.OFAction;
 
@@ -120,6 +120,14 @@ public class FVMessageUtil {
 		}
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
 		fvSlicer.sendMsg(msg);
+	}
+
+	public static OFMessage makeErrorMsg(OFFlowModFailedCode code, OFMessage msg) {
+		OFError err = new FVError();
+		err.setErrorType(OFErrorType.OFPET_FLOW_MOD_FAILED);
+		err.setErrorCode(code);
+		err.setOffendingMsg(msg);
+		return err;
 	}
 
 	public static OFMessage makeErrorMsg(OFPortModFailedCode code, OFMessage msg) {
