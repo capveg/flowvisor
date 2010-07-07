@@ -10,6 +10,16 @@ INSTALL:
 
     This puts scripts and jars into a specified $prefix
 
+CONFIG:
+    Build a default configuration with:
+    ./scripts/config-gen-default.sh <config.xml>
+
+    List the contents of the config.xml:
+    ./scripts/config-dump.sh <config.xml>
+
+    The best way to edit the config is to run flowvisor (below)
+    and use fvctl to to issue commands to the running flowvisor.
+
 RUN: 
     To run flowvisor:
         ./scripts/flowvisor.sh config.xml
