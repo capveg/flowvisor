@@ -5,11 +5,11 @@ import java.util.List;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.exceptions.ActionDisallowedException;
 import org.flowvisor.flows.FlowEntry;
+import org.flowvisor.flows.SliceAction;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.slicer.FVSlicer;
-
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketOut;
 import org.openflow.protocol.OFPort;
@@ -55,9 +55,13 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 				List<FlowEntry> flowEntries = fvClassifier.getSwitchFlowMap()
 						.matches(fvClassifier.getSwitchInfo().getDatapathId(),
 								match);
-				if ((flowEntries == null) || (flowEntries.size() < 1)) { // didn't
-																			// match
-																			// anything
+				if ((flowEntries == null) // got no response
+						|| (flowEntries.size() < 1) // nothing matched
+						// has write permissions
+						|| (!flowEntries.get(0).hasPermissions(
+								fvSlicer.getSliceName(), SliceAction.WRITE))
+				// TODO add buffer_id check here
+				) {
 					FVLog.log(LogLevel.WARN, fvSlicer,
 							"EPERM bad encap packet: " + this);
 					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
