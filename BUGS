@@ -1,49 +1,13 @@
-changePasswd isn't registered
 
+Please post bugs to:
 
-nw_dst parsing fails:
-[capveg@grr flowvisor-nwo-java]$ ./scripts/fvctl.sh addFlowSpace 7 00:11:22:33:44:55:66:77 tp_dst=80,nw_src=128.8.128.118/32 Slice:bob=4
-WARN: blindly trusting server cert - FIXME
-    Local sanity checks: Exception in thread "main" java.lang.reflect.InvocationTargetException
-    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-    at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-    at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-    at java.lang.reflect.Method.invoke(Unknown Source)
-    at org.flowvisor.api.FVCtl$APICmd.invoke(FVCtl.java:83)
-at org.flowvisor.api.FVCtl.main(FVCtl.java:373)
-    Caused by: java.lang.ArrayIndexOutOfBoundsException: 0
-    at org.openflow.protocol.OFMatch.setFromCIDR(Unknown Source)
-    at org.openflow.protocol.OFMatch.fromString(Unknown Source)
-    at org.flowvisor.api.FlowChange.fromMap(FlowChange.java:97)
-    at org.flowvisor.api.FVCtl.do_flowSpaceChange(FVCtl.java:295)
-at org.flowvisor.api.FVCtl.run_addFlowSpace(FVCtl.java:282)
-    ... 6 more
+    http://www.openflowswitch.org/bugs/flowvisor
 
+The best bug reports include:
 
-getConfig on a directory dies: -- need to enable recursive dumping
+1) if and how the bug can be replicated
+2) a stack trace (if available)
+3) tcpdump's of both the switch<-->FV and FV<-->controllers 
+	openflow control channels
 
-getLinks() returns a fake topology!
-
-FVConfig.readPasswd() echo's the password
-    - run System(stty -echo) to enable/disable echoing
-
-Regression Test Suite: weird (irrelevant) errors on shutdown:
-    intermittent... doesn't happen all of the time
-    <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'error'                                                                               
-
-
-DEBUG:classifier-dpid:1760023474e2ec0:: received from switch: ofmsg:v=1;t=STATS_REPLY;l=140;x=34094;st=TABLE
-DEBUG:slicer_srini_dpid:1760023474e2ec0:: send to controller: ofmsg:v=1;t=STATS_REPLY;l=140;x=0;st=TABLE
-    Exception in thread "main" java.lang.RuntimeException: Message length exceeds buffer capacity: 140
-    at org.openflow.io.OFMessageAsyncStream.appendMessageToOutBuf(Unknown Source)
-    at org.openflow.io.OFMessageAsyncStream.write(Unknown Source)
-    at org.flowvisor.slicer.FVSlicer.sendMsg(FVSlicer.java:176)
-    at org.flowvisor.message.statistics.FVTableStatistics.classifyFromSwitch(FVTableStatistics.java:32)
-    at org.flowvisor.message.FVStatisticsReply.classifyFromSwitch(FVStatisticsReply.java:23)
-    at org.flowvisor.classifier.FVClassifier.classifyOFMessage(FVClassifier.java:266)
-    at org.flowvisor.classifier.FVClassifier.handleIOEvent(FVClassifier.java:221)
-    at org.flowvisor.classifier.FVClassifier.handleEvent(FVClassifier.java:184)
-    at org.flowvisor.events.FVEventLoop.doEventLoop(FVEventLoop.java:137)
-    at org.flowvisor.FlowVisor.run(FlowVisor.java:65)
-at org.flowvisor.FlowVisor.main(FlowVisor.java:94)
-
+Thanks in advance!
