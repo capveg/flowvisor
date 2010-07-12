@@ -30,6 +30,7 @@ import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.util.HexString;
+import org.openflow.util.U16;
 
 /**
  * This is the actual UserAPI that gets wrapped via XMLRPC In theory
@@ -228,7 +229,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		for (Iterator<OFPhysicalPort> it = config.getPorts().iterator(); it
 				.hasNext();) {
 			OFPhysicalPort port = it.next();
-			portList += port.getPortNumber();
+			portList += U16.f(port.getPortNumber());
 			if (it.hasNext())
 				portList += ",";
 		}
