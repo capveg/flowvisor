@@ -33,6 +33,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
+import org.flowvisor.exceptions.MapUnparsable;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -233,16 +234,24 @@ public class FVCtl {
 		}
 	}
 
-	public void run_getLinks() throws XmlRpcException {
+	@SuppressWarnings("unchecked")
+	public void run_getLinks() throws XmlRpcException, MapUnparsable {
 		Object[] reply = (Object[]) this.client.execute("api.getLinks",
 				new Object[] {});
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
 		}
+		Map<String, String> map;
 		for (int i = 0; i < reply.length; i++) {
-			LinkAdvertisement ad = (LinkAdvertisement) reply[i];
-			System.out.println("Device " + i + ": " + ad);
+			if (!(reply[i] instanceof Map<?, ?>)) {
+				System.err.println("not a map: Skipping unparsed reply: "
+						+ reply[i]);
+			} else {
+				map = (Map<String, String>) reply[i];
+				LinkAdvertisement ad = LinkAdvertisement.fromMap(map);
+				System.out.println("Link " + i + ": " + ad);
+			}
 		}
 	}
 

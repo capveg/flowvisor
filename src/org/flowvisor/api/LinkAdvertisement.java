@@ -6,6 +6,8 @@ package org.flowvisor.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.flowvisor.exceptions.MapUnparsable;
+
 /**
  * 
  * @author capveg
@@ -98,6 +100,48 @@ public class LinkAdvertisement {
 		}
 		map.put("attributes", attribs);
 		return map;
+	}
+
+	static public boolean checkKey(String keyname, Map<String, String> map)
+			throws MapUnparsable {
+		if (!map.containsKey(keyname))
+			throw new MapUnparsable("key not found: " + keyname);
+		return true;
+	}
+
+	static public LinkAdvertisement fromMap(Map<String, String> map)
+			throws MapUnparsable {
+		LinkAdvertisement ad;
+
+		checkKey("srcDPID", map);
+		checkKey("dstDPID", map);
+		checkKey("srcPort", map);
+		checkKey("dstPort", map);
+
+		ad = new LinkAdvertisement(map.get("srcDPID"), Integer.valueOf(map
+				.get("srcPort")), map.get("dstDPID"), Integer.valueOf(map
+				.get("dstPort")));
+		if (map.containsKey("attributes")) {
+			String[] attribs = map.get("attributes").split(",");
+			for (int i = 0; i < attribs.length; i++) {
+				String[] keyvalue = attribs[i].split("=");
+				ad.setAttribute(keyvalue[0], keyvalue[1]);
+			}
+		}
+
+		return ad;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Link[srcDPID=" + srcDPID + ", srcPort=" + srcPort + ",dstDPID="
+				+ dstDPID + ",dstPort=" + dstPort + ",attributes=" + attributes
+				+ "]";
 	}
 
 }
