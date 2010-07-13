@@ -154,13 +154,21 @@ public class TopologyConnection implements FVEventHandler {
 		for (Iterator<Short> fastIterator = this.fastPorts.iterator(); fastIterator
 				.hasNext();) {
 			Short port = fastIterator.next();
+			FVLog.log(LogLevel.DEBUG, this, "sending fast probe to port "
+					+ port);
 			sendLLDP(this.phyMap.get(port));
 		}
 		// send a probe for the next slow port
 		if (this.slowPorts.size() > 0) {
 			if (!this.slowIterator.hasNext())
 				this.slowIterator = this.slowPorts.iterator();
-			sendLLDP(this.phyMap.get(this.slowIterator.next()));
+			if (this.slowIterator.hasNext()) {
+				short port = this.slowIterator.next();
+				sendLLDP(this.phyMap.get(port));
+				FVLog.log(LogLevel.DEBUG, this, "sending slow probe to port "
+						+ port);
+			}
+
 		}
 		// reschedule timer
 		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
@@ -357,21 +365,24 @@ public class TopologyConnection implements FVEventHandler {
 	private void doJustConnected() {
 		this.name = "topoDpid="
 				+ HexString.toHexString(this.featuresReply.getDatapathId());
-		FVLog.log(LogLevel.INFO, this, "starting topo discover");
+		FVLog.log(LogLevel.INFO, this, "starting topo discover: fasttimer = "
+				+ this.fastProbeRate);
 		// just one time; the timer event will cause them more often
 		List<OFPhysicalPort> ports = featuresReply.getPorts();
 		if (ports.size() < 1)
 			FVLog.log(LogLevel.WARN, this, "got switch with no ports!?!");
 
 		for (OFPhysicalPort port : ports) {
+			FVLog.log(LogLevel.DEBUG, this, "sending init probe to port "
+					+ port.getPortNumber());
 			sendLLDP(port);
 			this.slowPorts.add(Short.valueOf(port.getPortNumber()));
 			this.phyMap.put(Short.valueOf(port.getPortNumber()), port);
 		}
+		this.slowIterator = this.slowPorts.iterator();
 		// schedule timer
 		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
 				+ this.fastProbeRate, this, this, null));
-		this.slowIterator = this.slowPorts.iterator();
 	}
 
 	private void sendLLDP(OFPhysicalPort port) {
@@ -462,9 +473,10 @@ public class TopologyConnection implements FVEventHandler {
 	public synchronized void signalFastPort(short port) {
 		Short sPort = Short.valueOf(port);
 		if (this.slowPorts.contains(sPort)) {
-			FVLog.log(LogLevel.MOBUG, this, "setting slow port to fast: "
+			FVLog.log(LogLevel.DEBUG, this, "setting slow port to fast: "
 					+ port);
 			this.slowPorts.remove(sPort);
+			this.slowIterator = this.slowPorts.iterator();
 			this.fastPorts.add(sPort);
 		} else if (!this.fastPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
