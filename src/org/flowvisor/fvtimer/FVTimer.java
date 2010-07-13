@@ -39,6 +39,12 @@ public class FVTimer {
 		FVLog.log(LogLevel.MOBUG, null, "Events in timer queue: " + pq.size());
 	}
 
+	public void logEventQueue(String prefix, LogLevel level) {
+		for (FVTimerEvent e : this.pq) {
+			FVLog.log(level, null, prefix + " " + e);
+		}
+	}
+
 	/***
 	 * Compare the current wall clock time to the next event in the queue. If
 	 * there is nothing in the queue, return MAX_TIMEOUT If the time for this
@@ -50,13 +56,16 @@ public class FVTimer {
 		FVTimerEvent e = this.pq.peek();
 
 		while ((e != null) && (e.getExpireTime() <= now)) {
+			this.logEventQueue("before_process_event", LogLevel.MOBUG);
 			pq.remove();
 			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event "
 					+ e.getId() + " scheduling err = "
 					+ (now - e.getExpireTime()));
 			e.getDst().handleEvent(e);
 			e = this.pq.peek();
+			this.logEventQueue("after_process_event", LogLevel.MOBUG);
 		}
+
 		if (e == null)
 			return MAX_TIMEOUT;
 		else
