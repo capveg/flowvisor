@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ import org.openflow.util.HexString;
  */
 public class TopologyConnection implements FVEventHandler {
 
+	private static final int LLDPLen = 64;
 	TopologyController topologyController;
 	FVEventLoop pollLoop;
 	SocketChannel sock;
@@ -147,6 +149,7 @@ public class TopologyConnection implements FVEventHandler {
 	 * </ul>
 	 */
 	private void handleTimerEvent(FVTimerEvent e) {
+		FVLog.log(LogLevel.DEBUG, this, "sending probes");
 		// send a probe per fast port
 		for (Iterator<Short> fastIterator = this.fastPorts.iterator(); fastIterator
 				.hasNext();) {
@@ -160,8 +163,8 @@ public class TopologyConnection implements FVEventHandler {
 			sendLLDP(this.phyMap.get(this.slowIterator.next()));
 		}
 		// reschedule timer
-		this.pollLoop.addTimer(new FVTimerEvent(this.fastProbeRate, this, this,
-				null));
+		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
+				+ this.fastProbeRate, this, this, null));
 	}
 
 	private void handleIOEvent(FVIOEvent e) {
@@ -354,21 +357,27 @@ public class TopologyConnection implements FVEventHandler {
 	private void doJustConnected() {
 		this.name = "topoDpid="
 				+ HexString.toHexString(this.featuresReply.getDatapathId());
+		FVLog.log(LogLevel.INFO, this, "starting topo discover");
 		// just one time; the timer event will cause them more often
-		for (OFPhysicalPort port : featuresReply.getPorts()) {
+		List<OFPhysicalPort> ports = featuresReply.getPorts();
+		if (ports.size() < 1)
+			FVLog.log(LogLevel.WARN, this, "got switch with no ports!?!");
+
+		for (OFPhysicalPort port : ports) {
 			sendLLDP(port);
 			this.slowPorts.add(Short.valueOf(port.getPortNumber()));
 			this.phyMap.put(Short.valueOf(port.getPortNumber()), port);
 		}
 		// schedule timer
-		this.pollLoop.addTimer(new FVTimerEvent(this.fastProbeRate, this, this,
-				null));
+		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
+				+ this.fastProbeRate, this, this, null));
 		this.slowIterator = this.slowPorts.iterator();
 	}
 
 	private void sendLLDP(OFPhysicalPort port) {
 		OFPacketOut packetOut = (OFPacketOut) this.fvMessageFactory
 				.getMessage(OFType.PACKET_OUT);
+		packetOut.setBufferId(-1);
 		List<OFAction> actionsList = new LinkedList<OFAction>();
 		OFActionOutput out = (OFActionOutput) this.fvMessageFactory
 				.getAction(OFActionType.OUTPUT);
@@ -386,13 +395,17 @@ public class TopologyConnection implements FVEventHandler {
 
 	private byte[] makeLLDP(short portNumber, byte[] hardwareAddress) {
 		// TODO steal a real LLDP implementation
-		byte[] buf = new byte[24];
+		int size = LLDPLen; // needs to be some minsize to avoid ethernet
+		// problems
+		byte[] buf = new byte[size];
 		ByteBuffer bb = ByteBuffer.wrap(buf);
 		bb.put(LLDPUtil.LLDP_MULTICAST); // dst addr
 		bb.put(hardwareAddress); // src addr
 		bb.putShort(LLDPUtil.ETHER_LLDP);
 		bb.putLong(this.featuresReply.getDatapathId());
 		bb.putShort(portNumber);
+		while (bb.position() <= (size - 4))
+			bb.putInt(0xcafebabe); // fill with well known padding
 		return buf;
 	}
 
@@ -412,12 +425,12 @@ public class TopologyConnection implements FVEventHandler {
 	}
 
 	static public DPIDandPort parseLLDP(byte[] packet) {
-		if (packet == null || packet.length != 24)
+		if (packet == null || packet.length != LLDPLen)
 			return null; // invalid lldp
 		ByteBuffer bb = ByteBuffer.wrap(packet);
 		byte[] dst = new byte[6];
 		bb.get(dst);
-		if (!dst.equals(LLDPUtil.LLDP_MULTICAST))
+		if (!Arrays.equals(dst, LLDPUtil.LLDP_MULTICAST))
 			return null;
 		bb.position(12);
 		short etherType = bb.getShort();

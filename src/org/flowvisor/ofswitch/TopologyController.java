@@ -43,7 +43,7 @@ public class TopologyController extends OFSwitchAcceptor {
 	private long timeoutPeriod;
 
 	static long defaultUpdatePeriod = 1000; // in milliseconds
-	static long defaultTimeoutPeriod = 2000; // in milliseconds
+	static long defaultTimeoutPeriod = 5000; // in milliseconds
 
 	public static TopologyController getRunningInstance() {
 		return TopologyController.runningInstance;
@@ -117,9 +117,12 @@ public class TopologyController extends OFSwitchAcceptor {
 				.iterator(); it.hasNext();) {
 			LinkAdvertisement linkAdvertisement = it.next();
 			long tooLate = System.currentTimeMillis() + this.timeoutPeriod;
-			if (latestProbes.get(linkAdvertisement).longValue() < tooLate) {
+			long thisProbe = latestProbes.get(linkAdvertisement).longValue();
+			if (thisProbe > tooLate) {
 				FVLog.log(LogLevel.INFO, this, "removing link "
 						+ linkAdvertisement);
+				FVLog.log(LogLevel.DEBUG, this, "timeout: " + thisProbe + " > "
+						+ tooLate);
 				this.doCallback = true;
 				it.remove();
 			}
