@@ -106,7 +106,8 @@ public class LinkAdvertisement {
 				attribs += ",";
 			attribs += attrib + "=" + attributes.get(attrib);
 		}
-		map.put("attributes", attribs);
+		if (!attribs.equals("")) // only add an "attributes" if non-empty
+			map.put("attributes", attribs);
 		return map;
 	}
 
@@ -147,9 +148,13 @@ public class LinkAdvertisement {
 	 */
 	@Override
 	public String toString() {
-		return "Link[srcDPID=" + srcDPID + ", srcPort=" + srcPort + ",dstDPID="
-				+ dstDPID + ",dstPort=" + dstPort + ",attributes=" + attributes
-				+ "]";
+		if (attributes.size() > 0)
+			return "Link[srcDPID=" + srcDPID + ",srcPort=" + srcPort
+					+ ",dstDPID=" + dstDPID + ",dstPort=" + dstPort
+					+ ",attributes=" + attributes + "]";
+		else
+			return "Link[srcDPID=" + srcDPID + ",srcPort=" + srcPort
+					+ ",dstDPID=" + dstDPID + ",dstPort=" + dstPort + "]";
 	}
 
 }
