@@ -5,6 +5,7 @@ package org.flowvisor.message.lldp;
 
 import java.nio.ByteBuffer;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -23,6 +24,7 @@ public class LLDPUtil {
 	final public static short ETHER_VLAN = (short) 0x8100;
 	final public static byte[] LLDP_MULTICAST = { 0x01, 0x23, 0x20, 0x00, 0x00,
 			0x01 };
+	final static int MIN_FV_NAME = 20;
 
 	/**
 	 * If this msg is lldp, then 1) add a slice identifying trailer 2) send to
@@ -41,9 +43,18 @@ public class LLDPUtil {
 			FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		if (!LLDPCheck(po.getPacketData()))
 			return false;
-		LLDPTrailer trailer = new LLDPTrailer(fvSlicer.getSliceName(), "fv1");
+		String fvName = FlowVisor.getInstance().getInstanceName();
+		/**
+		 * This is a hack to ensure that the resulting lldp packet is larger
+		 * than 60: #133
+		 */
+		if (fvName.length() < MIN_FV_NAME) // pad out to min length size
+			fvName = String.format("%1$" + LLDPUtil.MIN_FV_NAME + "s", fvName);
+
+		LLDPTrailer trailer = new LLDPTrailer(fvSlicer.getSliceName(), fvName);
 		trailer.appendTo(po);
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "applied lldp hack: " + po);
+		FVLog.log(LogLevel.DEBUG, fvSlicer, "applied lldp hack: " + po
+				+ " slice=" + fvSlicer.getSliceName());
 		fvClassifier.getMsgStream().write(po);
 		return true;
 	}

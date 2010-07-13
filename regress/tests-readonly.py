@@ -91,11 +91,15 @@ try:
     00 00 00 08 00 00 00 00 f1 23 20 00 00 01 00 21
     5c 54 a6 a1 88 cc 02 07 04 00 12 e2 98 a5 ce 04
     03 02 00 00 06 02 00 78 00 00'''
-    lldp_after_fv = FvRegress.OFVERSION + '''0d 00 4d 00 00 00 00 ff ff ff ff ff fd 00 08
-    00 00 00 08 00 00 00 00 f1 23 20 00 00 01 00 21
-    5c 54 a6 a1 88 cc 02 07 04 00 12 e2 98 a5 ce 04
-    03 02 00 00 06 02 00 78 00 00 09 81 07 61 6c 69
-    63 65 00 66 76 31 00 06 04 de ad ca fe'''
+    lldp_after_fv = FvRegress.OFVERSION + \
+        '''0d 00 5e 00 00 00 00 ff ff ff ff ff fd 00 08
+        00 00 00 08 00 00 00 00 f1 23 20 00 00 01 00 21
+        5c 54 a6 a1 88 cc 02 07 04 00 12 e2 98 a5 ce 04
+        03 02 00 00 06 02 00 78 00 00 12 01 07 61 6c 69
+        63 65 00 20 20 20 20 6d 61 67 69 63 20 66 6c 6f
+        77 76 69 73 6f 72 31 00 06 15 de ad ca fe'''
+
+
     h.runTest(name="LLDP packet_out",timeout=timeout,  events= [
             TestEvent( "send","guest","alice", lldp_packet_out),
             TestEvent( "recv","switch","switch1", lldp_after_fv),

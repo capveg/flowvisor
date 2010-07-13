@@ -41,21 +41,23 @@ try:
                 0000 001e d7c3 cdc0 251b e6dc ea0c 726d
                 983f 2b71 c2e4 1b6f bc11 8250'''
     lldp_out_after_prod = FvRegress.OFVERSION + \
-            '''0d 00 6a 00 00 ab cd ff ff ff ff ff ff 00 08
+                '''0d 00 7b 00 00 ab cd ff ff ff ff ff ff 00 08
                 00 00 00 08 00 01 00 80 01 23 20 00 00 01 00 00
                 00 00 00 00 88 cc 45 00 00 32 00 00 40 00 40 11
                 28 68 c0 a8 c8 00 c0 a8 c9 01 00 01 00 00 00 1e
                 d7 c3 cd c0 25 1b e6 dc ea 0c 72 6d 98 3f 2b 71
-                c2 e4 1b 6f bc 11 82 50 09 01 07 70 72 6f 64 00
-                66 76 31 00 05 04 de ad ca fe'''
+                c2 e4 1b 6f bc 11 82 50 11 81 07 70 72 6f 64 00
+                20 20 20 20 6d 61 67 69 63 20 66 6c 6f 77 76 69
+                73 6f 72 31 00 05 15 de ad ca fe'''
     lldp_out_after_ncast = FvRegress.OFVERSION + \
-                '''0d 00 6b 00 00 ab cd ff ff ff ff ff ff 00 08
+                '''0d 00 7c 00 00 ab cd ff ff ff ff ff ff 00 08
                 00 00 00 08 00 01 00 80 01 23 20 00 00 01 00 00
                 00 00 00 00 88 cc 45 00 00 32 00 00 40 00 40 11
                 28 68 c0 a8 c8 00 c0 a8 c9 01 00 01 00 00 00 1e
                 d7 c3 cd c0 25 1b e6 dc ea 0c 72 6d 98 3f 2b 71
-                c2 e4 1b 6f bc 11 82 50 09 81 07 6e 63 61 73 74
-                00 66 76 31 00 06 04 de ad ca fe'''
+                c2 e4 1b 6f bc 11 82 50 12 01 07 6e 63 61 73 74
+                00 20 20 20 20 6d 61 67 69 63 20 66 6c 6f 77 76
+                69 73 6f 72 31 00 06 15 de ad ca fe'''
     lldp_in_prod =      FvRegress.OFVERSION + \
                     '''0a 00 64 00 00 00 00 00 00 01 01
                     00 40 00 03 00 00 01 23 20 00 00 01 00 00

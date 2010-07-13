@@ -205,4 +205,9 @@ public class FlowVisor {
 		FVLog.log(LogLevel.INFO, null, "Saved config to disk at "
 				+ this.configFile);
 	}
+
+	public String getInstanceName() {
+		// TODO pull from FVConfig; needed for slice stiching
+		return "magic flowvisor1";
+	}
 }

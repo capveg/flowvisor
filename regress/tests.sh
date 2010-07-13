@@ -14,6 +14,7 @@ tests-deleteSlice.py \
 tests-josh-arp.py \
 tests-vlan.py \
 tests-readonly.py \
+tests-kk-topo.py \
 "
 
     
