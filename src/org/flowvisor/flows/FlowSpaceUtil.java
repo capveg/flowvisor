@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.ofswitch.TopologyController;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPort;
 import org.openflow.protocol.action.OFAction;
@@ -49,6 +50,9 @@ public class FlowSpaceUtil {
 				ret.add(sliceAction.sliceName);
 			}
 		}
+
+		if (TopologyController.isConfigured())
+			ret.add(TopologyController.TopoUser);
 		return ret;
 	}
 
@@ -106,24 +110,33 @@ public class FlowSpaceUtil {
 	 */
 	public static Set<Short> getPortsBySlice(long dpid, String slice,
 			FlowMap flowmap) {
-		// SYNCH flowmap
+		boolean allPorts = false;
 		Set<Short> ret = new HashSet<Short>();
 		OFMatch match = new OFMatch();
-		match.setWildcards(OFMatch.OFPFW_ALL);
-		boolean allPorts = false;
-		List<FlowEntry> rules = flowmap.matches(dpid, match);
-		for (FlowEntry rule : rules) {
-			for (OFAction action : rule.getActionsList()) {
-				SliceAction sliceAction = (SliceAction) action; // the flowspace
-				// should only
-				// contain
-				// SliceActions
-				if (sliceAction.sliceName.equals(slice)) {
-					OFMatch ruleMatch = rule.getRuleMatch();
-					if ((ruleMatch.getWildcards() & OFMatch.OFPFW_IN_PORT) != 0)
-						allPorts = true;
-					else
-						ret.add(ruleMatch.getInputPort());
+
+		if (TopologyController.isConfigured()
+				&& slice.equals(TopologyController.TopoUser)) {
+			allPorts = true; // topology controller has access to everything
+		} else {
+			// SYNCH flowmap HERE
+
+			match.setWildcards(OFMatch.OFPFW_ALL);
+
+			List<FlowEntry> rules = flowmap.matches(dpid, match);
+			for (FlowEntry rule : rules) {
+				for (OFAction action : rule.getActionsList()) {
+					SliceAction sliceAction = (SliceAction) action; // the
+					// flowspace
+					// should only
+					// contain
+					// SliceActions
+					if (sliceAction.sliceName.equals(slice)) {
+						OFMatch ruleMatch = rule.getRuleMatch();
+						if ((ruleMatch.getWildcards() & OFMatch.OFPFW_IN_PORT) != 0)
+							allPorts = true;
+						else
+							ret.add(ruleMatch.getInputPort());
+					}
 				}
 			}
 		}

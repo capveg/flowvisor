@@ -23,7 +23,6 @@ import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.Classifiable;
 import org.flowvisor.message.FVMessageFactory;
-import org.flowvisor.ofswitch.TopologyController;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFEchoReply;
@@ -350,8 +349,6 @@ public class FVClassifier implements FVEventHandler {
 		// this.switchFlowMap = FVConfig.getFlowSpaceFlowMap();
 		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(
 				this.switchFlowMap, this.switchInfo.getDatapathId());
-		if (TopologyController.isConfigured())
-			newSlices.add(TopologyController.getTopoUser());
 		StringBuffer strbuf = new StringBuffer();
 		for (String sliceName : newSlices) {
 			if (strbuf.length() > 0) // prune the last
