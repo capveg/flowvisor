@@ -33,6 +33,7 @@ public class LinkAdvertisement {
 		this.srcPort = srcPort;
 		this.dstDPID = dstDPID;
 		this.dstPort = dstPort;
+		this.attributes = new HashMap<String, String>();
 	}
 
 	public LinkAdvertisement(long srcDPID, short srcPort, long dstDPID,
