@@ -157,4 +157,58 @@ public class LinkAdvertisement {
 					+ ",dstDPID=" + dstDPID + ",dstPort=" + dstPort + "]";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((attributes == null) ? 0 : attributes.hashCode());
+		result = prime * result + ((dstDPID == null) ? 0 : dstDPID.hashCode());
+		result = prime * result + dstPort;
+		result = prime * result + ((srcDPID == null) ? 0 : srcDPID.hashCode());
+		result = prime * result + srcPort;
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LinkAdvertisement other = (LinkAdvertisement) obj;
+		if (attributes == null) {
+			if (other.attributes != null)
+				return false;
+		} else if (!attributes.equals(other.attributes))
+			return false;
+		if (dstDPID == null) {
+			if (other.dstDPID != null)
+				return false;
+		} else if (!dstDPID.equals(other.dstDPID))
+			return false;
+		if (dstPort != other.dstPort)
+			return false;
+		if (srcDPID == null) {
+			if (other.srcDPID != null)
+				return false;
+		} else if (!srcDPID.equals(other.srcDPID))
+			return false;
+		if (srcPort != other.srcPort)
+			return false;
+		return true;
+	}
+
 }
