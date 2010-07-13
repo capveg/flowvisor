@@ -125,8 +125,8 @@ public class LinkAdvertisement {
 		checkKey("srcPort", map);
 		checkKey("dstPort", map);
 
-		ad = new LinkAdvertisement(map.get("srcDPID"), Integer.valueOf(map
-				.get("srcPort")), map.get("dstDPID"), Integer.valueOf(map
+		ad = new LinkAdvertisement(map.get("srcDPID"), Short.valueOf(map
+				.get("srcPort")), map.get("dstDPID"), Short.valueOf(map
 				.get("dstPort")));
 		if (map.containsKey("attributes")) {
 			String[] attribs = map.get("attributes").split(",");
