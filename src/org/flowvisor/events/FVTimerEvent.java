@@ -92,4 +92,16 @@ public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 		else
 			return this.id - timerEvent.id;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FVTimerEvent [arg=" + arg + ", expireTime=+"
+				+ (expireTime - System.currentTimeMillis()) + "ms, id=" + id
+				+ ",src=" + this.getSrc().getName() + "]";
+	}
 }
