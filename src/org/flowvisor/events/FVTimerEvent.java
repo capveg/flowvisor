@@ -88,7 +88,7 @@ public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 	@Override
 	public int compareTo(FVTimerEvent timerEvent) {
 		if (timerEvent.expireTime != this.expireTime)
-			return (int) (timerEvent.expireTime - this.expireTime);
+			return (int) (this.expireTime - timerEvent.expireTime);
 		else
 			return this.id - timerEvent.id;
 	}
