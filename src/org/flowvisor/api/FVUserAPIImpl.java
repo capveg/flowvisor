@@ -239,16 +239,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 					+ String.valueOf(dpid));
 		OFFeaturesReply config = fvClassifier.getSwitchInfo();
 		map.put("dpid", String.valueOf(dpid));
-		map.put("nPorts", String.valueOf(config.getPorts().size()));
-		String portList = "";
-		for (Iterator<OFPhysicalPort> it = config.getPorts().iterator(); it
-				.hasNext();) {
-			OFPhysicalPort port = it.next();
-			portList += U16.f(port.getPortNumber());
-			if (it.hasNext())
-				portList += ",";
+		if (config != null) {
+			map.put("nPorts", String.valueOf(config.getPorts().size()));
+			String portList = "";
+			for (Iterator<OFPhysicalPort> it = config.getPorts().iterator(); it
+					.hasNext();) {
+				OFPhysicalPort port = it.next();
+				portList += U16.f(port.getPortNumber());
+				if (it.hasNext())
+					portList += ",";
+			}
+			map.put("portList", portList);
+		} else {
+			FVLog.log(LogLevel.WARN, null, "null config for: " + dpidStr);
 		}
-		map.put("portList", portList);
 		map.put("remote", String.valueOf(fvClassifier.getRemoteIP()));
 		return map;
 	}
