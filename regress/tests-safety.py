@@ -116,6 +116,17 @@ try:
             TestEvent( "recv","guest",'bob', packet_to_g1_p0),
             ])
 
+##################################
+    # try sending a 0x97 packet, see if stuff crashes
+    old_ping = '''9702 0008 cafe babe'''
+    new_pong = FvRegress.OFVERSION + '''03 0008 cafe babe'''
+    h.runTest(name="old packet test (ofversion0x97)", timeout=timeout, events= [
+            TestEvent( "send","switch",'switch1', old_ping),
+            TestEvent( "recv","switch",'switch1', new_pong),
+            TestEvent( "send","switch",'switch1', old_ping),
+            TestEvent( "recv","switch",'switch1', new_pong),
+            ])
+
 
 
 #########################################

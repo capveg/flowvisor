@@ -47,6 +47,8 @@ public class FVError extends org.openflow.protocol.OFError implements
 				+ getErrorType();
 		if (offendingMsg != null)
 			ret += ";msg=" + offendingMsg.toString();
+		if (asciiError != null)
+			ret += ";err=" + new String(asciiError);
 		else
 			ret += ";msg=NONE(!?)";
 		return ret;

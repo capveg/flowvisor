@@ -22,6 +22,7 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.Classifiable;
+import org.flowvisor.message.FVError;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.io.OFMessageAsyncStream;
@@ -33,6 +34,8 @@ import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPort;
+import org.openflow.protocol.OFType;
+import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
@@ -57,13 +60,14 @@ public class FVClassifier implements FVEventHandler {
 	short missSendLength;
 	FlowMap switchFlowMap;
 	private boolean shutdown;
+	private final FVMessageFactory factory;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
 		this.switchName = "unidentified:" + sock.toString();
+		this.factory = new FVMessageFactory();
 		try {
-			this.msgStream = new OFMessageAsyncStream(sock,
-					new FVMessageFactory());
+			this.msgStream = new OFMessageAsyncStream(sock, this.factory);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -297,12 +301,22 @@ public class FVClassifier implements FVEventHandler {
 		switch (m.getType()) {
 		case HELLO: // aleady sent our hello; just NOOP here
 			if (m.getVersion() != OFMessage.OFP_VERSION) {
-				FVLog.log(LogLevel.ALERT, this,
+				FVLog.log(LogLevel.WARN, this,
 						"Mismatched version from switch " + sock + " Got: "
 								+ m.getVersion() + " Wanted: "
 								+ OFMessage.OFP_VERSION);
-				this.tearDown();
-				throw new RuntimeException("!!!");
+				FVError fvError = (FVError) this.factory
+						.getMessage(OFType.ERROR);
+				fvError.setErrorCode(OFHelloFailedCode.OFPHFC_INCOMPATIBLE);
+				fvError.setVersion(m.getVersion());
+				String errmsg = "we only support version "
+						+ Integer.toHexString(OFMessage.OFP_VERSION)
+						+ " and you are not it";
+				fvError.setAsciiError(errmsg.getBytes());
+				fvError.setLength((short) (FVError.MINIMUM_LENGTH + errmsg
+						.length()));
+				this.sendMsg(fvError);
+				tearDown();
 			}
 			break;
 		case ECHO_REQUEST:
