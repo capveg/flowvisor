@@ -10,6 +10,7 @@ import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.ofswitch.DPIDandPort;
 import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
+import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketIn;
 import org.openflow.protocol.action.OFAction;
@@ -105,14 +106,19 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 						"ignoring non-lldp packetin: " + this);
 				return;
 			}
+			OFFeaturesReply featuresReply = topologyConnection
+					.getFeaturesReply();
+			if (featuresReply == null) {
+				FVLog.log(LogLevel.WARN, topologyConnection,
+						"ignoring packet_in: no features_reply yet");
+				return;
+			}
 			LinkAdvertisement linkAdvertisement = new LinkAdvertisement(
-					dpidandport.getDpid(), dpidandport.getPort(),
-					topologyConnection.getFeaturesReply().getDatapathId(),
-					this.inPort);
+					dpidandport.getDpid(), dpidandport.getPort(), featuresReply
+							.getDatapathId(), this.inPort);
 			topologyConnection.getTopologyController().reportProbe(
 					linkAdvertisement);
 			topologyConnection.signalFastPort(this.inPort);
 		}
 	}
-
 }
