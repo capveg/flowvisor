@@ -203,16 +203,37 @@ public class FVUserAPIImpl implements FVUserAPI {
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
 		List<String> dpids = new ArrayList<String>();
-		for (FVEventHandler handler : fv.getHandlers()) {
-			if (handler instanceof FVClassifier) {
-				OFFeaturesReply featuresReply = ((FVClassifier) handler)
-						.getSwitchInfo();
-				if (featuresReply != null)
-					dpids.add(HexString.toHexString(featuresReply
-							.getDatapathId()));
+		String dpidStr;
+		if (TopologyController.isConfigured()) {
+			for (Long dpid : TopologyController.getRunningInstance()
+					.listDevices()) {
+				dpidStr = HexString.toHexString(dpid);
+				if (!dpids.contains(dpidStr))
+					dpids.add(dpidStr);
+				else
+					FVLog.log(LogLevel.WARN, TopologyController
+							.getRunningInstance(), "duplicate dpid detected: "
+							+ dpidStr);
+			}
+		} else {
+			for (FVEventHandler handler : fv.getHandlers()) {
+				if (handler instanceof FVClassifier) {
+					OFFeaturesReply featuresReply = ((FVClassifier) handler)
+							.getSwitchInfo();
+					if (featuresReply != null) {
+						dpidStr = HexString.toHexString(featuresReply
+								.getDatapathId());
+						if (!dpids.contains(dpidStr))
+							dpids.add(dpidStr);
+						else
+							FVLog.log(LogLevel.WARN, handler,
+									"duplicate dpid detected: " + dpidStr);
+					}
+				}
 			}
 		}
 		return dpids;
+
 	}
 
 	/*
