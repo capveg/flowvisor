@@ -15,5 +15,5 @@ else
     exit 1
 fi
 
-java -cp $classpath org.flowvisor.api.APIAuth $@
+java -cp $classpath org.flowvisor.api.APIAuth "$@"
 

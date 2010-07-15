@@ -15,4 +15,4 @@ else
     exit 1
 fi
 
-exec java -cp $classpath org.flowvisor.api.FVCtl $@
+exec java -cp $classpath org.flowvisor.api.FVCtl "$@"

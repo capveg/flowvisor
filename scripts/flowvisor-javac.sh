@@ -17,4 +17,4 @@ else
 fi
 
 # just in case we have to invoke things by hand
-javac -cp $classpath $@
+javac -cp $classpath "$@"

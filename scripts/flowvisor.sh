@@ -16,4 +16,4 @@ else
 fi
 
 echo Staring FlowVisor >&2 
-exec java $sslopts -cp $classpath org.flowvisor.FlowVisor $@
+exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@"
