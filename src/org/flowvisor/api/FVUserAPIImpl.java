@@ -228,7 +228,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 		FVClassifier fvClassifier = null;
 		for (FVEventHandler handler : FlowVisor.getInstance().getHandlers()) {
 			if (handler instanceof FVClassifier) {
-				if (((FVClassifier) handler).getSwitchInfo().getDatapathId() == dpid) {
+				OFFeaturesReply featuresReply = ((FVClassifier) handler)
+						.getSwitchInfo();
+				if (featuresReply != null
+						&& featuresReply.getDatapathId() == dpid) {
 					fvClassifier = (FVClassifier) handler;
 					break;
 				}
