@@ -34,6 +34,6 @@ else
 fi
 
 echo "Generating default FlowVisor config file to $1"
-java -cp $classpath org.flowvisor.config.FVConfig "$1" "$3" "$4" "$5"
+java -cp $classpath org.flowvisor.config.FVConfig $1 $3 $4 $5
 
 echo "You will need to create new slices using the root account"
