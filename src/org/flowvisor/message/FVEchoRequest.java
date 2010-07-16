@@ -41,7 +41,9 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVEchoReply reply = new FVEchoReply();
+		reply.setLength(this.getLength());
 		reply.setXid(this.getXid());
+		reply.setPayload(this.getPayload());
 		fvSlicer.sendMsg(reply);
 	}
 

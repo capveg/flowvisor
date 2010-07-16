@@ -36,6 +36,13 @@ try:
 
     if wantPause:
         doPause("start tests")
+####################################
+    long_ping = FvRegress.OFVERSION + '''02 00 10 00 00 00 00 4c 40 a9 b4 00 04 15 be'''
+    long_pong = FvRegress.OFVERSION + '''03 00 10 00 00 00 00 4c 40 a9 b4 00 04 15 be'''
+    h.runTest(name="handle ping with payload", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', long_ping),
+            TestEvent( "recv","guest",'alice', long_pong),
+            ])
 ##################################
     # pretend this features request will cause this error
     #   really just to seed FV's XID mapping
