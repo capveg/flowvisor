@@ -4,6 +4,7 @@
 
 if [ -z $base ] ; then
     envs=`dirname $0`/../scripts/envs.sh
+    DEBUG=yes
 else
     envs=$base/etc/flowvisor/envs.sh
 fi
@@ -16,4 +17,8 @@ else
 fi
 
 echo Staring FlowVisor >&2 
-exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@"
+if [ -z $DEBUG ] ; then 
+    exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
+else
+    exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 2>&1 | tee /tmp/flowvisor-$$.log
+fi
