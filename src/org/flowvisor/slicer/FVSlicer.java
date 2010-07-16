@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -119,11 +120,13 @@ public class FVSlicer implements FVEventHandler {
 				allowedPorts.put(port, Boolean.TRUE);
 			}
 		}
-		for (Short port : allowedPorts.keySet()) {
+		for (Iterator<Short> it = allowedPorts.keySet().iterator(); it
+				.hasNext();) {
+			Short port = it.next();
 			if (!ports.contains(port)) {
 				FVLog.log(LogLevel.INFO, this, "removing access to port "
 						+ port);
-				allowedPorts.remove(port);
+				it.remove();
 			}
 		}
 	}
