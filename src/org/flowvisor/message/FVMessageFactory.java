@@ -84,7 +84,7 @@ public class FVMessageFactory extends BasicFactory {
 	@Override
 	public OFMessage getMessage(OFType t) {
 		if (t == null)
-			throw new IllegalArgumentException("expected OFType, got null");
+			return new FVUnknownMessage();
 		byte mtype = t.getTypeValue();
 		if (mtype >= convertMap.length)
 			throw new IllegalArgumentException("OFMessage type " + mtype

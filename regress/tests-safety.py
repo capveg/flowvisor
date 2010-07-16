@@ -52,6 +52,16 @@ try:
             TestEvent( "send","switch",'switch1', partial_error_msg, strict=True),
             TestEvent( "recv","guest",'alice', partial_error_msg ),
             ])
+##################################
+    # how well do we handle a well formed, but unknown OF message?
+    crap = FvRegress.OFVERSION + '''85 00 08 00 00 01 08'''
+    echo = FvRegress.OFVERSION + '''02 00 08 00 00 01 08'''
+    reply = FvRegress.OFVERSION + '''03 00 08 00 00 01 08'''
+    h.runTest(name="handle unknown msg", timeout=timeout, events= [
+            TestEvent( "send","switch",'switch1', crap),
+            TestEvent( "send","switch",'switch1', echo),
+            TestEvent( "recv","switch",'switch1', reply),
+            ])
 ####################################
 # trying to tickle #119
 # send a 'flow_mod erase all' which gets an error with a null-body (cuz fv0.4 is dumb)
