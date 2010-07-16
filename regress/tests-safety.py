@@ -36,6 +36,22 @@ try:
 
     if wantPause:
         doPause("start tests")
+##################################
+    # pretend this features request will cause this error
+    #   really just to seed FV's XID mapping
+    poke = FvRegress.OFVERSION + '''05 00 08 00 00 01 08'''
+    poke_after = FvRegress.OFVERSION + '''05 00 08 00 00 01 02'''
+    partial_error_msg = FvRegress.OFVERSION + '''01 00 4c 00 00 01 02 00 01 00 08 01 0e 00 50
+                00 00 01 08 00 00 00 00 00 03 ba 31 9e 65 a6 a6
+                00 23 ae 35 fd f3 ff ff 00 00 08 00 00 01 00 00
+                0a 4f 01 9f 0a 4f 01 69 00 08 00 00 00 00 00 00
+                00 00 00 00 00 00 00 05 00 00 ff ff'''
+    h.runTest(name="ovs-partial message error", timeout=timeout, events= [
+            TestEvent( "send","guest", "alice", poke, strict=True),
+            TestEvent( "recv","switch","switch1", poke_after, strict=True),
+            TestEvent( "send","switch",'switch1', partial_error_msg, strict=True),
+            TestEvent( "recv","guest",'alice', partial_error_msg ),
+            ])
 ####################################
 # trying to tickle #119
 # send a 'flow_mod erase all' which gets an error with a null-body (cuz fv0.4 is dumb)
@@ -115,6 +131,7 @@ try:
             TestEvent( "send","switch",'switch1', packet_to_g1_p0),
             TestEvent( "recv","guest",'bob', packet_to_g1_p0),
             ])
+
 
 ##################################
     # try sending a 0x97 packet, see if stuff crashes
