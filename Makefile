@@ -9,18 +9,15 @@ docs:
 doc:
 	ant javadoc
 
-test:
+test: all
 	make -C regress tests
-tests:
+tests: all
 	make -C regress tests
-
-run:
-	java -jar dist/flowvisor.jar
 
 count: 
 	@find src -name \*.java | xargs wc -l | sort -n
 
-install:
+install: all
 	./scripts/install-script.sh
 
 clean:
