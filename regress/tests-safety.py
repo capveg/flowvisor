@@ -36,6 +36,38 @@ try:
 
     if wantPause:
         doPause("start tests")
+##################################
+    table_stats_request = FvRegress.OFVERSION +       '''10 00 0c 00 00 00 00 00 03 00 00'''
+    table_stats_request_after = FvRegress.OFVERSION + '''10 00 0c 00 00 01 02 00 03 00 00'''
+    table_stats_reply = FvRegress.OFVERSION +         '''11 00 8c 00 00 01 02 00 03 00 00 00 00 00 00
+                68 61 73 68 00 00 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00
+                00 00 57 14 00 00 00 00 00 00 00 07 01 00 00 00
+                63 6c 61 73 73 69 66 69 65 72 00 00 00 00 00 00
+                00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                00 3f ff ff 00 01 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 00 00 00 00 00 00 00'''
+
+    table_stats_reply_after = FvRegress.OFVERSION + '''91 00 8c 00 00 00 00 00 03 00 00 00 00 00 00
+                68 61 73 68 00 00 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 01 00 00 00 00 00 00 00 00 57 14
+                00 00 00 00 00 00 00 07 01 00 00 00 63 6c 61 73
+                73 69 66 69 65 72 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00 00 00 00 00 00 00 00 00 00 3f ff ff
+                00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                00 00 00 00'''
+    
+
+    h.runTest(name="table stats exchange", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', table_stats_request),
+            TestEvent( "recv","switch",'switch1', table_stats_request_after,strict=True),
+            TestEvent( "send","switch",'switch1', table_stats_reply,strict=True),
+            #TestEvent( "recv","guest",'alice', table_stats_reply_after),
+            TestEvent( "recv","guest",'alice', table_stats_reply),
+            ])
+
 ####################################
     long_ping = FvRegress.OFVERSION + '''02 00 10 00 00 00 00 4c 40 a9 b4 00 04 15 be'''
     long_pong = FvRegress.OFVERSION + '''03 00 10 00 00 00 00 4c 40 a9 b4 00 04 15 be'''
@@ -47,8 +79,8 @@ try:
     # pretend this features request will cause this error
     #   really just to seed FV's XID mapping
     poke = FvRegress.OFVERSION + '''05 00 08 00 00 01 08'''
-    poke_after = FvRegress.OFVERSION + '''05 00 08 00 00 01 02'''
-    partial_error_msg = FvRegress.OFVERSION + '''01 00 4c 00 00 01 02 00 01 00 08 01 0e 00 50
+    poke_after = FvRegress.OFVERSION + '''05 00 08 00 00 01 03'''
+    partial_error_msg = FvRegress.OFVERSION + '''01 00 4c 00 00 01 03 00 01 00 08 01 0e 00 50
                 00 00 01 08 00 00 00 00 00 03 ba 31 9e 65 a6 a6
                 00 23 ae 35 fd f3 ff ff 00 00 08 00 00 01 00 00
                 0a 4f 01 9f 0a 4f 01 69 00 08 00 00 00 00 00 00
@@ -160,7 +192,6 @@ try:
             TestEvent( "send","switch",'switch1', old_ping),
             TestEvent( "recv","switch",'switch1', new_pong),
             ])
-
 
 
 #########################################

@@ -411,6 +411,7 @@ public class FVSlicer implements FVEventHandler {
 					"got i/o error; tearing down and reconnecting: " + e1);
 			reconnect();
 		} catch (Exception e2) {
+			e2.printStackTrace();
 			FVLog.log(LogLevel.ALERT, this,
 					"got unknown error; tearing down and reconnecting: " + e2);
 			reconnect();
