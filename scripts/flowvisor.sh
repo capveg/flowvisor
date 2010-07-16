@@ -17,8 +17,4 @@ else
 fi
 
 echo Staring FlowVisor >&2 
-if [ -z $DEBUG ] ; then 
-    exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
-else
-    exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 2>&1 | tee /tmp/flowvisor-$$.log
-fi
+exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
