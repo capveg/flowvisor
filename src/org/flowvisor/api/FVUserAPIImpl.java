@@ -204,34 +204,32 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// get list from main flowvisor instance
 		List<String> dpids = new ArrayList<String>();
 		String dpidStr;
-		if (TopologyController.isConfigured()) {
-			for (Long dpid : TopologyController.getRunningInstance()
-					.listDevices()) {
-				dpidStr = HexString.toHexString(dpid);
-				if (!dpids.contains(dpidStr))
-					dpids.add(dpidStr);
-				else
-					FVLog.log(LogLevel.WARN, TopologyController
-							.getRunningInstance(), "duplicate dpid detected: "
-							+ dpidStr);
-			}
-		} else {
-			for (FVEventHandler handler : fv.getHandlers()) {
-				if (handler instanceof FVClassifier) {
-					OFFeaturesReply featuresReply = ((FVClassifier) handler)
-							.getSwitchInfo();
-					if (featuresReply != null) {
-						dpidStr = HexString.toHexString(featuresReply
-								.getDatapathId());
-						if (!dpids.contains(dpidStr))
-							dpids.add(dpidStr);
-						else
-							FVLog.log(LogLevel.WARN, handler,
-									"duplicate dpid detected: " + dpidStr);
-					}
+
+		/*
+		 * if (TopologyController.isConfigured()) { for (Long dpid :
+		 * TopologyController.getRunningInstance() .listDevices()) { dpidStr =
+		 * HexString.toHexString(dpid); if (!dpids.contains(dpidStr))
+		 * dpids.add(dpidStr); else FVLog.log(LogLevel.WARN, TopologyController
+		 * .getRunningInstance(), "duplicate dpid detected: " + dpidStr); } }
+		 * else {
+		 */
+		// only list a device is we have a features reply for it
+		for (FVEventHandler handler : fv.getHandlers()) {
+			if (handler instanceof FVClassifier) {
+				OFFeaturesReply featuresReply = ((FVClassifier) handler)
+						.getSwitchInfo();
+				if (featuresReply != null) {
+					dpidStr = HexString.toHexString(featuresReply
+							.getDatapathId());
+					if (!dpids.contains(dpidStr))
+						dpids.add(dpidStr);
+					else
+						FVLog.log(LogLevel.WARN, handler,
+								"duplicate dpid detected: " + dpidStr);
 				}
 			}
 		}
+		// }
 		return dpids;
 
 	}
