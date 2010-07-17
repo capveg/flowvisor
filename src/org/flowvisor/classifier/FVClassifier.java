@@ -312,7 +312,8 @@ public class FVClassifier implements FVEventHandler {
 				String errmsg = "we only support version "
 						+ Integer.toHexString(OFMessage.OFP_VERSION)
 						+ " and you are not it";
-				fvError.setAsciiError(errmsg.getBytes());
+				fvError.setError(errmsg.getBytes());
+				fvError.setErrorIsAscii(true);
 				fvError.setLength((short) (FVError.MINIMUM_LENGTH + errmsg
 						.length()));
 				this.sendMsg(fvError);
