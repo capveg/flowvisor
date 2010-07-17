@@ -21,7 +21,7 @@ public class FlowVisor {
 	public final static int FLOWVISOR_VENDOR_EXTENSION = 0x80000001;
 
 	// VERSION
-	public final static String FLOVISOR_VERSION = "flowvisor-0.6-alpha6";
+	public final static String FLOVISOR_VERSION = "flowvisor-0.6-alpha10";
 
 	// Max slicename len ; used in LLDP for now; needs to be 1 byte
 	public final static int MAX_SLICENAME_LEN = 255;
@@ -111,6 +111,9 @@ public class FlowVisor {
 		if (args.length == 0)
 			usage("need to specify config");
 
+		if (args[0].startsWith("-"))
+			usage("usage: " + args[0]);
+
 		FlowVisor fv = new FlowVisor(args);
 		fv.run();
 	}
@@ -123,8 +126,13 @@ public class FlowVisor {
 	 */
 
 	private static void usage(String string) {
+		System.err.println("FlowVisor verison: " + FLOVISOR_VERSION);
+		System.err
+				.println("Rob Sherwood: rsherwood@telekom.com/rob.sherwood@stanford.edu");
+		System.err
+				.println("---------------------------------------------------------------");
 		System.err.println("err: " + string);
-		System.err.println("Usage: FlowVisor configfile.xml [port]");
+		System.err.println("Usage: FlowVisor [-v] configfile.xml [port]");
 		System.exit(-1);
 	}
 
