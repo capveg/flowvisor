@@ -61,8 +61,8 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
 			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer
 					.getDefaultPort());
-			FVConfig
-					.setString(FVConfig.VERSION_STR, FlowVisor.FLOVISOR_VERSION);
+			FVConfig.setString(FVConfig.VERSION_STR,
+					FlowVisor.FLOWVISOR_VERSION);
 			// checkpointing on by default
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// topology server on by default
