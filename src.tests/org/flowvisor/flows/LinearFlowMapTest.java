@@ -85,4 +85,49 @@ public class LinearFlowMapTest extends TestCase {
 		TestCase.assertEquals("bob", sliceAction.getSliceName());
 
 	}
+
+	public void testKKArp() {
+		FlowMap fmap = new LinearFlowMap();
+		short port = 1;
+		long dpid = 1;
+
+		OFMatch matchsome = new OFMatch();
+		matchsome.fromString("nw_proto=17,tp_src=8080");
+		FlowEntry flowEntry = new FlowEntry(matchsome, new SliceAction("ncast",
+				SliceAction.WRITE));
+		flowEntry.setPriority(1000);
+		fmap.addRule(flowEntry);
+
+		OFMatch matchall = new OFMatch();
+		flowEntry = new FlowEntry(matchall, new SliceAction("prod",
+				SliceAction.WRITE));
+		flowEntry.setPriority(500);
+		fmap.addRule(flowEntry);
+
+		int[] arppacket_ints = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00,
+				0x23, 0xae, 0x35, 0xfd, 0xf3, 0x08, 0x06, 0x00, 0x01, 0x08,
+				0x00, 0x06, 0x04, 0x00, 0x01, 0x00, 0x23, 0xae, 0x35, 0xfd,
+				0xf3, 0x0a, 0x4f, 0x01, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x0a, 0x4f, 0x01, 0x9f, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00 };
+		byte[] arppacket = new byte[arppacket_ints.length];
+		for (int i = 0; i < arppacket_ints.length; i++)
+			arppacket[i] = (byte) arppacket_ints[i];
+		OFMatch arp = new OFMatch();
+		arp.loadFromPacket(arppacket, port);
+
+		List<FlowEntry> flowEntries = fmap.matches(dpid, arp);
+		TestCase.assertEquals(1, flowEntries.size());
+		String slice = ((SliceAction) flowEntries.get(0).getActionsList()
+				.get(0)).getSliceName();
+		TestCase.assertEquals("prod", slice);
+
+		FlowMap subflowmap = FlowSpaceUtil.getSubFlowMap(fmap, dpid, matchall);
+		flowEntries = subflowmap.matches(dpid, arp);
+		TestCase.assertEquals(1, flowEntries.size());
+		slice = ((SliceAction) flowEntries.get(0).getActionsList().get(0))
+				.getSliceName();
+		TestCase.assertEquals("prod", slice);
+	}
 }

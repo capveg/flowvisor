@@ -97,6 +97,16 @@ try:
             TestEvent( "recv","guest",'ncast', lldp_in_after),
             ])
 #########################################
+    arp_in = FvRegress.OFVERSION + '''0a 00 4e 00 00 00 00 00 10 2e fc 00 3c 00 01
+                    00 00 ff ff ff ff ff ff 00 23 ae 35 fd f3 08 06
+                    00 01 08 00 06 04 00 01 00 23 ae 35 fd f3 0a 4f
+                    01 69 00 00 00 00 00 00 0a 4f 01 9f 00 00 00 00
+                    00 00 00 00 00 00 00 00 00 00 00 00 00 00'''
+    h.runTest(name="kk's arp", timeout=timeout, events= [
+            TestEvent( "send","switch",'switch1', arp_in),
+            TestEvent( "recv","guest",'prod', arp_in),
+            ])
+#########################################
 # more tests for this setup HERE
 #################################### End Tests
 finally:
