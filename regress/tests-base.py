@@ -372,6 +372,13 @@ try:
             TestEvent( "send","guest",'alice', vendor_test),
             TestEvent( "recv","switch",'switch1', vendor_test),
             ])
+########################################
+    stats_ports_req = FvRegress.OFVERSION + '''10 00 14 00 00 00 00 00 04 00 00 ff ff 00 00
+                00 00 00 00'''
+    h.runTest(name="port stats request ", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', stats_ports_req),
+            TestEvent( "recv","switch",'switch1', stats_ports_req),
+            ])
 #########################################
 # more tests for this setup HERE
 #################################### End Tests

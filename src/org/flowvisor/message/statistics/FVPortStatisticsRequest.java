@@ -20,8 +20,7 @@ public class FVPortStatisticsRequest extends OFPortStatisticsRequest implements
 	@Override
 	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
 			FVSlicer fvSlicer) {
-		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
-		fvSlicer.sendMsg(msg);
+		FVMessageUtil.translateXidAndSend(msg, fvClassifier, fvSlicer);
 	}
 
 }
