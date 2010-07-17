@@ -28,9 +28,10 @@ public class FlowSpaceUtilsTest extends TestCase {
 		long dpid = 1;
 		Set<String> slices = FlowSpaceUtil.getSlicesByDPID(FVConfig
 				.getFlowSpaceFlowMap(), dpid);
-		TestCase.assertEquals(2, slices.size());
+		TestCase.assertEquals(3, slices.size());
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
+		TestCase.assertTrue(slices.contains("root"));
 	}
 
 	public void testByPort() {
@@ -104,14 +105,16 @@ public class FlowSpaceUtilsTest extends TestCase {
 		Set<String> slices = FlowSpaceUtil.getSlicesByDPID(flowMap, 1);
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
-		TestCase.assertEquals(2, slices.size());
+		TestCase.assertTrue(slices.contains("root"));
+		TestCase.assertEquals(3, slices.size());
 
 		FlowMap subMap = FlowSpaceUtil.getSubFlowMap(flowMap, 1, new OFMatch());
 
 		slices = FlowSpaceUtil.getSlicesByDPID(subMap, 1);
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
-		TestCase.assertEquals(2, slices.size());
+		TestCase.assertTrue(slices.contains("root"));
+		TestCase.assertEquals(3, slices.size());
 
 	}
 	/*
