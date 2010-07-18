@@ -19,14 +19,7 @@ public class FVPortStatisticsReply extends OFPortStatisticsReply implements
 
 	@Override
 	public void classifyFromSwitch(OFMessage msg, FVClassifier fvClassifier) {
-		FVSlicer fvSlicer = FVMessageUtil.untranslateXid(msg, fvClassifier);
-		if (fvSlicer == null)
-			FVLog.log(LogLevel.WARN, fvClassifier,
-					"dropping unclassifiable msg: " + msg);
-		else {
-			// TODO : prune port stats by slice type
-			fvSlicer.sendMsg(msg);
-		}
+		FVMessageUtil.untranslateXidAndSend(msg, fvClassifier);
 	}
 
 }
