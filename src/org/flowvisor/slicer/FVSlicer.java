@@ -69,10 +69,11 @@ public class FVSlicer implements FVEventHandler {
 		this.isConnected = false;
 		this.msgStream = null;
 		this.missSendLength = 128; // openflow default (?) findout... TODO
-		this.allowedPorts = null;
 		this.allowAllPorts = false;
 		this.reconnectSeconds = 0;
 		this.isShutdown = false;
+		this.allowedPorts = new HashMap<Short, Boolean>();
+
 	}
 
 	public void init() {
@@ -113,8 +114,6 @@ public class FVSlicer implements FVEventHandler {
 					.getPorts())
 				ports.add(phyPort.getPortNumber());
 		}
-		if (this.allowedPorts == null)
-			allowedPorts = new HashMap<Short, Boolean>();
 		for (Short port : ports) {
 			if (!allowedPorts.keySet().contains(port)) {
 				FVLog.log(LogLevel.INFO, this, "adding access to port " + port);
