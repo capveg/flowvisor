@@ -109,7 +109,7 @@ public class LLDPUtil {
 			 * HACK: unknown LLDP packet; send to all slices that have access to
 			 * this port
 			 */
-			FVLog.log(LogLevel.WARN, fvClassifier,
+			FVLog.log(LogLevel.DEBUG, fvClassifier,
 					"failed to undo llpd hack: broadcasting lldp packet");
 			short inport = pi.getInPort();
 			pi.setXid(0xdeaddead); // mark this as broadcasted
