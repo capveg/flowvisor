@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flowvisor.Exception.BufferFull;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.events.FVEvent;
@@ -19,6 +20,7 @@ import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.Classifiable;
@@ -54,7 +56,7 @@ public class FVClassifier implements FVEventHandler {
 	SocketChannel sock;
 	String switchName;
 	boolean doneID;
-	OFMessageAsyncStream msgStream;
+	FVMessageAsyncStream msgStream;
 	OFFeaturesReply switchInfo;
 	Map<String, FVSlicer> slicerMap;
 	XidTranslator xidTranslator;
@@ -68,7 +70,7 @@ public class FVClassifier implements FVEventHandler {
 		this.switchName = "unidentified:" + sock.toString();
 		this.factory = new FVMessageFactory();
 		try {
-			this.msgStream = new OFMessageAsyncStream(sock, this.factory);
+			this.msgStream = new FVMessageAsyncStream(sock, this.factory);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -116,7 +118,7 @@ public class FVClassifier implements FVEventHandler {
 		return msgStream;
 	}
 
-	public void setMsgStream(OFMessageAsyncStream msgStream) {
+	public void setMsgStream(FVMessageAsyncStream msgStream) {
 		this.msgStream = msgStream;
 	}
 
@@ -330,7 +332,13 @@ public class FVClassifier implements FVEventHandler {
 		case ECHO_REQUEST:
 			OFMessage echo_reply = new OFEchoReply();
 			echo_reply.setXid(m.getXid());
-			msgStream.write(echo_reply);
+			try {
+				msgStream.testAndWrite(echo_reply);
+			} catch (BufferFull e) {
+				FVLog.log(LogLevel.CRIT, this,
+						"framing bug; tearing down: got " + e);
+				this.tearDown();
+			}
 			break;
 		case FEATURES_REPLY:
 			switchInfo = (OFFeaturesReply) m;
@@ -458,7 +466,13 @@ public class FVClassifier implements FVEventHandler {
 	public void sendMsg(OFMessage msg) {
 		if (this.msgStream != null) {
 			FVLog.log(LogLevel.DEBUG, this, "send to switch:" + msg);
-			this.msgStream.write(msg);
+			try {
+				this.msgStream.testAndWrite(msg);
+			} catch (BufferFull e) {
+				FVLog.log(LogLevel.CRIT, this,
+						"framing bug; tearing down: got " + e);
+				this.tearDown();
+			}
 		} else
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
 					+ msg);
