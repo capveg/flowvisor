@@ -59,6 +59,7 @@ public class FVConfig {
 	public static final String SLICE_CREATOR = "creator";
 
 	final static public int OFP_TCP_PORT = 6633;
+	public static final String LOG_THRESH = "flowvisor" + FS + "logging";
 
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 

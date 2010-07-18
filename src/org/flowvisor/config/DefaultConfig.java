@@ -8,6 +8,7 @@ import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.LinearFlowMap;
 import org.flowvisor.flows.SliceAction;
+import org.flowvisor.log.LogLevel;
 import org.openflow.protocol.OFMatch;
 
 /**
@@ -67,6 +68,9 @@ public class DefaultConfig {
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// topology server on by default
 			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
+			// set logging to DEBUG by default
+			FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.DEBUG.toString());
+
 			// create slices
 
 			FVConfig.createSlice("root", "none", 0, rootPasswd,

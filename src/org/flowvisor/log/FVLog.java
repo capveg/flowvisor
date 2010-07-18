@@ -3,6 +3,9 @@
  */
 package org.flowvisor.log;
 
+import org.flowvisor.FlowVisor;
+import org.flowvisor.config.ConfigError;
+import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
 
 /**
@@ -36,7 +39,26 @@ public class FVLog {
 
 	private static void doInit() {
 		needsInit = false;
+		boolean needConfigFlush = false;
+		try {
+			threshold = LogLevel.valueOf(FVConfig
+					.getString(FVConfig.LOG_THRESH));
+		} catch (ConfigError e) {
+			System.err.println("--- '" + FVConfig.LOG_THRESH
+					+ "' not set in config; defaulting to loglevel 'DEBUG'");
+			try {
+				FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.DEBUG
+						.toString());
+				needConfigFlush = true;
+
+			} catch (ConfigError e1) {
+				throw new RuntimeException(e1);
+			}
+			threshold = LogLevel.DEBUG;
+		}
 		logger.init();
+		if (needConfigFlush)
+			FlowVisor.getInstance().checkPointConfig();
 	}
 
 	/**
