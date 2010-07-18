@@ -28,6 +28,7 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVMessageFactory;
+import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.message.Slicable;
 import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFHello;
@@ -400,11 +401,18 @@ public class FVSlicer implements FVEventHandler {
 				throw new IOException("got null from read()");
 			for (OFMessage msg : msgs) {
 				FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
+				if ((msg instanceof SanityCheckable)
+						&& (!((SanityCheckable) msg).isSane())) {
+					FVLog.log(LogLevel.WARN, this,
+							"msg failed sanity check; dropping: " + msg);
+					continue;
+				}
 				if (msg instanceof Slicable)
 					((Slicable) msg).sliceFromController(fvClassifier, this);
 				else
 					FVLog.log(LogLevel.CRIT, this,
-							"dropping unclassifiable msg: " + msg);
+							"dropping msg that doesn't implement classify: "
+									+ msg);
 			}
 		} catch (IOException e1) {
 			FVLog.log(LogLevel.WARN, this,

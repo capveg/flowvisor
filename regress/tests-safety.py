@@ -152,6 +152,21 @@ try:
         TestEvent( "send","switch",'switch1', error),
         TestEvent( "recv","guest",'alice', error),
         ])
+##################################
+    short_stats_agg = FvRegress.OFVERSION + '''10 00 34 00 00 00 1a 00 02 00 00 00 0f ff ff
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        ff 00 00 03'''
+    ping = FvRegress.OFVERSION + '''02 0008 cafe babe'''
+    pong = FvRegress.OFVERSION + '''03 0008 cafe babe'''
+    h.runTest(name="short agg stats",timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', short_stats_agg),
+            TestEvent( "clear?","guest","alice", packet=""),
+            TestEvent( "send","switch",'switch1', ping),
+            TestEvent( "recv","switch",'switch1', pong),
+            TestEvent( "send","guest",'alice', ping),
+            TestEvent( "recv","guest",'alice', pong),
+            ])
 #################################### 
     # initialize, then delete slice alice, then send to it
     # bug #92; would cause a NPE
@@ -192,6 +207,9 @@ try:
             TestEvent( "send","switch",'switch1', old_ping),
             TestEvent( "recv","switch",'switch1', new_pong),
             ])
+
+
+
 
 
 #########################################
