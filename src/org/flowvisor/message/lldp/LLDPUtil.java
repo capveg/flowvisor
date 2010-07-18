@@ -93,18 +93,32 @@ public class LLDPUtil {
 		if (!LLDPCheck(pi.getPacketData()))
 			return false;
 		LLDPTrailer trailer = LLDPTrailer.getTrailer(pi);
-		if (trailer == null)
-			return false;
-		FVSlicer fvSlicer = fvClassifier
-				.getSlicerByName(trailer.getSliceName());
-		if (fvSlicer == null) {
+		if (trailer != null) {
+			FVSlicer fvSlicer = fvClassifier.getSlicerByName(trailer
+					.getSliceName());
+			if (fvSlicer == null) {
+				FVLog.log(LogLevel.WARN, fvClassifier,
+						"failed to undo llpd hack for unknown slice '"
+								+ trailer.getSliceName() + "': " + pi);
+				return false;
+			}
+			FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: " + pi);
+			fvSlicer.sendMsg(pi);
+		} else {
+			/**
+			 * HACK: unknown LLDP packet; send to all slices that have access to
+			 * this port
+			 */
 			FVLog.log(LogLevel.WARN, fvClassifier,
-					"failed to undo llpd hack for unknown slice '"
-							+ trailer.getSliceName() + "': " + pi);
-			return false;
+					"failed to undo llpd hack: broadcasting lldp packet");
+			short inport = pi.getInPort();
+			pi.setXid(0xdeaddead); // mark this as broadcasted
+			for (FVSlicer fvSlicer : fvClassifier.getSlicers()) {
+				if (fvSlicer.portInSlice(inport))
+					fvSlicer.sendMsg(pi);
+			}
+
 		}
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: " + pi);
-		fvSlicer.sendMsg(pi);
 		return true;
 	}
 }
