@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flowvisor.Exception.BufferFull;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -25,6 +26,7 @@ import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVMessageFactory;
@@ -51,7 +53,7 @@ public class FVSlicer implements FVEventHandler {
 	final int maxReconnectSeconds = 15;
 	int port; // the tcp port of our controller
 	boolean isConnected;
-	OFMessageAsyncStream msgStream;
+	FVMessageAsyncStream msgStream;
 	short missSendLength;
 	boolean allowAllPorts;
 	FlowMap localFlowSpace;
@@ -199,14 +201,20 @@ public class FVSlicer implements FVEventHandler {
 		return msgStream;
 	}
 
-	protected void setMsgStream(OFMessageAsyncStream msgStream) {
+	protected void setMsgStream(FVMessageAsyncStream msgStream) {
 		this.msgStream = msgStream;
 	}
 
 	public void sendMsg(OFMessage msg) {
 		if (this.msgStream != null) {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
-			this.msgStream.write(msg);
+			try {
+				this.msgStream.testAndWrite(msg);
+			} catch (BufferFull e) {
+				FVLog.log(LogLevel.CRIT, this,
+						"framing bug; tearing down: got " + e);
+				this.tearDown();
+			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,
 					"dropping msg: controller not connected: " + msg);
@@ -379,7 +387,7 @@ public class FVSlicer implements FVEventHandler {
 			FVLog.log(LogLevel.DEBUG, this, "connected");
 			this.isConnected = true;
 			try {
-				msgStream = new OFMessageAsyncStream(this.sock,
+				msgStream = new FVMessageAsyncStream(this.sock,
 						new FVMessageFactory());
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.ALERT, this,
