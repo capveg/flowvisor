@@ -23,6 +23,7 @@ import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
+import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -204,7 +205,9 @@ public class FVSlicer implements FVEventHandler {
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
-				this.tearDown();
+				// don't shut down now; we could get a ConcurrencyException
+				// just queue up a shutdown for later
+				this.loop.queueEvent(new TearDownEvent(this, this));
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,
@@ -303,6 +306,8 @@ public class FVSlicer implements FVEventHandler {
 			updateConfig((ConfigUpdateEvent) e);
 		else if (e instanceof ReconnectEvent)
 			this.reconnect();
+		else if (e instanceof TearDownEvent)
+			this.tearDown();
 		else
 			throw new UnhandledEvent(e);
 	}

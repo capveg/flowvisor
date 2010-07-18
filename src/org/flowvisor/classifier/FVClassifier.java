@@ -17,6 +17,7 @@ import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
+import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -188,6 +189,8 @@ public class FVClassifier implements FVEventHandler {
 			handleIOEvent((FVIOEvent) e);
 		else if (e instanceof ConfigUpdateEvent)
 			updateConfig((ConfigUpdateEvent) e);
+		else if (e instanceof TearDownEvent)
+			this.tearDown();
 		else
 			throw new UnhandledEvent(e);
 	}
@@ -462,7 +465,7 @@ public class FVClassifier implements FVEventHandler {
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
-				this.tearDown();
+				this.loop.queueEvent(new TearDownEvent(this, this));
 			}
 		} else
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
