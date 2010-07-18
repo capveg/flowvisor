@@ -57,6 +57,7 @@ public class FVLog {
 			threshold = LogLevel.DEBUG;
 		}
 		logger.init();
+		System.err.println("--- Setting logging level to " + threshold);
 		if (needConfigFlush)
 			FlowVisor.getInstance().checkPointConfig();
 	}
