@@ -62,8 +62,10 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 								fvSlicer.getSliceName(), SliceAction.WRITE))
 				// TODO add buffer_id check here
 				) {
-					FVLog.log(LogLevel.WARN, fvSlicer,
-							"EPERM bad encap packet: " + this);
+					FVLog
+							.log(LogLevel.WARN, fvSlicer,
+									"EPERM bad encap packet: "
+											+ this.toVerboseString());
 					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
 							OFBadActionCode.OFPBAC_EPERM, this));
 					return;
@@ -119,6 +121,16 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 	public String toString() {
 		return super.toString() + ";actions="
 				+ FVMessageUtil.actionsToString(this.getActions());
+	}
+
+	private String toVerboseString() {
+		String pkt;
+		if (this.packetData != null)
+			pkt = new OFMatch().loadFromPacket(this.packetData, this.inPort)
+					.toString();
+		else
+			pkt = "empty";
+		return this.toString() + ";pkt=" + pkt;
 	}
 
 }
