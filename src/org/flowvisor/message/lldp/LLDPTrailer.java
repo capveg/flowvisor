@@ -65,8 +65,8 @@ public class LLDPTrailer {
 		ByteBuffer newPacket = ByteBuffer.allocate(embedded.length + len);
 		newPacket.put(embedded);
 
-		short tlv = (short) (1 + (len << 7));
-		newPacket.putShort(tlv);
+		int tlv = (len & 0x1ff) | ((LLDP_CHASSIS_ID & 0x007f) << 9);
+		newPacket.putShort((short) tlv);
 
 		newPacket.put(LLDP_CHASSIS_ID_LOCAL);
 
