@@ -28,7 +28,6 @@ import org.flowvisor.message.FVError;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.slicer.FVSlicer;
-import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFEchoReply;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFFeaturesRequest;
@@ -112,14 +111,6 @@ public class FVClassifier implements FVEventHandler {
 	@Override
 	public boolean needsAccept() {
 		return false;
-	}
-
-	public OFMessageAsyncStream getMsgStream() {
-		return msgStream;
-	}
-
-	public void setMsgStream(FVMessageAsyncStream msgStream) {
-		this.msgStream = msgStream;
 	}
 
 	public OFFeaturesReply getSwitchInfo() {

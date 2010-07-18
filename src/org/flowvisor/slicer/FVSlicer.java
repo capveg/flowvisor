@@ -32,7 +32,6 @@ import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.message.Slicable;
-import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPhysicalPort;
@@ -195,14 +194,6 @@ public class FVSlicer implements FVEventHandler {
 	 */
 	public boolean portInSlice(Short port) {
 		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
-	}
-
-	protected OFMessageAsyncStream getMsgStream() {
-		return msgStream;
-	}
-
-	protected void setMsgStream(FVMessageAsyncStream msgStream) {
-		this.msgStream = msgStream;
 	}
 
 	public void sendMsg(OFMessage msg) {

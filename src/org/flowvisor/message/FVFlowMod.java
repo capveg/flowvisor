@@ -68,7 +68,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 					FVFlowMod newFlowMod = (FVFlowMod) this.clone();
 					// replace match with the intersection
 					newFlowMod.setMatch(intersect.getMatch());
-					fvClassifier.getMsgStream().write(newFlowMod);
+					fvClassifier.sendMsg(newFlowMod);
 				}
 			} catch (CloneNotSupportedException e) {
 				FVLog.log(LogLevel.CRIT, fvSlicer,

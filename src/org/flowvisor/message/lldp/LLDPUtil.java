@@ -55,7 +55,7 @@ public class LLDPUtil {
 		trailer.appendTo(po);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "applied lldp hack: " + po
 				+ " slice=" + fvSlicer.getSliceName());
-		fvClassifier.getMsgStream().write(po);
+		fvClassifier.sendMsg(po);
 		return true;
 	}
 

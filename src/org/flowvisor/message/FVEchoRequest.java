@@ -28,7 +28,7 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVEchoReply reply = new FVEchoReply();
 		reply.setXid(this.getXid());
-		fvClassifier.getMsgStream().write(reply);
+		fvClassifier.sendMsg(reply);
 	}
 
 	/*

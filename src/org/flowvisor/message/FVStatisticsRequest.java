@@ -35,7 +35,7 @@ public class FVStatisticsRequest extends OFStatisticsRequest implements
 			FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
 			FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: "
 					+ this);
-			fvClassifier.getMsgStream().write(this);
+			fvClassifier.sendMsg(this);
 		}
 	}
 

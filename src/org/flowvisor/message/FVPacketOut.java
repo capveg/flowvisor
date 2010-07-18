@@ -98,7 +98,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count + this
 				.getPacketData().length));
 		// if we've gotten this far, everything is kosher
-		fvClassifier.getMsgStream().write(this);
+		fvClassifier.sendMsg(this);
 	}
 
 	// convenience function that Derickso doesn't want in main openflow.jar

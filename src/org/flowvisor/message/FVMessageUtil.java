@@ -103,7 +103,7 @@ public class FVMessageUtil {
 			FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
-		fvClassifier.getMsgStream().write(msg);
+		fvClassifier.sendMsg(msg);
 	}
 
 	public static void dropUnexpectedMesg(OFMessage msg, FVEventHandler handler) {
