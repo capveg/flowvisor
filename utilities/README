@@ -1,0 +1,10 @@
+I use nload all the time to debug FV, so I've included it here.
+
+For example:
+
+
+# to count the lldp rate
+nload -i lo ether proto 0x88cc
+
+# to monitor for arp storms
+nload -i eth0 arp
