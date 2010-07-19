@@ -17,4 +17,4 @@ else
 fi
 
 echo Staring FlowVisor >&2 
-exec java $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
+exec java -server -Xms100M -Xmx1000M $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
