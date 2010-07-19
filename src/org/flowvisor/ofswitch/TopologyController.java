@@ -42,8 +42,8 @@ public class TopologyController extends OFSwitchAcceptor {
 	private long updatePeriod;
 	private long timeoutPeriod;
 
-	static long defaultUpdatePeriod = 1000; // in milliseconds
-	static long defaultTimeoutPeriod = 5000; // in milliseconds
+	static long defaultUpdatePeriod = 10000; // in milliseconds
+	static long defaultTimeoutPeriod = 50000; // in milliseconds
 
 	public static TopologyController getRunningInstance() {
 		return TopologyController.runningInstance;
