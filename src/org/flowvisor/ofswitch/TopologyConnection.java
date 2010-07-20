@@ -52,7 +52,7 @@ import org.openflow.util.HexString;
  */
 public class TopologyConnection implements FVEventHandler {
 
-	private static final int LLDPLen = 64;
+	private static final int LLDPLen = 128;
 	TopologyController topologyController;
 	FVEventLoop pollLoop;
 	SocketChannel sock;

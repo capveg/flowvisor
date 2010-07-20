@@ -101,7 +101,6 @@ public class LLDPUtil {
 				fvSlicer.sendMsg(pi);
 				return true;
 			}
-
 		}
 		/**
 		 * HACK: unknown LLDP packet; send to all slices that have access to
