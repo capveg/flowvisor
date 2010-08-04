@@ -19,4 +19,6 @@ event loop.  There is no shared state between event handlers,
 only copies of state and events to update the copies when
 they become stale.
 
+DOCUMENTATION:
 
+Most (all?) of the code is commented with javadoc.  See `make doc`.
