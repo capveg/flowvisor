@@ -175,7 +175,7 @@ flows.  Such flow descriptions comprise a series
 The following field assignments describe how a flow matches a packet.
 If any of these assignments is omitted from the flow syntax, the field
 is treated as a wildcard; thus, if all of them are omitted, the
-resulting flow matches all packets.  The string \fBallfR or \fBany\fR
+resulting flow matches all packets.  The string \fBall\fR or \fBany\fR
 is used to specify a flow that matches all packets.
 
 .IP \fBin_port=\fIport_no\fR
@@ -235,8 +235,12 @@ Matches transport-layer destination port \fIport\fR.
 For example:
 
 
-.B Match on all traffic that has ether_type of IP and IP->protocol of ICMP: \fBdl_type=0x0800,nw_proto=1\fR.
+.TP 
+Match on all traffic that has ether_type of IP and IP->protocol of ICMP: 
+.B \fBdl_type=0x0800,nw_proto=1\fR.
 
+.TP
+A more complicated FLOW MATCH:
 .B \fBdl_src=00:23:10:ff:a4:b1,dl_type=0x0800,nw_proto=6,tp_dst=80\fR
 
 .SH DPID

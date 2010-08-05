@@ -1,6 +1,6 @@
 REQUIREMENTS:
     - ant           (no version requirements?)
-    - java 1.6
+    - java 1.6	    (currently requires Sun's JDK)
 
 BUILD:
     - run `make` (or `ant` : Makefile is just a wrapper)
@@ -25,4 +25,4 @@ RUN:
         ./scripts/flowvisor.sh config.xml
 
     To configure running flowvisor, use ./scripts/fvctl.sh
-        FIXME: document fvctl
+        `man 1 fvctl` or `man ./doc/fvctl.1` for details
