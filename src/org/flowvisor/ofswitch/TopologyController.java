@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.LinkAdvertisement;
+import org.flowvisor.api.TopologyCallback;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEvent;
@@ -28,6 +29,9 @@ import org.flowvisor.log.LogLevel;
 /**
  * A simple OpenFlow controller that runs inside the flowvisor to discover and
  * report the network's topology
+ * 
+ * Can only run one instance of topology controller at a time; use spawn() to
+ * create or get running instance
  * 
  * @author capveg
  * 
@@ -45,6 +49,8 @@ public class TopologyController extends OFSwitchAcceptor {
 	static long defaultUpdatePeriod = 5000; // in milliseconds
 	static long defaultTimeoutPeriod = 10000; // in milliseconds
 
+	private final Map<String, TopologyCallback> callBackDB;
+
 	public static TopologyController getRunningInstance() {
 		return TopologyController.runningInstance;
 	}
@@ -59,6 +65,7 @@ public class TopologyController extends OFSwitchAcceptor {
 		this.topologyConnections = new LinkedList<TopologyConnection>();
 		this.latestProbes = new HashMap<LinkAdvertisement, Long>();
 		this.doCallback = false;
+		this.callBackDB = new HashMap<String, TopologyCallback>();
 		this.setUpdatePeriod(TopologyController.defaultUpdatePeriod);
 		// schedule the update timer
 		pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
@@ -91,6 +98,26 @@ public class TopologyController extends OFSwitchAcceptor {
 					"failed to spawn TopologyController: " + e);
 		}
 		return tc;
+	}
+
+	/**
+	 * Add a new URL to the list of things to make an XMLRPC call to if the
+	 * topology changes
+	 * 
+	 * @param user
+	 *            FVUser (e.g., "alice") who registered this callback
+	 * @param URL
+	 *            Location of user's xmlrpc server
+	 * @param cookie
+	 *            Some state locally meaningful to user
+	 */
+	public synchronized void registerCallBack(String user, String URL,
+			String cookie) {
+		this.callBackDB.put(user, new TopologyCallback(URL, cookie));
+	}
+
+	public synchronized void unregisterCallBack(String user) {
+		this.callBackDB.remove(user);
 	}
 
 	@Override
@@ -135,11 +162,11 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	}
 
-	private void processCallback() {
+	private synchronized void processCallback() {
 		// TODO Auto-generated method stub
 		FVLog.log(LogLevel.INFO, this, "topology changed: doing callbacks");
-		FVLog.log(LogLevel.CRIT, this, "topology changed: IMPLEMENT CALLBACK");
-
+		for (TopologyCallback topologyCallback : this.callBackDB.values())
+			topologyCallback.spawn();
 		this.doCallback = false;
 	}
 
@@ -154,10 +181,13 @@ public class TopologyController extends OFSwitchAcceptor {
 						"ssc.accept() returned null !?! FIXME!");
 				return;
 			}
-			FVLog.log(LogLevel.INFO, this, "got new connection: " + sock);
+			FVLog.log(LogLevel.INFO, this, "got new connection: "
+					+ sock.socket().getRemoteSocketAddress());
 			TopologyConnection tc = new TopologyConnection(this, pollLoop, sock);
 			tc.init();
 			topologyConnections.add(tc);
+			this.doCallback = true; // signal that we need a call back when a
+			// new switch comes
 		} catch (IOException e) // ignore IOExceptions -- is this the right
 		// thing to do?
 		{
@@ -176,7 +206,7 @@ public class TopologyController extends OFSwitchAcceptor {
 	 * @return never null, may return an empty list if nothing is connected
 	 */
 
-	public List<Long> listDevices() {
+	public synchronized List<Long> listDevices() {
 		List<Long> dpids = new LinkedList<Long>();
 		for (TopologyConnection tc : this.topologyConnections)
 			if (tc.isConnected())
@@ -258,6 +288,16 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	public long getTimeoutPeriod() {
 		return timeoutPeriod;
+	}
+
+	/**
+	 * This gets called when a topology connection is killed
+	 * 
+	 * @param topologyConnection
+	 */
+	public void disconnect(TopologyConnection topologyConnection) {
+		this.topologyConnections.remove(topologyConnection);
+		this.doCallback = true;
 	}
 
 }
