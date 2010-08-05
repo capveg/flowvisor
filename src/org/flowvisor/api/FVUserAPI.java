@@ -1,5 +1,6 @@
 package org.flowvisor.api;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -224,5 +225,15 @@ public interface FVUserAPI {
 	 *            opaque string with some meaningful state from the caller
 	 * @return success on registering the callback
 	 */
-	public boolean registerTopologyChangeCallback(String URL, String cookie);
+	public boolean registerTopologyChangeCallback(String URL, String cookie)
+			throws MalformedURLException;
+
+	/**
+	 * Unregister a previously registered callback
+	 * 
+	 * 
+	 * @return true if successful, false otherwise
+	 */
+	public boolean unregisterTopologyChangeCallback();
+
 }

@@ -130,6 +130,16 @@ and the topology that connects them.
 \fBgetLinks\fR
     Displays the links between the devices, as inferred by FlowVisor's topology discovery mechanism.
 
+.TP \fBregisterCallback\fR \fIURL\fR \fIcookie\fR
+Register a XMLRPC callback for the flowvisor to call when there is
+a change in the topology.  Once registered, with each topology change
+(with some dampenning), FlowVisor will connect to the server listed in
+URL, and make the XMLRPC call to the path of \fIURL\fR with \fIcookie\fR
+as a parameter.
+
+.TP \fBunregisterCallback\fR 
+UnRegisters a previously registered XMLRPC callback.
+
 .PP
 These commands are a general purpose hook for manipulating all elements
 of the FlowVisor's config.  The FlowVisor's config is internally stored

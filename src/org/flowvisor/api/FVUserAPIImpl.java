@@ -3,6 +3,8 @@
  */
 package org.flowvisor.api;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -458,8 +460,25 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean registerTopologyChangeCallback(String URL, String cookie) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean registerTopologyChangeCallback(String URL, String cookie)
+			throws MalformedURLException {
+		// this will throw MalformedURL back to the client if the URL is bad
+		new URL(URL);
+		TopologyController tc = TopologyController.getRunningInstance();
+		if (tc != null) {
+			tc.registerCallBack(APIUserCred.getUserName(), URL, cookie);
+			return true;
+		} else
+			return false; // topology server not running
+	}
+
+	@Override
+	public boolean unregisterTopologyChangeCallback() {
+		TopologyController tc = TopologyController.getRunningInstance();
+		if (tc != null) {
+			tc.unregisterCallBack(APIUserCred.getUserName());
+			return true;
+		} else
+			return false; // topology server not running
 	}
 }

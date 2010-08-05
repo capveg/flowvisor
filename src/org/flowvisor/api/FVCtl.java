@@ -49,22 +49,28 @@ public class FVCtl {
 	XmlRpcClientConfigImpl config;
 	XmlRpcClient client;
 	static APICmd[] cmdlist = new APICmd[] {
-			new APICmd("listFlowSpace", 0),
 			new APICmd("listSlices", 0),
-			new APICmd("listDevices", 0),
-			new APICmd("getLinks", 0),
-			new APICmd("ping", 1, "<msg>"),
-			new APICmd("getConfig", 1, "<configEntry>"),
-			new APICmd("setConfig", 2, "<configEntry> <value>"),
+			new APICmd("createSlice", 3, "<slicename> <controller_url> <email>"),
 			new APICmd("deleteSlice", 1, "<slicename>"),
 			new APICmd("changePasswd", 1, "<slicename>"),
 			new APICmd("getSliceInfo", 1, "<slicename>"),
-			new APICmd("getDeviceInfo", 1, "<dpid>"),
-			new APICmd("createSlice", 3, "<slicename> <controller_url> <email>"),
+
+			new APICmd("listFlowSpace", 0),
 			new APICmd("removeFlowSpace", 1, "<id>"),
 			new APICmd("addFlowSpace", 4, "<dpid> <priority> <match> <actions>"),
 			new APICmd("changeFlowSpace", 5,
-					"<id> <dpid> <priority> <match> <actions>") };
+					"<id> <dpid> <priority> <match> <actions>"),
+
+			new APICmd("listDevices", 0),
+			new APICmd("getDeviceInfo", 1, "<dpid>"),
+			new APICmd("getLinks", 0),
+
+			new APICmd("ping", 1, "<msg>"),
+			new APICmd("getConfig", 1, "<configEntry>"),
+			new APICmd("setConfig", 2, "<configEntry> <value>"),
+
+			new APICmd("registerCallback", 2, "<URL> <cookie>"),
+			new APICmd("unregisterCallback", 0), };
 
 	static class APICmd {
 		String name;
@@ -413,6 +419,35 @@ public class FVCtl {
 		} else {
 			System.err.println("Got 'null' for reply :-(");
 		}
+	}
+
+	public void run_registerCallback(String URL, String cookie)
+			throws IOException, XmlRpcException, MalformedURLException {
+		Boolean reply = (Boolean) this.client.execute(
+				"api.registerTopologyChangeCallback", new Object[] { URL,
+						cookie });
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		if (reply)
+			System.out.println("success!");
+		else
+			System.err.println("failed!");
+	}
+
+	public void run_unregisterCallback() throws IOException, XmlRpcException,
+			MalformedURLException {
+		Boolean reply = (Boolean) this.client.execute(
+				"api.unregisterTopologyChangeCallback", new Object[] {});
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		if (reply)
+			System.out.println("success!");
+		else
+			System.err.println("failed!");
 	}
 
 	private static void usage(String string) {
