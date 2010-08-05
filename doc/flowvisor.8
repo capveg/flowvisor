@@ -1,0 +1,29 @@
+.ds PN flowvisor
+
+.TH flowvisor 8 "May 2008" "FlowVisor" "FlowVisor Manual"
+
+.SH NAME
+flowvisor \- OpenFlow network slicing daemon
+
+.SH SYNOPSIS
+.B flowvisor
+\fIconfig.xml\fR [\fIport\fR]
+
+.B flowvisor
+-v
+
+.SH DESCRIPTION
+The
+.B flowvisor
+program is a daemon that logically slices an OpenFlow-enabled switch into multiple, logical switches each controlled by a different OpenFlow controller. 
+
+For more details, see:
+
+"Can the Production Network Be the Test-bed?" 
+Rob Sherwood, Glen Gibb, Kok-Kiong Yap, Guido Appenzeller, Martin Casado, Nick McKeown, Guru Parulkar.
+Symposium for Operating Systems Design and Implementation, 2010
+
+
+.SH "SEE ALSO"
+
+.BR fvctl (1)

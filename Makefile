@@ -1,5 +1,8 @@
 # Because I am old and crotchety and my fingers can't stop from running 
 #	`make` commands
+
+.PHONY: docs doc all test tests count install clean
+
 all:
 	ant
 

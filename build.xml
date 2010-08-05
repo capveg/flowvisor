@@ -8,7 +8,7 @@
 
     <property name="build" location="build"/>
     <property name="dist"  location="dist"/>
-    <property name="docs"  location="doc"/>
+    <property name="docs"  location="javadoc"/>
     <property name="of_jar" location="lib/openflow.jar"/>
     <property name="xml-ver" value="3.1.3"/>
     <property name="fv_classpath" location="${of_jar}:lib/xmlrpc-client-${xml-ver}.jar:lib/xmlrpc-server-${xml-ver}.jar:lib/xmlrpc-common-${xml-ver}.jar:lib/jsse.jar"/>

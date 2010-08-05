@@ -126,7 +126,7 @@ done
 
 echo Creating directories
 
-for d in bin sbin libexec/flowvisor etc ; do 
+for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 ; do 
     echo Creating $prefix/$d
     $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$prefix/$d
 done
@@ -148,6 +148,14 @@ echo Installing flowvisor.jar
 cd $owd
 cd $dist
 $install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.jar  $root$prefix/libexec/flowvisor
+
+echo Installing manpages
+cd $owd
+cd doc
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 fvctl.1  $root$prefix/share/man/man1
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.8  $root$prefix/share/man/man8
+# do we need to run makewhatis manually here? I think it's a cronjob on most systems
+
 
 echo Installing configs
 cd $owd
