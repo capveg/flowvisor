@@ -19,7 +19,7 @@ fi
 
 
 make tests
-if [ $? != 0 ] ;
+if [ $? != 0 ] ; then
     echo "make tests seem to have failed... aborting release" >&2
     exit 1
 fi
