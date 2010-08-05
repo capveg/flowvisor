@@ -28,8 +28,12 @@ if [ -f $SSL_KEYSTORE ] ; then
 else
     echo "Trying to generate SSL Server Key with passwd from scripts/envs.sh" >&2
     if [ "X$2" != "X" ] ; then
-        dname="-dname cn=$2"
+        cn=$2
+    else
+        cn=`hostname`
     fi
+    echo Generating cert with common name == $cn
+    dname="-dname cn=$cn"
     keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
 fi
 
