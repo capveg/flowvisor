@@ -181,10 +181,13 @@ public class TopologyController extends OFSwitchAcceptor {
 						"ssc.accept() returned null !?! FIXME!");
 				return;
 			}
-			FVLog.log(LogLevel.INFO, this, "got new connection: " + sock);
+			FVLog.log(LogLevel.INFO, this, "got new connection: "
+					+ sock.socket().getRemoteSocketAddress());
 			TopologyConnection tc = new TopologyConnection(this, pollLoop, sock);
 			tc.init();
 			topologyConnections.add(tc);
+			this.doCallback = true; // signal that we need a call back when a
+			// new switch comes
 		} catch (IOException e) // ignore IOExceptions -- is this the right
 		// thing to do?
 		{
@@ -285,6 +288,16 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	public long getTimeoutPeriod() {
 		return timeoutPeriod;
+	}
+
+	/**
+	 * This gets called when a topology connection is killed
+	 * 
+	 * @param topologyConnection
+	 */
+	public void disconnect(TopologyConnection topologyConnection) {
+		this.topologyConnections.remove(topologyConnection);
+		this.doCallback = true;
 	}
 
 }

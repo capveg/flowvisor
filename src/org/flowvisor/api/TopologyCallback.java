@@ -62,7 +62,10 @@ public class TopologyCallback implements Runnable {
 		// client.setTransportFactory(new )
 		client.setConfig(config);
 		try {
-			this.client.execute(urlType.getPath(), new Object[] { cookie });
+			String call = urlType.getPath();
+			if (call.startsWith("/"))
+				call = call.substring(1);
+			this.client.execute(call, new Object[] { cookie });
 		} catch (XmlRpcException e) {
 			FVLog.log(LogLevel.WARN, TopologyController.getRunningInstance(),
 					"topoCallback to URL=" + URL + " failed: " + e);

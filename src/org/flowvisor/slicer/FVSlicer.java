@@ -352,8 +352,14 @@ public class FVSlicer implements FVEventHandler {
 				this.sock.close();
 			this.sock = SocketChannel.open();
 			sock.configureBlocking(false); // set to non-blocking
-			this.isConnected = this.sock.connect(new InetSocketAddress(
-					hostname, port)); // try to connect
+			InetSocketAddress addr = new InetSocketAddress(hostname, port);
+			if (addr.isUnresolved()) {
+				FVLog.log(LogLevel.INFO, this,
+						"retrying: failed to resolve hostname: " + hostname);
+				this.reconnectLater();
+				return;
+			}
+			this.isConnected = this.sock.connect(addr); // try to connect
 			// register into event loop
 			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
