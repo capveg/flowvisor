@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.flowvisor.Exception.BufferFull;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -24,6 +23,8 @@ import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.events.TearDownEvent;
+import org.flowvisor.exceptions.BufferFull;
+import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -208,6 +209,8 @@ public class FVSlicer implements FVEventHandler {
 				// don't shut down now; we could get a ConcurrencyException
 				// just queue up a shutdown for later
 				this.loop.queueEvent(new TearDownEvent(this, this));
+			} catch (MalformedOFMessage e) {
+				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,

@@ -1,4 +1,4 @@
-package org.flowvisor.Exception;
+package org.flowvisor.exceptions;
 
 import java.io.IOException;
 

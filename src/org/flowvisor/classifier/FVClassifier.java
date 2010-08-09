@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.flowvisor.Exception.BufferFull;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.events.FVEvent;
@@ -18,6 +17,8 @@ import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.events.TearDownEvent;
+import org.flowvisor.exceptions.BufferFull;
+import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -330,8 +331,10 @@ public class FVClassifier implements FVEventHandler {
 				msgStream.testAndWrite(echo_reply);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
-						"framing bug; tearing down: got " + e);
+						"framing BUG; tearing down: got " + e);
 				this.tearDown();
+			} catch (MalformedOFMessage e) {
+				FVLog.log(LogLevel.CRIT, this, "BUG: echo_request: " + e);
 			}
 			break;
 		case FEATURES_REPLY:
@@ -464,8 +467,10 @@ public class FVClassifier implements FVEventHandler {
 				this.msgStream.testAndWrite(msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
-						"framing bug; tearing down: got " + e);
+						"framing BUG; tearing down: got " + e);
 				this.loop.queueEvent(new TearDownEvent(this, this));
+			} catch (MalformedOFMessage e) {
+				FVLog.log(LogLevel.CRIT, this, "BUG: bad msg: " + e);
 			}
 		} else
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
