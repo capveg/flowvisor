@@ -78,6 +78,14 @@ public class FlowSpaceUtilsTest extends TestCase {
 			TestCase.assertEquals(dpid, flowEntry.getDpid());
 	}
 
+	public void testDPIDPrinting() {
+		// problem with leading zeros: #158
+		String str = "03:2b:00:26:f1:3f:3b:00";
+		long dpid = FlowSpaceUtil.parseDPID(str);
+		String result = FlowSpaceUtil.dpidToString(dpid);
+		TestCase.assertEquals(str, result);
+	}
+
 	/**
 	 * this is a junit test of tests-vlan.py: this must pass before that can
 	 * pass
