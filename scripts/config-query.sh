@@ -16,4 +16,4 @@ else
 fi
 
 
-exec java -cp $classpath org.flowvisor.flows.FlowSpaceUtil "$@"
+exec java -cp $classpath $fv_defines org.flowvisor.flows.FlowSpaceUtil "$@"

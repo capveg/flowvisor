@@ -5,6 +5,7 @@
 
 all:
 	ant
+	make -C jni all
 
 docs:
 	ant javadoc
@@ -25,3 +26,4 @@ install: all
 
 clean:
 	ant clean
+	make -C jni clean

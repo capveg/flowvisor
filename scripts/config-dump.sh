@@ -15,5 +15,5 @@ else
     exit 1
 fi
 
-java -cp $classpath org.flowvisor.config.DefaultConfig "$@"
+java -cp $classpath $fv_defines org.flowvisor.config.DefaultConfig "$@"
 

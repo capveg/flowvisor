@@ -8,15 +8,19 @@ SSL_KEYPASSWD=CHANGEME_PASSWD
 
 if [ -z $configbase ] ; then
     configbase=`dirname $0`/..
+    install_dir=$configbase/dist
     jars=$configbase/lib
-    dist=$configbase/dist
+    config_dir=$configbase
     SSL_KEYSTORE=$configbase/mySSLKeyStore
 else
-    jars=$install_root$configbase/libexec/flowvisor
-    dist=$install_root$configbase/libexec/flowvisor
-    SSL_KEYSTORE=$install_root$configbase/etc/flowvisor/mySSLKeyStore
+    install_dir=$install_root$configbase/libexec/flowvisor
+    jars=$install_dir
+    config_dir=$install_root$configbase/etc/flowvisor
+    SSL_KEYSTORE=$config_dir/mySSLKeyStore
 fi
 
+
+fv_defines="-Dorg.flowvisor.config_dir=$config_dir -Dorg.flowvisor.install_dir=$install_dir"
 
 # Setup some environmental variables
 classpath=$jars/openflow.jar:\
@@ -26,7 +30,7 @@ $jars/xmlrpc-server-3.1.3.jar:\
 $jars/commons-logging-1.1.jar:\
 $jars/ws-commons-util-1.0.2.jar:\
 $jars/jsse.jar:\
-$dist/flowvisor.jar
+$install_dir/flowvisor.jar
 
 # ssl options for the jvm
 

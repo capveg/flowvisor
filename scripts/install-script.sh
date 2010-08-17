@@ -22,6 +22,7 @@ base=`dirname $0`/..
 scriptd=$base/scripts
 libs=$base/lib
 dist=$base/dist
+jni=$base/jni
 config=flowvisor-config.xml
 #verbose=-v
 
@@ -138,6 +139,10 @@ echo Installing scripts
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 $bin_SCRIPTS $root$prefix/bin
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 $sbin_SCRIPTS $root$prefix/sbin
 
+echo Installing JNI libraries
+cd $owd
+cd $jni
+make install DSTDIR=$root$prefix/libexec/flowvisor
 
 echo Installing jars
 cd $owd
