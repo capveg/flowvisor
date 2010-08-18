@@ -13,12 +13,12 @@ distpath=$(TOP)/dist
 
 install=install
 
-CFLAGS=-Wall
+MYCFLAGS=-Wall
 
 all: libsyslog_jni.so
 
 libsyslog_jni.so: syslog_jni.o
-	gcc -shared -Wl,-soname,libsyslog_jni.so -o $@ syslog_jni.o -lc
+	gcc $(LDFLAGS) -fPIC -shared -Wl,-soname,libsyslog_jni.so -o $@ syslog_jni.o -lc
 	cp $@ $(distpath)
 
 
