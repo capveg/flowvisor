@@ -1,5 +1,12 @@
 package org.flowvisor.log;
 
+/**
+ * The Java-side wrapper around the syslog-jni library
+ * 
+ * @author capveg
+ * 
+ */
+
 public class Syslog {
 	public enum Priority {
 		LOG_EMERG(0), /* system is unusable */

@@ -16,7 +16,7 @@ import org.flowvisor.events.FVEventHandler;
  */
 public class FVLog {
 	static boolean needsInit = true;
-	static FVLogInterface logger = new StderrLogger();
+	static FVLogInterface logger = new SyslogLogger();
 	static LogLevel threshold = LogLevel.DEBUG; // min level for logging
 
 	/**
@@ -60,6 +60,10 @@ public class FVLog {
 		System.err.println("--- Setting logging level to " + threshold);
 		if (needConfigFlush)
 			FlowVisor.getInstance().checkPointConfig();
+		for (LogLevel level : LogLevel.class.getEnumConstants()) {
+			if (level != LogLevel.FATAL) // fatal gets broadcasted to console
+				FVLog.log(level, null, "log level enabled: " + level);
+		}
 	}
 
 	/**

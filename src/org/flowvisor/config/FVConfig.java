@@ -60,6 +60,8 @@ public class FVConfig {
 
 	final static public int OFP_TCP_PORT = 6633;
 	public static final String LOG_THRESH = "flowvisor" + FS + "logging";
+	public static final String LOG_FACILITY = "flowvisor" + FS + "log_facility";
+	public static final String LOG_IDENT = "flowvisor" + FS + "log_ident";
 
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 
