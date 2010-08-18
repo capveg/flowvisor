@@ -1,9 +1,14 @@
 REQUIREMENTS:
     - ant           (no version requirements?)
-    - java 1.6	    (currently requires Sun's JDK)
+    - java 1.6	    (currently requires Sun's JDK; 
+                    will not work with OpenJDK: bug #157)
 
 BUILD:
     - run `make` (or `ant` : Makefile is just a wrapper)
+
+    if you have problems finding jni.h, use:
+        make CFLAGS=-I/path/to/javahome/include
+    or just install libgcj-devel (jni.h versions are similar)
 
 INSTALL:
     - make install
