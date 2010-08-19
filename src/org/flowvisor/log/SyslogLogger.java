@@ -63,7 +63,7 @@ public class SyslogLogger implements FVLogInterface {
 	@Override
 	public void log(LogLevel level, long time, FVEventHandler source, String msg) {
 		if (level != LogLevel.MOBUG)
-			syslog.log(level.getPriority(), msg);
+			syslog.log(level.getPriority(), level.toString() + ": " + msg);
 	}
 
 }
