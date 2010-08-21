@@ -1,5 +1,6 @@
 package org.flowvisor.flows;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -129,5 +130,36 @@ public class LinearFlowMapTest extends TestCase {
 		slice = ((SliceAction) flowEntries.get(0).getActionsList().get(0))
 				.getSliceName();
 		TestCase.assertEquals("prod", slice);
+	}
+
+	public void testFlowSpaceOverlap() {
+		FlowMap map = new LinearFlowMap();
+		OFMatch match = new OFMatch();
+		match.fromString("nw_src=128.8.0.0/16");
+		OFMatch match2 = new OFMatch();
+		match2.fromString("nw_dst=129.9.0.0/16");
+
+		FlowEntry flowEntry1 = new FlowEntry(match, new SliceAction("alice",
+				SliceAction.WRITE));
+		flowEntry1.setPriority(200);
+		FlowEntry flowEntry2 = new FlowEntry(match2, new SliceAction("bob",
+				SliceAction.WRITE));
+		flowEntry2.setPriority(100);
+		map.addRule(flowEntry1);
+		map.addRule(flowEntry2);
+
+		List<FlowIntersect> intersects = map.intersects(1, match2);
+		TestCase.assertEquals(2, intersects.size());
+
+		List<OFMatch> matches = new LinkedList<OFMatch>();
+		for (FlowIntersect intersect : intersects) {
+			if (intersect.getFlowEntry().hasPermissions("bob",
+					SliceAction.WRITE)) {
+				matches.add(intersect.getMatch());
+			}
+		}
+		TestCase.assertEquals(1, matches.size());
+		TestCase.assertEquals(match2, matches.get(0));
+
 	}
 }
