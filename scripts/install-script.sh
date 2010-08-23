@@ -101,6 +101,7 @@ bin_SCRIPTS="\
     "
 
 sbin_SCRIPTS="\
+    fvconfig \
     config-dump \
     config-gen-default \
     config-query \

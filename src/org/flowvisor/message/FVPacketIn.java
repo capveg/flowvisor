@@ -7,7 +7,6 @@ import org.flowvisor.api.LinkAdvertisement;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.flows.FlowEntry;
-import org.flowvisor.flows.FlowIntersect;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.flows.SliceAction;
 import org.flowvisor.log.FVLog;
@@ -144,14 +143,14 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 
 		System.err.println("Looking up packet '" + packet + "' on dpid="
 				+ FlowSpaceUtil.dpidToString(dpid));
-		List<FlowIntersect> intersections = FVConfig.getFlowSpaceFlowMap()
-				.intersects(dpid, packet);
+		List<FlowEntry> entries = FVConfig.getFlowSpaceFlowMap().matches(dpid,
+				packet);
 
-		System.err.println("Matches found: " + intersections.size());
-		if (intersections.size() > 1)
+		System.err.println("Matches found: " + entries.size());
+		if (entries.size() > 1)
 			System.err.println("WARN: only sending to the first match");
-		for (FlowIntersect intersect : intersections) {
-			System.out.println(intersect.getFlowEntry());
+		for (FlowEntry flowEntry : entries) {
+			System.out.println(flowEntry);
 		}
 
 	}
