@@ -106,10 +106,14 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 				throw new RuntimeException("Unknown MatchType = "
 						+ intersect.getMatchType());
 		}
+
 		if (needMerge && (results.size() > 1))
-			return priorityMerge(results); // expensive, avoid if possible
+			// BROKEN: needs to virtualize priorities
+			// return priorityMerge(results); // expensive, avoid if possible
+			return results;
 		else
 			return results;
+
 	}
 
 	/**
