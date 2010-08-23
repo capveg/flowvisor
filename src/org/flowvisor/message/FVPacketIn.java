@@ -60,7 +60,8 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 					FVLog.log(LogLevel.WARN, fvClassifier,
 							"tried to send msg to non-existing slice: "
 									+ sliceAction.getSliceName()
-									+ "corrupted flowspace?" + this);
+									+ " corrupted flowspace?:: "
+									+ this.toVerboseString());
 					continue;
 				}
 				fvSlicer.sendMsg(this);
@@ -102,8 +103,10 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 			DPIDandPort dpidandport = TopologyConnection.parseLLDP(this
 					.getPacketData());
 			if (dpidandport == null) {
-				FVLog.log(LogLevel.DEBUG, topologyConnection,
-						"ignoring non-lldp packetin: " + this);
+				FVLog
+						.log(LogLevel.DEBUG, topologyConnection,
+								"ignoring non-lldp packetin: "
+										+ this.toVerboseString());
 				return;
 			}
 			OFFeaturesReply featuresReply = topologyConnection
