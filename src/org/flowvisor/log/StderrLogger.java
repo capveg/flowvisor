@@ -22,10 +22,11 @@ public class StderrLogger implements FVLogInterface {
 	 * @see org.flowvisor.log.FVLogInterface#init()
 	 */
 	@Override
-	public void init() {
+	public boolean init() {
 		// this.df =
 		// DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT);
 		this.df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		return false;
 	}
 
 	/*

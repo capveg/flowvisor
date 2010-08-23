@@ -15,8 +15,10 @@ public interface FVLogInterface {
 
 	/**
 	 * Do any sort of logging method initializations
+	 * 
+	 * @return did we change the config?
 	 */
-	public void init();
+	public boolean init();
 
 	/**
 	 * Log a message

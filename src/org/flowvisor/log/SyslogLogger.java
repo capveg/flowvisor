@@ -3,6 +3,7 @@
  */
 package org.flowvisor.log;
 
+import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.log.Syslog.Facility;
@@ -31,8 +32,8 @@ public class SyslogLogger implements FVLogInterface {
 	 * @see org.flowvisor.log.FVLogInterface#init()
 	 */
 	@Override
-	public void init() {
-
+	public boolean init() {
+		boolean changedConfig = false;
 		try {
 			String fac = FVConfig.getString(FVConfig.LOG_FACILITY);
 			this.facility = Syslog.Facility.valueOf(fac);
@@ -43,15 +44,31 @@ public class SyslogLogger implements FVLogInterface {
 								+ fac + "'");
 			}
 		} catch (Exception e) {
+			try {
+				FVConfig.setString(FVConfig.LOG_FACILITY, this.facility
+						.toString());
+				changedConfig = true;
+			} catch (ConfigError e1) {
+				System.err.println("Failed to set " + FVConfig.LOG_FACILITY
+						+ " to '" + this.facility + ": " + e1);
+			}
 
 		}
 		try {
 			this.ident = FVConfig.getString(FVConfig.LOG_IDENT);
 		} catch (Exception e) {
+			try {
+				FVConfig.setString(FVConfig.LOG_IDENT, this.ident);
+				changedConfig = true;
+			} catch (ConfigError e1) {
+				System.err.println("Failed to set " + FVConfig.LOG_IDENT
+						+ " to '" + this.ident + ": " + e1);
+			}
 
 		}
 		this.syslog = new Syslog(facility, ident);
 		this.syslog.log(Syslog.Priority.LOG_INFO, "started flowvisor syslog");
+		return changedConfig;
 	}
 
 	/*
