@@ -119,7 +119,9 @@ public class FVSlicer implements FVEventHandler {
 		}
 		for (Short port : ports) {
 			if (!allowedPorts.keySet().contains(port)) {
-				FVLog.log(LogLevel.INFO, this, "adding access to port " + port);
+				FVLog
+						.log(LogLevel.DEBUG, this, "adding access to port "
+								+ port);
 				allowedPorts.put(port, Boolean.TRUE);
 			}
 		}
@@ -127,7 +129,7 @@ public class FVSlicer implements FVEventHandler {
 				.hasNext();) {
 			Short port = it.next();
 			if (!ports.contains(port)) {
-				FVLog.log(LogLevel.INFO, this, "removing access to port "
+				FVLog.log(LogLevel.DEBUG, this, "removing access to port "
 						+ port);
 				it.remove();
 			}
@@ -344,7 +346,7 @@ public class FVSlicer implements FVEventHandler {
 	}
 
 	private void reconnect() {
-		FVLog.log(LogLevel.INFO, this, "trying to connect to " + this.hostname
+		FVLog.log(LogLevel.DEBUG, this, "trying to connect to " + this.hostname
 				+ ":" + this.port);
 		// reset our state to unconnected (might be a NOOP)
 		this.isConnected = false;
@@ -367,7 +369,7 @@ public class FVSlicer implements FVEventHandler {
 			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
 			// TODO:: spawn a timer event to connect again later
-			FVLog.log(LogLevel.ALERT, this, "Giving up on reconnecting, got : "
+			FVLog.log(LogLevel.CRIT, this, "Giving up on reconnecting, got : "
 					+ e);
 			tearDown();
 		}
@@ -384,7 +386,7 @@ public class FVSlicer implements FVEventHandler {
 				// exponential back off
 				this.reconnectSeconds = Math.min(2 * this.reconnectSeconds + 1,
 						this.maxReconnectSeconds);
-				FVLog.log(LogLevel.INFO, this, "retrying connection in "
+				FVLog.log(LogLevel.DEBUG, this, "retrying connection in "
 						+ this.reconnectSeconds + " seconds; got: " + e1);
 				this.reconnectLater();
 				return;
@@ -395,7 +397,7 @@ public class FVSlicer implements FVEventHandler {
 				msgStream = new FVMessageAsyncStream(this.sock,
 						new FVMessageFactory());
 			} catch (IOException e1) {
-				FVLog.log(LogLevel.ALERT, this,
+				FVLog.log(LogLevel.WARN, this,
 						"Giving up; while creating OFMessageAsyncStream, got: "
 								+ e1);
 				this.tearDown();
@@ -415,7 +417,7 @@ public class FVSlicer implements FVEventHandler {
 				FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
 				if ((msg instanceof SanityCheckable)
 						&& (!((SanityCheckable) msg).isSane())) {
-					FVLog.log(LogLevel.WARN, this,
+					FVLog.log(LogLevel.CRIT, this,
 							"msg failed sanity check; dropping: " + msg);
 					continue;
 				}
