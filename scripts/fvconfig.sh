@@ -6,7 +6,10 @@ usage() {
     cat << "EOF"  
 USAGE: $0 cmd config.xml [options]
     match config.xml <dpid> <match>
-
+    dump config.xml
+    chpasswd config.xml <slicename>
+    query config.xml <dpid> [slicename]
+    generate newconfig.xml [hostname] [admin_passwd] [of_port] [api_port]
 EOF
     exit 1
 }
@@ -24,17 +27,39 @@ else
     exit 1
 fi
 
-case "X$1" in 
+cmd=$1
+shift
+case "X$cmd" in 
     Xmatch)
-        shift
-        java -cp $classpath $fv_defines org.flowvisor.message.FVPacketIn "$@"
+        exec java -cp $classpath $fv_defines org.flowvisor.message.FVPacketIn "$@"
+    ;;
+    Xdump)
+        exec java -cp $classpath $fv_defines org.flowvisor.config.DefaultConfig "$@"
+    ;;
+    Xchpasswd)
+        exec java -cp $classpath $fv_defines org.flowvisor.api.APIAuth "$@"
+    ;;
+    Xquery)
+        exec java -cp $classpath $fv_defines org.flowvisor.flows.FlowSpaceUtil "$@"
+    ;;
+    Xgenerate)
+        echo "Trying to generate SSL Server Key with passwd from scripts/envs.sh" >&2
+        if [ "X$2" != "X" ] ; then
+            cn=$2
+        else
+            cn=`hostname`
+        fi
+        echo Generating cert with common name == $cn
+        dname="-dname cn=$cn"
+        keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
+        exec java -cp $classpath $fv_defines org.flowvisor.config.FVConfig $1 $3 $4 $5
     ;;
     X)
         usage
     ;;
     *)
-    echo "Unknown command '$1'" >&2
-    exit 1
+        echo "Unknown command '$1'" >&2
+        usage
     ;;
 esac
 

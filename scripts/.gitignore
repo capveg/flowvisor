@@ -1,7 +1,4 @@
-config-chpasswd
-config-dump
-config-gen-default
-config-query
+fvconfig
 envs
 flowvisor
 fvctl

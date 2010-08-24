@@ -102,10 +102,6 @@ bin_SCRIPTS="\
 
 sbin_SCRIPTS="\
     fvconfig \
-    config-dump \
-    config-gen-default \
-    config-query \
-    config-chpasswd \
     flowvisor \
     "
 
@@ -159,6 +155,7 @@ echo Installing manpages
 cd $owd
 cd doc
 $install $verbose --owner=$binuser --group=$bingroup --mode=644 fvctl.1  $root$prefix/share/man/man1
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 fvconfig.1  $root$prefix/share/man/man1
 $install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.8  $root$prefix/share/man/man8
 # do we need to run makewhatis manually here? I think it's a cronjob on most systems
 
@@ -166,10 +163,10 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.8  $ro
 echo Installing configs
 cd $owd
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $scriptd/envs $root$prefix/etc/flowvisor/envs.sh
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $base/mySSLKeyStore $root$prefix/etc/flowvisor
-install_root=$root $root$prefix/sbin/config-gen-default $root$prefix/etc/flowvisor/$config
 if [ $USER != $fvuser ] ; then
 	echo "Setting owner on config file"
 	chown $fvuser $root$prefix/etc/flowvisor/$config
 	chgrp $fvgroup $root$prefix/etc/flowvisor/$config
 fi
+
+echo NEXT: need to generate a config with \`fvconfig generate $root$prefix/etc/flowvisor/config.xml\`
