@@ -7,8 +7,10 @@ BUILD:
     - run `make` (or `ant` : Makefile is just a wrapper)
 
     if you have problems finding jni.h, use:
-        make CFLAGS=-I/path/to/javahome/include
-    or just install libgcj-devel (jni.h versions are similar)
+	make CFLAGS=-I/path/to/javahome/include
+    or just install libgcj-devel (jni.h versions are similar). For
+    many linux systems, the following seems to be the right invocation:
+	make CFLAGS="-I/usr/lib/jvm/java-6-openjdk/include"
 
 INSTALL:
     - make install
@@ -17,17 +19,17 @@ INSTALL:
 
 CONFIG:
     Build a default configuration with:
-    ./scripts/config-gen-default.sh <config.xml>
+    fvconfig generate <config.xml>
 
     List the contents of the config.xml:
-    ./scripts/config-dump.sh <config.xml>
+    fvconfig dump <config.xml>
 
     The best way to edit the config is to run flowvisor (below)
     and use fvctl to to issue commands to the running flowvisor.
 
 RUN: 
     To run flowvisor:
-        ./scripts/flowvisor.sh config.xml
+        flowvisor config.xml
 
     To configure running flowvisor, use ./scripts/fvctl.sh
         `man 1 fvctl` or `man ./doc/fvctl.1` for details

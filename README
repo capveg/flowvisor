@@ -4,6 +4,8 @@ FlowVisor:
     multiple switches in parallel, effectively slicing a network.
 
 Documentation:
+
+    Start with the INSTALL file and then refer to 
     http://www.openflowswitch.org/wk/index.php/FlowVisor
     [note that verision 0.6 is linked off of the main page]
 
