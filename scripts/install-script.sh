@@ -12,12 +12,14 @@ bingroup_default=`groups | cut -f1 -d\ `
 if [ "X$USER" = "Xroot" ] ; then
 	fvuser_default=flowvisor
 	fvgroup_default=flowvisor
+    sudo=""
 else
 	fvuser_default=$binuser_default
 	fvgroup_default=$bingroup_default
+    sudo=sudo
 fi
 
-install=install
+install="$sudo install"
 base=`dirname $0`/..
 scriptd=$base/scripts
 libs=$base/lib
@@ -163,10 +165,5 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.8  $ro
 echo Installing configs
 cd $owd
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $scriptd/envs $root$prefix/etc/flowvisor/envs.sh
-if [ $USER != $fvuser ] ; then
-	echo "Setting owner on config file"
-	chown $fvuser $root$prefix/etc/flowvisor/$config
-	chgrp $fvgroup $root$prefix/etc/flowvisor/$config
-fi
 
 echo NEXT: need to generate a config with \`fvconfig generate $root$prefix/etc/flowvisor/config.xml\`

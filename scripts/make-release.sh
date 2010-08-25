@@ -27,8 +27,9 @@ fi
 git commit -m "Release $release" $fv_main
 git tag $release
 
-echo "Making debian package" >&2
-./scripts/make-deb.sh $release
+echo "Making debian package (using sudo)" >&2
+version=`echo $release | sed -e 's/^flowvisor-//'`
+sudo ./scripts/make-deb.sh $version
 
 echo "If you're happy, do 'git push --tags'" >&2
 
