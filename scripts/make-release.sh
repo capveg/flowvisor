@@ -27,5 +27,8 @@ fi
 git commit -m "Release $release" $fv_main
 git tag $release
 
+echo "Making debian package" >&2
+./scripts/make-deb.sh $release
+
 echo "If you're happy, do 'git push --tags'" >&2
 
