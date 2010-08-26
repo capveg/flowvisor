@@ -16,5 +16,5 @@ else
     exit 1
 fi
 
-echo Staring FlowVisor >&2 
+echo Starting FlowVisor >&2 
 exec java -server -Xms100M -Xmx1000M $fv_defines $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 

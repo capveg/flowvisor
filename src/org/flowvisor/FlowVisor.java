@@ -126,7 +126,7 @@ public class FlowVisor {
 	 */
 
 	private static void usage(String string) {
-		System.err.println("FlowVisor verison: " + FLOWVISOR_VERSION);
+		System.err.println("FlowVisor version: " + FLOWVISOR_VERSION);
 		System.err
 				.println("Rob Sherwood: rsherwood@telekom.com/rob.sherwood@stanford.edu");
 		System.err
