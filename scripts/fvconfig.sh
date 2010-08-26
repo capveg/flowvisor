@@ -4,7 +4,7 @@
 
 usage() {
     cat << "EOF"  
-USAGE: $0 cmd config.xml [options]
+USAGE: fvconfig cmd config.xml [options]
     match config.xml <dpid> <match>
     dump config.xml
     chpasswd config.xml <slicename>
@@ -24,6 +24,11 @@ if [ -f $envs ] ; then
     . $envs
 else
     echo "Could not find $envs: dying..." >&2
+    exit 1
+fi
+
+if [ "x$1" = "x" ] ; then
+    usage
     exit 1
 fi
 
