@@ -10,7 +10,7 @@ if [ ! -f Makefile ] ; then
 fi
 
 if [ `id -u` != 0 ]; then
-    echo "You're not running as root (well, uid=0) so will likley get errors" >&2
+    echo "You're not running as root (well, uid=0) so will likely get errors" >&2
 fi
 
 version=$1
