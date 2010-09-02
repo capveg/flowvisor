@@ -8,8 +8,6 @@ import org.apache.xmlrpc.webserver.WebServer;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 
-import com.sun.net.ssl.internal.ssl.SSLServerSocketFactoryImpl;
-
 public class SSLWebServer extends WebServer {
 
 	public SSLWebServer(int pPort) {
@@ -21,7 +19,8 @@ public class SSLWebServer extends WebServer {
 	protected ServerSocket createServerSocket(int pPort, int backlog,
 			java.net.InetAddress addr) {
 		try {
-			SSLServerSocketFactory sslFactory = new SSLServerSocketFactoryImpl();
+			SSLServerSocketFactory sslFactory = (SSLServerSocketFactory) SSLServerSocketFactory
+					.getDefault();
 			String[] ciphers = sslFactory.getDefaultCipherSuites();
 			if (ciphers.length == 0)
 				throw new RuntimeException(
