@@ -33,7 +33,7 @@ Maintainer: Rob Sherwood <rob.sherwood@stanford.edu>
 Section: misc
 Priority: optional
 Description: The OpenFlow FlowVisor
-Depends: sun-java6-jdk
+Depends: openjdk-6-jre
 EOF
 
 cd ..
