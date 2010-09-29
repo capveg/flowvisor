@@ -436,6 +436,8 @@ public class FVClassifier implements FVEventHandler {
 			FVLog.log(LogLevel.DEBUG, this, "tore down slice " + sliceName
 					+ " on request");
 		}
+		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // register for FS updates
+		this.msgStream = null; // force GC
 	}
 
 	public String getSwitchName() {
