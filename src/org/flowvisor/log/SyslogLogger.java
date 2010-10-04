@@ -82,8 +82,8 @@ public class SyslogLogger implements FVLogInterface {
 		if (level == LogLevel.MOBUG)
 			return;
 		if (source != null)
-			syslog.log(level.getPriority(), level.toString() + "-" + source
-					+ ": " + msg);
+			syslog.log(level.getPriority(), level.toString() + "-"
+					+ source.getName() + ": " + msg);
 		else
 			syslog.log(level.getPriority(), level.toString() + ": " + msg);
 	}
