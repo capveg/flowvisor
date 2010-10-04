@@ -291,7 +291,7 @@ public class FVSlicer implements FVEventHandler {
 			fvClassifier.tearDownSlice(this.sliceName);
 
 		this.msgStream = null; // force this to GC, in case we have a memleak on
-								// "this"
+		// "this"
 
 		String sliceBase = FVConfig.SLICES + FVConfig.FS + this.sliceName;
 		FVConfig.unwatch(this, sliceBase + FVConfig.FS
