@@ -9,3 +9,4 @@ regress/fv_regress.log
 sslTest/
 tmp/
 scripts/envs.sh
+pkgbuild/
