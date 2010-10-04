@@ -32,7 +32,6 @@ public class OFSwitchAcceptor implements FVEventHandler {
 
 		FVLog.log(LogLevel.INFO, this, "Listenning on port " + this.listenPort);
 
-		switches = new ArrayList<FVClassifier>();
 		// register this module with the polling loop
 		pollLoop.register(ssc, SelectionKey.OP_ACCEPT, this);
 	}
@@ -106,7 +105,6 @@ public class OFSwitchAcceptor implements FVEventHandler {
 			FVLog.log(LogLevel.INFO, this, "got new connection: " + sock);
 			FVClassifier fvc = new FVClassifier(pollLoop, sock);
 			fvc.init();
-			switches.add(fvc);
 		} catch (IOException e) // ignore IOExceptions -- is this the right
 								// thing to do?
 		{
