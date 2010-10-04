@@ -1,15 +1,20 @@
 package org.flowvisor.ofswitch;
 
-import java.net.*;
-import java.io.*;
-import java.nio.channels.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.List;
 
 import org.flowvisor.classifier.FVClassifier;
-import org.flowvisor.events.*;
+import org.flowvisor.events.FVEvent;
+import org.flowvisor.events.FVEventHandler;
+import org.flowvisor.events.FVEventLoop;
+import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
-import org.flowvisor.log.*;
-
-import java.util.*;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.LogLevel;
 
 public class OFSwitchAcceptor implements FVEventHandler {
 	FVEventLoop pollLoop;
@@ -106,11 +111,11 @@ public class OFSwitchAcceptor implements FVEventHandler {
 			FVClassifier fvc = new FVClassifier(pollLoop, sock);
 			fvc.init();
 		} catch (IOException e) // ignore IOExceptions -- is this the right
-								// thing to do?
+		// thing to do?
 		{
-			System.err.println("Got IOException for " + sock != null ? sock
-					: "unknown socket");
-			System.err.println(e);
+			FVLog.log(LogLevel.CRIT, this, "Got IOException for "
+					+ (sock != null ? sock : "unknown socket :: ") + e);
+			throw new RuntimeException(e);
 		}
 	}
 
