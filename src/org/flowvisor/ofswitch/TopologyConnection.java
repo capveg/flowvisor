@@ -260,6 +260,7 @@ public class TopologyConnection implements FVEventHandler {
 		try {
 			sock.close();
 			this.isShutdown = true;
+			FVLog.log(LogLevel.WARN, this, "shutting down");
 			this.topologyController.disconnect(this);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.ALERT, this, "ignoring error on shutdown: " + e);

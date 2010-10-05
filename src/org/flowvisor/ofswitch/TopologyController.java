@@ -300,4 +300,15 @@ public class TopologyController extends OFSwitchAcceptor {
 		this.doCallback = true;
 	}
 
+	@Override
+	public void tearDown() {
+		super.tearDown();
+		FVLog.log(LogLevel.WARN, this, "shutting down");
+		for (Iterator<TopologyConnection> it = this.topologyConnections
+				.iterator(); it.hasNext();) {
+			TopologyConnection topologyConnection = it.next();
+			it.remove();
+			topologyConnection.tearDown();
+		}
+	}
 }
