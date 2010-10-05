@@ -278,7 +278,7 @@ public class FVClassifier implements FVEventHandler {
 			for (FVSlicer fvSlicer : tmpMap.values())
 				fvSlicer.closeDown(false);
 		} catch (IOException e) {
-			// Silently ignore... already tearing down
+			FVLog.log(LogLevel.WARN, this, "weird error on close:: " + e);
 		}
 		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // register for FS updates
 		this.msgStream = null; // force GC

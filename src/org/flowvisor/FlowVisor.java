@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.flowvisor.api.APIServer;
 import org.flowvisor.config.ConfigError;
@@ -13,6 +14,7 @@ import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.ThreadLogger;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.ofswitch.TopologyController;
 
@@ -31,6 +33,8 @@ public class FlowVisor {
 	ArrayList<FVEventHandler> handlers;
 
 	private int port;
+
+	private Thread apiServer;
 	static FlowVisor instance;
 
 	public FlowVisor(String config[]) {
@@ -53,8 +57,7 @@ public class FlowVisor {
 		return false;
 	}
 
-	public void run() throws IOException, ConfigError, UnhandledEvent {
-		// register this flowvisor instance as THE flowvisor instance
+	public void run() throws ConfigError, IOException, UnhandledEvent {
 		FlowVisor.setInstance(this);
 
 		// load config from file
@@ -76,7 +79,7 @@ public class FlowVisor {
 		handlers.add(acceptor);
 		// start XMLRPC UserAPI server; FIXME not async!
 		try {
-			APIServer.spawn();
+			this.apiServer = APIServer.spawn();
 		} catch (Exception e) {
 			FVLog.log(LogLevel.FATAL, null, "failed to spawn APIServer");
 			e.printStackTrace();
@@ -84,12 +87,6 @@ public class FlowVisor {
 		}
 		// start event processing
 		pollLoop.doEventLoop();
-
-		/**
-		 * FIXME add a cleanup call to event handlers // now shut everything
-		 * down for (FVEventHandler fvh : handlers) fvh.cleanup();
-		 */
-
 	}
 
 	/**
@@ -99,13 +96,10 @@ public class FlowVisor {
 	 * 
 	 * @param args
 	 *            config file
-	 * @throws IOException
-	 * @throws UnhandledEvent
-	 * @throws ConfigError
+	 * @throws Throwable
 	 */
 
-	public static void main(String args[]) throws IOException, UnhandledEvent,
-			ConfigError {
+	public static void main(String args[]) throws Throwable {
 
 		// FIXME :: do real arg parsing
 		if (args.length == 0)
@@ -113,9 +107,45 @@ public class FlowVisor {
 
 		if (args[0].startsWith("-"))
 			usage("usage: " + args[0]);
+		ThreadLogger threadLogger = new ThreadLogger();
+		Thread.setDefaultUncaughtExceptionHandler(threadLogger);
+		long lastRestart = System.currentTimeMillis();
+		while (true) {
+			FlowVisor fv = new FlowVisor(args);
+			try {
+				fv.run();
+			} catch (Throwable e) {
+				FVLog.log(LogLevel.CRIT, null, "MAIN THREAD DIED!!!");
+				FVLog.log(LogLevel.CRIT, null, "----------------------------");
+				threadLogger.uncaughtException(Thread.currentThread(), e);
+				FVLog.log(LogLevel.CRIT, null, "----------------------------");
+				if ((lastRestart + 5000) > System.currentTimeMillis()) {
+					System.err.println("respawning too fast -- DYING");
+					FVLog.log(LogLevel.CRIT, null,
+							"respawning too fast -- DYING");
+					fv.tearDown();
+					throw e;
+				} else {
+					FVLog.log(LogLevel.CRIT, null,
+							"restarting after main thread died");
+					lastRestart = System.currentTimeMillis();
+					fv.tearDown();
+				}
+				System.gc(); // give the system a bit to clean up after itself
+				Thread.sleep(10000);
+			}
+		}
+	}
 
-		FlowVisor fv = new FlowVisor(args);
-		fv.run();
+	private void tearDown() {
+		if (this.apiServer != null)
+			this.apiServer.interrupt(); // shutdown the API Server
+		for (Iterator<FVEventHandler> it = this.handlers.iterator(); it
+				.hasNext();) {
+			FVEventHandler handler = it.next();
+			it.remove();
+			handler.tearDown();
+		}
 	}
 
 	/**

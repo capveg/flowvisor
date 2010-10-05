@@ -26,7 +26,6 @@ public class OFSwitchAcceptor implements FVEventHandler {
 
 	public OFSwitchAcceptor(FVEventLoop pollLoop, int port, int backlog)
 			throws IOException {
-		this.backlog = backlog;
 		this.pollLoop = pollLoop;
 
 		ssc = ServerSocketChannel.open();

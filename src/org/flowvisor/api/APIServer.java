@@ -39,7 +39,7 @@ public class APIServer {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public static WebServer spawn() throws XmlRpcException, IOException {
+	public static Thread spawn() throws XmlRpcException, IOException {
 		int port;
 
 		try {
@@ -65,8 +65,9 @@ public class APIServer {
 		FVLog.log(LogLevel.INFO, null,
 				"initializing FlowVisor UserAPI XMLRPC SSL WebServer on port "
 						+ port);
-		webServer.start();
-		return webServer;
+		Thread thread = new Thread(webServer);
+		thread.start();
+		return thread;
 	}
 
 }
