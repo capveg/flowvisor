@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.apache.xmlrpc.webserver.WebServer;
 import org.flowvisor.api.APIServer;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -34,7 +35,7 @@ public class FlowVisor {
 
 	private int port;
 
-	private Thread apiServer;
+	private WebServer apiServer;
 	static FlowVisor instance;
 
 	public FlowVisor(String config[]) {
@@ -132,14 +133,14 @@ public class FlowVisor {
 					fv.tearDown();
 				}
 				System.gc(); // give the system a bit to clean up after itself
-				Thread.sleep(10000);
+				Thread.sleep(1000);
 			}
 		}
 	}
 
 	private void tearDown() {
 		if (this.apiServer != null)
-			this.apiServer.interrupt(); // shutdown the API Server
+			this.apiServer.shutdown(); // shutdown the API Server
 		for (Iterator<FVEventHandler> it = this.handlers.iterator(); it
 				.hasNext();) {
 			FVEventHandler handler = it.next();
