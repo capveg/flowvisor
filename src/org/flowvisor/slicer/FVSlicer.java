@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.classifier.FVSendMsg;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.ConfigUpdateEvent;
@@ -22,6 +23,7 @@ import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
+import org.flowvisor.events.OFKeepAlive;
 import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
@@ -43,7 +45,7 @@ import org.openflow.protocol.OFPort;
  * @author capveg
  * 
  */
-public class FVSlicer implements FVEventHandler {
+public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	String sliceName;
 	FVClassifier fvClassifier;
@@ -59,6 +61,7 @@ public class FVSlicer implements FVEventHandler {
 	boolean allowAllPorts;
 	FlowMap localFlowSpace;
 	boolean isShutdown;
+	OFKeepAlive keepAlive;
 
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
 
@@ -76,7 +79,6 @@ public class FVSlicer implements FVEventHandler {
 		this.reconnectSeconds = 0;
 		this.isShutdown = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
-
 	}
 
 	public void init() {
@@ -100,6 +102,8 @@ public class FVSlicer implements FVEventHandler {
 		}
 		this.updatePortList();
 		this.reconnect();
+		this.keepAlive = new OFKeepAlive(this, this, loop);
+		this.keepAlive.scheduleNextCheck();
 	}
 
 	private void updatePortList() {
@@ -315,6 +319,8 @@ public class FVSlicer implements FVEventHandler {
 		}
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
+		else if (e instanceof OFKeepAlive)
+			handleKeepAlive(e);
 		else if (e instanceof ConfigUpdateEvent)
 			updateConfig((ConfigUpdateEvent) e);
 		else if (e instanceof ReconnectEvent)
@@ -323,6 +329,20 @@ public class FVSlicer implements FVEventHandler {
 			this.tearDown();
 		else
 			throw new UnhandledEvent(e);
+	}
+
+	private void handleKeepAlive(FVEvent e) {
+		if (!this.keepAlive.isAlive()) {
+			FVLog.log(LogLevel.WARN, this, "keepAlive timeout");
+			this.tearDown();
+			return;
+		}
+		this.keepAlive.sendPing();
+		this.keepAlive.scheduleNextCheck();
+	}
+
+	public void registerPong() {
+		this.keepAlive.registerPong();
 	}
 
 	/**

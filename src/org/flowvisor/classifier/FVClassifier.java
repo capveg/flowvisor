@@ -16,6 +16,7 @@ import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
+import org.flowvisor.events.OFKeepAlive;
 import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
@@ -51,7 +52,7 @@ import org.openflow.protocol.OFError.OFHelloFailedCode;
  * 
  */
 
-public class FVClassifier implements FVEventHandler {
+public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	FVEventLoop loop;
 	SocketChannel sock;
@@ -65,6 +66,7 @@ public class FVClassifier implements FVEventHandler {
 	FlowMap switchFlowMap;
 	private boolean shutdown;
 	private final FVMessageFactory factory;
+	OFKeepAlive keepAlive;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -163,6 +165,13 @@ public class FVClassifier implements FVEventHandler {
 			ops |= SelectionKey.OP_WRITE;
 		// this now calls FlowVisor.addHandler()
 		loop.register(sock, ops, this);
+		// start up keep alive events
+		this.keepAlive = new OFKeepAlive(this, this, loop);
+		this.keepAlive.scheduleNextCheck();
+	}
+
+	public void registerPong() {
+		this.keepAlive.registerPong();
 	}
 
 	@Override
@@ -188,12 +197,24 @@ public class FVClassifier implements FVEventHandler {
 		}
 		if (e instanceof FVIOEvent)
 			handleIOEvent((FVIOEvent) e);
+		else if (e instanceof OFKeepAlive)
+			handleKeepAlive(e);
 		else if (e instanceof ConfigUpdateEvent)
 			updateConfig((ConfigUpdateEvent) e);
 		else if (e instanceof TearDownEvent)
 			this.tearDown();
 		else
 			throw new UnhandledEvent(e);
+	}
+
+	private void handleKeepAlive(FVEvent e) {
+		if (!this.keepAlive.isAlive()) {
+			FVLog.log(LogLevel.WARN, this, "keepAlive timeout");
+			this.tearDown();
+			return;
+		}
+		this.keepAlive.sendPing();
+		this.keepAlive.scheduleNextCheck();
 	}
 
 	/**
