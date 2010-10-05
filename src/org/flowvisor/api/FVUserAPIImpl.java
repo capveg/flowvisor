@@ -262,7 +262,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			throw new DPIDNotFound("dpid does not exist: " + dpidStr + " ::"
 					+ String.valueOf(dpid));
 		OFFeaturesReply config = fvClassifier.getSwitchInfo();
-		map.put("dpid", String.valueOf(dpid));
+		map.put("dpid", FlowSpaceUtil.dpidToString(dpid));
 		if (config != null) {
 			map.put("nPorts", String.valueOf(config.getPorts().size()));
 			String portList = "";
