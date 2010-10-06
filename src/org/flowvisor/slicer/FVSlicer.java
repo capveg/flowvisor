@@ -333,8 +333,15 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	private void handleKeepAlive(FVEvent e) {
 		if (!this.keepAlive.isAlive()) {
-			FVLog.log(LogLevel.WARN, this, "keepAlive timeout");
-			this.tearDown();
+			FVLog.log(LogLevel.WARN, this,
+					"keepAlive timeout; trying to reconnnect later");
+			try {
+				this.sock.close();
+			} catch (IOException e1) {
+				FVLog.log(LogLevel.WARN, this,
+						"ignoring error while closing socket: " + e1);
+			}
+			this.reconnectLater();
 			return;
 		}
 		this.keepAlive.sendPing();
