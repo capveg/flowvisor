@@ -132,6 +132,63 @@ try:
             TestEvent( "send","guest","alice", packet=packet_out_pInPort),
             TestEvent( "recv","switch","switch1", packet=packet_out_pInPort_aftr),
             ])
+    ############################################################
+    # dynamically add port 13, emulating HP's dyn port stuff: bug #184
+    port_mod_add_13 = FvRegress.OFVERSION + '''0c 0040 0000 dead
+            00
+            0000 0000 0000 00
+
+            000d
+            0102 0304 0506
+            8080 8080 2049 4100 0000 0000 0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            '''
+    packet_out_pAll = FvRegress.OFVERSION + '''0d 0058 0000 abcd ffff ffff
+            ffff 0008 0000 0008 fffb 0080 0000 0000
+            0001 0000 0000 0002 0800 4500 0032 0000
+            4000 4011 2868 c0a8 c800 c0a8 c901 0001
+            0000 001e d7c3 cdc0 251b e6dc ea0c 726d
+            973f 2b71 c2e4 1b6f bc11 8250'''
+    # note, the xid here is a function of the order of the tests;
+    #   DO NOT CHANGE test order
+    packet_out_p0_aftr_port0 = FvRegress.OFVERSION+ '''0d 00 78 02 01 00 00 ff ff ff ff ff ff 00 28
+            00 00 00 08 00 99 00 80 00 00 00 08 00 01 00 80
+            00 00 00 08 00 02 00 80 00 00 00 08 00 03 00 80
+            00 00 00 08 00 0d 00 80
+            00 00 00 00 00 01 00 00 00 00 00 02 08 00 45 00
+            00 32 00 00 40 00 40 11 28 68 c0 a8 c8 00 c0 a8
+            c9 01 00 01 00 00 00 1e d7 c3 cd c0 25 1b e6 dc
+            ea 0c 72 6d 97 3f 2b 71 c2 e4 1b 6f bc 11 82 50'''
+    packet_out_pAll_bob = FvRegress.OFVERSION + '''0d 0058 0000 abcd ffff ffff
+            ffff 0008 0000 0008 fffb 0080 0000 0000
+            0002 0000 0000 0001 0800 4500 0032 0000
+            4000 4011 2868 c0a8 c800 c0a8 c901 0001
+            0000 001e d7c3 cdc0 251b e6dc ea0c 726d
+            973f 2b71 c2e4 1b6f bc11 8250'''
+    packet_out_pAll_bob_aftr = FvRegress.OFVERSION+ '''0d 00 60 00 00 ab cd ff ff ff ff ff ff 00 10
+            00 00 00 08 00 01 00 80 00 00 00 08 00 03 00 80
+            00 00 00 00 00 02 00 00 00 00 00 01 08 00 45 00
+            00 32 00 00 40 00 40 11 28 68 c0 a8 c8 00 c0 a8
+            c9 01 00 01 00 00 00 1e d7 c3 cd c0 25 1b e6 dc
+            ea 0c 72 6d 97 3f 2b 71 c2 e4 1b 6f bc 11 82 50'''
+    h.runTest(name="packet_out; flood to dynamic port", timeout=timeout, events= [
+            # announce that port 13 has been added
+            TestEvent( "send","switch","switch1", packet=port_mod_add_13),
+            # alice sends a FLOOD packet_out; alice has access to all ports
+            TestEvent( "send","guest","alice", packet=packet_out_pAll),
+            # fv expands it to ports=1,153,2,3,13  -- 13 is new, relative to prev test
+            TestEvent( "recv","switch","switch1", packet=packet_out_p0_aftr_port0),
+            # bob sends a FLOOD packet_out
+            TestEvent( "send","guest","bob", packet=packet_out_pAll_bob),
+            # fv expands it to ports=1,3        # bob should not change
+            TestEvent( "recv","switch","switch1", packet=packet_out_pAll_bob_aftr),
+            ])
+
     #########################################
     rpcport=18080
     user="root"

@@ -9,9 +9,9 @@ import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMatch;
+import org.openflow.protocol.OFPort;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionOutput;
-import org.openflow.protocol.OFPort;
 
 /**
  * Allow/deny based on slice config if OFPP_ALL or OFPP_FLOOD, expand if
@@ -40,7 +40,7 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction,
 		}
 		if ((port == OFPort.OFPP_ALL.getValue())
 				|| (port == OFPort.OFPP_FLOOD.getValue()))
-			expandPort(approvedActions, match, fvSlicer);
+			expandPort(approvedActions, match, fvSlicer, fvClassifier);
 		else if ((port == OFPort.OFPP_CONTROLLER.getValue())
 				|| (port == OFPort.OFPP_TABLE.getValue()))
 			approvedActions.add(this); // always allow CONTROLLER or TABLE
@@ -59,7 +59,7 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction,
 	}
 
 	private void expandPort(List<OFAction> approvedActions, OFMatch match,
-			FVSlicer fvSlicer) {
+			FVSlicer fvSlicer, FVClassifier fvClassifier) {
 		// potential short cut; if sending to all and all ports are allowed;
 		// just approve
 		if ((port == OFPort.OFPP_ALL.getValue())
@@ -78,9 +78,11 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction,
 		for (Short fPort : portList) {
 			if (fPort.equals(Short.valueOf(match.getInputPort())))
 				continue; // don't expand to input port! cause bad loops, things
-							// go boom
+			// go boom
+			if (!fvClassifier.isPortActive(fPort))
+				continue; // don't expand to inactive ports
 			try {
-				FVActionOutput neoOut = (FVActionOutput) this.clone();
+				FVActionOutput neoOut = this.clone();
 				neoOut.setPort(fPort);
 				approvedActions.add(neoOut);
 			} catch (CloneNotSupportedException e) {

@@ -5,6 +5,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.protocol.OFPort;
 import org.openflow.protocol.OFType;
 import org.openflow.protocol.OFError.OFHelloFailedCode;
@@ -65,6 +67,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	short missSendLength;
 	FlowMap switchFlowMap;
 	private boolean shutdown;
+	Set<Short> activePorts;
 	private final FVMessageFactory factory;
 	OFKeepAlive keepAlive;
 
@@ -85,6 +88,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.xidTranslator = new XidTranslator();
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
+		this.activePorts = new HashSet<Short>();
 	}
 
 	public short getMissSendLength() {
@@ -123,6 +127,23 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	public void setSwitchInfo(OFFeaturesReply switchInfo) {
 		this.switchInfo = switchInfo;
+		this.activePorts.clear();
+		for (OFPhysicalPort phyPort : switchInfo.getPorts())
+			this.activePorts.add(phyPort.getPortNumber());
+	}
+
+	public boolean isPortActive(short port) {
+		return this.activePorts.contains(port);
+	}
+
+	public void addPort(OFPhysicalPort phyPort) {
+		switchInfo.getPorts().add(phyPort);
+		this.activePorts.add(phyPort.getPortNumber());
+	}
+
+	public void removePort(OFPhysicalPort phyPort) {
+		switchInfo.getPorts().remove(phyPort);
+		this.activePorts.remove(phyPort.getPortNumber());
 	}
 
 	public FVSlicer getSlicerByName(String sliceName) {
@@ -361,7 +382,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			}
 			break;
 		case FEATURES_REPLY:
-			switchInfo = (OFFeaturesReply) m;
+			this.setSwitchInfo((OFFeaturesReply) m);
 			/*
 			 * OFStatisticsRequest stats = new OFStatisticsRequest();
 			 * stats.setStatisticType(OFStatisticsType.DESC);
