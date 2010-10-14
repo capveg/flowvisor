@@ -266,14 +266,21 @@ public class FVUserAPIImpl implements FVUserAPI {
 		if (config != null) {
 			map.put("nPorts", String.valueOf(config.getPorts().size()));
 			String portList = "";
+			String portNames = "";
+			int p;
 			for (Iterator<OFPhysicalPort> it = config.getPorts().iterator(); it
 					.hasNext();) {
 				OFPhysicalPort port = it.next();
-				portList += U16.f(port.getPortNumber());
-				if (it.hasNext())
+				p = U16.f(port.getPortNumber());
+				portList += p;
+				portNames = port.getName() + "(" + p + ")";
+				if (it.hasNext()) {
 					portList += ",";
+					portNames += ",";
+				}
 			}
 			map.put("portList", portList);
+			map.put("portNames", portNames);
 		} else {
 			FVLog.log(LogLevel.WARN, null, "null config for: " + dpidStr);
 		}
