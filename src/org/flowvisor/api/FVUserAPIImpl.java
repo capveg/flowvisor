@@ -221,7 +221,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 				OFFeaturesReply featuresReply = ((FVClassifier) handler)
 						.getSwitchInfo();
 				if (featuresReply != null) {
-					dpidStr = HexString.toHexString(featuresReply
+					dpidStr = FlowSpaceUtil.dpidToString(featuresReply
 							.getDatapathId());
 					if (!dpids.contains(dpidStr))
 						dpids.add(dpidStr);
