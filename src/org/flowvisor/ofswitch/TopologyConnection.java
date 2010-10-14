@@ -16,12 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flowvisor.classifier.FVSendMsg;
 import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
 import org.flowvisor.events.FVTimerEvent;
+import org.flowvisor.events.TearDownEvent;
+import org.flowvisor.exceptions.BufferFull;
+import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVFeaturesReply;
@@ -30,7 +35,6 @@ import org.flowvisor.message.FVMessageUtil;
 import org.flowvisor.message.TopologyControllable;
 import org.flowvisor.message.lldp.LLDPUtil;
 import org.flowvisor.message.statistics.FVDescriptionStatistics;
-import org.openflow.io.OFMessageAsyncStream;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPacketOut;
 import org.openflow.protocol.OFPhysicalPort;
@@ -50,14 +54,14 @@ import org.openflow.util.HexString;
  * @author capveg
  * 
  */
-public class TopologyConnection implements FVEventHandler {
+public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	private static final int LLDPLen = 128;
 	TopologyController topologyController;
 	FVEventLoop pollLoop;
 	SocketChannel sock;
 	String name;
-	OFMessageAsyncStream msgStream;
+	FVMessageAsyncStream msgStream;
 	FVMessageFactory fvMessageFactory;
 	FVFeaturesReply featuresReply;
 	FVDescriptionStatistics descriptionStatistics;
@@ -82,7 +86,7 @@ public class TopologyConnection implements FVEventHandler {
 		this.descriptionStatistics = null;
 		this.fvMessageFactory = new FVMessageFactory();
 		try {
-			this.msgStream = new OFMessageAsyncStream(sock,
+			this.msgStream = new FVMessageAsyncStream(sock,
 					this.fvMessageFactory);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
@@ -483,6 +487,27 @@ public class TopologyConnection implements FVEventHandler {
 		} else if (!this.fastPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
 					"got signalFastPort for non-existant port: " + port);
+		}
+	}
+
+	@Override
+	public void sendMsg(OFMessage msg) {
+		if (this.msgStream != null) {
+			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
+			try {
+				this.msgStream.testAndWrite(msg);
+			} catch (BufferFull e) {
+				FVLog.log(LogLevel.CRIT, this,
+						"framing bug; tearing down: got " + e);
+				// don't shut down now; we could get a ConcurrencyException
+				// just queue up a shutdown for later
+				this.pollLoop.queueEvent(new TearDownEvent(this, this));
+			} catch (MalformedOFMessage e) {
+				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
+			}
+		} else {
+			FVLog.log(LogLevel.WARN, this,
+					"dropping msg: controller not connected: " + msg);
 		}
 	}
 }

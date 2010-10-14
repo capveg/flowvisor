@@ -4,6 +4,7 @@
 package org.flowvisor.message;
 
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
 
 /**
@@ -16,7 +17,7 @@ import org.flowvisor.slicer.FVSlicer;
  * 
  */
 public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
-		implements Classifiable, Slicable {
+		implements Classifiable, Slicable, TopologyControllable {
 
 	/*
 	 * (non-Javadoc)
@@ -40,11 +41,20 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
+		fvSlicer.sendMsg(makeReply());
+	}
+
+	@Override
+	public void topologyController(TopologyConnection topologyConnection) {
+		topologyConnection.sendMsg(makeReply());
+	}
+
+	FVEchoReply makeReply() {
 		FVEchoReply reply = new FVEchoReply();
 		reply.setLength(this.getLength());
 		reply.setXid(this.getXid());
 		reply.setPayload(this.getPayload());
-		fvSlicer.sendMsg(reply);
+		return reply;
 	}
 
 }
