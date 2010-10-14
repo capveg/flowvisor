@@ -486,8 +486,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		return this.switchName;
 	}
 
-	public String getRemoteIP() {
-		return this.sock.socket().getRemoteSocketAddress().toString();
+	public String getConnectionName() {
+		return FlowSpaceUtil.connectionToString(sock);
 	}
 
 	/**

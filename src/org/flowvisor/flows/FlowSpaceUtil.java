@@ -4,6 +4,8 @@
 package org.flowvisor.flows;
 
 import java.io.FileNotFoundException;
+import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -297,5 +299,13 @@ public class FlowSpaceUtil {
 					flowIter.remove(); // remove the entry if no more actions
 			}
 		}
+	}
+
+	public static String connectionToString(SocketChannel sock) {
+		if (sock == null)
+			return "NONE";
+		Socket ss = sock.socket();
+		return ss.getLocalAddress().toString() + ":" + ss.getLocalPort()
+				+ "-->" + ss.getRemoteSocketAddress().toString();
 	}
 }

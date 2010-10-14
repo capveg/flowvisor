@@ -120,6 +120,12 @@ try:
     except (xmlrpclib.Fault):
         print "     passed"
 
+    print "Test: getSliceInfo(alice)"
+    x = s.api.getSliceInfo("alice")
+    for key,val in  x.iteritems():
+        print "                 "+ key + "="  + val
+
+
 #################################### Start Alice Tests
     user="alice"
     passwd="alicePass"

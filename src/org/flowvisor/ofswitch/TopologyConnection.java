@@ -26,6 +26,7 @@ import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -509,5 +510,10 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.WARN, this,
 					"dropping msg: controller not connected: " + msg);
 		}
+	}
+
+	@Override
+	public String getConnectionName() {
+		return FlowSpaceUtil.connectionToString(sock);
 	}
 }

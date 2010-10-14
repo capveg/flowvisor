@@ -30,6 +30,7 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.ofswitch.TopologyController;
+import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.util.HexString;
@@ -284,7 +285,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		} else {
 			FVLog.log(LogLevel.WARN, null, "null config for: " + dpidStr);
 		}
-		map.put("remote", String.valueOf(fvClassifier.getRemoteIP()));
+		map.put("remote", String.valueOf(fvClassifier.getConnectionName()));
 		return map;
 	}
 
@@ -406,6 +407,24 @@ public class FVUserAPIImpl implements FVUserAPI {
 		} catch (ConfigError e) {
 			FVLog.log(LogLevel.CRIT, null, "malformed slice: " + e);
 			e.printStackTrace();
+		}
+
+		long dpid;
+		int connection = 1;
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlers().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				dpid = classifier.getDPID();
+				FVSlicer fvSlicer = classifier.getSlicerByName(sliceName);
+				if (fvSlicer != null) {
+					map.put("connection_" + connection++, FlowSpaceUtil
+							.dpidToString(dpid)
+							+ "-->" + fvSlicer.getConnectionName());
+				}
+
+			}
 		}
 
 		return map;
