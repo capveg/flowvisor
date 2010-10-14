@@ -59,6 +59,8 @@ stop)
 
 restart)
   $0 stop
+  echo Sleeping a bit to let FlowVisor shutdown
+  sleep 1
   $0 start
   ;;
 
