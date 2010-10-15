@@ -5,6 +5,7 @@ package org.flowvisor.message;
 
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.slicer.FVSlicer;
+import org.openflow.protocol.OFMessage;
 
 /**
  * @author capveg
@@ -45,11 +46,15 @@ public class FVError extends org.openflow.protocol.OFError implements
 	public String toString() {
 		String ret = super.toString() + ";c=" + this.getErrorCode() + ";t="
 				+ getErrorType();
+		OFMessage offendingMsg = getOffendingMsg();
 		if (offendingMsg != null)
 			ret += ";msg=" + offendingMsg.toString();
-		if (errorIsAscii && error != null)
-			ret += ";err=" + new String(error);
-		else
+		if (error != null) {
+			if (errorIsAscii)
+				ret += ";err=" + new String(error);
+			else
+				ret += ";err=[" + error.length + "]";
+		} else
 			ret += ";msg=NONE(!?)";
 		return ret;
 	}

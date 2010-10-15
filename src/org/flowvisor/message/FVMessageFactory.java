@@ -32,6 +32,8 @@ import org.openflow.protocol.OFType;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionType;
 import org.openflow.protocol.factory.BasicFactory;
+import org.openflow.protocol.factory.OFMessageFactoryAware;
+import org.openflow.protocol.factory.OFStatisticsFactoryAware;
 import org.openflow.protocol.statistics.OFStatistics;
 import org.openflow.protocol.statistics.OFStatisticsType;
 
@@ -91,7 +93,16 @@ public class FVMessageFactory extends BasicFactory {
 					+ " unknown to FV");
 		Class<? extends OFMessage> c = convertMap[mtype];
 		try {
-			return c.getConstructor(new Class[] {}).newInstance();
+			OFMessage m = c.getConstructor(new Class[] {}).newInstance();
+			if (m instanceof OFMessageFactoryAware)
+				((OFMessageFactoryAware) m).setMessageFactory(this);
+			if (m instanceof OFMessageFactoryAware) {
+				((OFMessageFactoryAware) m).setMessageFactory(this);
+			}
+			if (m instanceof OFStatisticsFactoryAware) {
+				((OFStatisticsFactoryAware) m).setStatisticsFactory(this);
+			}
+			return m;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

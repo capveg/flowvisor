@@ -6,6 +6,7 @@ package org.flowvisor.message;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.classifier.XidPair;
 import org.flowvisor.classifier.XidTranslator;
@@ -18,6 +19,7 @@ import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFType;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.OFError.OFBadRequestCode;
 import org.openflow.protocol.OFError.OFErrorType;
@@ -123,7 +125,8 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFFlowModFailedCode code, OFMessage msg) {
-		OFError err = new FVError();
+		OFError err = (OFError) FlowVisor.getInstance().getFactory()
+				.getMessage(OFType.ERROR);
 		err.setErrorType(OFErrorType.OFPET_FLOW_MOD_FAILED);
 		err.setErrorCode(code);
 		err.setOffendingMsg(msg);
@@ -131,7 +134,8 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFPortModFailedCode code, OFMessage msg) {
-		OFError err = new FVError();
+		OFError err = (OFError) FlowVisor.getInstance().getFactory()
+				.getMessage(OFType.ERROR);
 		err.setErrorType(OFErrorType.OFPET_PORT_MOD_FAILED);
 		err.setErrorCode(code);
 		err.setOffendingMsg(msg);
@@ -139,7 +143,8 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFBadRequestCode code, OFMessage msg) {
-		OFError err = new FVError();
+		OFError err = (OFError) FlowVisor.getInstance().getFactory()
+				.getMessage(OFType.ERROR);
 		err.setErrorType(OFErrorType.OFPET_BAD_REQUEST);
 		err.setErrorCode(code);
 		err.setOffendingMsg(msg);
@@ -147,7 +152,9 @@ public class FVMessageUtil {
 	}
 
 	public static OFMessage makeErrorMsg(OFBadActionCode code, OFMessage msg) {
-		OFError err = new FVError();
+
+		OFError err = (OFError) FlowVisor.getInstance().getFactory()
+				.getMessage(OFType.ERROR);
 		err.setErrorType(OFErrorType.OFPET_BAD_ACTION);
 		err.setErrorCode(code);
 		err.setOffendingMsg(msg);
