@@ -56,7 +56,15 @@ public class FVLog {
 			}
 			threshold = LogLevel.DEBUG;
 		}
-		logger.init();
+		try {
+			logger.init();
+		} catch (UnsatisfiedLinkError e) {
+			System.err
+					.println("Unable to load default logger; failing over to stderr: "
+							+ e);
+			logger = new StderrLogger();
+			logger.init();
+		}
 		System.err.println("--- Setting logging level to " + threshold);
 		if (needConfigFlush)
 			FlowVisor.getInstance().checkPointConfig();

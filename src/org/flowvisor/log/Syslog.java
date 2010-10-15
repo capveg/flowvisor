@@ -68,10 +68,9 @@ public class Syslog {
 	static {
 		String dir = System.getProperty("org.flowvisor.install_dir");
 		if (dir == null) {
-			throw new RuntimeException(
-					"FlowVisor Not Run properly... needs to run with '-Dorg.flowvisor.install_dir=dir' set");
+			throw new UnsatisfiedLinkError(
+					"Property 'org.flowvisor.install_dir' not set; can't find libsyslog_jni.so");
 		}
-		// FIXME: make this non-linux specific
 		System.load(dir + "/libsyslog_jni.so");
 	}
 
