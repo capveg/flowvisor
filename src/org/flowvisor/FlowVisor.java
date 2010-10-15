@@ -16,6 +16,7 @@ import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.log.ThreadLogger;
+import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.ofswitch.TopologyController;
 
@@ -38,17 +39,35 @@ public class FlowVisor {
 	private WebServer apiServer;
 	static FlowVisor instance;
 
+	FVMessageFactory factory;
+
 	public FlowVisor(String config[]) {
 		this.configFile = config[0];
 		this.port = 0;
 		if (config.length > 1)
 			this.port = Integer.valueOf(config[1]);
 		this.handlers = new ArrayList<FVEventHandler>();
+		this.factory = new FVMessageFactory();
 	}
 
 	/*
 	 * Unregister this event handler from the system
 	 */
+
+	/**
+	 * @return the factory
+	 */
+	public FVMessageFactory getFactory() {
+		return factory;
+	}
+
+	/**
+	 * @param factory
+	 *            the factory to set
+	 */
+	public void setFactory(FVMessageFactory factory) {
+		this.factory = factory;
+	}
 
 	public synchronized boolean unregisterHandler(FVEventHandler handler) {
 		if (handlers.contains(handler)) {
