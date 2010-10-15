@@ -217,7 +217,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		 * else {
 		 */
 		// only list a device is we have a features reply for it
-		for (FVEventHandler handler : fv.getHandlers()) {
+		for (FVEventHandler handler : fv.getHandlersCopy()) {
 			if (handler instanceof FVClassifier) {
 				OFFeaturesReply featuresReply = ((FVClassifier) handler)
 						.getSwitchInfo();
@@ -248,7 +248,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		Map<String, String> map = new HashMap<String, String>();
 		long dpid = HexString.toLong(dpidStr);
 		FVClassifier fvClassifier = null;
-		for (FVEventHandler handler : FlowVisor.getInstance().getHandlers()) {
+		for (FVEventHandler handler : FlowVisor.getInstance().getHandlersCopy()) {
 			if (handler instanceof FVClassifier) {
 				OFFeaturesReply featuresReply = ((FVClassifier) handler)
 						.getSwitchInfo();
@@ -412,7 +412,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		long dpid;
 		int connection = 1;
 		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
-				.getHandlers().iterator(); it.hasNext();) {
+				.getHandlersCopy().iterator(); it.hasNext();) {
 			FVEventHandler eventHandler = it.next();
 			if (eventHandler instanceof FVClassifier) {
 				FVClassifier classifier = (FVClassifier) eventHandler;

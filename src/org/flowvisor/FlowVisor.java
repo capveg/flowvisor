@@ -50,7 +50,7 @@ public class FlowVisor {
 	 * Unregister this event handler from the system
 	 */
 
-	public boolean unregisterHandler(FVEventHandler handler) {
+	public synchronized boolean unregisterHandler(FVEventHandler handler) {
 		if (handlers.contains(handler)) {
 			handlers.remove(handler);
 			return true;
@@ -185,8 +185,17 @@ public class FlowVisor {
 		FlowVisor.instance = instance;
 	}
 
-	public ArrayList<FVEventHandler> getHandlers() {
-		return handlers;
+	/**
+	 * Returns a unique, shallow copy of the list of event handlers registered
+	 * in the flowvisor
+	 * 
+	 * Is unique to prevent concurrency problems, i.e., when wakling through the
+	 * list and a handler gets deleted
+	 * 
+	 * @return
+	 */
+	public synchronized ArrayList<FVEventHandler> getHandlersCopy() {
+		return new ArrayList<FVEventHandler>(handlers);
 	}
 
 	public void addHandler(FVEventHandler handler) {
