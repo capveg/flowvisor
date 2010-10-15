@@ -274,7 +274,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 				OFPhysicalPort port = it.next();
 				p = U16.f(port.getPortNumber());
 				portList += p;
-				portNames = port.getName() + "(" + p + ")";
+				portNames += port.getName() + "(" + p + ")";
 				if (it.hasNext()) {
 					portList += ",";
 					portNames += ",";
