@@ -26,4 +26,5 @@ install: all
 
 clean:
 	ant clean
+	rm -rf pkgbuild
 	make -C jni clean
