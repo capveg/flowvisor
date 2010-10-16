@@ -75,6 +75,138 @@ try:
 #            TestEvent( "clear?","guest","bob", packet=""),
 #            ])
     ############################################################
+    # test port stats pruning
+
+    port_stats_request_before = FvRegress.OFVERSION + \
+        '''10 00 14 00 00 03 cf 00 04 00 00 ff ff 00 00
+        00 00 00 00'''
+    port_stats_request_after_alice = FvRegress.OFVERSION + \
+        '''10 00 14 00 00 01 02 00 04 00 00 ff ff 00 00
+        00 00 00 00'''
+    port_stats_request_after_bob = FvRegress.OFVERSION + \
+        '''10 00 14 00 00 01 03 00 04 00 00 ff ff 00 00
+        00 00 00 00'''
+    port_stats_reply  = FvRegress.OFVERSION + \
+        '''11 01 ac 00 00 01 02 00 04 00 00 00 01 00 00
+        00 00 00 00 00 00 00 00 00 8a 8c 55 00 00 00 00
+        00 1b fb 14 00 00 00 02 0b 7a 82 ae 00 00 00 00
+        0e 2b be 02 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff 00 03 00 00 00 00 00 00 00 00 00 00
+        00 86 f2 d5 00 00 00 00 00 75 9e e7 00 00 00 00
+        2b cf 69 de 00 00 00 01 ed 71 df 6c 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff 00 2d 00 00
+        00 00 00 00 00 00 00 00 00 26 9c 4e 00 00 00 00
+        00 1d 95 ea 00 00 00 00 1e 5f 61 6f 00 00 00 00
+        31 65 e3 b5 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff fe 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff'''
+    port_stats_reply2  = FvRegress.OFVERSION + \
+        '''11 01 ac 00 00 01 03 00 04 00 00 00 01 00 00
+        00 00 00 00 00 00 00 00 00 8a 8c 55 00 00 00 00
+        00 1b fb 14 00 00 00 02 0b 7a 82 ae 00 00 00 00
+        0e 2b be 02 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff 00 03 00 00 00 00 00 00 00 00 00 00
+        00 86 f2 d5 00 00 00 00 00 75 9e e7 00 00 00 00
+        2b cf 69 de 00 00 00 01 ed 71 df 6c 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff 00 2d 00 00
+        00 00 00 00 00 00 00 00 00 26 9c 4e 00 00 00 00
+        00 1d 95 ea 00 00 00 00 1e 5f 61 6f 00 00 00 00
+        31 65 e3 b5 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff fe 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff'''
+    port_stats_reply_alice  = FvRegress.OFVERSION + \
+        '''11 01 ac 00 00 03 d1 00 04 00 00 00 01 00 00
+        00 00 00 00 00 00 00 00 00 8a 8c 55 00 00 00 00
+        00 1b fb 14 00 00 00 02 0b 7a 82 ae 00 00 00 00
+        0e 2b be 02 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff 00 03 00 00 00 00 00 00 00 00 00 00
+        00 86 f2 d5 00 00 00 00 00 75 9e e7 00 00 00 00
+        2b cf 69 de 00 00 00 01 ed 71 df 6c 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff 00 2d 00 00
+        00 00 00 00 00 00 00 00 00 26 9c 4e 00 00 00 00
+        00 1d 95 ea 00 00 00 00 1e 5f 61 6f 00 00 00 00
+        31 65 e3 b5 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff fe 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff'''
+    port_stats_reply_bob  = FvRegress.OFVERSION + \
+        '''11 00 dc 00 00 03 cf 00 04 00 00 00 01 00 00
+        00 00 00 00 00 00 00 00 00 8a 8c 55 00 00 00 00
+        00 1b fb 14 00 00 00 02 0b 7a 82 ae 00 00 00 00
+        0e 2b be 02 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff 00 03 00 00 00 00 00 00 00 00 00 00
+        00 86 f2 d5 00 00 00 00 00 75 9e e7 00 00 00 00
+        2b cf 69 de 00 00 00 01 ed 71 df 6c 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+        ff ff ff ff ff ff ff ff ff ff ff ff'''
+
+
+    h.runTest(name="port_stats pruning", timeout=timeout, events= [
+            # alice sends a port_stats request
+            TestEvent( "send","guest","alice", packet=port_stats_request_before),
+            # fv changes the XID
+            TestEvent( "recv","switch","switch1", packet=port_stats_request_after_alice, strict=True),
+            TestEvent( "send","switch","switch1", packet=port_stats_reply,strict=True),
+            TestEvent( "recv","guest","alice",packet=port_stats_reply_alice),
+
+            # bob sends a port_stats request
+            TestEvent( "send","guest","bob", packet=port_stats_request_before),
+            # fv changes the XID
+            TestEvent( "recv","switch","switch1", packet=port_stats_request_after_bob, strict=True),
+            TestEvent( "send","switch","switch1", packet=port_stats_reply2,strict=True),
+            TestEvent( "recv","guest","bob",packet=port_stats_reply_bob)
+
+            ])
+
+
+
+    ############################################################
     packet_out_pAll = FvRegress.OFVERSION + '''0d 0058 0000 abcd ffff ffff
             ffff 0008 0000 0008 fffb 0080 0000 0000
             0001 0000 0000 0002 0800 4500 0032 0000
