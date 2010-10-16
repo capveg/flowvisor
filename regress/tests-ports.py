@@ -180,7 +180,10 @@ try:
             # announce that port 13 has been added
             TestEvent( "send","switch","switch1", packet=port_mod_add_13),
             # alice sends a FLOOD packet_out; alice has access to all ports
-            TestEvent( "send","guest","alice", packet=packet_out_pAll),
+            # HACK! sleep a second to prevent timing issue; but do it in assign
+            # so we don't have to split the test up
+            TestEvent( "send" if time.sleep(1) == None else "send","guest","alice", 
+                                packet=packet_out_pAll),
             # fv expands it to ports=1,153,2,3,13  -- 13 is new, relative to prev test
             TestEvent( "recv","switch","switch1", packet=packet_out_p0_aftr_port0),
             # bob sends a FLOOD packet_out
