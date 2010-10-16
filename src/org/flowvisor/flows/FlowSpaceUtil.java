@@ -302,10 +302,12 @@ public class FlowSpaceUtil {
 	}
 
 	public static String connectionToString(SocketChannel sock) {
-		if (sock == null)
+		try {
+			Socket ss = sock.socket();
+			return ss.getLocalAddress().toString() + ":" + ss.getLocalPort()
+					+ "-->" + ss.getRemoteSocketAddress().toString();
+		} catch (NullPointerException e) {
 			return "NONE";
-		Socket ss = sock.socket();
-		return ss.getLocalAddress().toString() + ":" + ss.getLocalPort()
-				+ "-->" + ss.getRemoteSocketAddress().toString();
+		}
 	}
 }
