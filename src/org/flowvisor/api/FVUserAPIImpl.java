@@ -98,15 +98,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 *            As a contract for the slice
 	 * @return success
 	 * @throws InvalidSliceName
+	 * @throws PermissionDeniedException
 	 */
 	@Override
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
-			throws MalformedControllerURL, InvalidSliceName {
+			throws MalformedControllerURL, InvalidSliceName,
+			PermissionDeniedException {
 		// FIXME: make sure this user has perms to do this OP
 		// for now, all slices can create other slices
 		// FIXME: for now, only handle tcp, not ssl controller url
 		String[] list = controller_url.split(":");
+		if (!FVConfig.isSupervisor(APIUserCred.getUserName()))
+			throw new PermissionDeniedException(
+					"only superusers can create new slices");
 		if (list.length < 2)
 			throw new MalformedControllerURL(
 					"controller url needs to be of the form "
@@ -318,15 +323,21 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * 
 	 * Allow this change if it affectst the flowspace delagated to this slice.
 	 * 
+	 * @throws PermissionDeniedException
+	 * 
 	 */
 
 	@Override
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange {
+			throws MalformedFlowChange, PermissionDeniedException {
 		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 		List<String> returnIDs = new LinkedList<String>();
+
+		if (!FVConfig.isSupervisor(APIUserCred.getUserName()))
+			throw new PermissionDeniedException(
+					"only superusers can add/remove/change the flowspace");
 
 		synchronized (flowSpace) { // prevent multiple API clients from stomping
 			// on each other

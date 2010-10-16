@@ -42,11 +42,13 @@ public interface FVUserAPI {
 	 *            As a contract for the slice
 	 * @return success
 	 * @throws InvalidSliceName
+	 * @throws PermissionDeniedException
 	 */
 
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
-			throws MalformedControllerURL, InvalidSliceName;
+			throws MalformedControllerURL, InvalidSliceName,
+			PermissionDeniedException;
 
 	public Map<String, String> getSliceInfo(String sliceName)
 			throws PermissionDeniedException;
@@ -167,9 +169,10 @@ public interface FVUserAPI {
 	 * @throws MalformedFlowChange
 	 * @return A list of flow entry IDs in string form
 	 * @throws MalformedFlowChange
+	 * @throws PermissionDeniedException
 	 */
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange;
+			throws MalformedFlowChange, PermissionDeniedException;
 
 	/**
 	 * Return a list of slices in the flowvisor: root only!
