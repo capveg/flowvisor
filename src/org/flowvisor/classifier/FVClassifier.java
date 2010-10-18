@@ -494,6 +494,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * @return This switch's DPID
 	 */
 	public long getDPID() {
+		if (this.switchInfo == null)
+			return -1;
 		return this.switchInfo.getDatapathId();
 	}
 
@@ -519,6 +521,10 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		} else
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
 					+ msg);
+	}
+
+	public boolean isIdentified() {
+		return this.switchInfo != null;
 	}
 
 	public Collection<FVSlicer> getSlicers() {

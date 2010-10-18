@@ -330,11 +330,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
 			throws MalformedFlowChange, PermissionDeniedException {
-		// FIXME: implement security for who can change what
 		String user = APIUserCred.getUserName();
 		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 		List<String> returnIDs = new LinkedList<String>();
 
+		// TODO: implement the "delegate" bit; for now only root can change FS
 		if (!FVConfig.isSupervisor(APIUserCred.getUserName()))
 			throw new PermissionDeniedException(
 					"only superusers can add/remove/change the flowspace");
@@ -382,9 +382,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> listSlices() throws PermissionDeniedException {
-		if (!FVConfig.isSupervisor(APIUserCred.getUserName()))
-			throw new PermissionDeniedException(
-					"listSlices only available to root");
+		/*
+		 * relaxed security; anyone can get a list of slices if
+		 * (!FVConfig.isSupervisor(APIUserCred.getUserName())) throw new
+		 * PermissionDeniedException( "listSlices only available to root");
+		 */
 		List<String> slices = null;
 		try {
 			slices = FVConfig.list(FVConfig.SLICES);
@@ -399,11 +401,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public Map<String, String> getSliceInfo(String sliceName)
 			throws PermissionDeniedException {
 		HashMap<String, String> map = new HashMap<String, String>();
-		String user = APIUserCred.getUserName();
-		if (!FVConfig.isSupervisor(user)
-				&& !APIAuth.transitivelyCreated(user, sliceName))
-			throw new PermissionDeniedException(
-					"not superuser or transitive slice creator");
+		/*
+		 * relaxed security -- anyone can read slice info for now String user =
+		 * APIUserCred.getUserName(); if (!FVConfig.isSupervisor(user) &&
+		 * !APIAuth.transitivelyCreated(user, sliceName)) throw new
+		 * PermissionDeniedException(
+		 * "not superuser or transitive slice creator");
+		 */
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS;
 
 		try {
@@ -422,11 +426,17 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 		long dpid;
 		int connection = 1;
+
+		// TODO: come back an architect this so we can walk the list of slicers,
+		// not the list of classifiers, and then slicers
 		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
 				.getHandlersCopy().iterator(); it.hasNext();) {
 			FVEventHandler eventHandler = it.next();
 			if (eventHandler instanceof FVClassifier) {
 				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (!classifier.isIdentified()) // only print switches have have
+												// been identified
+					continue;
 				dpid = classifier.getDPID();
 				FVSlicer fvSlicer = classifier.getSlicerByName(sliceName);
 				if (fvSlicer != null) {
