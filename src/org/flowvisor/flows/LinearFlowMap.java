@@ -4,6 +4,7 @@
 package org.flowvisor.flows;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -87,7 +88,8 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 		MatchType matchType;
 		boolean needMerge = false;
 
-		for (FlowEntry rule : rules) {
+		for (Iterator<FlowEntry> it = rules.iterator(); it.hasNext();) {
+			FlowEntry rule = it.next();
 			intersect = rule.matches(dpid, match);
 			matchType = intersect.getMatchType();
 
