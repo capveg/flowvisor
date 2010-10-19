@@ -404,9 +404,9 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
 			// TODO:: spawn a timer event to connect again later
-			FVLog.log(LogLevel.CRIT, this, "Giving up on reconnecting, got : "
-					+ e);
-			tearDown();
+			FVLog.log(LogLevel.CRIT, this,
+					"Trying to reconnect; trying later; got : " + e);
+			this.reconnectLater();
 		}
 
 	}
@@ -477,6 +477,13 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	}
 
 	private void reconnectLater() {
+		if (this.sock != null)
+			try {
+				this.sock.close();
+			} catch (IOException e) {
+				FVLog.log(LogLevel.WARN, this,
+						"ignoring error closing socket: " + e);
+			}
 		this.loop.addTimer(new ReconnectEvent(this.reconnectSeconds, this));
 	}
 
