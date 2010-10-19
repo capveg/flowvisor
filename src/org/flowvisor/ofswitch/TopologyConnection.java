@@ -417,11 +417,41 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		// problems
 		byte[] buf = new byte[size];
 		ByteBuffer bb = ByteBuffer.wrap(buf);
+
+		// LLDP Framing
 		bb.put(LLDPUtil.LLDP_MULTICAST); // dst addr
 		bb.put(hardwareAddress); // src addr
 		bb.putShort(LLDPUtil.ETHER_LLDP);
-		bb.putLong(this.featuresReply.getDatapathId());
+
+		// TLV type is 7 bits, length is 9
+		// I precomputed them on byte boundaries to save time and sanity
+
+		// NOX only supports Chassis ID subtype 1 and Port ID subtype 2
+		// which we can't jam a full datapath ID into.
+		// So we have to supply those here, and then overload the
+		// System Decription TLV to dump in the datapath ID
+
+		// Chassis ID TLV
+		byte chassis[] = { 0x02, 0x07, // type =1, len=7 (1 + 6)
+				0x04 }; // subtype = subtype MAC address
+		bb.put(chassis);
+		bb.put(hardwareAddress);
+
+		// Port ID TLV
+		byte id[] = { 0x04, 0x03, // type 2, length 3
+				0x02 }; // Subtype Port
+		bb.put(id);
 		bb.putShort(portNumber);
+
+		// TTL TLV
+		byte ttl[] = { 0x06, 0x02, 0x00, 0x70 };
+		bb.put(ttl); // type 3, length 2, 120 seconds
+
+		// SysD TLV
+		byte sysD[] = { 0x0c, 0x08 }; // Type 6, length 8
+		bb.put(sysD);
+		bb.putLong(this.featuresReply.getDatapathId());
+
 		while (bb.position() <= (size - 4))
 			bb.putInt(0xcafebabe); // fill with well known padding
 		return buf;
@@ -443,8 +473,24 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	}
 
 	static public DPIDandPort parseLLDP(byte[] packet) {
+		// LLDP packets sent by FV should have the following byte offsets:
+		// 0 - dst addr (MAC)
+		// 6 - src addr (MAC)
+		// 12 - ether lldp
+		// 14 - chassis id tl
+		// 16 - subtype
+		// 17 - src addr (MAC)
+		// 23 - port id tl
+		// 25 - subtype
+		// 26 - port num
+		// 28 - ttl tl
+		// 30 - ttl value
+		// 32 - sysdesc tl
+		// 34 - dpid
+		// 42 - padding
+
 		if (packet == null || packet.length != LLDPLen)
-			return null; // invalid lldp
+			return null; // invalid lldp (to us, anyhow)
 		ByteBuffer bb = ByteBuffer.wrap(packet);
 		byte[] dst = new byte[6];
 		bb.get(dst);
@@ -454,9 +500,10 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		short etherType = bb.getShort();
 		if (etherType != LLDPUtil.ETHER_LLDP)
 			return null;
-		bb.position(14);
-		long dpid = bb.getLong();
+		bb.position(26);
 		short port = bb.getShort();
+		bb.position(34);
+		long dpid = bb.getLong();
 		return new DPIDandPort(dpid, port);
 	}
 
