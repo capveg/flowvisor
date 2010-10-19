@@ -63,7 +63,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 						.getSliceName());
 				if (fvSlicer == null) {
 					FVLog.log(LogLevel.WARN, fvClassifier,
-							"tried to send msg to non-existing slice: "
+							"tried to send msg to non-existant slice: "
 									+ sliceAction.getSliceName()
 									+ " corrupted flowspace?:: "
 									+ this.toVerboseString());
