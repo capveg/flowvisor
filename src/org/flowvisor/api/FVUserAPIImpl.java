@@ -59,7 +59,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 */
 	public String ping(String arg) {
 		String user = APIUserCred.getUserName();
-		return "PONG(" + user + "): " + arg;
+		return "PONG(" + user + "): FV version=" + FlowVisor.FLOWVISOR_VERSION
+				+ "::" + arg;
 	}
 
 	/**
