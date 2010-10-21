@@ -70,16 +70,19 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public String[] listFlowSpace() {
 		String sliceName = APIUserCred.getUserName();
+		String[] fs;
 		FVLog.log(LogLevel.DEBUG, null, "API listFlowSpace() by: " + sliceName);
 		FlowMap flowMap;
-		if (FVConfig.isSupervisor(sliceName))
-			flowMap = FVConfig.getFlowSpaceFlowMap();
-		else
-			flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
-		String[] fs = new String[flowMap.countRules()];
-		int i = 0;
-		for (FlowEntry flowEntry : flowMap.getRules())
-			fs[i++] = flowEntry.toString();
+		synchronized (FVConfig.class) {
+			if (FVConfig.isSupervisor(sliceName))
+				flowMap = FVConfig.getFlowSpaceFlowMap();
+			else
+				flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
+			fs = new String[flowMap.countRules()];
+			int i = 0;
+			for (FlowEntry flowEntry : flowMap.getRules())
+				fs[i++] = flowEntry.toString();
+		}
 		return fs;
 	}
 
@@ -126,6 +129,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			controller_port = Integer.valueOf(list[2]);
 		else
 			controller_port = FVConfig.OFP_TCP_PORT;
+		// createSlice is synchronized()
 		FVConfig.createSlice(sliceName, list[1], controller_port, passwd,
 				slice_email, APIUserCred.getUserName());
 		FlowVisor.getInstance().checkPointConfig();
@@ -153,6 +157,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String salt = APIAuth.getSalt();
 		String crypt = APIAuth.makeCrypt(salt, newPasswd);
 		sliceName = FVConfig.sanitize(sliceName);
+		// set passwd is synchronized
 		FVConfig.setPasswd(sliceName, salt, crypt);
 		FlowVisor.getInstance().checkPointConfig();
 		return true;
@@ -180,9 +185,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 		if (topologyController == null)
 			return getFakeLinks();
 		List<Map<String, String>> list = new LinkedList<Map<String, String>>();
-		for (LinkAdvertisement linkAdvertisement : topologyController
-				.getLinks())
+		for (Iterator<LinkAdvertisement> it = topologyController.getLinks()
+				.iterator(); it.hasNext();) {
+			LinkAdvertisement linkAdvertisement = it.next();
 			list.add(linkAdvertisement.toMap());
+		}
 		return list;
 	}
 
@@ -305,16 +312,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 					+ " does not have perms to change the passwd of "
 					+ sliceName);
 		}
-		try {
-			FVConfig.deleteSlice(sliceName);
-		} catch (Exception e) {
-			throw new SliceNotFound("slice does not exist: " + sliceName);
+		synchronized (FVConfig.class) {
+			try {
+				// this is also synchronized against FVConfig.class
+				FVConfig.deleteSlice(sliceName);
+			} catch (Exception e) {
+				throw new SliceNotFound("slice does not exist: " + sliceName);
+			}
+			FVLog.log(LogLevel.DEBUG, null, "API removeSlice(" + sliceName
+					+ ") by: " + APIUserCred.getUserName());
+			FlowSpaceUtil.deleteFlowSpaceBySlice(sliceName);
+			FVConfig.sendUpdates(FVConfig.FLOWSPACE);
+			// signal that FS has changed
+			FlowVisor.getInstance().checkPointConfig();
 		}
-		FVLog.log(LogLevel.DEBUG, null, "API removeSlice(" + sliceName
-				+ ") by: " + APIUserCred.getUserName());
-		FlowSpaceUtil.deleteFlowSpaceBySlice(sliceName);
-		FVConfig.sendUpdates(FVConfig.FLOWSPACE); // signal that FS has changed
-		FlowVisor.getInstance().checkPointConfig();
 		return true;
 	}
 
@@ -331,7 +342,6 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
 			throws MalformedFlowChange, PermissionDeniedException {
 		String user = APIUserCred.getUserName();
-		FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 		List<String> returnIDs = new LinkedList<String>();
 
 		// TODO: implement the "delegate" bit; for now only root can change FS
@@ -339,8 +349,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 			throw new PermissionDeniedException(
 					"only superusers can add/remove/change the flowspace");
 
-		synchronized (flowSpace) { // prevent multiple API clients from stomping
+		synchronized (FVConfig.class) { // prevent multiple API clients from
+			// stomping
 			// on each other
+			FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
 			String logMsg;
 			for (int i = 0; i < changes.size(); i++) {
 				FlowChange change = FlowChange.fromMap(changes.get(i));
@@ -371,12 +383,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 				}
 				FVLog.log(LogLevel.INFO, null, logMsg);
 			}
+			// update the indexes at the end, not with each rule
+			FlowVisor.getInstance().checkPointConfig();
+			FVLog.log(LogLevel.INFO, null,
+					"Signalling FlowSpace Update to all event handlers");
+			FVConfig.sendUpdates(FVConfig.FLOWSPACE); // signal that FS has
+			// changed
 		}
-		// update the indexes at the end, not with each rule
-		FlowVisor.getInstance().checkPointConfig();
-		FVLog.log(LogLevel.INFO, null,
-				"Signalling FlowSpace Update to all event handlers");
-		FVConfig.sendUpdates(FVConfig.FLOWSPACE); // signal that FS has changed
 		return returnIDs;
 	}
 
@@ -388,11 +401,15 @@ public class FVUserAPIImpl implements FVUserAPI {
 		 * PermissionDeniedException( "listSlices only available to root");
 		 */
 		List<String> slices = null;
-		try {
-			slices = FVConfig.list(FVConfig.SLICES);
-		} catch (ConfigError e) {
-			e.printStackTrace();
-			new RuntimeException("wtf!?: no SLICES subdir found in config");
+		synchronized (FVConfig.class) {
+			try {
+				// this is synchronized
+				List<String> entries = FVConfig.list(FVConfig.SLICES);
+				slices = new LinkedList<String>(entries);
+			} catch (ConfigError e) {
+				e.printStackTrace();
+				new RuntimeException("wtf!?: no SLICES subdir found in config");
+			}
 		}
 		return slices;
 	}
@@ -410,20 +427,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 		 */
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS;
 
-		try {
-			map
-					.put("contact_email", FVConfig.getString(base
-							+ "contact_email"));
-			map.put("controller_hostname", FVConfig.getString(base
-					+ "controller_hostname"));
-			map.put("controller_port", String.valueOf(FVConfig.getInt(base
-					+ "controller_port")));
-			map.put("creator", FVConfig.getString(base + "creator"));
-		} catch (ConfigError e) {
-			FVLog.log(LogLevel.CRIT, null, "malformed slice: " + e);
-			e.printStackTrace();
+		synchronized (FVConfig.class) {
+			try {
+				map.put("contact_email", FVConfig.getString(base
+						+ "contact_email"));
+				map.put("controller_hostname", FVConfig.getString(base
+						+ "controller_hostname"));
+				map.put("controller_port", String.valueOf(FVConfig.getInt(base
+						+ "controller_port")));
+				map.put("creator", FVConfig.getString(base + "creator"));
+			} catch (ConfigError e) {
+				FVLog.log(LogLevel.CRIT, null, "malformed slice: " + e);
+				e.printStackTrace();
+			}
 		}
-
 		long dpid;
 		int connection = 1;
 
@@ -435,7 +452,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			if (eventHandler instanceof FVClassifier) {
 				FVClassifier classifier = (FVClassifier) eventHandler;
 				if (!classifier.isIdentified()) // only print switches have have
-												// been identified
+					// been identified
 					continue;
 				dpid = classifier.getDPID();
 				FVSlicer fvSlicer = classifier.getSlicerByName(sliceName);
@@ -479,6 +496,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		FVLog.log(LogLevel.DEBUG, null, "getConfig for user " + user
 				+ " on config " + nodeName);
+		// this is synchronized against FVConfig
 		return FVConfig.getConfig(nodeName);
 	}
 
@@ -498,6 +516,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			throw new PermissionDeniedException(
 					"only superusers can call setConfig()");
 		}
+		// this is synchronized against FVConfig
 		FVConfig.setConfig(nodeName, value);
 		FlowVisor.getInstance().checkPointConfig();
 		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user

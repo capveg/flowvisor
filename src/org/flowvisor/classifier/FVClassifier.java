@@ -250,10 +250,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		connectToControllers(); // re-figure out who we should connect to
 		// then tell everyone who depends on us (causality important :-)
 		for (FVSlicer fvSlicer : slicerMap.values())
-			try {
-				fvSlicer.handleEvent(e);
-			} catch (UnhandledEvent e1) {
-			} // don't worry if they don't handle event
+			this.loop.queueEvent(new ConfigUpdateEvent(e).setDst(fvSlicer));
 	}
 
 	void handleIOEvent(FVIOEvent e) {
@@ -414,12 +411,14 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * 
 	 */
 	private void connectToControllers() {
-
-		this.switchFlowMap = FlowSpaceUtil.getSubFlowMap(this.switchInfo
-				.getDatapathId());
-		// this.switchFlowMap = FVConfig.getFlowSpaceFlowMap();
-		Set<String> newSlices = FlowSpaceUtil.getSlicesByDPID(
-				this.switchFlowMap, this.switchInfo.getDatapathId());
+		Set<String> newSlices;
+		synchronized (FVConfig.class) {
+			this.switchFlowMap = FlowSpaceUtil.getSubFlowMap(this.switchInfo
+					.getDatapathId());
+			// this.switchFlowMap = FVConfig.getFlowSpaceFlowMap();
+			newSlices = FlowSpaceUtil.getSlicesByDPID(this.switchFlowMap,
+					this.switchInfo.getDatapathId());
+		}
 		StringBuffer strbuf = new StringBuffer();
 		for (String sliceName : newSlices) {
 			if (strbuf.length() > 0) // prune the last

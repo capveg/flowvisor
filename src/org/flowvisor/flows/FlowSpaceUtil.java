@@ -203,8 +203,10 @@ public class FlowSpaceUtil {
 
 	public static FlowMap getSubFlowMap(long dpid) {
 		// assumes that new OFMatch() matches everything
-		return FlowSpaceUtil.getSubFlowMap(FVConfig.getFlowSpaceFlowMap(),
-				dpid, new OFMatch());
+		synchronized (FVConfig.class) {
+			return FlowSpaceUtil.getSubFlowMap(FVConfig.getFlowSpaceFlowMap(),
+					dpid, new OFMatch());
+		}
 	}
 
 	/**

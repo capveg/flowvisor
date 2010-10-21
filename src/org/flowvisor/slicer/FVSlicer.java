@@ -107,8 +107,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	}
 
 	private void updatePortList() {
-		// SYNCH
-		this.localFlowSpace = this.fvClassifier.getSwitchFlowMap().clone();
+		synchronized (FVConfig.class) {
+			// update our local copy
+			this.localFlowSpace = this.fvClassifier.getSwitchFlowMap().clone();
+		}
 		Set<Short> ports = FlowSpaceUtil.getPortsBySlice(this.fvClassifier
 				.getSwitchInfo().getDatapathId(), this.sliceName,
 				this.localFlowSpace);

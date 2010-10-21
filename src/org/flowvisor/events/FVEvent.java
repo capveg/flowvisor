@@ -18,6 +18,11 @@ public class FVEvent {
 		this.dst = dst;
 	}
 
+	public FVEvent(FVEvent e) {
+		this.src = e.getSrc();
+		this.dst = e.getDst();
+	}
+
 	/**
 	 * Get the sending msg handler (could be null)
 	 * 
@@ -33,8 +38,9 @@ public class FVEvent {
 	 * @param src
 	 *            could be null
 	 */
-	public void setSrc(FVEventHandler src) {
+	public FVEvent setSrc(FVEventHandler src) {
 		this.src = src;
+		return this;
 	}
 
 	/**
@@ -51,7 +57,8 @@ public class FVEvent {
 	 * 
 	 * @param dst
 	 */
-	public void setDst(FVEventHandler dst) {
+	public FVEvent setDst(FVEventHandler dst) {
 		this.dst = dst;
+		return this;
 	}
 }

@@ -3,7 +3,6 @@
  */
 package org.flowvisor.events;
 
-import org.flowvisor.events.FVEvent;
 
 /**
  * Let an event handler know that a config element that it was watching needs
@@ -24,6 +23,11 @@ public class ConfigUpdateEvent extends FVEvent {
 	public ConfigUpdateEvent(FVEventHandler dst, String config) {
 		super(null, dst);
 		this.config = config;
+	}
+
+	public ConfigUpdateEvent(ConfigUpdateEvent e) {
+		super(e);
+		this.config = e.config;
 	}
 
 	/**

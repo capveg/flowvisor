@@ -245,7 +245,7 @@ public class FVConfig {
 		return ((ConfFlowMapEntry) entry).getFlowMap();
 	}
 
-	static public FlowMap getFlowSpaceFlowMap() {
+	static synchronized public FlowMap getFlowSpaceFlowMap() {
 		FlowMap flowMap;
 		try {
 			flowMap = FVConfig.getFlowMap(FVConfig.FLOWSPACE);
@@ -280,7 +280,8 @@ public class FVConfig {
 	 * @return List of nodes
 	 * @throws ConfigError
 	 */
-	static public List<String> list(String base) throws ConfigError {
+	static synchronized public List<String> list(String base)
+			throws ConfigError {
 		ConfigEntry e = lookup(base);
 		if (e == null)
 			throw new ConfigNotFoundError("base not found: " + base);
@@ -298,7 +299,7 @@ public class FVConfig {
 	 * @param walker
 	 */
 
-	public static List<String> getConfig(String name) {
+	public synchronized static List<String> getConfig(String name) {
 		ConfigEntry val;
 		if (name.equals("."))
 			val = FVConfig.root;
@@ -323,7 +324,7 @@ public class FVConfig {
 		}
 	}
 
-	public static void setConfig(String name, String val)
+	public synchronized static void setConfig(String name, String val)
 			throws ConfigNotFoundError {
 		ConfigEntry entry = lookup(name);
 		if (entry == null)
@@ -514,7 +515,8 @@ public class FVConfig {
 		FVConfig.writeToFile(filename);
 	}
 
-	public static void setPasswd(String sliceName, String salt, String crypt) {
+	public synchronized static void setPasswd(String sliceName, String salt,
+			String crypt) {
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
 		try {
 			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
