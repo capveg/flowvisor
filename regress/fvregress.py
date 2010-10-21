@@ -147,6 +147,9 @@ class FakeController(Thread):
         return switch
     def getSwitches(self) :
         return self.sliced_switches
+    def set_dead(self) :
+        for sw in self.sliced_switches.values():
+            sw.set_dead()
 
 ##########################################################################
 class FakeSwitch(Thread):
@@ -179,15 +182,17 @@ class FakeSwitch(Thread):
         self.setDaemon(True)
     def run(self):
         print "    Starting io loop for switch "+ self.name
-        while 1 :
+        while self.alive :
             try:
                 m = self.sock.recv(FakeSwitch.BUFSIZE)
                 if m == '' :
-                    print "Switch " + self.name + " got EOF ; exiting..."
-                    self.alive=False
+                    if self.alive:
+                        print "Switch " + self.name + " got EOF ; exiting..."
+                        self.alive=False
                     return
-            except (socket.error), e :
-                print "Switch " + self.name + " got " + str(e) + "; exiting..."
+            except (Exception), e :
+                if self.alive:
+                    print "Switch " + self.name + " got " + str(e) + "; exiting..."
                 return
             #print "----------------- got packet"
             self.msg_cond.acquire()
@@ -229,6 +234,8 @@ class FakeSwitch(Thread):
                 return msgs
     def is_alive(self):
         return self.alive
+    def set_dead(self):
+        self.alive=False
 
 ###########################################################################
 class TestEvent:
@@ -411,6 +418,15 @@ class FvRegress:
             os.kill(self.fv_child.pid,signal.SIGUSR1)
         else :
             print "Not killing fv process: using already running flowvisor"
+        print "Cleaning up fake switches"
+        for sw in self.fakeSwitches.values() :
+            sw.set_dead()
+        self.fakeSwitches=None
+        print "Cleaning up fake controllers"
+        for cont in self.fakeControllers.values() :
+            cont.set_dead()
+        self.fakeControllers=None
+        print "Done cleaning up"
     def runTest(self,name,events,timeout=5,allowFail=False):
         count=0
         if self.firstTest :
