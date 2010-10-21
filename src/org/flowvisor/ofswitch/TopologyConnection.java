@@ -73,6 +73,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	private final Set<Short> fastPorts;
 	private Iterator<Short> slowIterator;
 	private final Map<Short, OFPhysicalPort> phyMap;
+	static final byte lldpSysD[] = { 0x0c, 0x08 }; // Type 6, length 8
 
 	// probes can be dropped before a link
 	// down event
@@ -412,7 +413,9 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	}
 
 	private byte[] makeLLDP(short portNumber, byte[] hardwareAddress) {
-		// TODO steal a real LLDP implementation
+		/**
+		 * TODO: merge this with the code in LLDPUtil.java
+		 */
 		int size = LLDPLen; // needs to be some minsize to avoid ethernet
 		// problems
 		byte[] buf = new byte[size];
@@ -448,8 +451,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		bb.put(ttl); // type 3, length 2, 120 seconds
 
 		// SysD TLV
-		byte sysD[] = { 0x0c, 0x08 }; // Type 6, length 8
-		bb.put(sysD);
+		bb.put(lldpSysD);
 		bb.putLong(this.featuresReply.getDatapathId());
 
 		while (bb.position() <= (size - 4))
@@ -473,6 +475,9 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	}
 
 	static public DPIDandPort parseLLDP(byte[] packet) {
+		/**
+		 * TODO: merge this with the code in LLDPUtil.java
+		 */
 		// LLDP packets sent by FV should have the following byte offsets:
 		// 0 - dst addr (MAC)
 		// 6 - src addr (MAC)
@@ -488,7 +493,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		// 32 - sysdesc tl
 		// 34 - dpid
 		// 42 - padding
-
+		int vlan_offset = 0;
 		if (packet == null || packet.length != LLDPLen)
 			return null; // invalid lldp (to us, anyhow)
 		ByteBuffer bb = ByteBuffer.wrap(packet);
@@ -498,11 +503,21 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			return null;
 		bb.position(12);
 		short etherType = bb.getShort();
+		while (etherType == LLDPUtil.ETHER_VLAN) {
+			vlan_offset += 4;
+			etherType = bb.getShort(); // noop to advance two bytes
+			etherType = bb.getShort();
+		}
 		if (etherType != LLDPUtil.ETHER_LLDP)
 			return null;
-		bb.position(26);
+		bb.position(26 + vlan_offset);
 		short port = bb.getShort();
-		bb.position(34);
+		byte possibleSysId[] = new byte[2];
+		bb.position(32 + vlan_offset);
+		bb.get(possibleSysId);
+		if (!Arrays.equals(possibleSysId, TopologyConnection.lldpSysD))
+			return null;
+		bb.position(34 + vlan_offset);
 		long dpid = bb.getLong();
 		return new DPIDandPort(dpid, port);
 	}
