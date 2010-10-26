@@ -3,6 +3,7 @@ from fvregress import *
 import string     # really?  you have to do this?
 import sys
 import xmlrpclib
+import re
 
 
 
@@ -13,7 +14,7 @@ import xmlrpclib
 
 def test_failed(str):
     print "TEST FAILED!!!: " + str
-    sys.exit(0)
+    sys.exit(1)
 
 wantPause = True
 try:
@@ -46,9 +47,13 @@ try:
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Root ping test"
     x= s.api.ping("Joe mama")
-    valid = "PONG(root): Joe mama"
-    if(x != valid) : 
-        print "Got '"+ x + "' but wanted '" + valid + "'"
+    valid1 = "PONG\(root\): "
+    valid2 = "Joe mama"
+    if not re.search(valid2,x):
+        print "Got '"+ x + "' but wanted '" + valid2 + "'"
+        test_failed("ping test")
+    if not re.search(valid1,x):
+        print "Got '"+ x + "' but wanted '" + valid1 + "'"
         test_failed("ping test")
     print "     passed"
     print "Root listFlowSpace test"
@@ -132,8 +137,8 @@ try:
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Alice ping test"
     x= s.api.ping("Joe mama")
-    valid = "PONG(alice): Joe mama"
-    if(x != valid) : 
+    valid = "PONG\(alice\):"
+    if(not re.search(valid,x)):
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
@@ -152,8 +157,8 @@ try:
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Bob ping test"
     x= s.api.ping("Joe mama")
-    valid = "PONG(bob): Joe mama"
-    if(x != valid) : 
+    valid = "PONG\(bob\):"
+    if(not re.search(valid,x)):
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
@@ -170,8 +175,8 @@ try:
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     print "Root ping test(2)"
     x= s.api.ping("Joe mama")
-    valid = "PONG(root): Joe mama"
-    if(x != valid) : 
+    valid = "PONG\(root\):"
+    if(not re.search(valid,x)):
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
