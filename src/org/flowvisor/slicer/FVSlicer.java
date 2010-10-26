@@ -214,9 +214,14 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
-				// don't shut down now; we could get a ConcurrencyException
-				// just queue up a shutdown for later
-				this.loop.queueEvent(new TearDownEvent(this, this));
+				// close connection and reconnect again
+				try {
+					this.sock.close();
+				} catch (IOException e1) {
+					FVLog.log(LogLevel.WARN, this,
+							"ignoring while closing connection: " + e1);
+				}
+				this.reconnectLater();
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
 			}
@@ -405,7 +410,6 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			// register into event loop
 			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
-			// TODO:: spawn a timer event to connect again later
 			FVLog.log(LogLevel.CRIT, this,
 					"Trying to reconnect; trying later; got : " + e);
 			this.reconnectLater();
@@ -420,9 +424,6 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 					return; // not done yet
 
 			} catch (IOException e1) {
-				// exponential back off
-				this.reconnectSeconds = Math.min(2 * this.reconnectSeconds + 1,
-						this.maxReconnectSeconds);
 				FVLog.log(LogLevel.DEBUG, this, "retrying connection in "
 						+ this.reconnectSeconds + " seconds; got: " + e1);
 				this.reconnectLater();
@@ -430,14 +431,15 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			}
 			FVLog.log(LogLevel.DEBUG, this, "connected");
 			this.isConnected = true;
+			this.reconnectSeconds = 0;
 			try {
 				msgStream = new FVMessageAsyncStream(this.sock,
 						new FVMessageFactory());
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.WARN, this,
-						"Giving up; while creating OFMessageAsyncStream, got: "
+						"Trying again later; while creating OFMessageAsyncStream, got: "
 								+ e1);
-				this.tearDown();
+				this.reconnectLater();
 				return;
 			}
 			FVLog.log(LogLevel.DEBUG, this, "sending HELLO");
@@ -486,6 +488,9 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				FVLog.log(LogLevel.WARN, this,
 						"ignoring error closing socket: " + e);
 			}
+		// exponential back off
+		this.reconnectSeconds = Math.min(2 * this.reconnectSeconds + 1,
+				this.maxReconnectSeconds);
 		this.loop.addTimer(new ReconnectEvent(this.reconnectSeconds, this));
 	}
 
