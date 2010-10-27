@@ -509,6 +509,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	@Override
 	public String getConnectionName() {
-		return FlowSpaceUtil.connectionToString(sock);
+		if (isConnected)
+			return FlowSpaceUtil.connectionToString(sock);
+		else
+			return "NONE (retry in " + this.reconnectSeconds
+					+ " seconds: max + " + this.maxReconnectSeconds + ")";
 	}
 }
