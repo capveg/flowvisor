@@ -10,6 +10,7 @@ USAGE: fvconfig cmd config.xml [options]
     chpasswd config.xml <slicename>
     query config.xml <dpid> [slicename]
     generate newconfig.xml [hostname] [admin_passwd] [of_port] [api_port]
+    generateCert hostname
 EOF
     exit 1
 }
@@ -32,6 +33,18 @@ if [ "x$1" = "x" ] ; then
     exit 1
 fi
 
+makeSSL() {
+        echo "Trying to generate SSL Server Key with passwd from scripts/envs.sh" >&2
+        if [ "X$1" != "X" ] ; then
+            cn=$1
+        else
+            cn=`hostname`
+        fi
+        echo Generating cert with common name == $cn
+        dname="-dname cn=$cn"
+        keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
+}
+
 cmd=$1
 shift
 case "X$cmd" in 
@@ -47,23 +60,18 @@ case "X$cmd" in
     Xquery)
         exec java -cp $classpath $fv_defines org.flowvisor.flows.FlowSpaceUtil "$@"
     ;;
+    XgenerateCert)
+        makeSSL $1
+    ;;
     Xgenerate)
-        echo "Trying to generate SSL Server Key with passwd from scripts/envs.sh" >&2
-        if [ "X$2" != "X" ] ; then
-            cn=$2
-        else
-            cn=`hostname`
-        fi
-        echo Generating cert with common name == $cn
-        dname="-dname cn=$cn"
-        keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
+        makeSSL $2
         exec java -cp $classpath $fv_defines org.flowvisor.config.FVConfig $1 $3 $4 $5
     ;;
     X)
         usage
     ;;
     *)
-        echo "Unknown command '$1'" >&2
+        echo "Unknown command '$1' : $@" >&2
         usage
     ;;
 esac
