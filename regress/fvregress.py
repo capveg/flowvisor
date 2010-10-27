@@ -242,10 +242,11 @@ class TestEvent:
     send = 'send'
     recv = 'recv'
     clear = 'clear?'
+    delay = 'delay'
     switch = 'switch'
     countSwitches = 'countSwitches'
     guest = 'guest'
-    actions = [ send, recv , clear, countSwitches]
+    actions = [ send, recv , clear, delay, countSwitches]
     actors  = [ guest, switch ]
     def __init__(self,action,actor,actorID,packet,actorID2='switch1',strict=False):
         # action=string.lower(action)    # lame with extra lamesauce
@@ -426,6 +427,8 @@ class FvRegress:
         for cont in self.fakeControllers.values() :
             cont.set_dead()
         self.fakeControllers=None
+        print "Sleeping for a second to let things die"
+        time.sleep(1)
         print "Done cleaning up"
     def runTest(self,name,events,timeout=5,allowFail=False):
         count=0
@@ -445,6 +448,9 @@ class FvRegress:
                     ret=self.runClear(e,count,recvTimeout=timeout/2)
                 elif e.action == TestEvent.countSwitches:
                     ret=self.runCountSwitches(e,count,recvTimeout=timeout/2)
+                elif e.action == TestEvent.delay:
+                    time.sleep(1)
+                    ret=True
                 else:
                     raise FvExcept("Unhandled event type %s for event %d " % [e.action,count])
                 if not ret :

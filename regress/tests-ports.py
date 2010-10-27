@@ -311,11 +311,8 @@ try:
     h.runTest(name="packet_out; flood to dynamic port", timeout=timeout, events= [
             # announce that port 13 has been added
             TestEvent( "send","switch","switch1", packet=port_mod_add_13),
-            # alice sends a FLOOD packet_out; alice has access to all ports
-            # HACK! sleep a second to prevent timing issue; but do it in assign
-            # so we don't have to split the test up
-            TestEvent( "send" if time.sleep(1) == None else "send","guest","alice", 
-                                packet=packet_out_pAll),
+            TestEvent( "delay","switch","switch1",packet=None),
+            TestEvent( "send" ,"guest","alice", packet=packet_out_pAll),
             # fv expands it to ports=1,153,2,3,13  -- 13 is new, relative to prev test
             TestEvent( "recv","switch","switch1", packet=packet_out_p0_aftr_port0),
             # bob sends a FLOOD packet_out
@@ -330,6 +327,8 @@ try:
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     change = { "operation" : "REMOVE", "id" : "1008"}
+    print "Sleeping 1 sec to let change propagate"
+    time.sleep(1)
     ### now remove access from Bob on port 3
     if not s.api.changeFlowSpace([change]) :
         raise "FAILED: FlowSpace Change failed!"
