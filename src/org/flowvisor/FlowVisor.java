@@ -218,8 +218,12 @@ public class FlowVisor {
 			System.err.println("Setting debugging mode: all logs to stderr");
 			FVLog.setDefaultLogger(new StderrLogger());
 		}
-		if (cmd.hasOption("p"))
-			setPort(Integer.valueOf(cmd.getOptionValue("p")));
+		if (cmd.hasOption("p")) {
+			int p = Integer.valueOf(cmd.getOptionValue("p"));
+			setPort(p);
+			System.err.println("Overriding port from config: setting to "
+					+ getPort());
+		}
 
 	}
 
