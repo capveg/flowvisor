@@ -7,10 +7,7 @@ flowvisor \- OpenFlow network slicing daemon
 
 .SH SYNOPSIS
 .B flowvisor
-\fIconfig.xml\fR [\fIport\fR]
-
-.B flowvisor
--v
+[-d \fIdebug\fR] [-h] [-l] [-p \fIport\fR] \fIconfig.xml\fR 
 
 .SH DESCRIPTION
 The
@@ -26,15 +23,23 @@ Symposium for Operating Systems Design and Implementation, 2010
 .SH OPTIONS
 
 .TP
--v
-Prints the version number and usage information and exists.
+-d \fIdebug\fR
+Overrides debugging threshold in config.xml and sets it to \fIdebug\fR.  Does not modify config.xml.
+Mostly used for manual debugging.
 
 .TP
-\fIport\fR
-Overrides the default listen tcp port for the OpenFlow connection
-specified in config.xml.  The new \fIport\fR value is never saved
-into config.xml.  Mostly used for manual debugging.
+-h
+Prints the version number and usage information and exists.
 
+
+.TP
+-l
+Logs to stderr instead of to syslog()
+
+.TP
+-p \fIport\fR
+Overrides listenning port from config.xml and sets it to \fIport\fR.  Does not modify config.xml.
+Mostly used for manual debugging.
 
 
 .SH "SEE ALSO"

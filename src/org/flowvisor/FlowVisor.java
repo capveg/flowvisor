@@ -15,10 +15,15 @@ import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.StderrLogger;
 import org.flowvisor.log.ThreadLogger;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.ofswitch.OFSwitchAcceptor;
 import org.flowvisor.ofswitch.TopologyController;
+import org.openflow.example.cli.Option;
+import org.openflow.example.cli.Options;
+import org.openflow.example.cli.ParseException;
+import org.openflow.example.cli.SimpleCLI;
 
 public class FlowVisor {
 	// VENDOR EXTENSION ID
@@ -41,11 +46,17 @@ public class FlowVisor {
 
 	FVMessageFactory factory;
 
-	public FlowVisor(String config[]) {
-		this.configFile = config[0];
+	private static final Options options = Options.make(new Option[] {
+			new Option("d", "debug", "DEBUG",
+					"Override default logging threshold in config"),
+			new Option("l", "logging", "Log to stderr instead of syslog"),
+			new Option("p", "port", 0, "Override port from config"),
+			new Option("h", "help", "Print help"),
+
+	});
+
+	public FlowVisor() {
 		this.port = 0;
-		if (config.length > 1)
-			this.port = Integer.valueOf(config[1]);
 		this.handlers = new ArrayList<FVEventHandler>();
 		this.factory = new FVMessageFactory();
 	}
@@ -53,6 +64,36 @@ public class FlowVisor {
 	/*
 	 * Unregister this event handler from the system
 	 */
+
+	/**
+	 * @return the configFile
+	 */
+	public String getConfigFile() {
+		return configFile;
+	}
+
+	/**
+	 * @param configFile
+	 *            the configFile to set
+	 */
+	public void setConfigFile(String configFile) {
+		this.configFile = configFile;
+	}
+
+	/**
+	 * @return the port
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/**
+	 * @param port
+	 *            the port to set
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
 
 	/**
 	 * @return the factory
@@ -121,17 +162,12 @@ public class FlowVisor {
 
 	public static void main(String args[]) throws Throwable {
 
-		// FIXME :: do real arg parsing
-		if (args.length == 0)
-			usage("need to specify config");
-
-		if (args[0].startsWith("-"))
-			usage("usage: " + args[0]);
 		ThreadLogger threadLogger = new ThreadLogger();
 		Thread.setDefaultUncaughtExceptionHandler(threadLogger);
 		long lastRestart = System.currentTimeMillis();
 		while (true) {
-			FlowVisor fv = new FlowVisor(args);
+			FlowVisor fv = new FlowVisor();
+			fv.parseArgs(args);
 			try {
 				fv.run();
 			} catch (Throwable e) {
@@ -151,10 +187,40 @@ public class FlowVisor {
 					lastRestart = System.currentTimeMillis();
 					fv.tearDown();
 				}
+				fv = null;
 				System.gc(); // give the system a bit to clean up after itself
 				Thread.sleep(1000);
 			}
 		}
+	}
+
+	private void parseArgs(String[] args) {
+		SimpleCLI cmd = null;
+		try {
+			cmd = SimpleCLI.parse(options, args);
+
+		} catch (ParseException e) {
+			usage("ParseException: " + e.toString());
+		}
+		if (cmd == null)
+			usage("need to specify arguments");
+		int i = cmd.getOptind();
+		if (i >= args.length)
+			usage("need to specify a configuration");
+		setConfigFile(args[i]);
+
+		if (cmd.hasOption("d")) {
+			FVLog.setThreshold(LogLevel.valueOf(cmd.getOptionValue("d")));
+			System.err.println("Set default logging threshold to "
+					+ FVLog.getThreshold());
+		}
+		if (cmd.hasOption("l")) {
+			System.err.println("Setting debugging mode: all logs to stderr");
+			FVLog.setDefaultLogger(new StderrLogger());
+		}
+		if (cmd.hasOption("p"))
+			setPort(Integer.valueOf(cmd.getOptionValue("p")));
+
 	}
 
 	private void tearDown() {
@@ -182,8 +248,14 @@ public class FlowVisor {
 		System.err
 				.println("---------------------------------------------------------------");
 		System.err.println("err: " + string);
-		System.err.println("Usage: FlowVisor [-v] configfile.xml [port]");
+		SimpleCLI.printHelp("FlowVisor [options] config.xml", FlowVisor
+				.getOptions());
 		System.exit(-1);
+	}
+
+	private static Options getOptions() {
+
+		return FlowVisor.options;
 	}
 
 	/**

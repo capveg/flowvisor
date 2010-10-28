@@ -17,7 +17,7 @@ import org.flowvisor.events.FVEventHandler;
 public class FVLog {
 	static boolean needsInit = true;
 	static FVLogInterface logger = new SyslogLogger();
-	static LogLevel threshold = LogLevel.DEBUG; // min level for logging
+	static LogLevel threshold = null;
 
 	/**
 	 * Wrapper around the default logger
@@ -41,8 +41,9 @@ public class FVLog {
 		needsInit = false;
 		boolean needConfigFlush = false;
 		try {
-			threshold = LogLevel.valueOf(FVConfig
-					.getString(FVConfig.LOG_THRESH));
+			if (threshold == null)
+				threshold = LogLevel.valueOf(FVConfig
+						.getString(FVConfig.LOG_THRESH));
 		} catch (ConfigError e) {
 			System.err.println("--- '" + FVConfig.LOG_THRESH
 					+ "' not set in config; defaulting to loglevel 'DEBUG'");
@@ -97,7 +98,7 @@ public class FVLog {
 	 * Set the logging threshold All logs equal to or greater than this level
 	 * are logged
 	 */
-	public void setThreshold(LogLevel l) {
+	public static void setThreshold(LogLevel l) {
 		FVLog.threshold = l;
 	}
 }
