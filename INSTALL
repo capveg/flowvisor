@@ -1,7 +1,7 @@
 REQUIREMENTS:
     - ant           (no version requirements?)
-    - java 1.6	    (currently requires Sun's JDK; 
-                    will not work with OpenJDK: bug #157)
+    - java 1.6	    (currently works with both Sun's JDK; 
+                     and OpenJDK)
 
 BUILD:
     - run `make` (or `ant` : Makefile is just a wrapper)
