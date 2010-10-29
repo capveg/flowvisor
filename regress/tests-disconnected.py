@@ -25,7 +25,7 @@ try:
     else:
         wantPause = False
         timeout=5
-        h.spawnFlowVisor(configFile="tests-base.xml")
+        h.spawnFlowVisor(configFile="tests-disconnected.xml")
     h.lamePause()
     h.addSwitch(name='switch1',port=port)
     h.addSwitch(name='switch2',port=port)

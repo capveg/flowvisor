@@ -16,6 +16,7 @@ tests-vlan.py \
 tests-readonly.py \
 tests-kk-topo.py \
 tests-disconnected.py \
+tests-stats.py \
 "
 
     

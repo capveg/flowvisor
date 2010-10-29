@@ -6,9 +6,9 @@ import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVMessageUtil;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMessage;
-import org.openflow.protocol.statistics.OFFlowStatisticsReply;
+import org.openflow.protocol.statistics.OFFlowStatisticsRequest;
 
-public final class FVFlowStatisticsRequest extends OFFlowStatisticsReply
+public final class FVFlowStatisticsRequest extends OFFlowStatisticsRequest
 		implements SlicableStatistic, ClassifiableStatistic {
 
 	@Override

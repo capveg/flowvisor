@@ -96,8 +96,8 @@ public class FVMessageFactory extends BasicFactory {
 			OFMessage m = c.getConstructor(new Class[] {}).newInstance();
 			if (m instanceof OFMessageFactoryAware)
 				((OFMessageFactoryAware) m).setMessageFactory(this);
-			if (m instanceof OFMessageFactoryAware) {
-				((OFMessageFactoryAware) m).setMessageFactory(this);
+			if (m instanceof OFActionFactoryAware) {
+				((OFActionFactoryAware) m).setActionFactory(this);
 			}
 			if (m instanceof OFStatisticsFactoryAware) {
 				((OFStatisticsFactoryAware) m).setStatisticsFactory(this);
