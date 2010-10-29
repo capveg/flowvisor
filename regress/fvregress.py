@@ -304,18 +304,18 @@ class FvRegress:
         fc = FakeController(name,port)
         self.fakeControllers[name]= fc
         fc.start()
-    def spawnFlowVisor(self,configFile="test-base.xml",port=OFPORT,fv_cmd="flowvisor.sh",fv_args=[]):
+    def spawnFlowVisor(self,configFile="test-base.xml",port=OFPORT,fv_cmd="flowvisor.sh",fv_args=["-d","DEBUG", "-l"]):
         """start the flowvisor"""
         cmd = findInPath(fv_cmd)
         if cmd:
             print "    Using flowvisor from : " + cmd
         else:
                 raise FvExcept("could not find " +fv_cmd )
-        print "    Spawning '" +  cmd + " " + configFile
+        cmdline = [cmd] + fv_args + [configFile]
+        print "    Spawning '" +  " ".join(cmdline) 
 
         self.logfile = open(FvRegress.logfile,'w+')
-        self.fv_child=subprocess.Popen([cmd, configFile ]  +
-                fv_args,stdout=self.logfile.fileno(),
+        self.fv_child=subprocess.Popen(cmdline,stdout=self.logfile.fileno(),
                 stderr=self.logfile.fileno(),close_fds=True)
         print '    flowvisor spawned at Pid=%d (output stored in %s) ' %  ( self.fv_child.pid, FvRegress.logfile)
     def useAlreadyRunningFlowVisor(self,port=None) :
