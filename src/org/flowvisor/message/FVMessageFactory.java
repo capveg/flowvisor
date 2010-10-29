@@ -32,6 +32,7 @@ import org.openflow.protocol.OFType;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.protocol.action.OFActionType;
 import org.openflow.protocol.factory.BasicFactory;
+import org.openflow.protocol.factory.OFActionFactoryAware;
 import org.openflow.protocol.factory.OFMessageFactoryAware;
 import org.openflow.protocol.factory.OFStatisticsFactoryAware;
 import org.openflow.protocol.statistics.OFStatistics;
