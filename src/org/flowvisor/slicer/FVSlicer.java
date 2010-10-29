@@ -515,4 +515,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			return "NONE (retry in " + this.reconnectSeconds
 					+ " seconds: max + " + this.maxReconnectSeconds + ")";
 	}
+
+	public boolean isConnected() {
+		return this.isConnected;
+	}
 }

@@ -97,8 +97,11 @@ public class LLDPUtil {
 			FVSlicer fvSlicer = fvClassifier.getSlicerByName(trailer
 					.getSliceName());
 			if (fvSlicer != null) {
-				FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: " + pi);
-				fvSlicer.sendMsg(pi);
+				if (fvSlicer.isConnected()) {
+					FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: "
+							+ pi);
+					fvSlicer.sendMsg(pi);
+				}
 				return true;
 			}
 		}
@@ -116,10 +119,10 @@ public class LLDPUtil {
 		short inport = pi.getInPort();
 		pi.setXid(0xdeaddead); // mark this as broadcasted
 		for (FVSlicer fvSlicer : fvClassifier.getSlicers()) {
-			if (fvSlicer.portInSlice(inport))
+			if (fvSlicer.portInSlice(inport) && fvSlicer.isConnected())
 				fvSlicer.sendMsg(pi);
-		}
 
+		}
 		return true;
 	}
 }

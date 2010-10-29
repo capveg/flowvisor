@@ -1,8 +1,10 @@
 package org.flowvisor.message;
 
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.api.LinkAdvertisement;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.FVConfig;
@@ -16,8 +18,10 @@ import org.flowvisor.ofswitch.DPIDandPort;
 import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFFeaturesReply;
+import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPacketIn;
+import org.openflow.protocol.OFType;
 import org.openflow.protocol.action.OFAction;
 
 public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
@@ -52,6 +56,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 					"dropping unclassifiable msg: " + this.toVerboseString());
 			return;
 		}
+		boolean foundHome = false;
 		// foreach slice in that rule
 		for (OFAction ofAction : flowEntry.getActionsList()) {
 			sliceAction = (SliceAction) ofAction;
@@ -69,9 +74,56 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 									+ this.toVerboseString());
 					continue;
 				}
-				fvSlicer.sendMsg(this);
+				if (fvSlicer.isConnected()) {
+					fvSlicer.sendMsg(this);
+					/**
+					 * TODO : come back and decide if we should uncomment this
+					 * i.e., should a rule get squashed if it's only recipient
+					 * is read only
+					 * 
+					 * if yes, then tests-readonly.py needs to be changed
+					 * 
+					 */
+
+					// if ((perms & SliceAction.WRITE) != 0)
+					foundHome = true;
+				}
+
 			}
+			if (!foundHome)
+				sendDropRule(fvClassifier, flowEntry, (short) 0, (short) 0);
 		}
+	}
+
+	/**
+	 * Tell the classifier to drop packets that look like this
+	 * 
+	 * @param fvClassifier
+	 * @param flowEntry
+	 * @param hardTimeout
+	 * @param idleTimeout
+	 */
+
+	private void sendDropRule(FVClassifier fvClassifier, FlowEntry flowEntry,
+			short hardTimeout, short idleTimeout) {
+		FVFlowMod flowMod = (FVFlowMod) FlowVisor.getInstance().getFactory()
+				.getMessage(OFType.FLOW_MOD);
+
+		flowMod.setMatch(flowEntry.getRuleMatch());
+		flowMod.setCommand(FVFlowMod.OFPFC_ADD);
+		flowMod.setActions(new LinkedList<OFAction>()); // send to zero-length
+		// list, i.e., DROP
+		flowMod.setLengthU(OFFlowMod.MINIMUM_LENGTH);
+		flowMod.setHardTimeout(hardTimeout);
+		flowMod.setIdleTimeout(idleTimeout);
+		flowMod.setPriority((short) 0); // set to lowest priority
+		flowMod.setFlags((short) 7); // send removed msg, check over lap, emerge
+		// flow cache
+
+		FVLog.log(LogLevel.WARN, fvClassifier, "inserting drop (hard="
+				+ hardTimeout + ",idle=" + idleTimeout + ") rule for "
+				+ flowEntry);
+		fvClassifier.sendMsg(flowMod);
 	}
 
 	private String toVerboseString() {
