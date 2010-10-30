@@ -10,3 +10,4 @@ sslTest/
 tmp/
 scripts/envs.sh
 pkgbuild/
+mySSLKeyStore
