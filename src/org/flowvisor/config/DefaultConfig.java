@@ -68,8 +68,8 @@ public class DefaultConfig {
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// topology server on by default
 			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
-			// set logging to DEBUG by default
-			FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.DEBUG.toString());
+			// set logging to NOTE by default
+			FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.NOTE.toString());
 
 			// create slices
 

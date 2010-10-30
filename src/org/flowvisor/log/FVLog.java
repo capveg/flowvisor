@@ -46,9 +46,9 @@ public class FVLog {
 						.getString(FVConfig.LOG_THRESH));
 		} catch (ConfigError e) {
 			System.err.println("--- '" + FVConfig.LOG_THRESH
-					+ "' not set in config; defaulting to loglevel 'DEBUG'");
+					+ "' not set in config; defaulting to loglevel 'NOTE'");
 			try {
-				FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.DEBUG
+				FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.NOTE
 						.toString());
 				needConfigFlush = true;
 
