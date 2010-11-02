@@ -136,7 +136,7 @@ public class FVCtl {
 	public void installDumbTrust() {
 
 		// Create a trust manager that does not validate certificate chains
-		System.err.println("WARN: blindly trusting server cert - FIXME");
+		// System.err.println("WARN: blindly trusting server cert - FIXME");
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public X509Certificate[] getAcceptedIssuers() {
 				return null;
