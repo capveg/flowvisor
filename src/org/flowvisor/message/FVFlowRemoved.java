@@ -50,7 +50,8 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 								+ slice);
 				continue;
 			}
-			fvSlicer.sendMsg(this); // actually send it to this slice
+			fvSlicer.sendMsg(this, fvClassifier); // actually send it to this
+													// slice
 		}
 	}
 

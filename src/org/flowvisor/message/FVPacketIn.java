@@ -75,7 +75,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 					continue;
 				}
 				if (fvSlicer.isConnected()) {
-					fvSlicer.sendMsg(this);
+					fvSlicer.sendMsg(this, fvClassifier);
 					/**
 					 * TODO : come back and decide if we should uncomment this
 					 * i.e., should a rule get squashed if it's only recipient
@@ -123,7 +123,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 		FVLog.log(LogLevel.WARN, fvClassifier, "inserting drop (hard="
 				+ hardTimeout + ",idle=" + idleTimeout + ") rule for "
 				+ flowEntry);
-		fvClassifier.sendMsg(flowMod);
+		fvClassifier.sendMsg(flowMod, fvClassifier);
 	}
 
 	private String toVerboseString() {

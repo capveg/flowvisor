@@ -26,7 +26,7 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply
 		}
 		this.prunePorts(fvSlicer); // remove ports that are not part of slice
 		// TODO: rewrite DPID if this is a virtual switch
-		fvSlicer.sendMsg(this);
+		fvSlicer.sendMsg(this, fvClassifier);
 	}
 
 	// rewrite the ports list to only the set of ports allowed by the slice

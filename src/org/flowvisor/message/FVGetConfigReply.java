@@ -18,7 +18,7 @@ public class FVGetConfigReply extends OFGetConfigReply implements Classifiable,
 			return;
 		}
 		this.setMissSendLength(fvSlicer.getMissSendLength());
-		fvSlicer.sendMsg(this);
+		fvSlicer.sendMsg(this, fvClassifier);
 	}
 
 	@Override

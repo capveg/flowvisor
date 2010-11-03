@@ -47,7 +47,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 			// pull it out here
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
-					OFBadActionCode.OFPBAC_EPERM, this));
+					OFBadActionCode.OFPBAC_EPERM, this), fvSlicer);
 			return;
 		}
 		int oldALen = FVMessageUtil.countActionsLen(this.getActions());
@@ -68,7 +68,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 					FVFlowMod newFlowMod = (FVFlowMod) this.clone();
 					// replace match with the intersection
 					newFlowMod.setMatch(intersect.getMatch());
-					fvClassifier.sendMsg(newFlowMod);
+					fvClassifier.sendMsg(newFlowMod, fvSlicer);
 				}
 			} catch (CloneNotSupportedException e) {
 				FVLog.log(LogLevel.CRIT, fvSlicer,
@@ -79,7 +79,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 		if (expansions == 0) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: " + this);
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
-					OFFlowModFailedCode.OFPFMFC_EPERM, this));
+					OFFlowModFailedCode.OFPFMFC_EPERM, this), fvSlicer);
 		} else
 			FVLog.log(LogLevel.DEBUG, fvSlicer, "expanded fm " + expansions
 					+ " times: " + this);

@@ -67,7 +67,7 @@ public class OFKeepAlive extends FVTimerEvent {
 		OFEchoRequest ping = (OFEchoRequest) offactory
 				.getMessage(OFType.ECHO_REQUEST);
 		ping.setXid(xid++);
-		this.sendMsg.sendMsg(ping);
+		this.sendMsg.sendMsg(ping, this.sendMsg);
 	}
 
 	public void registerPong() {

@@ -361,7 +361,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 				fvError.setErrorIsAscii(true);
 				fvError.setLength((short) (FVError.MINIMUM_LENGTH + errmsg
 						.length()));
-				this.sendMsg(fvError);
+				this.sendMsg(fvError, this);
 				tearDown();
 			}
 			break;
@@ -505,7 +505,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 *            OFMessage
 	 */
 
-	public void sendMsg(OFMessage msg) {
+	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
 			FVLog.log(LogLevel.DEBUG, this, "send to switch:" + msg);
 			try {

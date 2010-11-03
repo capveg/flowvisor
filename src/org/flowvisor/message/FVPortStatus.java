@@ -62,7 +62,7 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 
 		for (FVSlicer fvSlicer : fvClassifier.getSlicers()) {
 			if (fvSlicer.portInSlice(port)) {
-				fvSlicer.sendMsg(this);
+				fvSlicer.sendMsg(this, fvClassifier);
 			}
 		}
 	}

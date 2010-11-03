@@ -34,7 +34,7 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 				FVLog.log(LogLevel.WARN, fvClassifier,
 						"dropping unclassifiable msg: " + this);
 			else
-				fvSlicer.sendMsg(this);
+				fvSlicer.sendMsg(this, fvClassifier);
 		}
 	}
 

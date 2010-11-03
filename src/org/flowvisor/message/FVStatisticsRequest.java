@@ -32,10 +32,7 @@ public class FVStatisticsRequest extends OFStatisticsRequest implements
 					fvSlicer);
 		} else {
 			// else just slice by xid and hope for the best
-			FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
-			FVLog.log(LogLevel.DEBUG, fvClassifier, "sending to switch: "
-					+ this);
-			fvClassifier.sendMsg(this);
+			FVMessageUtil.translateXidAndSend(this, fvClassifier, fvSlicer);
 		}
 	}
 

@@ -206,7 +206,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		return (this.allowAllPorts || this.allowedPorts.containsKey(port));
 	}
 
-	public void sendMsg(OFMessage msg) {
+	@Override
+	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
 			try {
