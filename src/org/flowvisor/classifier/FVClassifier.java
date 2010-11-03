@@ -384,8 +384,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			 * OFStatisticsRequest stats = new OFStatisticsRequest();
 			 * stats.setStatisticType(OFStatisticsType.DESC);
 			 */
-			switchName = "dpid:"
-					+ String.format("%1$x", switchInfo.getDatapathId());
+			switchName = "dpid=" + FlowSpaceUtil.dpidToString(this.getDPID());
 			FVLog.log(LogLevel.INFO, this, "identified switch as " + switchName
 					+ " on " + this.sock);
 			FVConfig.watch(this, FVConfig.FLOWSPACE); // register for FS updates
