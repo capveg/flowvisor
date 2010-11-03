@@ -169,6 +169,43 @@ only the "root" user.
     a boolean value must be \fItrue\fR or \fIfalse\fR, an integer must be an
     decimal number, etc.  
 
+.PP
+The following cmmands relay how many OpenFlow messages have been
+sent/recv/drop'd by switches and slices.  They are currently returned in a
+single block string format, which is suboptimal, but will likely go away
+if we get rid of XMLRPC.  Any message type not listed implicitly has a
+count of zero (never appeared).  The current output looks something like:
+
+.PP
+Switch 00:00:00:00:00:00:00:01's STATS:
+.br
+---Sent---
+.br
+classifier-dpid=00:00:00:00:00:00:00:01 :: FEATURES_REPLY=3,HELLO=1
+.br
+Total :: FEATURES_REPLY=3,HELLO=1
+.br
+---Recv---
+.br
+slicer_bob_dpid=00:00:00:00:00:00:00:01 :: FEATURES_REQUEST=1
+.br
+slicer_alice_dpid=00:00:00:00:00:00:00:01 :: FEATURES_REQUEST=1,PACKET_OUT=1
+.br
+Total :: FEATURES_REQUEST=2,PACKET_OUT=1
+.br
+---Drop---
+.br
+Total ::
+.br
+
+
+.TP
+\fBgetSliceStats\fR \fIsliceName\fR
+    Returns statistics for \fIsliceName\fR
+
+.TP
+\fBgetSwitchStats\fR \fIdpid\fR
+
 .PP 
 The following commands are used for debugging the XMLRPC server
 .TP

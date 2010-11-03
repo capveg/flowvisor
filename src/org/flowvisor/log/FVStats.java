@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.openflow.protocol.OFMessage;
+import org.openflow.protocol.OFStatisticsReply;
+import org.openflow.protocol.OFStatisticsRequest;
 import org.openflow.protocol.OFType;
 
 /**
@@ -20,7 +23,7 @@ import org.openflow.protocol.OFType;
  */
 
 public class FVStats {
-	Map<OFType, Long> counters;
+	Map<String, Long> counters;
 
 	/**
 	 * Initialize a set of counters from src to dst
@@ -31,7 +34,7 @@ public class FVStats {
 
 	public FVStats() {
 		super();
-		this.counters = new HashMap<OFType, Long>();
+		this.counters = new HashMap<String, Long>();
 		zeroCounters();
 	}
 
@@ -56,14 +59,29 @@ public class FVStats {
 	 * @param oftype
 	 */
 
-	public void incrementCounter(OFType oftype) {
+	public void incrementCounter(OFMessage ofm) {
+		String oftype = msg2str(ofm);
 		if (this.counters.containsKey(oftype))
 			this.counters.put(oftype, this.counters.get(oftype) + 1);
 		else
 			this.counters.put(oftype, 1l);
 	}
 
-	public long getCounter(OFType ofType) {
+	static public String msg2str(OFMessage ofm) {
+		OFType ofType = ofm.getType();
+		if (ofType == null)
+			return "UNPARSABLE-" + ofm.toString();
+		String ret = ofType.toString();
+		if (ofm instanceof OFStatisticsReply) {
+			ret += "." + ((OFStatisticsReply) ofm).getStatisticType();
+		} else if (ofm instanceof OFStatisticsRequest) {
+			ret += "." + ((OFStatisticsRequest) ofm).getStatisticType();
+		}
+		return ret;
+	}
+
+	public long getCounter(OFMessage ofm) {
+		String ofType = msg2str(ofm);
 		if (this.counters.containsKey(ofType))
 			return this.counters.get(ofType);
 		else
@@ -88,7 +106,7 @@ public class FVStats {
 	@Override
 	public synchronized String toString() {
 		StringBuffer ret = new StringBuffer();
-		for (OFType ofType : new HashSet<OFType>(counters.keySet())) {
+		for (String ofType : new HashSet<String>(counters.keySet())) {
 			if (ret.length() > 0)
 				ret.append(",");
 			ret.append(ofType.toString());

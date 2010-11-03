@@ -30,6 +30,8 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.SendRecvDropStats;
+import org.flowvisor.log.SendRecvDropStats.FVStatsType;
 import org.flowvisor.message.FVFeaturesReply;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.FVMessageUtil;
@@ -74,6 +76,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	private Iterator<Short> slowIterator;
 	private final Map<Short, OFPhysicalPort> phyMap;
 	static final byte lldpSysD[] = { 0x0c, 0x08 }; // Type 6, length 8
+	SendRecvDropStats stats;
 
 	// probes can be dropped before a link
 	// down event
@@ -100,6 +103,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		this.slowPorts = new HashSet<Short>();
 		this.fastPorts = new HashSet<Short>();
 		this.phyMap = new HashMap<Short, OFPhysicalPort>();
+		this.stats = SendRecvDropStats.createSharedStats("topo");
 	}
 
 	/*
@@ -559,23 +563,37 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
 			try {
 				this.msgStream.testAndWrite(msg);
+				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
 				// don't shut down now; we could get a ConcurrencyException
 				// just queue up a shutdown for later
 				this.pollLoop.queueEvent(new TearDownEvent(this, this));
+				this.stats.increment(FVStatsType.DROP, from, msg);
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
+				this.stats.increment(FVStatsType.DROP, from, msg);
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,
 					"dropping msg: controller not connected: " + msg);
+			this.stats.increment(FVStatsType.DROP, from, msg);
 		}
 	}
 
 	@Override
 	public String getConnectionName() {
 		return FlowSpaceUtil.connectionToString(sock);
+	}
+
+	@Override
+	public void dropMsg(OFMessage msg, FVSendMsg from) {
+		this.stats.increment(FVStatsType.DROP, from, msg);
+	}
+
+	@Override
+	public SendRecvDropStats getStats() {
+		return stats;
 	}
 }

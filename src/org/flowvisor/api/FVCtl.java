@@ -55,6 +55,9 @@ public class FVCtl {
 			new APICmd("changePasswd", 1, "<slicename>"),
 			new APICmd("getSliceInfo", 1, "<slicename>"),
 
+			new APICmd("getSliceStats", 1, "<slicename>"),
+			new APICmd("getSwitchStats", 1, "<dpid>"),
+
 			new APICmd("listFlowSpace", 0),
 			new APICmd("removeFlowSpace", 1, "<id>"),
 			new APICmd("addFlowSpace", 4, "<dpid> <priority> <match> <actions>"),
@@ -293,6 +296,40 @@ public class FVCtl {
 		System.out.println("Got reply:");
 		for (String key : reply.keySet())
 			System.out.println(key + "=" + reply.get(key));
+	}
+
+	public void run_getSliceStats(String sliceName) throws IOException,
+			XmlRpcException {
+
+		Object o = this.client.execute("api.getSliceStats",
+				new Object[] { sliceName });
+		if (o == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		String reply = null;
+		if (o instanceof String)
+			reply = (String) o;
+
+		System.out.println("Got reply:");
+		System.out.println(reply);
+	}
+
+	public void run_getSwitchStats(String dpid) throws IOException,
+			XmlRpcException {
+
+		Object o = this.client.execute("api.getSliceStats",
+				new Object[] { dpid });
+		if (o == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		String reply = null;
+		if (o instanceof String)
+			reply = (String) o;
+
+		System.out.println("Got reply:");
+		System.out.println(reply);
 	}
 
 	public void run_createSlice(String sliceName, String controller_url,

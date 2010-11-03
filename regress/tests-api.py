@@ -129,6 +129,40 @@ try:
     x = s.api.getSliceInfo("alice")
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
+    ################################################################
+    # send some more traffic just so we have some stats to report
+    lldp_out = FvRegress.OFVERSION + '''0d 00 3a 00 00 00 00 ff ff ff ff ff fd 00 08
+            00 00 00 08 00 01 00 00 01 23 20 00 00 01 00 12
+            e2 b8 dc 4c 88 cc 02 07 04 e2 b8 dc 3b 17 95 04
+            03 02 00 01 06 02 00 78 00 00'''
+    lldp_out_after = FvRegress.OFVERSION + '''0d005e00000000fffffffffffd0008
+            00000008000100000123200000010012
+            e2b8dc4c88cc020704e2b8dc3b179504
+            03020001060200780000022407616c69
+            636500202020206d6167696320666c6f
+            777669736f7231000615deadcafe'''
+    h.runTest(name="lldp hack", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', lldp_out),
+            TestEvent( "recv","switch",'switch1', lldp_out_after),
+            ])
+    ################################################################
+
+
+    print "Test: getSliceStats(alice)"
+    x = s.api.getSliceStats("alice")
+    if x :
+        print "Alice's STATS:"
+        print x
+    else:
+        test_failed("getSliceStats returned None")
+
+    print "Test: getSwitchStats(00:00:00:00:00:00:00:01)"
+    x = s.api.getSwitchStats("00:00:00:00:00:00:00:01")
+    if x :
+        print "Switch 00:00:00:00:00:00:00:01's STATS:"
+        print x
+    else:
+        test_failed("getSliceStats returned None")
 
 
 #################################### Start Alice Tests

@@ -33,6 +33,8 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.SendRecvDropStats;
+import org.flowvisor.log.SendRecvDropStats.FVStatsType;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.message.Slicable;
@@ -62,6 +64,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	FlowMap localFlowSpace;
 	boolean isShutdown;
 	OFKeepAlive keepAlive;
+	SendRecvDropStats stats;
 
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
 
@@ -79,6 +82,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.reconnectSeconds = 0;
 		this.isShutdown = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
+		this.stats = SendRecvDropStats.createSharedStats(sliceName);
 	}
 
 	public void init() {
@@ -212,6 +216,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
 			try {
 				this.msgStream.testAndWrite(msg);
+				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
@@ -222,14 +227,22 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 					FVLog.log(LogLevel.WARN, this,
 							"ignoring while closing connection: " + e1);
 				}
+				this.stats.increment(FVStatsType.DROP, from, msg);
 				this.reconnectLater();
 			} catch (MalformedOFMessage e) {
+				this.stats.increment(FVStatsType.DROP, from, msg);
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
 			}
 		} else {
+			this.stats.increment(FVStatsType.DROP, from, msg);
 			FVLog.log(LogLevel.WARN, this,
 					"dropping msg: controller not connected: " + msg);
 		}
+	}
+
+	@Override
+	public void dropMsg(OFMessage msg, FVSendMsg from) {
+		this.stats.increment(FVStatsType.DROP, from, msg);
 	}
 
 	@Override
@@ -443,8 +456,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				this.reconnectLater();
 				return;
 			}
-			FVLog.log(LogLevel.DEBUG, this, "sending HELLO");
-			msgStream.write(new OFHello()); // send initial handshake
+			sendMsg(new OFHello(), this); // send initial handshake
 		}
 		try {
 			if (msgStream.needsFlush()) // flush any pending messages
@@ -455,6 +467,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				throw new IOException("got null from read()");
 			for (OFMessage msg : msgs) {
 				FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
+				this.stats.increment(FVStatsType.SEND, this, msg);
 				if ((msg instanceof SanityCheckable)
 						&& (!((SanityCheckable) msg).isSane())) {
 					FVLog.log(LogLevel.CRIT, this,
@@ -519,5 +532,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	public boolean isConnected() {
 		return this.isConnected;
+	}
+
+	@Override
+	public SendRecvDropStats getStats() {
+		return stats;
 	}
 }

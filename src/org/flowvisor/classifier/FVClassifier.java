@@ -27,6 +27,8 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.SendRecvDropStats;
+import org.flowvisor.log.SendRecvDropStats.FVStatsType;
 import org.flowvisor.message.Classifiable;
 import org.flowvisor.message.FVError;
 import org.flowvisor.message.FVMessageFactory;
@@ -70,6 +72,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	Set<Short> activePorts;
 	private final FVMessageFactory factory;
 	OFKeepAlive keepAlive;
+	SendRecvDropStats stats;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -89,6 +92,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
+		this.stats = new SendRecvDropStats();
 	}
 
 	public short getMissSendLength() {
@@ -168,7 +172,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	public void init() throws IOException {
 		// send initial handshake
-		msgStream.write(new OFHello());
+		sendMsg(new OFHello(), this);
 		// delete all entries in the flowtable
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL);
@@ -177,9 +181,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		fm.setCommand(OFFlowMod.OFPFC_DELETE);
 		fm.setOutPort(OFPort.OFPP_NONE);
 		fm.setBufferId(0xffffffff); // buffer to NONE
-		msgStream.write(fm);
+		sendMsg(fm, this);
 		// request the switch's features
-		msgStream.write(new OFFeaturesRequest());
+		sendMsg(new OFFeaturesRequest(), this);
 		msgStream.flush();
 		int ops = SelectionKey.OP_READ;
 		if (msgStream.needsFlush())
@@ -273,6 +277,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 							continue;
 						}
 						FVLog.log(LogLevel.DEBUG, this, "read " + m);
+						this.stats.increment(FVStatsType.SEND, this, m);
 						if ((m instanceof SanityCheckable)
 								&& (!((SanityCheckable) m).isSane())) {
 							FVLog.log(LogLevel.WARN, this,
@@ -368,16 +373,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		case ECHO_REQUEST:
 			OFMessage echo_reply = new OFEchoReply();
 			echo_reply.setXid(m.getXid());
-			try {
-				msgStream.testAndWrite(echo_reply);
-			} catch (BufferFull e) {
-				FVLog.log(LogLevel.CRIT, this,
-						"framing BUG; tearing down: got " + e);
-				this.tearDown();
-			} catch (MalformedOFMessage e) {
-				FVLog.log(LogLevel.CRIT, this, "BUG: echo_request: " + e);
-			}
-			break;
+			sendMsg(echo_reply, this);
 		case FEATURES_REPLY:
 			this.setSwitchInfo((OFFeaturesReply) m);
 			/*
@@ -509,16 +505,22 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to switch:" + msg);
 			try {
 				this.msgStream.testAndWrite(msg);
+				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing BUG; tearing down: got " + e);
 				this.loop.queueEvent(new TearDownEvent(this, this));
+				this.stats.increment(FVStatsType.DROP, from, msg);
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: bad msg: " + e);
+				this.stats.increment(FVStatsType.DROP, from, msg);
 			}
-		} else
+		} else {
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
 					+ msg);
+			this.stats.increment(FVStatsType.DROP, from, msg);
+		}
+
 	}
 
 	public boolean isIdentified() {
@@ -528,5 +530,15 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	public Collection<FVSlicer> getSlicers() {
 		// TODO: figure out if this is a copy and could have SYNCH issues
 		return slicerMap.values();
+	}
+
+	@Override
+	public void dropMsg(OFMessage msg, FVSendMsg from) {
+		this.stats.increment(FVStatsType.DROP, from, msg);
+	}
+
+	@Override
+	public SendRecvDropStats getStats() {
+		return stats;
 	}
 }

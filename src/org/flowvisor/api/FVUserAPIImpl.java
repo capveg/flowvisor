@@ -548,4 +548,43 @@ public class FVUserAPIImpl implements FVUserAPI {
 		} else
 			return false; // topology server not running
 	}
+
+	@Override
+	public String getSliceStats(String sliceName) throws SliceNotFound,
+			PermissionDeniedException {
+
+		FVSlicer fvSlicer = null;
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (!classifier.isIdentified()) // only print switches have have
+					// been identified
+					continue;
+				fvSlicer = classifier.getSlicerByName(sliceName);
+				if (fvSlicer != null) {
+					break;
+				}
+			}
+		}
+
+		if (fvSlicer == null)
+			throw new SliceNotFound("slice does not exist: " + sliceName);
+		return fvSlicer.getStats().combinedString();
+	}
+
+	@Override
+	public String getSwitchStats(String dpidStr) throws DPIDNotFound,
+			PermissionDeniedException {
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				return classifier.getStats().combinedString();
+			}
+		}
+		throw new DPIDNotFound("dpid not found: " + dpidStr);
+	}
 }
