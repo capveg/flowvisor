@@ -24,7 +24,7 @@ public enum LogLevel {
 
 	@Override
 	public String toString() {
-		return String.format("%5s", this.name());
+		return this.name();
 	}
 
 	Syslog.Priority priority;
