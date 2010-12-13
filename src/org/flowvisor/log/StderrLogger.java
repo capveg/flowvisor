@@ -42,8 +42,7 @@ public class StderrLogger implements FVLogInterface {
 			srcString = source.getName();
 		else
 			srcString = "none";
-		System.err.println(String.format("%5s", level.toString()) + ":" + df.format(time) + ":"
-				+ srcString + ":: " + msg);
+		System.err.println(String.format("%5s", level.toString()) + ":"
+				+ df.format(time) + ":" + srcString + ":: " + msg);
 	}
-
 }
