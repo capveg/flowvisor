@@ -284,10 +284,13 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 									"msg failed sanity check; dropping: " + m);
 							continue;
 						}
-						if (switchInfo != null)
+						if (switchInfo != null) {
 							classifyOFMessage(m);
-						else
+							// mark this channel as still alive
+							this.keepAlive.registerPong();
+						} else
 							handleOFMessage_unidenitified(m);
+
 					}
 				} else {
 					throw new IOException("got EOF from other side");

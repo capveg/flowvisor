@@ -474,9 +474,11 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 							"msg failed sanity check; dropping: " + msg);
 					continue;
 				}
-				if (msg instanceof Slicable)
+				if (msg instanceof Slicable) {
 					((Slicable) msg).sliceFromController(fvClassifier, this);
-				else
+					// mark this channel as still alive
+					this.keepAlive.registerPong();
+				} else
 					FVLog.log(LogLevel.CRIT, this,
 							"dropping msg that doesn't implement classify: "
 									+ msg);
