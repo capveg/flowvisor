@@ -48,8 +48,8 @@ public class FVEventLoop {
 		try {
 			ch.register(selector, ops, handler);
 		} catch (ClosedChannelException e) {
-			FVLog.log(LogLevel.WARN, null, "Tried to register channel " + ch
-					+ " but got :" + e);
+			FVLog.log(LogLevel.WARN, null, "Tried to register channel ", ch,
+					" but got :", e);
 		}
 	}
 
@@ -146,15 +146,15 @@ public class FVEventLoop {
 			}
 
 			// wait until next IO event or timer event
-			FVLog.log(LogLevel.MOBUG, null, "calling select with timeout="
-					+ nextTimerEvent);
+			FVLog.log(LogLevel.MOBUG, null, "calling select with timeout=",
+					nextTimerEvent);
 			nEvents = selector.select(nextTimerEvent);
 			if (nEvents > 0) {
 				for (SelectionKey sk : selector.selectedKeys()) {
 					if (sk.isValid()) { // skip any keys that have been canceled
 						handler = (FVEventHandler) sk.attachment();
-						FVLog.log(LogLevel.MOBUG, null, "sending IO Event= "
-								+ sk.readyOps() + " to " + handler.getName());
+						FVLog.log(LogLevel.MOBUG, null, "sending IO Event= ",
+								sk.readyOps(), " to ", handler.getName());
 						handler.handleEvent(new FVIOEvent(sk, null, handler));
 					}
 				}

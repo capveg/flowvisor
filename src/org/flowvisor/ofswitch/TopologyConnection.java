@@ -533,13 +533,12 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	synchronized void signalPortTimeout(short port) {
 		Short sPort = Short.valueOf(port);
 		if (this.fastPorts.contains(sPort)) {
-			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: "
-					+ port);
+			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: ", port);
 			this.fastPorts.remove(sPort);
 			this.slowPorts.add(sPort);
 		} else if (!this.slowPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
-					"got signalPortTimeout for non-existant port: " + port);
+					"got signalPortTimeout for non-existant port: ", port);
 		}
 	}
 
@@ -553,14 +552,14 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			this.fastPorts.add(sPort);
 		} else if (!this.fastPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
-					"got signalFastPort for non-existant port: " + port);
+					"got signalFastPort for non-existant port: ", port);
 		}
 	}
 
 	@Override
 	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
-			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
+			FVLog.log(LogLevel.DEBUG, this, "send to controller: ", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
 				this.stats.increment(FVStatsType.RECV, from, msg);

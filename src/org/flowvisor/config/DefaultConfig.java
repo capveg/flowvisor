@@ -60,8 +60,8 @@ public class DefaultConfig {
 		// now populate the config
 		try {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
-			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer
-					.getDefaultPort());
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT,
+					APIServer.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR,
 					FlowVisor.FLOWVISOR_VERSION);
 			// checkpointing on by default

@@ -99,8 +99,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			FVConfig.watch(this, sliceBase + FVConfig.FS
 					+ FVConfig.SLICE_CONTROLLER_PORT);
 		} catch (ConfigError e) {
-			FVLog.log(LogLevel.CRIT, this, "ignoring slice " + sliceName
-					+ " malformed slice definition: " + e);
+			FVLog.log(LogLevel.CRIT, this, "ignoring slice ", sliceName,
+					" malformed slice definition: ", e);
 			this.tearDown();
 			return;
 		}
@@ -129,9 +129,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		}
 		for (Short port : ports) {
 			if (!allowedPorts.keySet().contains(port)) {
-				FVLog
-						.log(LogLevel.DEBUG, this, "adding access to port "
-								+ port);
+				FVLog.log(LogLevel.DEBUG, this, "adding access to port ", port);
 				allowedPorts.put(port, Boolean.TRUE);
 			}
 		}
@@ -139,8 +137,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				.hasNext();) {
 			Short port = it.next();
 			if (!ports.contains(port)) {
-				FVLog.log(LogLevel.DEBUG, this, "removing access to port "
-						+ port);
+				FVLog.log(LogLevel.DEBUG, this, "removing access to port ",
+						port);
 				it.remove();
 			}
 		}
@@ -213,30 +211,30 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	@Override
 	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
-			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
+			FVLog.log(LogLevel.DEBUG, this, "send to controller: ", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
 				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
-						"framing bug; tearing down: got " + e);
+						"framing bug; tearing down: got ", e);
 				// close connection and reconnect again
 				try {
 					this.sock.close();
 				} catch (IOException e1) {
 					FVLog.log(LogLevel.WARN, this,
-							"ignoring while closing connection: " + e1);
+							"ignoring while closing connection: ", e1);
 				}
 				this.stats.increment(FVStatsType.DROP, from, msg);
 				this.reconnectLater();
 			} catch (MalformedOFMessage e) {
 				this.stats.increment(FVStatsType.DROP, from, msg);
-				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
+				FVLog.log(LogLevel.CRIT, this, "BUG: ", e);
 			}
 		} else {
 			this.stats.increment(FVStatsType.DROP, from, msg);
 			FVLog.log(LogLevel.WARN, this,
-					"dropping msg: controller not connected: " + msg);
+					"dropping msg: controller not connected: ", msg);
 		}
 	}
 
@@ -275,7 +273,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	 */
 	@Override
 	public String getName() {
-		return "slicer_" + this.sliceName + "_" + fvClassifier.getSwitchName();
+		return new StringBuilder("slicer_").append(this.sliceName).append("_")
+				.append(fvClassifier.getSwitchName()).toString();
 	}
 
 	/*
@@ -360,7 +359,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				this.sock.close();
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.WARN, this,
-						"ignoring error while closing socket: " + e1);
+						"ignoring error while closing socket: ", e1);
 			}
 			this.reconnectLater();
 			return;
@@ -385,7 +384,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			updateFlowSpaceConfig(e);
 		else
 			FVLog.log(LogLevel.WARN, this,
-					"ignoring unhandled/implemented config update:" + e);
+					"ignoring unhandled/implemented config update:", e);
 	}
 
 	/**
@@ -402,8 +401,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	}
 
 	private void reconnect() {
-		FVLog.log(LogLevel.DEBUG, this, "trying to connect to " + this.hostname
-				+ ":" + this.port);
+		FVLog.log(LogLevel.DEBUG, this,
+				"trying to connect to " + this.hostname, ":", this.port);
 		// reset our state to unconnected (might be a NOOP)
 		this.isConnected = false;
 		this.msgStream = null;
@@ -416,7 +415,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			InetSocketAddress addr = new InetSocketAddress(hostname, port);
 			if (addr.isUnresolved()) {
 				FVLog.log(LogLevel.INFO, this,
-						"retrying: failed to resolve hostname: " + hostname);
+						"retrying: failed to resolve hostname: ", hostname);
 				this.reconnectLater();
 				return;
 			}
@@ -425,7 +424,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			this.loop.register(this.sock, SelectionKey.OP_CONNECT, this);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this,
-					"Trying to reconnect; trying later; got : " + e);
+					"Trying to reconnect; trying later; got : ", e);
 			this.reconnectLater();
 		}
 
@@ -438,8 +437,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 					return; // not done yet
 
 			} catch (IOException e1) {
-				FVLog.log(LogLevel.DEBUG, this, "retrying connection in "
-						+ this.reconnectSeconds + " seconds; got: " + e1);
+				FVLog.log(LogLevel.DEBUG, this, "retrying connection in ",
+						this.reconnectSeconds, " seconds; got: ", e1);
 				this.reconnectLater();
 				return;
 			}
@@ -450,9 +449,11 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				msgStream = new FVMessageAsyncStream(this.sock,
 						new FVMessageFactory());
 			} catch (IOException e1) {
-				FVLog.log(LogLevel.WARN, this,
-						"Trying again later; while creating OFMessageAsyncStream, got: "
-								+ e1);
+				FVLog.log(
+						LogLevel.WARN,
+						this,
+						"Trying again later; while creating OFMessageAsyncStream, got: ",
+						e1);
 				this.reconnectLater();
 				return;
 			}
@@ -466,7 +467,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			if (msgs == null)
 				throw new IOException("got null from read()");
 			for (OFMessage msg : msgs) {
-				FVLog.log(LogLevel.DEBUG, this, "recv from controller: " + msg);
+				FVLog.log(LogLevel.DEBUG, this, "recv from controller: ", msg);
 				this.stats.increment(FVStatsType.SEND, this, msg);
 				if ((msg instanceof SanityCheckable)
 						&& (!((SanityCheckable) msg).isSane())) {
@@ -480,17 +481,17 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 					this.keepAlive.registerPong();
 				} else
 					FVLog.log(LogLevel.CRIT, this,
-							"dropping msg that doesn't implement classify: "
-									+ msg);
+							"dropping msg that doesn't implement classify: ",
+							msg);
 			}
 		} catch (IOException e1) {
 			FVLog.log(LogLevel.WARN, this,
-					"got i/o error; tearing down and reconnecting: " + e1);
+					"got i/o error; tearing down and reconnecting: ", e1);
 			reconnect();
 		} catch (Exception e2) {
 			e2.printStackTrace();
 			FVLog.log(LogLevel.ALERT, this,
-					"got unknown error; tearing down and reconnecting: " + e2);
+					"got unknown error; tearing down and reconnecting: ", e2);
 			reconnect();
 		}
 		// no need to setup for next select; done in eventloop
@@ -502,7 +503,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				this.sock.close();
 			} catch (IOException e) {
 				FVLog.log(LogLevel.WARN, this,
-						"ignoring error closing socket: " + e);
+						"ignoring error closing socket: ", e);
 			}
 		// exponential back off
 		this.reconnectSeconds = Math.min(2 * this.reconnectSeconds + 1,

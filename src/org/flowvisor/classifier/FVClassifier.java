@@ -35,6 +35,7 @@ import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFEchoReply;
+import org.openflow.protocol.OFError.OFHelloFailedCode;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFFeaturesRequest;
 import org.openflow.protocol.OFFlowMod;
@@ -44,7 +45,6 @@ import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.protocol.OFPort;
 import org.openflow.protocol.OFType;
-import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
@@ -249,7 +249,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
-		FVLog.log(LogLevel.DEBUG, this, "got update: " + e);
+		FVLog.log(LogLevel.DEBUG, this, "got update: ", e);
 		// update ourselves first
 		connectToControllers(); // re-figure out who we should connect to
 		// then tell everyone who depends on us (causality important :-)
@@ -267,21 +267,18 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 				if (newMsgs != null) {
 					for (OFMessage m : newMsgs) {
 						if (m == null) {
-							FVLog
-									.log(
-											LogLevel.ALERT,
-											this,
-											"got an unparsable OF Message "
-													+ "(msgStream.read() returned a null):"
-													+ "trying to ignore it");
+							FVLog.log(LogLevel.ALERT, this,
+									"got an unparsable OF Message ",
+									"(msgStream.read() returned a null):",
+									"trying to ignore it");
 							continue;
 						}
-						FVLog.log(LogLevel.DEBUG, this, "read " + m);
+						FVLog.log(LogLevel.DEBUG, this, "read ", m);
 						this.stats.increment(FVStatsType.SEND, this, m);
 						if ((m instanceof SanityCheckable)
 								&& (!((SanityCheckable) m).isSane())) {
 							FVLog.log(LogLevel.WARN, this,
-									"msg failed sanity check; dropping: " + m);
+									"msg failed sanity check; dropping: ", m);
 							continue;
 						}
 						if (switchInfo != null) {
@@ -302,7 +299,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		} catch (IOException e1) {
 			// connection to switch died; tear it down
 			FVLog.log(LogLevel.INFO, this,
-					"got IO exception; closing because : " + e1);
+					"got IO exception; closing because : ", e1);
 			this.tearDown();
 			return;
 		}
@@ -325,7 +322,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			for (FVSlicer fvSlicer : tmpMap.values())
 				fvSlicer.closeDown(false);
 		} catch (IOException e) {
-			FVLog.log(LogLevel.WARN, this, "weird error on close:: " + e);
+			FVLog.log(LogLevel.WARN, this, "weird error on close:: ", e);
 		}
 		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // register for FS updates
 		this.msgStream = null; // force GC
@@ -338,7 +335,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * @param m
 	 */
 	private void classifyOFMessage(OFMessage msg) {
-		FVLog.log(LogLevel.DEBUG, this, "received from switch: " + msg);
+		FVLog.log(LogLevel.DEBUG, this, "received from switch: ", msg);
 		((Classifiable) msg).classifyFromSwitch(this); // msg specific handling
 	}
 
@@ -355,9 +352,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		case HELLO: // aleady sent our hello; just NOOP here
 			if (m.getVersion() != OFMessage.OFP_VERSION) {
 				FVLog.log(LogLevel.WARN, this,
-						"Mismatched version from switch " + sock + " Got: "
-								+ m.getVersion() + " Wanted: "
-								+ OFMessage.OFP_VERSION);
+						"Mismatched version from switch ", sock, " Got: ",
+						m.getVersion(), " Wanted: ", OFMessage.OFP_VERSION);
 				FVError fvError = (FVError) this.factory
 						.getMessage(OFType.ERROR);
 				fvError.setErrorCode(OFHelloFailedCode.OFPHFC_INCOMPATIBLE);
@@ -424,8 +420,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			strbuf.append(sliceName);
 		}
 
-		FVLog.log(LogLevel.DEBUG, this, "slices with access="
-				+ strbuf.toString());
+		FVLog.log(LogLevel.DEBUG, this, "slices with access=",
+				strbuf.toString());
 		// foreach slice, make sure it has access to this switch
 		for (String sliceName : newSlices) {
 			if (slicerMap == null)
@@ -505,22 +501,21 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
-			FVLog.log(LogLevel.DEBUG, this, "send to switch:" + msg);
+			FVLog.log(LogLevel.DEBUG, this, "send to switch:", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
 				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
-						"framing BUG; tearing down: got " + e);
+						"framing BUG; tearing down: got ", e);
 				this.loop.queueEvent(new TearDownEvent(this, this));
 				this.stats.increment(FVStatsType.DROP, from, msg);
 			} catch (MalformedOFMessage e) {
-				FVLog.log(LogLevel.CRIT, this, "BUG: bad msg: " + e);
+				FVLog.log(LogLevel.CRIT, this, "BUG: bad msg: ", e);
 				this.stats.increment(FVStatsType.DROP, from, msg);
 			}
 		} else {
-			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: "
-					+ msg);
+			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: ", msg);
 			this.stats.increment(FVStatsType.DROP, from, msg);
 		}
 

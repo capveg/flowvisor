@@ -32,7 +32,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "recv from controller: " + this);
+		FVLog.log(LogLevel.DEBUG, fvSlicer, "recv from controller: ", this);
 		FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
 
 		// FIXME: sanity check buffer id
@@ -45,7 +45,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 		} catch (ActionDisallowedException e) {
 			// FIXME : embed the error code in the ActionDisallowedException and
 			// pull it out here
-			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
+			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: ", this);
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
 					OFBadActionCode.OFPBAC_EPERM, this), fvSlicer);
 			return;
@@ -72,17 +72,17 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 				}
 			} catch (CloneNotSupportedException e) {
 				FVLog.log(LogLevel.CRIT, fvSlicer,
-						"FlowMod does not implement clone()!?: " + e);
+						"FlowMod does not implement clone()!?: ", e);
 				return;
 			}
 		}
 		if (expansions == 0) {
-			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: " + this);
+			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: ", this);
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
 					OFFlowModFailedCode.OFPFMFC_EPERM, this), fvSlicer);
 		} else
-			FVLog.log(LogLevel.DEBUG, fvSlicer, "expanded fm " + expansions
-					+ " times: " + this);
+			FVLog.log(LogLevel.DEBUG, fvSlicer, "expanded fm ", expansions,
+					" times: ", this);
 	}
 
 	/*
