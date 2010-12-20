@@ -15,8 +15,10 @@ public class FVMessageAsyncStream extends OFMessageAsyncStream {
 	public FVMessageAsyncStream(SocketChannel sock,
 			OFMessageFactory messageFactory) throws IOException {
 		super(sock, messageFactory);
-		sock.socket().setTcpNoDelay(true); // OF messages are small, so this is
-											// a big performance boost
+		// OF messages are small, so this is
+		// a big performance boost
+		sock.socket().setTcpNoDelay(true);
+		sock.socket().setSendBufferSize(1024 * 1024);
 	}
 
 	public void testAndWrite(OFMessage m) throws BufferFull, MalformedOFMessage {
