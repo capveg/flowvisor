@@ -373,6 +373,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			OFMessage echo_reply = new OFEchoReply();
 			echo_reply.setXid(m.getXid());
 			sendMsg(echo_reply, this);
+			break;
 		case FEATURES_REPLY:
 			this.setSwitchInfo((OFFeaturesReply) m);
 			/*
