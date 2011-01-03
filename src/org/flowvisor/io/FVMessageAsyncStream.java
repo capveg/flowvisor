@@ -21,11 +21,18 @@ public class FVMessageAsyncStream extends OFMessageAsyncStream {
 		sock.socket().setSendBufferSize(1024 * 1024);
 	}
 
-	public void testAndWrite(OFMessage m) throws BufferFull, MalformedOFMessage {
+	public void testAndWrite(OFMessage m) throws BufferFull,
+			MalformedOFMessage, IOException {
 		int len = m.getLengthU();
-		if (this.outBuf.remaining() < len)
-			throw new BufferFull("wanted to write " + m.getLengthU()
-					+ " bytes but only have space for " + outBuf.remaining());
+		if (this.outBuf.remaining() < len) {
+			this.flush(); // try a quick write to flush buffer
+			if (this.outBuf.remaining() < len)
+				// buffer still full; probably a bug
+				throw new BufferFull("wanted to write " + m.getLengthU()
+						+ " bytes to " + outBuf.capacity()
+						+ " byte buffer, but only have space for "
+						+ outBuf.remaining() + " :: failed writing " + m);
+		}
 		int start = this.outBuf.position();
 		super.write(m);
 		int wrote = this.outBuf.position() - start;
