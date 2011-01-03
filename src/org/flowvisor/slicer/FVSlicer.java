@@ -49,6 +49,7 @@ import org.openflow.protocol.OFPort;
  */
 public class FVSlicer implements FVEventHandler, FVSendMsg {
 
+	public static final int MessagesPerRead = 50; // for performance tuning
 	String sliceName;
 	FVClassifier fvClassifier;
 	FVEventLoop loop;
@@ -230,6 +231,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			} catch (MalformedOFMessage e) {
 				this.stats.increment(FVStatsType.DROP, from, msg);
 				FVLog.log(LogLevel.CRIT, this, "BUG: ", e);
+			} catch (IOException e) {
+				FVLog.log(LogLevel.WARN, this, "reconnection; got IO error: ",
+						e);
+				this.reconnectLater();
 			}
 		} else {
 			this.stats.increment(FVStatsType.DROP, from, msg);
@@ -462,7 +467,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		try {
 			if (msgStream.needsFlush()) // flush any pending messages
 				msgStream.flush();
-			List<OFMessage> msgs = this.msgStream.read(); // read any new
+			List<OFMessage> msgs = this.msgStream
+					.read(FVSlicer.MessagesPerRead); // read any new
 			// messages
 			if (msgs == null)
 				throw new IOException("got null from read()");

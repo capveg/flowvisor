@@ -58,6 +58,7 @@ import org.openflow.protocol.OFType;
 
 public class FVClassifier implements FVEventHandler, FVSendMsg {
 
+	public static final int MessagesPerRead = 50; // for performance tuning
 	FVEventLoop loop;
 	SocketChannel sock;
 	String switchName;
@@ -263,7 +264,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		try {
 			// read stuff, if need be
 			if ((ops & SelectionKey.OP_READ) != 0) {
-				List<OFMessage> newMsgs = msgStream.read();
+				List<OFMessage> newMsgs = msgStream
+						.read(FVClassifier.MessagesPerRead);
 				if (newMsgs != null) {
 					for (OFMessage m : newMsgs) {
 						if (m == null) {
@@ -514,6 +516,10 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: bad msg: ", e);
 				this.stats.increment(FVStatsType.DROP, from, msg);
+			} catch (IOException e) {
+				FVLog.log(LogLevel.WARN, this,
+						"restarting connection, got IO error: ", e);
+				this.tearDown();
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: ", msg);

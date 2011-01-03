@@ -573,6 +573,9 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
 				this.stats.increment(FVStatsType.DROP, from, msg);
+			} catch (IOException e) {
+				FVLog.log(LogLevel.WARN, this, " killing connection, got: ", e);
+				this.tearDown();
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,
