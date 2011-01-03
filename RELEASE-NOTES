@@ -1,3 +1,8 @@
+FlowVisor 0.7 : (target) 1/31/2011
+    * added msg statistics, see `fvctl get{Slice,Switch}stats`
+    * fixed big I/O bug that caused switch flapping
+    * lots of performance improvements
+    * lots of small bugs fixed
 FlowVisor 0.6 - total rewrite (in Java!)
 * Single, unified flowspace config, not divided by slice
 * lldp is now rewritten with a trailer, not by rewritting the dst mac

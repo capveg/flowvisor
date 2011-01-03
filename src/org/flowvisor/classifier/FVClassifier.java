@@ -79,8 +79,10 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.loop = loop;
 		this.switchName = "unidentified:" + sock.toString();
 		this.factory = new FVMessageFactory();
+		this.stats = new SendRecvDropStats();
 		try {
-			this.msgStream = new FVMessageAsyncStream(sock, this.factory);
+			this.msgStream = new FVMessageAsyncStream(sock, this.factory, this,
+					this.stats);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -93,7 +95,6 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
-		this.stats = new SendRecvDropStats();
 	}
 
 	public short getMissSendLength() {
@@ -276,7 +277,6 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 							continue;
 						}
 						FVLog.log(LogLevel.DEBUG, this, "read ", m);
-						this.stats.increment(FVStatsType.SEND, this, m);
 						if ((m instanceof SanityCheckable)
 								&& (!((SanityCheckable) m).isSane())) {
 							FVLog.log(LogLevel.WARN, this,
@@ -507,7 +507,6 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to switch:", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
-				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing BUG; tearing down: got ", e);

@@ -90,9 +90,10 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		this.featuresReply = null;
 		this.descriptionStatistics = null;
 		this.fvMessageFactory = new FVMessageFactory();
+		this.stats = SendRecvDropStats.createSharedStats("topo");
 		try {
 			this.msgStream = new FVMessageAsyncStream(sock,
-					this.fvMessageFactory);
+					this.fvMessageFactory, this, this.stats);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -103,7 +104,6 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		this.slowPorts = new HashSet<Short>();
 		this.fastPorts = new HashSet<Short>();
 		this.phyMap = new HashMap<Short, OFPhysicalPort>();
-		this.stats = SendRecvDropStats.createSharedStats("topo");
 	}
 
 	/*
@@ -562,14 +562,12 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: ", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
-				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
 						"framing bug; tearing down: got " + e);
 				// don't shut down now; we could get a ConcurrencyException
 				// just queue up a shutdown for later
 				this.pollLoop.queueEvent(new TearDownEvent(this, this));
-				this.stats.increment(FVStatsType.DROP, from, msg);
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
 				this.stats.increment(FVStatsType.DROP, from, msg);

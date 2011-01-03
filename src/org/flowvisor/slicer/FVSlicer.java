@@ -215,18 +215,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.DEBUG, this, "send to controller: ", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
-				this.stats.increment(FVStatsType.RECV, from, msg);
 			} catch (BufferFull e) {
 				FVLog.log(LogLevel.CRIT, this,
-						"framing bug; tearing down: got ", e);
-				// close connection and reconnect again
-				try {
-					this.sock.close();
-				} catch (IOException e1) {
-					FVLog.log(LogLevel.WARN, this,
-							"ignoring while closing connection: ", e1);
-				}
-				this.stats.increment(FVStatsType.DROP, from, msg);
+						"buffer full: tearing down: got ", e,
+						": resetting connection");
 				this.reconnectLater();
 			} catch (MalformedOFMessage e) {
 				this.stats.increment(FVStatsType.DROP, from, msg);
@@ -452,7 +444,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			this.reconnectSeconds = 0;
 			try {
 				msgStream = new FVMessageAsyncStream(this.sock,
-						new FVMessageFactory());
+						new FVMessageFactory(), this, this.stats);
 			} catch (IOException e1) {
 				FVLog.log(
 						LogLevel.WARN,
