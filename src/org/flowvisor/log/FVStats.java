@@ -26,6 +26,12 @@ public class FVStats {
 	Map<String, Long> counters;
 
 	/**
+	 * TODO : reimplement this as a flat array; our profiler says that we spend
+	 * 10% of our time in incrementCOunter doing Long.valueOf(long) which seems
+	 * crazy
+	 */
+
+	/**
 	 * Initialize a set of counters from src to dst
 	 * 
 	 * @param src
@@ -62,7 +68,7 @@ public class FVStats {
 	public void incrementCounter(OFMessage ofm) {
 		String oftype = msg2str(ofm);
 		if (this.counters.containsKey(oftype))
-			this.counters.put(oftype, this.counters.get(oftype) + 1);
+			this.counters.put(oftype, this.counters.get(oftype) + 1l);
 		else
 			this.counters.put(oftype, 1l);
 	}
