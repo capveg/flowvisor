@@ -518,8 +518,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	}
 
 	public FlowMap getFlowSpace() {
-		// FIXME: return just the cached locallized flowspace
-		return FVConfig.getFlowSpaceFlowMap();
+		return this.localFlowSpace;
 	}
 
 	@Override
