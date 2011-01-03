@@ -153,6 +153,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	}
 
 	public FVSlicer getSlicerByName(String sliceName) {
+		if (this.slicerMap == null)
+			return null; // race condition on shutdown
 		synchronized (slicerMap) {
 			return slicerMap.get(sliceName);
 		}
