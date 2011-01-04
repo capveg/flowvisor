@@ -299,11 +299,13 @@ is also a "wildcard" DPID that matches all DPIDs that can be specified using any
 .SH SLICEACTIONS
 Slice actions is a comma separated list of slices that have control
 over a specific FlowSpace.
-Slice actions are of the form "Slice:\fIslicename1\fR=\fIperm\fR[\fIslicename2\fR=\fIperm\fR[...]]".
+Slice actions are of the form "Slice:\fIslicename1\fR=\fIperm\fR[\fISlice:slicename2\fR=\fIperm\fR[...]]".
 Each slice can have three types of permissions over a flowspace: \fBDELEGATE\fR, \fBREAD\fR, and \fBWRITE\fR.  
 Permissions are \fIcurrently\fR a bitmask specified as an integer, with DELEGATE=1, READ=2, WRITE=4.  So,
 "Slice:alice=5,bob=2" would give Alice's slice DELEGATE and WRITE permissions (1+4=5), but Bob only READ permissions.
-Improving this interface is on the TODO list.
+Improving this interface is on the TODO list.  For example, 
+
+ \fIfvctl addFlowSpace all 2 any Slice:slice1=4,Slice:slice2=2\fR
 
 .TP 
 .B DELEGATE
