@@ -22,8 +22,10 @@ import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowDB;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.flows.LinearFlowDB;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -74,6 +76,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	private final FVMessageFactory factory;
 	OFKeepAlive keepAlive;
 	SendRecvDropStats stats;
+	private FlowDB flowDB;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -95,6 +98,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
+		this.flowDB = new LinearFlowDB(this);
 	}
 
 	public short getMissSendLength() {
@@ -546,5 +550,13 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	@Override
 	public SendRecvDropStats getStats() {
 		return stats;
+	}
+
+	public void setFlowDB(FlowDB flowDB) {
+		this.flowDB = flowDB;
+	}
+
+	public FlowDB getFlowDB() {
+		return flowDB;
 	}
 }

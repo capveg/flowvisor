@@ -29,8 +29,11 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 		FlowMap flowSpace = fvClassifier.getSwitchFlowMap();
 		List<FlowEntry> flowEntries = flowSpace.matches(fvClassifier.getDPID(),
 				this.match);
+		fvClassifier.getFlowDB().processFlowRemoved(this,
+				fvClassifier.getDPID());
 		Set<String> slicesToUpdate = new HashSet<String>();
 		// make a list of everyone who could have inserted this flow entry
+		// FIXME: come back and track flows; only send to those who need it
 		for (FlowEntry flowEntry : flowEntries) {
 			for (OFAction ofAction : flowEntry.getActionsList()) {
 				if (ofAction instanceof SliceAction) {

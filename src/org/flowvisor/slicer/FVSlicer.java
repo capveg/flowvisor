@@ -28,8 +28,10 @@ import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
+import org.flowvisor.flows.FlowDB;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.flows.LinearFlowDB;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -66,7 +68,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	boolean isShutdown;
 	OFKeepAlive keepAlive;
 	SendRecvDropStats stats;
-
+	FlowDB realFlowDB; // after slicing expansion; what the slice gets
+	FlowDB virtualFlowDB; // before slicing expansion; what the slice thinks
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
 
 	// get OFPP_FLOOD'd
@@ -84,6 +87,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.isShutdown = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
 		this.stats = SendRecvDropStats.createSharedStats(sliceName);
+		this.realFlowDB = new LinearFlowDB(this);
+		this.virtualFlowDB = new LinearFlowDB(this);
 	}
 
 	public void init() {
@@ -538,4 +543,13 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	public SendRecvDropStats getStats() {
 		return stats;
 	}
+
+	public FlowDB getRealFlowDB() {
+		return realFlowDB;
+	}
+
+	public FlowDB getVirtualFlowDB() {
+		return virtualFlowDB;
+	}
+
 }
