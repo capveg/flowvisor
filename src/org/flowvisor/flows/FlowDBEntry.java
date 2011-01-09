@@ -1,14 +1,16 @@
 package org.flowvisor.flows;
 
 import java.util.List;
+import java.util.Map;
 
+import org.flowvisor.config.BracketParse;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
 public class FlowDBEntry extends FlowEntry {
 	String sliceName;
 	long cookie;
-	private final long creationTime;
+	private long creationTime;
 
 	/**
 	 * @return the creationTime
@@ -23,6 +25,10 @@ public class FlowDBEntry extends FlowEntry {
 		this.sliceName = sliceName;
 		this.cookie = cookie;
 		this.creationTime = System.currentTimeMillis();
+	}
+
+	public FlowDBEntry() {
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -53,5 +59,39 @@ public class FlowDBEntry extends FlowEntry {
 	 */
 	public void setCookie(long cookie) {
 		this.cookie = cookie;
+	}
+
+	@Override
+	public Map<String, String> toBracketMap() {
+		Map<String, String> map = super.toBracketMap();
+		super.toBracketMap();
+		map.put("cookie", String.valueOf(cookie));
+		map.put("slice", this.sliceName);
+		map.put("duration",
+				String.valueOf(System.currentTimeMillis() - this.creationTime));
+		return map;
+	}
+
+	@Override
+	public FlowDBEntry fromBacketMap(Map<String, String> map) {
+		super.fromBacketMap(map);
+		if (map.containsKey("cookie"))
+			this.setCookie(Long.valueOf(map.get("cookie")));
+		if (map.containsKey("slice"))
+			this.setSliceName(map.get("slice"));
+		if (map.containsKey("duration"))
+			this.setCreationTime(System.currentTimeMillis()
+					- Long.valueOf(map.get("duration")));
+		return this;
+	}
+
+	private void setCreationTime(long l) {
+		this.creationTime = l;
+	}
+
+	public static FlowEntry fromString(String string) {
+		Map<String, String> map = BracketParse.decode(string);
+		FlowDBEntry flowDBEntry = new FlowDBEntry();
+		return flowDBEntry.fromBacketMap(map);
 	}
 }

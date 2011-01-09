@@ -16,7 +16,7 @@ import org.flowvisor.message.FVFlowRemoved;
  * @author capveg
  * 
  */
-public interface FlowDB {
+public interface FlowDB extends Iterable<FlowDBEntry> {
 	/**
 	 * Update the contents of the FlowDB with
 	 * 

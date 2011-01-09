@@ -34,6 +34,7 @@ import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
+import org.flowvisor.flows.FlowDBEntry;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -57,6 +58,7 @@ public class FVCtl {
 
 			new APICmd("getSliceStats", 1, "<slicename>"),
 			new APICmd("getSwitchStats", 1, "<dpid>"),
+			new APICmd("getSwitchFlowDB", 1, "<dpid>"),
 
 			new APICmd("listFlowSpace", 0),
 			new APICmd("removeFlowSpace", 1, "<id>"),
@@ -264,6 +266,30 @@ public class FVCtl {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public void run_getSwitchFlowDB(String dpidString) throws XmlRpcException,
+			MapUnparsable {
+		Object[] reply = (Object[]) this.client.execute("api.getLinks",
+				new Object[] { dpidString });
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		Map<String, String> map;
+		FlowDBEntry flowDBEntry;
+		for (int i = 0; i < reply.length; i++) {
+			if (!(reply[i] instanceof Map<?, ?>)) {
+				System.err.println("not a map: Skipping unparsed reply: "
+						+ reply[i]);
+			} else {
+				map = (Map<String, String>) reply[i];
+				flowDBEntry = new FlowDBEntry();
+				flowDBEntry.fromBacketMap(map);
+				System.out.println("DBEntry " + i + ": " + flowDBEntry);
+			}
+		}
+	}
+
 	public void run_changePasswd(String sliceName) throws IOException,
 			XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
@@ -373,8 +399,8 @@ public class FVCtl {
 	}
 
 	public void run_removeFlowSpace(String indexStr) throws XmlRpcException {
-		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer
-				.valueOf(indexStr));
+		FlowChange change = new FlowChange(FlowChangeOp.REMOVE,
+				Integer.valueOf(indexStr));
 		List<Map<String, String>> mapList = new LinkedList<Map<String, String>>();
 		mapList.add(change.toMap());
 		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",

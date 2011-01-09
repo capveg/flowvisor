@@ -205,6 +205,15 @@ Total ::
 
 .TP
 \fBgetSwitchStats\fR \fIdpid\fR
+    Returns statistics for the switch with dpid \fIdpid\fR.
+
+.TP
+\fBgetSwitchFlowDB\fR \fIdpid\fR
+    Dump's the FlowVisor's view of \fIdpid\fR's flow table.  The FlowVisor
+    tracks the sum of the flow_mods and flow_removed messages, so this
+    DB should be up to date baring race conditions and switch bugs.
+    For hardware switches, this is likely much cheaper to as the FlowVisor
+    for its cached copy than to ask the switch itself.
 
 .PP 
 The following commands are used for debugging the XMLRPC server
@@ -291,10 +300,12 @@ A more complicated FLOW MATCH:
 .B \fBdl_src=00:23:10:ff:a4:b1,dl_type=0x0800,nw_proto=6,tp_dst=80\fR
 
 .SH DPID
-The datapath identifier (DPID) is a unique ID that OpenFlow devices use to identify themselves.  DPIDs are
-8 bytes and can be specified as a decimal number or as 8 hex octets, e.g., 00:00:00:23:10:35:ce:a5.  There
-is also a "wildcard" DPID that matches all DPIDs that can be specified using any of the strings \fBall\fB,
-\fBany\fI, or \fBALL_DPIDS\fR.  
+The datapath identifier (DPID) is a unique ID to name and identify
+OpenFlow devices.  With fvctl, DPIDs are 8 bytes and can be specified as a decimal
+number or as 8 hex octets, e.g., 00:00:00:23:10:35:ce:a5.  The DPID
+ff:ff:ff:ff:ff:ff:ff is a "wildcard" DPID that matches all DPIDs.
+It can be specified using any of the following short cuts: \fBall\fR, \fBany\fR,
+or \fBALL_DPIDS\fR.
 
 .SH SLICEACTIONS
 Slice actions is a comma separated list of slices that have control

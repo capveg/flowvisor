@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
+import org.flowvisor.config.Bracketable;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.log.FVLog;
@@ -25,7 +26,8 @@ import org.openflow.util.HexString;
  *         addition to normal openflow flow entry symantics, this flow entry
  *         also matches on dpid
  */
-public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
+public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
+		Bracketable<FlowEntry> {
 
 	public static final long ALL_DPIDS = Long.MIN_VALUE;
 	public static final String ALL_DPIDS_STR = "all_dpids";
@@ -171,96 +173,96 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 
 		// test in_port
 		interMatch.setInputPort(FlowTestOp.testFieldShort(intersection,
-				OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards, argMatch
-						.getInputPort(), ruleMatch.getInputPort()));
+				OFMatch.OFPFW_IN_PORT, argWildcards, ruleWildcards,
+				argMatch.getInputPort(), ruleMatch.getInputPort()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ether_dst
 		interMatch.setDataLayerDestination(FlowTestOp.testFieldByteArray(
 				intersection, OFMatch.OFPFW_DL_DST, argWildcards,
-				ruleWildcards, argMatch.getDataLayerDestination(), ruleMatch
-						.getDataLayerDestination()));
+				ruleWildcards, argMatch.getDataLayerDestination(),
+				ruleMatch.getDataLayerDestination()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ether_src
 		interMatch.setDataLayerSource(FlowTestOp.testFieldByteArray(
 				intersection, OFMatch.OFPFW_DL_SRC, argWildcards,
-				ruleWildcards, argMatch.getDataLayerSource(), ruleMatch
-						.getDataLayerSource()));
+				ruleWildcards, argMatch.getDataLayerSource(),
+				ruleMatch.getDataLayerSource()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ether_type
 		interMatch.setDataLayerType(FlowTestOp.testFieldShort(intersection,
-				OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards, argMatch
-						.getDataLayerType(), ruleMatch.getDataLayerType()));
+				OFMatch.OFPFW_DL_TYPE, argWildcards, ruleWildcards,
+				argMatch.getDataLayerType(), ruleMatch.getDataLayerType()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test vlan_type
 		interMatch.setDataLayerVirtualLan(FlowTestOp.testFieldShort(
 				intersection, OFMatch.OFPFW_DL_VLAN, argWildcards,
-				ruleWildcards, argMatch.getDataLayerVirtualLan(), ruleMatch
-						.getDataLayerVirtualLan()));
+				ruleWildcards, argMatch.getDataLayerVirtualLan(),
+				ruleMatch.getDataLayerVirtualLan()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test vlan_pcp
 		interMatch.setDataLayerVirtualLanPriorityCodePoint(FlowTestOp
 				.testFieldByte(intersection, OFMatch.OFPFW_DL_VLAN_PCP,
-						argWildcards, ruleWildcards, argMatch
-								.getDataLayerVirtualLanPriorityCodePoint(),
+						argWildcards, ruleWildcards,
+						argMatch.getDataLayerVirtualLanPriorityCodePoint(),
 						ruleMatch.getDataLayerVirtualLanPriorityCodePoint()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ip_dst
 		interMatch.setNetworkDestination(FlowTestOp.testFieldMask(intersection,
-				OFMatch.OFPFW_NW_DST_SHIFT, argMatch
-						.getNetworkDestinationMaskLen(), ruleMatch
-						.getNetworkDestinationMaskLen(), argMatch
-						.getNetworkDestination(), ruleMatch
-						.getNetworkDestination()));
+				OFMatch.OFPFW_NW_DST_SHIFT,
+				argMatch.getNetworkDestinationMaskLen(),
+				ruleMatch.getNetworkDestinationMaskLen(),
+				argMatch.getNetworkDestination(),
+				ruleMatch.getNetworkDestination()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ip_src
 		interMatch.setNetworkSource(FlowTestOp.testFieldMask(intersection,
 				OFMatch.OFPFW_NW_SRC_SHIFT, argMatch.getNetworkSourceMaskLen(),
-				ruleMatch.getNetworkSourceMaskLen(), argMatch
-						.getNetworkSource(), ruleMatch.getNetworkSource()));
+				ruleMatch.getNetworkSourceMaskLen(),
+				argMatch.getNetworkSource(), ruleMatch.getNetworkSource()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ip_proto
 		interMatch.setNetworkProtocol(FlowTestOp.testFieldByte(intersection,
-				OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards, argMatch
-						.getNetworkProtocol(), ruleMatch.getNetworkProtocol()));
+				OFMatch.OFPFW_NW_PROTO, argWildcards, ruleWildcards,
+				argMatch.getNetworkProtocol(), ruleMatch.getNetworkProtocol()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test ip_tos
 		interMatch.setNetworkTypeOfService(FlowTestOp.testFieldByte(
 				intersection, OFMatch.OFPFW_NW_TOS, argWildcards,
-				ruleWildcards, argMatch.getNetworkTypeOfService(), ruleMatch
-						.getNetworkTypeOfService()));
+				ruleWildcards, argMatch.getNetworkTypeOfService(),
+				ruleMatch.getNetworkTypeOfService()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test tp_src
 		interMatch.setTransportSource(FlowTestOp.testFieldShort(intersection,
-				OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards, argMatch
-						.getTransportSource(), ruleMatch.getTransportSource()));
+				OFMatch.OFPFW_TP_SRC, argWildcards, ruleWildcards,
+				argMatch.getTransportSource(), ruleMatch.getTransportSource()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
 		// test tp_dst
 		interMatch.setTransportDestination(FlowTestOp.testFieldShort(
 				intersection, OFMatch.OFPFW_TP_DST, argWildcards,
-				ruleWildcards, argMatch.getTransportDestination(), ruleMatch
-						.getTransportDestination()));
+				ruleWildcards, argMatch.getTransportDestination(),
+				ruleMatch.getTransportDestination()));
 		if (intersection.getMatchType() == MatchType.NONE)
 			return intersection; // shortcut back
 
@@ -284,17 +286,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 
 	@Override
 	public String toString() {
-		HashMap<String, String> map = new LinkedHashMap<String, String>();
-		map.put(BracketParse.OBJECTNAME, "FlowEntry");
-		if (dpid == ALL_DPIDS)
-			map.put("dpid", ALL_DPIDS_STR);
-		else
-			map.put("dpid", FlowSpaceUtil.dpidToString(dpid));
-		map.put("ruleMatch", this.ruleMatch.toString());
-		map.put("actionsList", FlowSpaceUtil.toString(actionsList));
-		map.put("id", String.valueOf(this.id));
-		map.put("priority", String.valueOf(this.priority));
-		return BracketParse.encode(map);
+		return BracketParse.encode(this.toBracketMap());
 	}
 
 	/**
@@ -306,44 +298,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 	 * @return an initialized flowentry
 	 */
 	public static FlowEntry fromString(String string) {
-		List<OFAction> actionsList = new ArrayList<OFAction>();
-		long dpid;
-		OFMatch rule;
-		int id;
-		int priority;
 		Map<String, String> map = BracketParse.decode(string);
-		if ((map == null)
-				|| (!map.get(BracketParse.OBJECTNAME).equals("FlowEntry")))
-			throw new IllegalArgumentException("expected FlowEntry, got '"
-					+ string + "'");
-		if (!map.containsKey("dpid"))
-			throw new IllegalArgumentException("expected key dpid, got '"
-					+ string + "'");
-		if (map.containsKey("id"))
-			id = Integer.valueOf(map.get("id"));
-		else
-			throw new IllegalArgumentException("expected key id, got '"
-					+ string + "'");
-		if (map.containsKey("priority"))
-			priority = Integer.valueOf(map.get("priority"));
-		else
-			throw new IllegalArgumentException("expected key priority, got '"
-					+ string + "'");
-
-		int i;
-		// translate dpid
-		if (map.get("dpid").equals(ALL_DPIDS_STR))
-			dpid = ALL_DPIDS;
-		else
-			dpid = HexString.toLong(map.get("dpid"));
-		rule = new OFMatch();
-		rule.fromString(map.get("ruleMatch"));
-		String[] actions = map.get("actionsList").split(",");
-		for (i = 0; i < actions.length; i++)
-			if (!actions[i].equals(""))
-				actionsList.add(SliceAction.fromString(actions[i]));
-
-		return new FlowEntry(dpid, rule, id, priority, actionsList);
+		FlowEntry flowEntry = new FlowEntry();
+		return flowEntry.fromBacketMap(map);
 	}
 
 	public OFMatch getRuleMatch() {
@@ -487,5 +444,66 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public Map<String, String> toBracketMap() {
+		HashMap<String, String> map = new LinkedHashMap<String, String>();
+		map.put(BracketParse.OBJECTNAME, "FlowEntry");
+		if (dpid == ALL_DPIDS)
+			map.put("dpid", ALL_DPIDS_STR);
+		else
+			map.put("dpid", FlowSpaceUtil.dpidToString(dpid));
+		map.put("ruleMatch", this.ruleMatch.toString());
+		map.put("actionsList", FlowSpaceUtil.toString(actionsList));
+		map.put("id", String.valueOf(this.id));
+		map.put("priority", String.valueOf(this.priority));
+		return map;
+	}
+
+	@Override
+	public FlowEntry fromBacketMap(Map<String, String> map) {
+		List<OFAction> actionsList = new ArrayList<OFAction>();
+		long dpid;
+		OFMatch rule;
+		int id;
+		int priority;
+		if ((map == null)
+				|| (!map.get(BracketParse.OBJECTNAME).equals("FlowEntry")))
+			throw new IllegalArgumentException(
+					"missing expected FlowEntry, got '" + map + "'");
+		if (!map.containsKey("dpid"))
+			throw new IllegalArgumentException(
+					"missing expected key dpid, got '" + map + "'");
+		if (map.containsKey("id"))
+			id = Integer.valueOf(map.get("id"));
+		else
+			throw new IllegalArgumentException("missing expected key id, got '"
+					+ map + "'");
+		if (map.containsKey("priority"))
+			priority = Integer.valueOf(map.get("priority"));
+		else
+			throw new IllegalArgumentException(
+					"missing expected key priority, got '" + map + "'");
+
+		int i;
+		// translate dpid
+		if (map.get("dpid").equals(ALL_DPIDS_STR))
+			dpid = ALL_DPIDS;
+		else
+			dpid = HexString.toLong(map.get("dpid"));
+		rule = new OFMatch();
+		rule.fromString(map.get("ruleMatch"));
+		String[] actions = map.get("actionsList").split(",");
+		for (i = 0; i < actions.length; i++)
+			if (!actions[i].equals(""))
+				actionsList.add(SliceAction.fromString(actions[i]));
+		this.setActionsList(actionsList);
+		this.setDPID(dpid);
+		this.setRuleMatch(rule);
+		this.setId(id);
+		this.setPriority(priority);
+
+		return this;
 	}
 }

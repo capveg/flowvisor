@@ -281,4 +281,14 @@ public interface FVUserAPI {
 
 	public String getSwitchStats(String dpidStr) throws DPIDNotFound,
 			PermissionDeniedException;
+
+	/**
+	 * Get a List of FlowDBEnty's converted by toBracketMap()
+	 * 
+	 * @param dpid
+	 *            a specific switch or "all" for all
+	 * @return
+	 */
+	public List<Map<String, String>> getSwitchFlowDB(String dpidstr)
+			throws DPIDNotFound;
 }

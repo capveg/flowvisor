@@ -24,6 +24,7 @@ import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
+import org.flowvisor.flows.FlowDBEntry;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
@@ -179,8 +180,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<Map<String, String>> getLinks() {
-		FVLog.log(LogLevel.DEBUG, null, "API getLinks() by: "
-				+ APIUserCred.getUserName());
+		FVLog.log(LogLevel.DEBUG, null,
+				"API getLinks() by: " + APIUserCred.getUserName());
 		TopologyController topologyController = TopologyController
 				.getRunningInstance();
 		if (topologyController == null)
@@ -214,8 +215,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> listDevices() {
-		FVLog.log(LogLevel.DEBUG, null, "API listDevices() by: "
-				+ APIUserCred.getUserName());
+		FVLog.log(LogLevel.DEBUG, null,
+				"API listDevices() by: " + APIUserCred.getUserName());
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
 		List<String> dpids = new ArrayList<String>();
@@ -372,8 +373,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 							+ FlowSpaceUtil.toString(change.getActions());
 
 					FlowEntry flowEntry = new FlowEntry(change.getDpid(),
-							change.getMatch(), change.getPriority(), change
-									.getActions());
+							change.getMatch(), change.getPriority(),
+							change.getActions());
 
 					if (operation == FlowChangeOp.ADD)
 						returnIDs.add(String.valueOf(flowEntry.getId()));
@@ -430,10 +431,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 		synchronized (FVConfig.class) {
 			try {
-				map.put("contact_email", FVConfig.getString(base
-						+ "contact_email"));
-				map.put("controller_hostname", FVConfig.getString(base
-						+ "controller_hostname"));
+				map.put("contact_email",
+						FVConfig.getString(base + "contact_email"));
+				map.put("controller_hostname",
+						FVConfig.getString(base + "controller_hostname"));
 				map.put("controller_port", String.valueOf(FVConfig.getInt(base
 						+ "controller_port")));
 				map.put("creator", FVConfig.getString(base + "creator"));
@@ -458,9 +459,9 @@ public class FVUserAPIImpl implements FVUserAPI {
 				dpid = classifier.getDPID();
 				FVSlicer fvSlicer = classifier.getSlicerByName(sliceName);
 				if (fvSlicer != null) {
-					map.put("connection_" + connection++, FlowSpaceUtil
-							.dpidToString(dpid)
-							+ "-->" + fvSlicer.getConnectionName());
+					map.put("connection_" + connection++,
+							FlowSpaceUtil.dpidToString(dpid) + "-->"
+									+ fvSlicer.getConnectionName());
 				}
 
 			}
@@ -577,14 +578,43 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public String getSwitchStats(String dpidStr) throws DPIDNotFound,
 			PermissionDeniedException {
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
 		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
 				.getHandlersCopy().iterator(); it.hasNext();) {
 			FVEventHandler eventHandler = it.next();
 			if (eventHandler instanceof FVClassifier) {
 				FVClassifier classifier = (FVClassifier) eventHandler;
-				return classifier.getStats().combinedString();
+				if (classifier.getDPID() == dpid)
+					return classifier.getStats().combinedString();
 			}
 		}
 		throw new DPIDNotFound("dpid not found: " + dpidStr);
+	}
+
+	@Override
+	public List<Map<String, String>> getSwitchFlowDB(String dpidStr)
+			throws DPIDNotFound {
+		boolean found = false;
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
+		List<Map<String, String>> ret = new LinkedList<Map<String, String>>();
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (dpid == classifier.getDPID() || dpid == FlowEntry.ALL_DPIDS) {
+					synchronized (classifier) {
+						for (Iterator<FlowDBEntry> it2 = classifier.getFlowDB()
+								.iterator(); it2.hasNext();) {
+							ret.add(it2.next().toBracketMap());
+						}
+					}
+					found = true;
+				}
+			}
+		}
+		if (!found)
+			throw new DPIDNotFound("dpid not found: " + dpidStr);
+		return ret;
 	}
 }
