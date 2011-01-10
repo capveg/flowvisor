@@ -84,7 +84,7 @@ public class FVMessageAsyncStream extends OFMessageAsyncStream {
 	@Override
 	public List<OFMessage> read(int limit) throws IOException {
 		List<OFMessage> list = super.read(limit);
-		if (this.stats != null)
+		if (list != null)
 			for (OFMessage m : list)
 				this.stats.increment(FVStatsType.RECV, this.sender, m);
 		return list;
