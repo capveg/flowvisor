@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.events.FVEvent;
@@ -26,6 +27,7 @@ import org.flowvisor.flows.FlowDB;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.flows.LinearFlowDB;
+import org.flowvisor.flows.NoopFlowDB;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -98,7 +100,15 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
-		this.flowDB = new LinearFlowDB(this);
+		try {
+			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
+				this.flowDB = new LinearFlowDB(this);
+			else
+				this.flowDB = new NoopFlowDB();
+		} catch (ConfigError e) {
+			// default to flow tracking == off
+			this.flowDB = new NoopFlowDB();
+		}
 	}
 
 	public short getMissSendLength() {

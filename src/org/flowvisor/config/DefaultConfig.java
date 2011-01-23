@@ -68,6 +68,8 @@ public class DefaultConfig {
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// topology server on by default
 			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
+			// track flows off by default -- experimental feature
+			FVConfig.setBoolean(FVConfig.FLOW_TRACKING, false);
 			// set logging to NOTE by default
 			FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.NOTE.toString());
 

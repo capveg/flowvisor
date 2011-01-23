@@ -47,6 +47,7 @@ public class FVConfig {
 			+ "checkpointing";
 	public static final String TOPOLOGY_SERVER = "flowvisor" + FS
 			+ "run_topology_server";
+	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
 	final static public String VERSION_STR = "version";
 	final static public String SLICES = "slices";
 	final static public String SWITCHES = "switches";

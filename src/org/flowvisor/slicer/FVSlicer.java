@@ -32,6 +32,7 @@ import org.flowvisor.flows.FlowDB;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.flows.LinearFlowDB;
+import org.flowvisor.flows.NoopFlowDB;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -87,8 +88,19 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.isShutdown = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
 		this.stats = SendRecvDropStats.createSharedStats(sliceName);
-		this.realFlowDB = new LinearFlowDB(this);
-		this.virtualFlowDB = new LinearFlowDB(this);
+		try {
+			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING)) {
+				this.realFlowDB = new LinearFlowDB(this);
+				this.virtualFlowDB = new LinearFlowDB(this);
+			} else {
+				this.realFlowDB = new NoopFlowDB();
+				this.virtualFlowDB = new NoopFlowDB();
+			}
+		} catch (ConfigError e) {
+			// default to flow_tracking == off
+			this.realFlowDB = new NoopFlowDB();
+			this.virtualFlowDB = new NoopFlowDB();
+		}
 	}
 
 	public void init() {
