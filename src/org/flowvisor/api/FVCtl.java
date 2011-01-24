@@ -344,7 +344,7 @@ public class FVCtl {
 	public void run_getSwitchStats(String dpid) throws IOException,
 			XmlRpcException {
 
-		Object o = this.client.execute("api.getSliceStats",
+		Object o = this.client.execute("api.getSwitchStats",
 				new Object[] { dpid });
 		if (o == null) {
 			System.err.println("Got 'null' for reply :-(");
