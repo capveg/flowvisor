@@ -7,10 +7,15 @@ fvconfig \- commandline tool to administer FlowVisor
 
 .SH SYNOPSIS
 .B fvconfig match config.xml \fIdpid\fR \fImatch\fR
+
 .B fvconfig dump config.xml
+
 .B fvconfig chpasswd config.xml \fIslicename\fR
+
 .B fvconfig query config.xml \fIdpid\fR \fI[slicename]\fR
+
 .B fvconfig generateCert \fI[hostname]\fR
+
 .B fvconfig generate newconfig.xml \fI[hostname]\fR \fI[admin_passwd]\fR \fI[of_port]\fR \fI[api_port]\fR
 
 .SH DESCRIPTION
@@ -45,8 +50,8 @@ once the flowvisor is restarted.
         not be used on a running flowvisor.
 
 .TP
-\fBquery\fR \fIslicename\fR
-    Two useful debugging tools.  If the slice name is not specified, this command will
+\fBquery\fR \fIdpid\fR \fI[slicename]\fR
+    Two useful debugging commands.  If the slice name is not specified, this command will
     list the slices that have the specified DPID in their slice.  If the slice name is 
     specified, it will list the ports of the DPID that are used by this slice.
 
