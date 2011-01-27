@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Console;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -447,9 +448,9 @@ public class FVConfig {
 	}
 
 	public static String readPasswd(String prompt) throws IOException {
-		System.err.println(prompt);
-		// FIXME turn off echo
-		return new BufferedReader(new InputStreamReader(System.in)).readLine();
+    Console cons = System.console();
+    char[] passwd = cons.readPassword(prompt);
+    return new String(passwd);
 	}
 
 	public static synchronized void deleteSlice(String sliceName)
