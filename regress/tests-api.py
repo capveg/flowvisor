@@ -45,6 +45,8 @@ try:
     user="root"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (root)
     print "Root ping test"
     x= s.api.ping("Joe mama")
     valid1 = "PONG\(root\): "
@@ -56,6 +58,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid1 + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (root)
     print "Root listFlowSpace test"
     x = s.api.listFlowSpace()
     #for x in  s.api.listFlowSpace():
@@ -65,6 +69,9 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace root test")
     print "     passed"
+
+
+### getDevices (root)
     print "GetDevices Test"
     x =  s.api.listDevices()
     valid_len = 2
@@ -93,6 +100,8 @@ try:
         print "getDeviceInfo return wrong port list: wanted " + right_portlist + " but got " + portList
         test_failed("listDevices root test5")
     print "     passed"
+
+### getLinks (root)
     print "Root getLinks test"
     x = s.api.getLinks()
     linkcount=0
@@ -106,6 +115,8 @@ try:
         for key,val in link.iteritems():
             print "                 " + key  + "=" + val 
     print "     passed"
+
+### Slice Creation: Cathy
     print "Slice creation: Cathy"
     lame_email = "cathy@foo.com"
     if not s.api.createSlice("cathy","cathyPass","tcp:localhost:54323",lame_email) :
@@ -116,6 +127,8 @@ try:
         print "Failed to get correct email for cathy: wanted " + lame_email + " but got " + str(x)
         test_failed("slice creation")
     print "     passed"
+
+### Slice Creation: Doug
     print "Slice creation: Doug (with FieldSeparator) -- should be blocked"
     cool_email = "laudi@daudi.com"
     try:
@@ -125,6 +138,7 @@ try:
     except (xmlrpclib.Fault):
         print "     passed"
 
+### getSliceInfo (alice)
     print "Test: getSliceInfo(alice)"
     x = s.api.getSliceInfo("alice")
     for key,val in  x.iteritems():
@@ -148,6 +162,7 @@ try:
     ################################################################
 
 
+### getSliceStats (alice)
     print "Test: getSliceStats(alice)"
     x = s.api.getSliceStats("alice")
     if x :
@@ -169,6 +184,8 @@ try:
     user="alice"
     passwd="alicePass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (alice)
     print "Alice ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG\(alice\):"
@@ -176,6 +193,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (alice)
     print "Alice listFlowSpace test"
     x = s.api.listFlowSpace()
     valid_len = 6 
@@ -183,12 +202,15 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace alice test")
     print "     passed"
+
     ## FIXME!
     #print s.api.change_passwd("alice","foo")
-#################################### Start Alice Tests
+#################################### Start Bob Tests
     user="bob"
     passwd="bobPass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (bob)
     print "Bob ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG\(bob\):"
@@ -196,6 +218,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (bob)
     print "Bob listFlowSpace test"
     x = s.api.listFlowSpace()
     valid_len = 4 
@@ -203,10 +227,13 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace bob test")
     print "     passed"
+
 #################################### Start Root Tests
     user="root"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (2) (root)
     print "Root ping test(2)"
     x= s.api.ping("Joe mama")
     valid = "PONG\(root\):"
@@ -214,6 +241,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### deleteSlice(alice) (root)
     print "Root deleteSlice(alice)"
     if not s.api.deleteSlice('alice') :
         print "Got false!"
