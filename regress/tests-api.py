@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from fvregress import *
-import string     # really?  you have to do this?
 import sys
 import xmlrpclib
 import re
@@ -115,6 +114,17 @@ try:
         for key,val in link.iteritems():
             print "                 " + key  + "=" + val 
     print "     passed"
+
+### changeFlowSpace(1234)
+    print "Root changeFlowSpace(REMOVE, 1234)"
+    change = {"operation" : "REMOVE", "id" : "1234"}
+    try:
+        if not s.api.changeFlowSpace([change]):
+            test_failed("remove illegal flow space")
+    except xmlrpclib.Fault:
+        test_failed("remove illegal flow space")
+    print "     passed"
+
 
 ### Slice Creation: Cathy
     print "Slice creation: Cathy"
