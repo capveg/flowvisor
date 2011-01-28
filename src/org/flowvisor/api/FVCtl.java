@@ -30,8 +30,10 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.common.XmlRpcInvocationException;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
 import org.flowvisor.flows.FlowDBEntry;
@@ -403,17 +405,27 @@ public class FVCtl {
 				Integer.valueOf(indexStr));
 		List<Map<String, String>> mapList = new LinkedList<Map<String, String>>();
 		mapList.add(change.toMap());
-		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",
-				new Object[] { mapList });
 
-		if (reply == null) {
-			System.err.println("Got 'null' for reply :-(");
-			System.exit(-1);
-		}
-		if (reply.length > 0)
-			System.out.println("success: " + (String) reply[0]);
-		else
-			System.err.println("failed!");
+    try
+      {
+      Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",
+          new Object[] { mapList });
+
+      if (reply == null) {
+        System.err.println("Got 'null' for reply :-(");
+        System.exit(-1);
+      }
+      if (reply.length > 0)
+        System.out.println("success: " + (String) reply[0]);
+      else
+        System.err.println("failed!");
+      }
+    catch (XmlRpcException e)
+      {
+      System.err.println("Failed: Flow Entry not found");
+      System.exit(-1);
+      }
+
 	}
 
 	public void run_addFlowSpace(String dpid, String priority, String match,

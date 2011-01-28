@@ -122,8 +122,7 @@ try:
         if not s.api.changeFlowSpace([change]):
             test_failed("remove illegal flow space")
     except xmlrpclib.Fault:
-        test_failed("remove illegal flow space")
-    print "     passed"
+        print "     passed"
 
 
 ### Slice Creation: Cathy

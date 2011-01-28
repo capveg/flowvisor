@@ -20,6 +20,7 @@ import org.flowvisor.config.FVConfig;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
@@ -342,7 +343,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException {
+			throws MalformedFlowChange, PermissionDeniedException, FlowEntryNotFound {
 		String user = APIUserCred.getUserName();
 		List<String> returnIDs = new LinkedList<String>();
 

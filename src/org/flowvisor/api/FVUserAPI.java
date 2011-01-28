@@ -7,6 +7,7 @@ import java.util.Map;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
@@ -172,7 +173,7 @@ public interface FVUserAPI {
 	 * @throws PermissionDeniedException
 	 */
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException;
+			throws MalformedFlowChange, PermissionDeniedException, FlowEntryNotFound;
 
 	/**
 	 * Return a list of slices in the flowvisor: root only!
