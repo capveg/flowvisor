@@ -27,7 +27,7 @@ libsyslog_jni.so: syslog_jni.o
 
 
 syslog_jni.o: syslog_jni.c $(headerfile)
-	gcc $(CFLAGS) $(MYCFLAGS) -c -o $@ syslog_jni.c
+	gcc $(CFLAGS) $(MYCFLAGS) -fPIC -c -o $@ syslog_jni.c
 
 
 $(headerfile): $(classpath)/$(classfile)
