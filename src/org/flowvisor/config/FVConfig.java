@@ -446,9 +446,9 @@ public class FVConfig {
 	}
 
 	public static String readPasswd(String prompt) throws IOException {
-    Console cons = System.console();
-    char[] passwd = cons.readPassword(prompt);
-    return new String(passwd);
+		Console cons = System.console();
+		char[] passwd = cons.readPassword(prompt);
+		return new String(passwd);
 	}
 
 	public static synchronized void deleteSlice(String sliceName)

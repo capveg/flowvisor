@@ -404,25 +404,22 @@ public class FVCtl {
 		List<Map<String, String>> mapList = new LinkedList<Map<String, String>>();
 		mapList.add(change.toMap());
 
-    try
-      {
-      Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",
-          new Object[] { mapList });
+		try {
+			Object[] reply = (Object[]) this.client.execute(
+					"api.changeFlowSpace", new Object[] { mapList });
 
-      if (reply == null) {
-        System.err.println("Got 'null' for reply :-(");
-        System.exit(-1);
-      }
-      if (reply.length > 0)
-        System.out.println("success: " + (String) reply[0]);
-      else
-        System.err.println("failed!");
-      }
-    catch (XmlRpcException e)
-      {
-      System.err.println("Failed: Flow Entry not found");
-      System.exit(-1);
-      }
+			if (reply == null) {
+				System.err.println("Got 'null' for reply :-(");
+				System.exit(-1);
+			}
+			if (reply.length > 0)
+				System.out.println("success: " + (String) reply[0]);
+			else
+				System.err.println("failed!");
+		} catch (XmlRpcException e) {
+			System.err.println("Failed: Flow Entry not found");
+			System.exit(-1);
+		}
 
 	}
 
