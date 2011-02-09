@@ -148,6 +148,18 @@ public class FlowVisor {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+
+		// print some system state
+		boolean flowdb = false;
+		try {
+			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
+				flowdb = true;
+		} catch (ConfigError e) {
+			// assume off
+		}
+		if (!flowdb)
+			FVLog.log(LogLevel.INFO, null, "flowdb: Disabled");
+
 		// start event processing
 		pollLoop.doEventLoop();
 	}
