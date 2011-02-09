@@ -406,7 +406,6 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 		// sort on priority, tie break on IDs
 		if (this.priority != other.priority)
 			return other.priority - this.priority;
-		;
 		return this.id - other.id;
 	}
 

@@ -32,16 +32,20 @@ public class LinearFlowDB implements FlowDB {
 
 	@Override
 	public void processFlowMod(FVFlowMod flowMod, long dpid, String sliceName) {
+		String op = "unknown";
 		switch (flowMod.getCommand()) {
 		case OFFlowMod.OFPFC_ADD:
+			op = "ADD";
 			processFlowModAdd(flowMod, sliceName, dpid);
 			break;
 		case OFFlowMod.OFPFC_MODIFY:
 		case OFFlowMod.OFPFC_MODIFY_STRICT:
+			op = "MOD";
 			processFlowModModify(flowMod, sliceName, dpid);
 			break;
 		case OFFlowMod.OFPFC_DELETE:
 		case OFFlowMod.OFPFC_DELETE_STRICT:
+			op = "DEL";
 			processFlowModDelete(flowMod, sliceName, dpid);
 			break;
 		default:
@@ -49,6 +53,7 @@ public class LinearFlowDB implements FlowDB {
 					"flowDB: ignore fm with unknown flow_mod command:: ",
 					flowMod.getCommand());
 		}
+		FVLog.log(LogLevel.DEBUG, null, "flowdb: ", op, ": new size ", size());
 	}
 
 	/**

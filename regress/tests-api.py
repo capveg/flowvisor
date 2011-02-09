@@ -12,8 +12,9 @@ import re
 #    hyperargs=["-v0", "-a", "flowvisor-conf.d-base", "ptcp:%d"% HyperTest.OFPORT],valgrind=valgrindArgs)
 
 def test_failed(str):
-    raise Exception("TEST FAILED!!!: " + str)
-    sys.exit(1)
+    s = "TEST FAILED!!!: " + str
+    print s
+    raise Exception(s)
 
 wantPause = True
 try:
