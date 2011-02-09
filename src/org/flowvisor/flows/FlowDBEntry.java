@@ -19,9 +19,9 @@ public class FlowDBEntry extends FlowEntry {
 		return creationTime;
 	}
 
-	public FlowDBEntry(long dpid, OFMatch match, int priority,
+	public FlowDBEntry(long dpid, OFMatch match, int flowID, int priority,
 			List<OFAction> actionsList, String sliceName, long cookie) {
-		super(dpid, match, 0, priority, actionsList);
+		super(dpid, match, flowID, priority, actionsList);
 		this.sliceName = sliceName;
 		this.cookie = cookie;
 		this.creationTime = System.currentTimeMillis();

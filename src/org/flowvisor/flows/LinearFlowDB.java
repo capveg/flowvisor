@@ -24,10 +24,12 @@ public class LinearFlowDB implements FlowDB {
 	SortedSet<FlowDBEntry> db;
 	long dpid;
 	FVEventHandler fvEventHandler;
+	int flowID;
 
 	public LinearFlowDB(FVEventHandler fvEventHandler) {
 		this.db = new TreeSet<FlowDBEntry>();
 		this.fvEventHandler = fvEventHandler;
+		this.flowID = 0;
 	}
 
 	@Override
@@ -92,8 +94,8 @@ public class LinearFlowDB implements FlowDB {
 	private void processFlowModAdd(FVFlowMod flowMod, String sliceName,
 			long dpid) {
 		FlowDBEntry flowDBEntry = new FlowDBEntry(dpid, flowMod.getMatch(),
-				flowMod.getPriority(), flowMod.getActions(), sliceName,
-				flowMod.getCookie());
+				this.flowID++, flowMod.getPriority(), flowMod.getActions(),
+				sliceName, flowMod.getCookie());
 		FVLog.log(LogLevel.DEBUG, this.fvEventHandler,
 				"flowDB: adding new entry:", flowDBEntry);
 		this.db.add(flowDBEntry);
