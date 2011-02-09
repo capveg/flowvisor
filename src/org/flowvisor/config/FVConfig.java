@@ -500,7 +500,7 @@ public class FVConfig {
 			passwd = args[1];
 		else
 			passwd = FVConfig
-					.readPasswd("Enter password for account 'root' on the flowvisor (will be echo'd!):");
+					.readPasswd("Enter password for account 'root' on the flowvisor:");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
 		// set the listen port, if requested
