@@ -155,7 +155,8 @@ public class FlowVisor {
 			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
 				flowdb = true;
 		} catch (ConfigError e) {
-			// assume off
+			// assume off if not set
+			FVConfig.setBoolean(FVConfig.FLOW_TRACKING, false);
 		}
 		if (!flowdb)
 			FVLog.log(LogLevel.INFO, null, "flowdb: Disabled");
