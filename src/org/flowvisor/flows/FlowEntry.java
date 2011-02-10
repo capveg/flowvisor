@@ -3,6 +3,7 @@
  */
 package org.flowvisor.flows;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,8 +28,12 @@ import org.openflow.util.HexString;
  *         also matches on dpid
  */
 public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
-		Bracketable<FlowEntry> {
+		Serializable, Bracketable<FlowEntry> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public static final long ALL_DPIDS = Long.MIN_VALUE;
 	public static final String ALL_DPIDS_STR = "all_dpids";
 	private static final int DefaultPriority = 32000;

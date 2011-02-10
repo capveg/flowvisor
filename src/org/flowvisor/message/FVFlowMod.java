@@ -37,10 +37,6 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 
 		// FIXME: sanity check buffer id
 
-		// update slice (virtual) flowdb; switch and slice real flowDB is later
-		fvSlicer.getVirtualFlowDB().processFlowMod(this,
-				fvClassifier.getDPID(), fvSlicer.getSliceName());
-
 		// make sure the list of actions is kosher
 		List<OFAction> actionsList = this.getActions();
 		try {
@@ -73,8 +69,8 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 					// replace match with the intersection
 					newFlowMod.setMatch(intersect.getMatch());
 					// update flowDBs
-					fvSlicer.getRealFlowDB().processFlowMod(newFlowMod,
-							fvClassifier.getDPID(), fvSlicer.getSliceName());
+					fvSlicer.getFlowRewriteDB().processFlowMods(this,
+							newFlowMod);
 					fvClassifier.getFlowDB().processFlowMod(newFlowMod,
 							fvClassifier.getDPID(), fvSlicer.getSliceName());
 					// actually send msg

@@ -4,10 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
+import org.flowvisor.message.FVFlowMod;
+import org.flowvisor.message.FVFlowRemoved;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
 public class FlowDBEntry extends FlowEntry {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String sliceName;
 	long cookie;
 	private long creationTime;
@@ -19,7 +25,7 @@ public class FlowDBEntry extends FlowEntry {
 		return creationTime;
 	}
 
-	public FlowDBEntry(long dpid, OFMatch match, int flowID, int priority,
+	public FlowDBEntry(long dpid, OFMatch match, int flowID, short priority,
 			List<OFAction> actionsList, String sliceName, long cookie) {
 		super(dpid, match, flowID, priority, actionsList);
 		this.sliceName = sliceName;
@@ -27,8 +33,31 @@ public class FlowDBEntry extends FlowEntry {
 		this.creationTime = System.currentTimeMillis();
 	}
 
+	/**
+	 * Init from a flowMod for simplicity
+	 * 
+	 * @param dpid
+	 * @param flowID
+	 *            unique id for this flow
+	 * @param flowMod
+	 *            a complete flowMod
+	 * @param sliceName
+	 *            e.g., "alice"
+	 */
+	public FlowDBEntry(long dpid, int flowID, FVFlowMod flowMod,
+			String sliceName) {
+		this(dpid, flowMod.getMatch(), flowID, flowMod.getPriority(), flowMod
+				.getActions(), sliceName, flowMod.getCookie());
+	}
+
 	public FlowDBEntry() {
-		// TODO Auto-generated constructor stub
+		// java bean
+	}
+
+	public FlowDBEntry(long dpid, int flowID, FVFlowRemoved flowRemoved,
+			String sliceName) {
+		this(dpid, flowRemoved.getMatch(), flowID, flowRemoved.getPriority(),
+				null, sliceName, flowRemoved.getCookie());
 	}
 
 	/**

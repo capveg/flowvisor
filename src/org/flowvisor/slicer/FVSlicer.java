@@ -28,11 +28,11 @@ import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
 import org.flowvisor.exceptions.MalformedOFMessage;
 import org.flowvisor.exceptions.UnhandledEvent;
-import org.flowvisor.flows.FlowDB;
 import org.flowvisor.flows.FlowMap;
+import org.flowvisor.flows.FlowRewriteDB;
 import org.flowvisor.flows.FlowSpaceUtil;
-import org.flowvisor.flows.LinearFlowDB;
-import org.flowvisor.flows.NoopFlowDB;
+import org.flowvisor.flows.LinearFlowRewriteDB;
+import org.flowvisor.flows.NoopFlowRewriteDB;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -69,8 +69,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	boolean isShutdown;
 	OFKeepAlive keepAlive;
 	SendRecvDropStats stats;
-	FlowDB realFlowDB; // after slicing expansion; what the slice gets
-	FlowDB virtualFlowDB; // before slicing expansion; what the slice thinks
+	FlowRewriteDB flowRewriteDB;
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
 
 	// get OFPP_FLOOD'd
@@ -90,16 +89,16 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.stats = SendRecvDropStats.createSharedStats(sliceName);
 		try {
 			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING)) {
-				this.realFlowDB = new LinearFlowDB(this);
-				this.virtualFlowDB = new LinearFlowDB(this);
+				this.flowRewriteDB = new LinearFlowRewriteDB(this,
+						this.sliceName, fvClassifier.getDPID());
 			} else {
-				this.realFlowDB = new NoopFlowDB();
-				this.virtualFlowDB = new NoopFlowDB();
+				this.flowRewriteDB = new NoopFlowRewriteDB(this,
+						this.sliceName, fvClassifier.getDPID());
 			}
 		} catch (ConfigError e) {
 			// default to flow_tracking == off
-			this.realFlowDB = new NoopFlowDB();
-			this.virtualFlowDB = new NoopFlowDB();
+			this.flowRewriteDB = new NoopFlowRewriteDB(this, this.sliceName,
+					fvClassifier.getDPID());
 		}
 	}
 
@@ -556,12 +555,19 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		return stats;
 	}
 
-	public FlowDB getRealFlowDB() {
-		return realFlowDB;
+	/**
+	 * @return the flowRewriteDB
+	 */
+	public FlowRewriteDB getFlowRewriteDB() {
+		return flowRewriteDB;
 	}
 
-	public FlowDB getVirtualFlowDB() {
-		return virtualFlowDB;
+	/**
+	 * @param flowRewriteDB
+	 *            the flowRewriteDB to set
+	 */
+	public void setFlowRewriteDB(FlowRewriteDB flowRewriteDB) {
+		this.flowRewriteDB = flowRewriteDB;
 	}
 
 }
