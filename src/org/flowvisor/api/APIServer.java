@@ -60,7 +60,10 @@ public class APIServer {
 
 		XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer
 				.getConfig();
-		serverConfig.setEnabledForExtensions(true);
+		// Unset this for now, for python folks:
+		// http://bugs.python.org/issue8792
+		// XMLRPC is stupid -- need to replace
+		// serverConfig.setEnabledForExtensions(true);
 		serverConfig.setContentLengthOptional(false);
 		FVLog.log(LogLevel.INFO, null,
 				"initializing FlowVisor UserAPI XMLRPC SSL WebServer on port "
