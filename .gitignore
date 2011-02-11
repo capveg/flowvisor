@@ -9,3 +9,4 @@ tmp/
 scripts/envs.sh
 pkgbuild/
 *.swp
+mySSLKeyStore

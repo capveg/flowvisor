@@ -148,6 +148,17 @@ try:
     except (xmlrpclib.Fault):
         print "     passed"
 
+### Slice Creation: Cathy again
+    print "Slice creation: Cathy (again) -- should be blocked"
+    some_email = "cathy@dos.com"
+    try:
+        s.api.createSlice("cathy", "otherPass", "tcp:localhost:54323", some_email)
+        print "Failed: created a slice which already existed."
+        test_failed("Slice creation with existing ID")
+    except (xmlrpclib.Fault):
+        print "    passed"
+        
+
 ### getSliceInfo (alice)
     print "Test: getSliceInfo(alice)"
     x = s.api.getSliceInfo("alice")
