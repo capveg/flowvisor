@@ -11,6 +11,7 @@ import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFError.OFBadActionCode;
 import org.openflow.protocol.OFError.OFFlowModFailedCode;
+import org.openflow.protocol.OFFlowMod;
 import org.openflow.protocol.action.OFAction;
 
 public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
@@ -50,18 +51,21 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 					OFBadActionCode.OFPBAC_EPERM, this), fvSlicer);
 			return;
 		}
-		int oldALen = FVMessageUtil.countActionsLen(this.getActions());
-		this.setActions(actionsList);
-		// set new length as a function of old length and old actions length
-		this.setLength((short) (getLength() - oldALen + FVMessageUtil
-				.countActionsLen(actionsList)));
 		// expand this match to everything that intersects the flowspace
 		List<FlowIntersect> intersections = fvSlicer.getFlowSpace().intersects(
 				fvClassifier.getDPID(), this.match);
 
 		int expansions = 0;
-		for (FlowIntersect intersect : intersections) {
-			try {
+		try {
+			OFFlowMod original = this.clone(); // keep an unmodified copy
+			int oldALen = FVMessageUtil.countActionsLen(this.getActions());
+			this.setActions(actionsList);
+			// set new length as a function of old length and old actions length
+			this.setLength((short) (getLength() - oldALen + FVMessageUtil
+					.countActionsLen(actionsList)));
+
+			for (FlowIntersect intersect : intersections) {
+
 				if (intersect.getFlowEntry().hasPermissions(
 						fvSlicer.getSliceName(), SliceAction.WRITE)) {
 					expansions++;
@@ -69,19 +73,20 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 					// replace match with the intersection
 					newFlowMod.setMatch(intersect.getMatch());
 					// update flowDBs
-					fvSlicer.getFlowRewriteDB().processFlowMods(this,
+					fvSlicer.getFlowRewriteDB().processFlowMods(original,
 							newFlowMod);
 					fvClassifier.getFlowDB().processFlowMod(newFlowMod,
 							fvClassifier.getDPID(), fvSlicer.getSliceName());
 					// actually send msg
 					fvClassifier.sendMsg(newFlowMod, fvSlicer);
 				}
-			} catch (CloneNotSupportedException e) {
-				FVLog.log(LogLevel.CRIT, fvSlicer,
-						"FlowMod does not implement clone()!?: ", e);
-				return;
 			}
+		} catch (CloneNotSupportedException e) {
+			FVLog.log(LogLevel.CRIT, fvSlicer,
+					"FlowMod does not implement clone()!?: ", e);
+			return;
 		}
+
 		if (expansions == 0) {
 			FVLog.log(LogLevel.WARN, fvSlicer, "dropping illegal fm: ", this);
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
