@@ -106,8 +106,8 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	}
 
 	@Override
-	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
-		boolean found = false;
+	public String processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
+		String sliceName = null;
 		for (Iterator<FlowDBEntry> it = this.db.iterator(); it.hasNext();) {
 			FlowDBEntry flowDBEntry = it.next();
 			if (flowDBEntry.getRuleMatch().equals(flowRemoved.getMatch())
@@ -115,16 +115,17 @@ public class LinearFlowDB implements FlowDB, Serializable {
 					&& flowDBEntry.getCookie() == flowRemoved.getCookie()
 					&& flowDBEntry.getDpid() == dpid) {
 				it.remove();
-				found = true;
+				sliceName = flowDBEntry.getSliceName();
 				FVLog.log(LogLevel.DEBUG, this.fvEventHandler,
 						"flowDB: removing flow '", flowDBEntry,
 						"'matching flowRemoved: ", flowRemoved);
 				break;
 			}
 		}
-		if (!found)
+		if (sliceName == null)
 			FVLog.log(LogLevel.INFO, this.fvEventHandler,
 					"flowDB: ignoring unmatched flowRemoved: ", flowRemoved);
+		return sliceName;
 	}
 
 	@Override

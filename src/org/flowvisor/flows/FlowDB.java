@@ -25,7 +25,16 @@ public interface FlowDB extends Iterable<FlowDBEntry> {
 	 */
 	public void processFlowMod(OFFlowMod flowMod, long dpid, String sliceName);
 
-	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid);
+	/**
+	 * Update the database with a flow_removed message
+	 * 
+	 * @param flowRemoved
+	 *            the new information
+	 * @param dpid
+	 *            the switch it came from
+	 * @return the name of the slice that inserted the flow or null if none
+	 */
+	public String processFlowRemoved(OFFlowRemoved flowRemoved, long dpid);
 
 	public Iterator<FlowDBEntry> iterator();
 

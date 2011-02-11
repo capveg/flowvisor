@@ -32,8 +32,9 @@ public class NoopFlowDB implements FlowDB {
 	}
 
 	@Override
-	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
+	public String processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
 		// do nothing
+		return null;
 	}
 
 	@Override

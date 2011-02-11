@@ -92,6 +92,8 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 			return;
 		}
 		flowDB.processFlowRemoved(flowRemoved, dpid);
+		if (flowDB.size() == 0)
+			this.map.remove(original);
 	}
 
 	/*

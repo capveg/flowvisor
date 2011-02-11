@@ -74,7 +74,7 @@ try:
                     00 00 00 00 00 00 00 00 00 00 00 05 00 00 80 00
                     00 00 01 6f 00 00 00 01 00 00 00 08 00 02 00 00
                     00 00 00 08 00 03 00 00'''
-    h.runTest(name="flow_mod install",timeout=timeout,  events= [
+    h.runTest(name="flowdb install",timeout=timeout,  events= [
           # send flow_mod, make sure it succeeds
           TestEvent( "send","guest",'alice', flow_mod1),
           TestEvent( "recv","switch",'switch1', flow_mod1), 
@@ -117,14 +117,33 @@ try:
     #time.sleep(100000)
 
 ####################################
-    flow_expire = FvRegress.OFVERSION + '''0b 00 58 00 00 00 01 00 3f ff ff 00 00 00 00
-                00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                00 00 00 00 00 00 00 00 00 00 00 00 80 00 01 00
-                00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    flow_expire1 = FvRegress.OFVERSION + \
+                '''0b 00 58 00 00 00 01 
+                00 00 00 00 00 00 00 00 00 00 00 02 00 0c 29 c6 
+                36 8d ff ff 00 00 08 06 00 02 00 00 c0 01 f9 7b 
+                c0 01 f9 79 00 00 00 00
+                00 00 00 00 00 00 00 00 80 00 00 00 00 00 00 00
                 00 00 00 0b 00 00 00 00 00 00 00 00 00 00 01 e1
                 00 00 00 00 00 00 02 58
                 '''
-
+    h.runTest(name="flowdb flow remove",timeout=timeout,  events= [
+          # send flow_mod, make sure it succeeds
+          TestEvent( "send","switch",'switch1', flow_expire1),
+          TestEvent( "recv","guest",'alice', flow_expire1), 
+          ])
+#########################################
+    print "Testing getSwitchFlowDB after remove"            
+    flows = s.api.getSwitchFlowDB("1")
+    if len(flows) != 2:
+        test_failed("Wanted 2 flows, got %d" % len(flows))
+    else: 
+        print "     SUCCESS"
+    print "Testing getSliceRewriteDB after remove"            
+    rewriteDB = s.api.getSliceRewriteDB("alice","1")
+    if len(rewriteDB) != 2:
+        test_failed("Wanted 2 rewrites, got %d" % len(rewriteDB))
+    else: 
+        print "     SUCCESS"
 #########################################
 # more tests for this setup HERE
 #################################### End Tests
