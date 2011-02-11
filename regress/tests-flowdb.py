@@ -97,8 +97,8 @@ try:
             print "--------- Rewrite" 
             for key,val in rewrite.iteritems():
                 print "     => %s=%s" % (key,val)
-    print "Sleeping!"
-    time.sleep(100000)
+    #print "Sleeping!"
+    #time.sleep(100000)
 
 #########################################
 # more tests for this setup HERE
