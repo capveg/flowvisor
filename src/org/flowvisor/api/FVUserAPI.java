@@ -173,7 +173,8 @@ public interface FVUserAPI {
 	 * @throws PermissionDeniedException
 	 */
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException, FlowEntryNotFound;
+			throws MalformedFlowChange, PermissionDeniedException,
+			FlowEntryNotFound;
 
 	/**
 	 * Return a list of slices in the flowvisor: root only!
@@ -292,4 +293,23 @@ public interface FVUserAPI {
 	 */
 	public List<Map<String, String>> getSwitchFlowDB(String dpidstr)
 			throws DPIDNotFound;
+
+	/**
+	 * Return a map of the flow entries the slice requested to what the
+	 * flowvisor produced
+	 * 
+	 * @note KILL ME; this map crap is horrible, but we seemingly can't rely on
+	 *       the remote side to support the extensions that serializable needs
+	 *       so I have to do this by hand... need to rewrite everything here and
+	 *       maybe move to SOAP or ProtoBufs
+	 * 
+	 * @param sliceName
+	 * @param dpidstr
+	 * @return
+	 * @throws DPIDNotFound
+	 * @throws SliceNotFound
+	 */
+	public Map<String, List<Map<String, String>>> getSliceRewriteDB(
+			String sliceName, String dpidstr) throws DPIDNotFound,
+			SliceNotFound, PermissionDeniedException;
 }

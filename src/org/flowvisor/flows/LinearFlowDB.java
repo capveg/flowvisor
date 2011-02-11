@@ -1,5 +1,6 @@
 package org.flowvisor.flows;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -20,11 +21,15 @@ import org.openflow.protocol.OFFlowMod;
  * 
  */
 
-public class LinearFlowDB implements FlowDB {
+public class LinearFlowDB implements FlowDB, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	SortedSet<FlowDBEntry> db;
 	long dpid;
-	FVEventHandler fvEventHandler;
-	int flowID;
+	transient FVEventHandler fvEventHandler;
+	transient int flowID;
 
 	public LinearFlowDB(FVEventHandler fvEventHandler) {
 		this.db = new TreeSet<FlowDBEntry>();

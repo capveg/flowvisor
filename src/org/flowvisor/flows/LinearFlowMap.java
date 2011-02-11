@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.openflow.protocol.OFMatch;
 import org.flowvisor.exceptions.FlowEntryNotFound;
+import org.openflow.protocol.OFMatch;
 
 /**
  * @author capveg Implements FlowMap, but in a slow and linear fashion.
@@ -57,9 +57,9 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 		for (FlowEntry flowEntry : this.getRules())
 			if (flowEntry.getId() == id) {
 				this.rules.remove(flowEntry);
-        return;
+				return;
 			}
-    throw new FlowEntryNotFound(id);
+		throw new FlowEntryNotFound(id);
 	}
 
 	/**

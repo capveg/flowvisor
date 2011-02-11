@@ -31,6 +31,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
+import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
@@ -59,6 +60,7 @@ public class FVCtl {
 			new APICmd("getSliceStats", 1, "<slicename>"),
 			new APICmd("getSwitchStats", 1, "<dpid>"),
 			new APICmd("getSwitchFlowDB", 1, "<dpid>"),
+			new APICmd("getSliceRewriteDB", 2, "<slicename> <dpid>"),
 
 			new APICmd("listFlowSpace", 0),
 			new APICmd("removeFlowSpace", 1, "<id>"),
@@ -287,6 +289,32 @@ public class FVCtl {
 				flowDBEntry.fromBacketMap(map);
 				System.out.println("DBEntry " + i + ": " + flowDBEntry);
 			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void run_getSliceRewriteDB(String sliceName, String dpidStr)
+			throws XmlRpcException {
+
+		Object ret = this.client.execute("api.getSliceRewriteDB", new Object[] {
+				sliceName, dpidStr });
+		Map<String, Object[]> flowRewriteDB;
+		if (!(ret instanceof Map)) {
+			throw new XmlRpcException("unknown reply type "
+					+ ret.getClass().toString());
+		}
+		flowRewriteDB = (Map<String, Object[]>) ret;
+		for (String original : flowRewriteDB.keySet()) {
+			System.out.println("============ Original");
+			System.out.println(original);
+			System.out.println("\n=========== Rewritten to:");
+			Object[] objs = flowRewriteDB.get(original);
+			Map<String, String> rewrite;
+			for (int i = 0; i < objs.length; i++) {
+				rewrite = (Map<String, String>) objs[i];
+				System.out.println("\t\t" + BracketParse.encode(rewrite));
+			}
+
 		}
 	}
 

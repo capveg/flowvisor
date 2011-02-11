@@ -15,6 +15,7 @@ import java.util.Map;
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.config.InvalidSliceName;
@@ -28,6 +29,7 @@ import org.flowvisor.exceptions.SliceNotFound;
 import org.flowvisor.flows.FlowDBEntry;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
+import org.flowvisor.flows.FlowRewriteDB;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -343,7 +345,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException, FlowEntryNotFound {
+			throws MalformedFlowChange, PermissionDeniedException,
+			FlowEntryNotFound {
 		String user = APIUserCred.getUserName();
 		List<String> returnIDs = new LinkedList<String>();
 
@@ -617,5 +620,68 @@ public class FVUserAPIImpl implements FVUserAPI {
 		if (!found)
 			throw new DPIDNotFound("dpid not found: " + dpidStr);
 		return ret;
+	}
+
+	@Override
+	public Map<String, List<Map<String, String>>> getSliceRewriteDB(
+			String sliceName, String dpidStr) throws DPIDNotFound,
+			SliceNotFound, PermissionDeniedException {
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
+		FVSlicer fvSlicer = lookupSlicer(sliceName, dpid);
+		Map<String, List<Map<String, String>>> ret = new HashMap<String, List<Map<String, String>>>();
+		FlowRewriteDB flowRewriteDB = fvSlicer.getFlowRewriteDB();
+		synchronized (flowRewriteDB) {
+			for (FlowDBEntry original : flowRewriteDB.originals()) {
+				Map<String, String> originalMap = original.toBracketMap();
+				List<Map<String, String>> rewrites = new LinkedList<Map<String, String>>();
+				for (FlowDBEntry rewrite : flowRewriteDB.getRewrites(original)) {
+					rewrites.add(rewrite.toBracketMap());
+				}
+				ret.put(BracketParse.encode(originalMap), rewrites);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * 
+	 * @param sliceName
+	 * @param dpid
+	 * @return a valid fvSlicer (never null)
+	 * @throws DPIDNotFound
+	 * @throws SliceNotFound
+	 */
+
+	private FVSlicer lookupSlicer(String sliceName, long dpid)
+			throws DPIDNotFound, SliceNotFound {
+
+		FVClassifier fvClassifier = lookupClassifier(dpid); // throws dpid not
+															// found
+		synchronized (fvClassifier) {
+			FVSlicer fvSlicer = fvClassifier.getSlicerByName(sliceName);
+			if (fvSlicer == null)
+				throw new SliceNotFound(sliceName);
+			return fvSlicer;
+		}
+	}
+
+	/**
+	 * Returns a valid fvClassifier
+	 * 
+	 * @param dpid
+	 * @return never null
+	 * @throws DPIDNotFound
+	 */
+	private FVClassifier lookupClassifier(long dpid) throws DPIDNotFound {
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (dpid == classifier.getDPID())
+					return classifier;
+			}
+		}
+		throw new DPIDNotFound("No such switch: " + dpid);
 	}
 }

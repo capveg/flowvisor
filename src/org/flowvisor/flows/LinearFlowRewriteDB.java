@@ -125,4 +125,5 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 	public int size() {
 		return this.map.size();
 	}
+
 }

@@ -12,8 +12,8 @@ import xmlrpclib
 
 wantPause = True
 
-def test_failed(str):
-    s = "TEST FAILED!!!: " + str
+def test_failed(s):
+    s = "TEST FAILED!!!: " + s
     print s
     raise Exception(s)
 
@@ -43,6 +43,7 @@ try:
     passwd = "0fw0rk"
     rpcport = 18080
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+    s.verbose=True
 
     if wantPause:
         doPause("start tests")
@@ -82,8 +83,22 @@ try:
         test_failed("Wanted 3 flows, got %d" % len(flows))
     print "Got %d flows" % len(flows)
     for flow in flows:
-        print "Got flow " + str(flow)
-
+        print "==== Got flow "
+        for key,val in flow.iteritems():
+            print "     %s=%s" % (key,val)
+####################################
+    rewriteDB = s.api.getSliceRewriteDB("alice","1")
+    if len(rewriteDB) != 3:
+        test_failed("Wanted 3 rewrites, got %d" % len(rewriteDB))
+    for original, rewrites in rewriteDB.iteritems():
+        print "========= Original: '%s'" % original
+        print "========= " 
+        for rewrite in rewrites:
+            print "--------- Rewrite" 
+            for key,val in rewrite.iteritems():
+                print "     => %s=%s" % (key,val)
+    print "Sleeping!"
+    time.sleep(100000)
 
 #########################################
 # more tests for this setup HERE
