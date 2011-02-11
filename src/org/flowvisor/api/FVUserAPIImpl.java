@@ -432,7 +432,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 				slices = new LinkedList<String>(entries);
 			} catch (ConfigError e) {
 				e.printStackTrace();
-				new RuntimeException("wtf!?: no SLICES subdir found in config");
+				throw new RuntimeException("wtf!?: no SLICES subdir found in config");
 			}
 		}
 		return slices;
