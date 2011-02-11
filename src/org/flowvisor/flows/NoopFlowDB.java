@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * implement the FlowDB interface, but do nothing used when FlowTracking is
@@ -27,12 +27,12 @@ public class NoopFlowDB implements FlowDB {
 	}
 
 	@Override
-	public void processFlowMod(FVFlowMod flowMod, long dpid, String sliceName) {
+	public void processFlowMod(OFFlowMod flowMod, long dpid, String sliceName) {
 		// do nothing
 	}
 
 	@Override
-	public void processFlowRemoved(FVFlowRemoved flowRemoved, long dpid) {
+	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
 		// do nothing
 	}
 

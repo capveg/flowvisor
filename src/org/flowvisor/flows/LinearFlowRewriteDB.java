@@ -10,8 +10,8 @@ import java.util.Set;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * @author capveg
@@ -44,7 +44,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 	 * .FVFlowMod, org.flowvisor.message.FVFlowMod, long, java.lang.String)
 	 */
 	@Override
-	public void processFlowMods(FVFlowMod original, FVFlowMod rewrite) {
+	public void processFlowMods(OFFlowMod original, OFFlowMod rewrite) {
 		// FIXME: think about how to change API to prevent
 		// original->originalEntry conversion with each call
 		FlowDBEntry originalEntry = new FlowDBEntry(dpid, 0, original,
@@ -71,7 +71,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 	 * .FVFlowRemoved, long)
 	 */
 	@Override
-	public void processFlowRemoved(FVFlowRemoved flowRemoved) {
+	public void processFlowRemoved(OFFlowRemoved flowRemoved) {
 		FlowDBEntry removedEntry = new FlowDBEntry(dpid, 0, flowRemoved,
 				sliceName);
 		if (!reverseMap.containsKey(removedEntry)) {

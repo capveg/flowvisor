@@ -12,8 +12,8 @@ package org.flowvisor.flows;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 public interface FlowRewriteDB extends Serializable {
 	/**
@@ -23,9 +23,9 @@ public interface FlowRewriteDB extends Serializable {
 	 * @param Slicename
 	 */
 
-	public void processFlowMods(FVFlowMod original, FVFlowMod rewrite);
+	public void processFlowMods(OFFlowMod original, OFFlowMod rewrite);
 
-	public void processFlowRemoved(FVFlowRemoved flowRemoved);
+	public void processFlowRemoved(OFFlowRemoved flowRemoved);
 
 	public Set<FlowDBEntry> originals();
 

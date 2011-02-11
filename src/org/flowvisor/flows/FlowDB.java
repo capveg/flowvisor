@@ -5,8 +5,8 @@ package org.flowvisor.flows;
 
 import java.util.Iterator;
 
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * An FV-local copy of the flow table state on the switch
@@ -23,9 +23,9 @@ public interface FlowDB extends Iterable<FlowDBEntry> {
 	 * @param flowMod
 	 * @param Slicename
 	 */
-	public void processFlowMod(FVFlowMod flowMod, long dpid, String sliceName);
+	public void processFlowMod(OFFlowMod flowMod, long dpid, String sliceName);
 
-	public void processFlowRemoved(FVFlowRemoved flowRemoved, long dpid);
+	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid);
 
 	public Iterator<FlowDBEntry> iterator();
 

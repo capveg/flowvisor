@@ -7,8 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flowvisor.events.FVEventHandler;
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * This is a stub class that's loaded when flow tracking is disabled
@@ -40,7 +40,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 	 * .FVFlowMod, org.flowvisor.message.FVFlowMod)
 	 */
 	@Override
-	public void processFlowMods(FVFlowMod original, FVFlowMod rewrite) {
+	public void processFlowMods(OFFlowMod original, OFFlowMod rewrite) {
 		// do nothing
 	}
 
@@ -52,7 +52,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 	 * .FVFlowRemoved)
 	 */
 	@Override
-	public void processFlowRemoved(FVFlowRemoved flowRemoved) {
+	public void processFlowRemoved(OFFlowRemoved flowRemoved) {
 		// do nothing
 	}
 

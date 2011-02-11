@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.config.BracketParse;
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
+import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
@@ -44,7 +44,7 @@ public class FlowDBEntry extends FlowEntry {
 	 * @param sliceName
 	 *            e.g., "alice"
 	 */
-	public FlowDBEntry(long dpid, int flowID, FVFlowMod flowMod,
+	public FlowDBEntry(long dpid, int flowID, OFFlowMod flowMod,
 			String sliceName) {
 		this(dpid, flowMod.getMatch(), flowID, flowMod.getPriority(), flowMod
 				.getActions(), sliceName, flowMod.getCookie());
@@ -54,7 +54,7 @@ public class FlowDBEntry extends FlowEntry {
 		// java bean
 	}
 
-	public FlowDBEntry(long dpid, int flowID, FVFlowRemoved flowRemoved,
+	public FlowDBEntry(long dpid, int flowID, OFFlowRemoved flowRemoved,
 			String sliceName) {
 		this(dpid, flowRemoved.getMatch(), flowID, flowRemoved.getPriority(),
 				null, sliceName, flowRemoved.getCookie());

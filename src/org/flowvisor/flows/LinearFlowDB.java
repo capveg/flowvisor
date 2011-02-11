@@ -8,9 +8,8 @@ import java.util.TreeSet;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
-import org.flowvisor.message.FVFlowMod;
-import org.flowvisor.message.FVFlowRemoved;
 import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * Internal DB for tracking the switch's state
@@ -38,7 +37,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	}
 
 	@Override
-	public void processFlowMod(FVFlowMod flowMod, long dpid, String sliceName) {
+	public void processFlowMod(OFFlowMod flowMod, long dpid, String sliceName) {
 		String op = "unknown";
 		switch (flowMod.getCommand()) {
 		case OFFlowMod.OFPFC_ADD:
@@ -72,7 +71,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	 * @param sliceName
 	 */
 
-	private void processFlowModDelete(FVFlowMod flowMod, String sliceName,
+	private void processFlowModDelete(OFFlowMod flowMod, String sliceName,
 			long dpid) {
 	}
 
@@ -84,7 +83,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	 * @param flowMod
 	 * @param sliceName
 	 */
-	private void processFlowModModify(FVFlowMod flowMod, String sliceName,
+	private void processFlowModModify(OFFlowMod flowMod, String sliceName,
 			long dpid) {
 
 	}
@@ -96,7 +95,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	 * @param sliceName
 	 * @param dpid
 	 */
-	private void processFlowModAdd(FVFlowMod flowMod, String sliceName,
+	private void processFlowModAdd(OFFlowMod flowMod, String sliceName,
 			long dpid) {
 		FlowDBEntry flowDBEntry = new FlowDBEntry(dpid, flowMod.getMatch(),
 				this.flowID++, flowMod.getPriority(), flowMod.getActions(),
@@ -107,7 +106,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	}
 
 	@Override
-	public void processFlowRemoved(FVFlowRemoved flowRemoved, long dpid) {
+	public void processFlowRemoved(OFFlowRemoved flowRemoved, long dpid) {
 		boolean found = false;
 		for (Iterator<FlowDBEntry> it = this.db.iterator(); it.hasNext();) {
 			FlowDBEntry flowDBEntry = it.next();
