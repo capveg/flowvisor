@@ -135,6 +135,24 @@ public class FVUserAPIImpl implements FVUserAPI {
 		else
 			controller_port = FVConfig.OFP_TCP_PORT;
 		// createSlice is synchronized()
+
+		// We need to make sure this slice doesn't already exist
+		List<String> slices = null;
+		synchronized(FVConfig.class) {
+			try {
+				slices = FVConfig.list(FVConfig.SLICES);
+			} catch (ConfigError e) {
+				e.printStackTrace();
+				throw new RuntimeException("no SLICES subdir found in config");
+			}
+			for (Iterator<String> sliceIter = slices.iterator(); sliceIter.hasNext();) {
+				if (sliceName.equals(sliceIter.next())) {
+					throw new PermissionDeniedException(
+						"Cannot create slice with existing name.");
+				}
+			}
+		}
+
 		FVConfig.createSlice(sliceName, list[1], controller_port, passwd,
 				slice_email, APIUserCred.getUserName());
 		FlowVisor.getInstance().checkPointConfig();
