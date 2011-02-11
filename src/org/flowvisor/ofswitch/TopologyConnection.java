@@ -413,7 +413,15 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		packetOut.setPacketData(lldp);
 		packetOut
 				.setLength((short) (OFPacketOut.MINIMUM_LENGTH + alen + lldp.length));
-		this.msgStream.write(packetOut);
+		try {
+			this.msgStream.testAndWrite(packetOut);
+		} catch (BufferFull e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		} catch (MalformedOFMessage e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		} catch (IOException e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		}
 	}
 
 	private byte[] makeLLDP(short portNumber, byte[] hardwareAddress) {
