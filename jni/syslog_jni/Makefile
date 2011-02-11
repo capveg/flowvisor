@@ -15,20 +15,10 @@ install=install
 
 MYCFLAGS=-Wall
 
-ARCH=$(shell uname -s)
-
-ifeq ($(ARCH),Darwin)
-MYCFLAGS+=-framework JavaVM  -I/System/Library/Frameworks/JavaVM.framework/Headers
-MYLDFLAGS+=-framework JavaVM -dynamiclib
-else ifeq ($(ARCH),Linux)
-MYCFLAGS+=-I/usr/lib/jvm/java-6-openjdk/include
-MYLDFLAGS+=-Wl,-soname,libsyslog_jni.so
-endif
-
 all: libsyslog_jni.so
 
 libsyslog_jni.so: syslog_jni.o
-	gcc $(LDFLAGS) -fPIC -shared $(MYLDFLAGS) -o $@ syslog_jni.o -lc
+	gcc $(LDFLAGS) -fPIC -shared -Wl,-soname,libsyslog_jni.so -o $@ syslog_jni.o -lc
 	cp $@ $(distpath)
 
 
@@ -56,5 +46,3 @@ install:
 debug:
 	@echo classfile=$(classfile)
 	@echo headerfile=$(headerfile)
-	@echo MYCFLAGS=$(MYCFLAGS)
-	@echo ARCH=$(ARCH)
