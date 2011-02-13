@@ -57,10 +57,15 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 			flowDB = map.get(originalEntry);
 		// store forward map
 		flowDB.processFlowMod(rewrite, dpid, sliceName);
-		// store reverse map
-		FlowDBEntry rewriteEntry = new FlowDBEntry(dpid, 0, rewrite, sliceName);
-		rewriteEntry.setActionsList(null); // so it matches with FlowRemoved
-		reverseMap.put(rewriteEntry, originalEntry);
+		if (flowDB.size() == 0)
+			this.map.remove(original);
+		else {
+			// store reverse map, but only on add
+			FlowDBEntry rewriteEntry = new FlowDBEntry(dpid, 0, rewrite,
+					sliceName);
+			rewriteEntry.setActionsList(null); // so it matches with FlowRemoved
+			reverseMap.put(rewriteEntry, originalEntry);
+		}
 	}
 
 	/*
