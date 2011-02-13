@@ -461,7 +461,7 @@
          <string>track_flows</string> 
          <object class="org.flowvisor.config.ConfBoolEntry"> 
           <void property="bool"> 
-           <boolean>true</boolean> 
+           <boolean>false</boolean> 
           </void> 
           <void property="name"> 
            <string>track_flows</string> 
