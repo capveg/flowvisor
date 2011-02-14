@@ -1,9 +1,13 @@
-FlowVisor 0.7 : (target) 1/31/2011
-    * added msg statistics, see `fvctl get{Slice,Switch}stats`
-    * added flow tracking, see `fvctl get{Switch,Slice}FlowDB`
+FlowVisor 0.7 : 
     * fixed big I/O bug that caused switch flapping
+    * added msg statistics, see `fvctl get{Slice,Switch}stats`
+    * added flow tracking, see `fvctl get{Switch,SliceRewrite}FlowDB`
+        to enable, run `fvctl setConfig \!flowvisor\!track_flows true`
     * lots of performance improvements
+        * flow setup time ~5x improved
     * lots of small bugs fixed
+    * password prompt no longer echos plaintext
+    * better error handling in create slice and change flowspace
 FlowVisor 0.6 - total rewrite (in Java!)
     * Single, unified flowspace config, not divided by slice
     * lldp is now rewritten with a trailer, not by rewritting the dst mac

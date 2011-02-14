@@ -5,6 +5,10 @@
 .SH NAME
 flowvisor \- OpenFlow network slicing daemon
 
+.SH AUTHOR
+
+Rob Sherwood <rob.sherwood@stanford.edu>
+
 .SH SYNOPSIS
 .B flowvisor
 [-d \fIdebug\fR] [-h] [-l] [-p \fIport\fR] \fIconfig.xml\fR 
@@ -25,7 +29,8 @@ Symposium for Operating Systems Design and Implementation, 2010
 .TP
 -d \fIdebug\fR
 Overrides debugging threshold in config.xml and sets it to \fIdebug\fR.  Does not modify config.xml.
-Mostly used for manual debugging.
+Mostly used for manual debugging.  The string \fIdebug\fR must be one of MOBUG, DEBUG, NOTE, INFO, WARN, ALERT, CRIT,
+and FATAL (in order of increasing priority/verbosity) similar to syslog(3).
 
 .TP
 -h

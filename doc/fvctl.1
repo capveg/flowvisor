@@ -5,6 +5,10 @@
 .SH NAME
 fvctl \- commandline tool to administer FlowVisor
 
+.SH AUTHOR
+
+Rob Sherwood <rob.sherwood@stanford.edu>
+
 .SH SYNOPSIS
 .B fvctl
 [\fIoptions\fR] \fIcommand [\fIargs\fR...]
@@ -12,7 +16,7 @@ fvctl \- commandline tool to administer FlowVisor
 .SH DESCRIPTION
 The
 .B fvctl
-program is a command line tool for configuring, monitoring, and
+program is a command line tool for configuring, debugging, monitoring, and
 administering running FlowVisor instances.  It is able to show the
 current state of a FlowVisor, including features, configuration, and
 flowspace entries.
@@ -130,14 +134,16 @@ and the topology that connects them.
 \fBgetLinks\fR
     Displays the links between the devices, as inferred by FlowVisor's topology discovery mechanism.
 
-.TP \fBregisterCallback\fR \fIURL\fR \fIcookie\fR
+.TP 
+\fBregisterCallback\fR \fIURL\fR \fIcookie\fR
 Register a XMLRPC callback for the flowvisor to call when there is
 a change in the topology.  Once registered, with each topology change
 (with some dampenning), FlowVisor will connect to the server listed in
 URL, and make the XMLRPC call to the path of \fIURL\fR with \fIcookie\fR
 as a parameter.
 
-.TP \fBunregisterCallback\fR 
+.TP 
+\fBunregisterCallback\fR 
 UnRegisters a previously registered XMLRPC callback.
 
 .PP
@@ -170,7 +176,7 @@ only the "root" user.
     decimal number, etc.  
 
 .PP
-The following cmmands relay how many OpenFlow messages have been
+The following commands relay how many OpenFlow messages have been
 sent/recv/drop'd by switches and slices.  They are currently returned in a
 single block string format, which is suboptimal, but will likely go away
 if we get rid of XMLRPC.  Any message type not listed implicitly has a
@@ -201,19 +207,29 @@ Total ::
 
 .TP
 \fBgetSliceStats\fR \fIsliceName\fR
-    Returns statistics for \fIsliceName\fR
+    Returns statistics for \fIsliceName\fR in terms of messages sent, received, and dropped, subdivided by message type.
 
 .TP
 \fBgetSwitchStats\fR \fIdpid\fR
-    Returns statistics for the switch with dpid \fIdpid\fR.
+    Returns statistics for the switch with dpid \fIdpid\fR in terms of messages sent, received, and dropped, subdivided by message type.
 
 .TP
 \fBgetSwitchFlowDB\fR \fIdpid\fR
     Dump's the FlowVisor's view of \fIdpid\fR's flow table.  The FlowVisor
     tracks the sum of the flow_mods and flow_removed messages, so this
     DB should be up to date baring race conditions and switch bugs.
-    For hardware switches, this is likely much cheaper to as the FlowVisor
-    for its cached copy than to ask the switch itself.
+    For hardware switches, this is likely much cheaper to ask the FlowVisor
+    for its cached copy than to ask the switch itself. Note that track_flows must
+    be enabled for this feature to work, else this command will return an empty list.
+    Flow tracking can be enabled with:
+        \fBfvctl\fR \fIsetConfig\fR \fB!flowvisor!track_flows\fR \fItrue\fR
+
+.TP
+\fBgetSliceRewriteDB\fR \fIsliceName\fR \fIdpid\fR
+    Dump how the flowvisor has rewritten the slices flowentries.  This command
+    outputs how the original flowMod \fIfm_original\fR was rewritten to a 
+    sequence of flowMods: \fIfm_rewrite1,fm_rewrite2\fR.  Similar to getSwitchFlowDB,
+    this command returns an empty list if track_flows is disabled.
 
 .PP 
 The following commands are used for debugging the XMLRPC server
@@ -341,8 +357,6 @@ of a slice's flow_mod and the union of its FlowSpace.
 .B TODO
 
 .fi
-.SH AUTHOR
-    Rob Sherwood <r.sherwood@telekom.com> or  <rob.sherwood@stanford.edu>
 .SH "SEE ALSO"
 
 .BR flowvisor (8),
