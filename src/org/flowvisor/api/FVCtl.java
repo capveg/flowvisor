@@ -271,7 +271,7 @@ public class FVCtl {
 	@SuppressWarnings("unchecked")
 	public void run_getSwitchFlowDB(String dpidString) throws XmlRpcException,
 			MapUnparsable {
-		Object[] reply = (Object[]) this.client.execute("api.getLinks",
+		Object[] reply = (Object[]) this.client.execute("api.getSwitchFlowDB",
 				new Object[] { dpidString });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
