@@ -100,15 +100,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
-		try {
-			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
-				this.flowDB = new LinearFlowDB(this);
-			else
-				this.flowDB = new NoopFlowDB();
-		} catch (ConfigError e) {
-			// default to flow tracking == off
-			this.flowDB = new NoopFlowDB();
-		}
+		FVConfig.watch(this, FVConfig.FLOW_TRACKING);
+		updateFlowTrackingConfig();
 	}
 
 	public short getMissSendLength() {
@@ -267,12 +260,32 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
-		FVLog.log(LogLevel.DEBUG, this, "got update: ", e);
-		// update ourselves first
-		connectToControllers(); // re-figure out who we should connect to
-		// then tell everyone who depends on us (causality important :-)
-		for (FVSlicer fvSlicer : slicerMap.values())
-			this.loop.queueEvent(new ConfigUpdateEvent(e).setDst(fvSlicer));
+		String config = e.getConfig();
+		FVLog.log(LogLevel.DEBUG, this, "got update: ", config);
+		if (config.equals(FVConfig.FLOWSPACE)) {
+			// update ourselves first
+			connectToControllers(); // re-figure out who we should connect to
+			// then tell everyone who depends on us (causality important :-)
+			for (FVSlicer fvSlicer : slicerMap.values())
+				this.loop.queueEvent(new ConfigUpdateEvent(e).setDst(fvSlicer));
+		} else if (config.equals(FVConfig.FLOW_TRACKING)) {
+			updateFlowTrackingConfig();
+		} else {
+			FVLog.log(LogLevel.WARN, this, "ignoring unknown config update: ",
+					e.getConfig());
+		}
+	}
+
+	private synchronized void updateFlowTrackingConfig() {
+		try {
+			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
+				this.flowDB = new LinearFlowDB(this);
+			else
+				this.flowDB = new NoopFlowDB();
+		} catch (ConfigError e) {
+			// default to flow tracking == off
+			this.flowDB = new NoopFlowDB();
+		}
 	}
 
 	void handleIOEvent(FVIOEvent e) {
@@ -342,7 +355,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		} catch (IOException e) {
 			FVLog.log(LogLevel.WARN, this, "weird error on close:: ", e);
 		}
-		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // register for FS updates
+		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // unregister for FS updates
+		FVConfig.unwatch(this, FVConfig.FLOW_TRACKING);
 		this.msgStream = null; // force GC
 	}
 

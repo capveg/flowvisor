@@ -87,6 +87,11 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.isShutdown = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
 		this.stats = SendRecvDropStats.createSharedStats(sliceName);
+		FVConfig.watch(this, FVConfig.FLOW_TRACKING);
+		updateFlowTrackingConfig();
+	}
+
+	private void updateFlowTrackingConfig() {
 		try {
 			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING)) {
 				this.flowRewriteDB = new LinearFlowRewriteDB(this,
@@ -395,6 +400,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		String whatChanged = e.getConfig();
 		if (whatChanged.equals(FVConfig.FLOWSPACE))
 			updateFlowSpaceConfig(e);
+		else if (whatChanged.equals(FVConfig.FLOW_TRACKING))
+			updateFlowTrackingConfig();
 		else
 			FVLog.log(LogLevel.WARN, this,
 					"ignoring unhandled/implemented config update:", e);

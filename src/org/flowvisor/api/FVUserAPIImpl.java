@@ -138,17 +138,18 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 		// We need to make sure this slice doesn't already exist
 		List<String> slices = null;
-		synchronized(FVConfig.class) {
+		synchronized (FVConfig.class) {
 			try {
 				slices = FVConfig.list(FVConfig.SLICES);
 			} catch (ConfigError e) {
 				e.printStackTrace();
 				throw new RuntimeException("no SLICES subdir found in config");
 			}
-			for (Iterator<String> sliceIter = slices.iterator(); sliceIter.hasNext();) {
+			for (Iterator<String> sliceIter = slices.iterator(); sliceIter
+					.hasNext();) {
 				if (sliceName.equals(sliceIter.next())) {
 					throw new PermissionDeniedException(
-						"Cannot create slice with existing name.");
+							"Cannot create slice with existing name.");
 				}
 			}
 		}
@@ -432,7 +433,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 				slices = new LinkedList<String>(entries);
 			} catch (ConfigError e) {
 				e.printStackTrace();
-				throw new RuntimeException("wtf!?: no SLICES subdir found in config");
+				throw new RuntimeException(
+						"wtf!?: no SLICES subdir found in config");
 			}
 		}
 		return slices;
@@ -542,6 +544,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		// this is synchronized against FVConfig
 		FVConfig.setConfig(nodeName, value);
+		FVConfig.sendUpdates(nodeName);
 		FlowVisor.getInstance().checkPointConfig();
 		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user
 				+ " on config " + nodeName + " to " + value);
