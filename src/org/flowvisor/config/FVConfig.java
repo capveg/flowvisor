@@ -387,7 +387,7 @@ public class FVConfig {
 							+ node);
 			return;
 		}
-		entry.sendUpdates();
+		entry.sendUpdates(node);
 	}
 
 	/**
