@@ -5,6 +5,8 @@ import java.util.SortedSet;
 
 import org.openflow.protocol.OFMatch;
 
+import org.flowvisor.exceptions.FlowEntryNotFound;
+
 /**
  * Interface for computing intersections in flowspace.
  * 
@@ -94,7 +96,7 @@ public interface FlowMap {
 	 * @param id
 	 *            the unique FlowEntry id identifying this rule
 	 */
-	public void removeRule(int id);
+	public void removeRule(int id) throws FlowEntryNotFound;
 
 	/**
 	 * Return the number of rules in the list

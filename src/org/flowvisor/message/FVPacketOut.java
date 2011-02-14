@@ -67,7 +67,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 									"EPERM bad encap packet: "
 											+ this.toVerboseString());
 					fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
-							OFBadActionCode.OFPBAC_EPERM, this));
+							OFBadActionCode.OFPBAC_EPERM, this), fvSlicer);
 					return;
 				}
 			} catch (java.nio.BufferUnderflowException e) {
@@ -87,7 +87,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 			FVLog.log(LogLevel.WARN, fvSlicer, "EPERM bad actions: " + this);
 
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
-					OFBadRequestCode.OFPBRC_EPERM, this));
+					OFBadRequestCode.OFPBRC_EPERM, this), fvSlicer);
 			return;
 		}
 
@@ -98,7 +98,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 		this.setLength((short) (FVPacketOut.MINIMUM_LENGTH + count + this
 				.getPacketData().length));
 		// if we've gotten this far, everything is kosher
-		fvClassifier.sendMsg(this);
+		fvClassifier.sendMsg(this, fvSlicer);
 	}
 
 	// convenience function that Derickso doesn't want in main openflow.jar

@@ -49,6 +49,6 @@ public class FVPortStatisticsReply extends OFPortStatisticsReply implements
 			}
 			statsReply.setLengthU(statsLen + OFStatisticsReply.MINIMUM_LENGTH);
 		}
-		fvSlicer.sendMsg(msg);
+		fvSlicer.sendMsg(msg, fvClassifier);
 	}
 }

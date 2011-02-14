@@ -20,7 +20,7 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 		FVLog.log(LogLevel.DEBUG, fvClassifier, "recv from switch: " + this);
 		for (FVSlicer fvSlicer : fvClassifier.getSlicers())
 			if (fvSlicer.portInSlice(this.portNumber))
-				fvSlicer.sendMsg(this);
+				fvSlicer.sendMsg(this, fvClassifier);
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 		// First, check if this port is in the slice
 		if (!fvSlicer.portInSlice(this.portNumber)) {
 			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
-					OFPortModFailedCode.OFPPMFC_BAD_PORT, this));
+					OFPortModFailedCode.OFPPMFC_BAD_PORT, this), fvClassifier);
 			return;
 		}
 		// Second, update the port's flood state

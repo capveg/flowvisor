@@ -7,6 +7,7 @@ import java.util.Map;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
@@ -172,7 +173,8 @@ public interface FVUserAPI {
 	 * @throws PermissionDeniedException
 	 */
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException;
+			throws MalformedFlowChange, PermissionDeniedException,
+			FlowEntryNotFound;
 
 	/**
 	 * Return a list of slices in the flowvisor: root only!
@@ -239,4 +241,75 @@ public interface FVUserAPI {
 	 */
 	public boolean unregisterTopologyChangeCallback();
 
+	/**
+	 * Return a multiline string of the slice's stats
+	 * 
+	 * The string is of the form:
+	 * 
+	 * ---SENT--- $switch1 :: $type1=$count1[,$type2=$count2[...]] $switch2 ::
+	 * $type1=$count1[,$type2=$count2[...]] Total ::
+	 * $type1=$count1[,$type2=$count2[...]] ---DROP--- $switch1 ::
+	 * $type1=$count1[,$type2=$count2[...]] $switch2 ::
+	 * $type1=$count1[,$type2=$count2[...]] Total ::
+	 * $type1=$count1[,$type2=$count2[...]]
+	 * 
+	 * @param sliceName
+	 *            which slice do you wants stats for
+	 * @return A string of the above form
+	 * @throws SliceNotFound
+	 * @throws PermissionDeniedException
+	 */
+	public String getSliceStats(String sliceName) throws SliceNotFound,
+			PermissionDeniedException;
+
+	/**
+	 * Return a multiline string of the switch's stats
+	 * 
+	 * The string is of the form:
+	 * 
+	 * ---SENT--- $slice1 :: $type1=$count1[,$type2=$count2[...]] $slice2 ::
+	 * $type1=$count1[,$type2=$count2[...]] Total ::
+	 * $type1=$count1[,$type2=$count2[...]] ---DROP--- $slice1 ::
+	 * $type1=$count1[,$type2=$count2[...]] $slice2 ::
+	 * $type1=$count1[,$type2=$count2[...]] Total ::
+	 * $type1=$count1[,$type2=$count2[...]]
+	 * 
+	 * @param dpid
+	 *            of the switchyou wants stats for
+	 * @return A string of the above form
+	 * @throws DPIDNotFound
+	 * @throws PermissionDeniedException
+	 */
+
+	public String getSwitchStats(String dpidStr) throws DPIDNotFound,
+			PermissionDeniedException;
+
+	/**
+	 * Get a List of FlowDBEnty's converted by toBracketMap()
+	 * 
+	 * @param dpid
+	 *            a specific switch or "all" for all
+	 * @return
+	 */
+	public List<Map<String, String>> getSwitchFlowDB(String dpidstr)
+			throws DPIDNotFound;
+
+	/**
+	 * Return a map of the flow entries the slice requested to what the
+	 * flowvisor produced
+	 * 
+	 * @note KILL ME; this map crap is horrible, but we seemingly can't rely on
+	 *       the remote side to support the extensions that serializable needs
+	 *       so I have to do this by hand... need to rewrite everything here and
+	 *       maybe move to SOAP or ProtoBufs
+	 * 
+	 * @param sliceName
+	 * @param dpidstr
+	 * @return
+	 * @throws DPIDNotFound
+	 * @throws SliceNotFound
+	 */
+	public Map<String, List<Map<String, String>>> getSliceRewriteDB(
+			String sliceName, String dpidstr) throws DPIDNotFound,
+			SliceNotFound, PermissionDeniedException;
 }

@@ -30,6 +30,8 @@ import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.io.FVMessageAsyncStream;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.SendRecvDropStats;
+import org.flowvisor.log.SendRecvDropStats.FVStatsType;
 import org.flowvisor.message.FVFeaturesReply;
 import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.FVMessageUtil;
@@ -74,6 +76,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	private Iterator<Short> slowIterator;
 	private final Map<Short, OFPhysicalPort> phyMap;
 	static final byte lldpSysD[] = { 0x0c, 0x08 }; // Type 6, length 8
+	SendRecvDropStats stats;
 
 	// probes can be dropped before a link
 	// down event
@@ -87,9 +90,10 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		this.featuresReply = null;
 		this.descriptionStatistics = null;
 		this.fvMessageFactory = new FVMessageFactory();
+		this.stats = SendRecvDropStats.createSharedStats("topo");
 		try {
 			this.msgStream = new FVMessageAsyncStream(sock,
-					this.fvMessageFactory);
+					this.fvMessageFactory, this, this.stats);
 		} catch (IOException e) {
 			FVLog.log(LogLevel.CRIT, this, "IOException in constructor!");
 			e.printStackTrace();
@@ -409,7 +413,15 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		packetOut.setPacketData(lldp);
 		packetOut
 				.setLength((short) (OFPacketOut.MINIMUM_LENGTH + alen + lldp.length));
-		this.msgStream.write(packetOut);
+		try {
+			this.msgStream.testAndWrite(packetOut);
+		} catch (BufferFull e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		} catch (MalformedOFMessage e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		} catch (IOException e) {
+			FVLog.log(LogLevel.CRIT, this, "failed to write LLDP:", e);
+		}
 	}
 
 	private byte[] makeLLDP(short portNumber, byte[] hardwareAddress) {
@@ -529,13 +541,12 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	synchronized void signalPortTimeout(short port) {
 		Short sPort = Short.valueOf(port);
 		if (this.fastPorts.contains(sPort)) {
-			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: "
-					+ port);
+			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: ", port);
 			this.fastPorts.remove(sPort);
 			this.slowPorts.add(sPort);
 		} else if (!this.slowPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
-					"got signalPortTimeout for non-existant port: " + port);
+					"got signalPortTimeout for non-existant port: ", port);
 		}
 	}
 
@@ -549,14 +560,14 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 			this.fastPorts.add(sPort);
 		} else if (!this.fastPorts.contains(sPort)) {
 			FVLog.log(LogLevel.WARN, this,
-					"got signalFastPort for non-existant port: " + port);
+					"got signalFastPort for non-existant port: ", port);
 		}
 	}
 
 	@Override
-	public void sendMsg(OFMessage msg) {
+	public void sendMsg(OFMessage msg, FVSendMsg from) {
 		if (this.msgStream != null) {
-			FVLog.log(LogLevel.DEBUG, this, "send to controller: " + msg);
+			FVLog.log(LogLevel.DEBUG, this, "send to controller: ", msg);
 			try {
 				this.msgStream.testAndWrite(msg);
 			} catch (BufferFull e) {
@@ -567,15 +578,30 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 				this.pollLoop.queueEvent(new TearDownEvent(this, this));
 			} catch (MalformedOFMessage e) {
 				FVLog.log(LogLevel.CRIT, this, "BUG: " + e);
+				this.stats.increment(FVStatsType.DROP, from, msg);
+			} catch (IOException e) {
+				FVLog.log(LogLevel.WARN, this, " killing connection, got: ", e);
+				this.tearDown();
 			}
 		} else {
 			FVLog.log(LogLevel.WARN, this,
 					"dropping msg: controller not connected: " + msg);
+			this.stats.increment(FVStatsType.DROP, from, msg);
 		}
 	}
 
 	@Override
 	public String getConnectionName() {
 		return FlowSpaceUtil.connectionToString(sock);
+	}
+
+	@Override
+	public void dropMsg(OFMessage msg, FVSendMsg from) {
+		this.stats.increment(FVStatsType.DROP, from, msg);
+	}
+
+	@Override
+	public SendRecvDropStats getStats() {
+		return stats;
 	}
 }

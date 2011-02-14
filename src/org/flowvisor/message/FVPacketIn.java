@@ -67,7 +67,9 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 				FVSlicer fvSlicer = fvClassifier.getSlicerByName(sliceAction
 						.getSliceName());
 				if (fvSlicer == null) {
-					FVLog.log(LogLevel.WARN, fvClassifier,
+					FVLog.log(
+							LogLevel.WARN,
+							fvClassifier,
 							"tried to send msg to non-existant slice: "
 									+ sliceAction.getSliceName()
 									+ " corrupted flowspace?:: "
@@ -75,7 +77,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 					continue;
 				}
 				if (fvSlicer.isConnected()) {
-					fvSlicer.sendMsg(this);
+					fvSlicer.sendMsg(this, fvClassifier);
 					/**
 					 * TODO : come back and decide if we should uncomment this
 					 * i.e., should a rule get squashed if it's only recipient
@@ -117,13 +119,14 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 		flowMod.setHardTimeout(hardTimeout);
 		flowMod.setIdleTimeout(idleTimeout);
 		flowMod.setPriority((short) 0); // set to lowest priority
-		flowMod.setFlags((short) 7); // send removed msg, check over lap, emerge
-		// flow cache
+		flowMod.setFlags((short) 1);
+		// send removed msg (1), not the check overlap (2), or
+		// emergency flow cache (4)
 
 		FVLog.log(LogLevel.WARN, fvClassifier, "inserting drop (hard="
 				+ hardTimeout + ",idle=" + idleTimeout + ") rule for "
 				+ flowEntry);
-		fvClassifier.sendMsg(flowMod);
+		fvClassifier.sendMsg(flowMod, fvClassifier);
 	}
 
 	private String toVerboseString() {
@@ -160,10 +163,8 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 			DPIDandPort dpidandport = TopologyConnection.parseLLDP(this
 					.getPacketData());
 			if (dpidandport == null) {
-				FVLog
-						.log(LogLevel.DEBUG, topologyConnection,
-								"ignoring non-lldp packetin: "
-										+ this.toVerboseString());
+				FVLog.log(LogLevel.DEBUG, topologyConnection,
+						"ignoring non-lldp packetin: " + this.toVerboseString());
 				return;
 			}
 			OFFeaturesReply featuresReply = topologyConnection
@@ -174,8 +175,8 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 				return;
 			}
 			LinkAdvertisement linkAdvertisement = new LinkAdvertisement(
-					dpidandport.getDpid(), dpidandport.getPort(), featuresReply
-							.getDatapathId(), this.inPort);
+					dpidandport.getDpid(), dpidandport.getPort(),
+					featuresReply.getDatapathId(), this.inPort);
 			topologyConnection.getTopologyController().reportProbe(
 					linkAdvertisement);
 			topologyConnection.signalFastPort(this.inPort);

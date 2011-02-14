@@ -2,6 +2,7 @@ package org.flowvisor.config;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Takes a string of the form "foo[key1=[val1],key2=[val2],]" are returns a
@@ -75,7 +76,7 @@ public class BracketParse {
 		return map;
 	}
 
-	public static String encode(HashMap<String, String> map) {
+	public static String encode(Map<String, String> map) {
 		if (!map.containsKey(OBJECTNAME))
 			return null; // needs to have a OBJECTNAME key
 		String base = map.get(OBJECTNAME) + "[";

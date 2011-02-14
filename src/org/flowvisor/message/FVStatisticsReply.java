@@ -9,12 +9,13 @@ import org.flowvisor.message.statistics.ClassifiableStatistic;
 import org.flowvisor.message.statistics.FVDescriptionStatistics;
 import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
+import org.openflow.protocol.OFStatisticsMessageBase;
 import org.openflow.protocol.OFStatisticsReply;
 import org.openflow.protocol.statistics.OFDescriptionStatistics;
 import org.openflow.protocol.statistics.OFStatistics;
 
 public class FVStatisticsReply extends OFStatisticsReply implements
-		Classifiable, Slicable, TopologyControllable {
+		Classifiable, Slicable, TopologyControllable, SanityCheckable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
@@ -34,7 +35,7 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 				FVLog.log(LogLevel.WARN, fvClassifier,
 						"dropping unclassifiable msg: " + this);
 			else
-				fvSlicer.sendMsg(this);
+				fvSlicer.sendMsg(this, fvClassifier);
 		}
 	}
 
@@ -66,4 +67,19 @@ public class FVStatisticsReply extends OFStatisticsReply implements
 		}
 	}
 
+	@Override
+	public boolean isSane() {
+		int msgLen = this.getLengthU();
+		int count;
+		count = OFStatisticsMessageBase.MINIMUM_LENGTH;
+		for (OFStatistics stat : this.getStatistics()) {
+			count += stat.getLength();
+		}
+		if (count == msgLen)
+			return true;
+		else {
+			FVLog.log(LogLevel.WARN, null, "msg failed sanity check: " + this);
+			return false;
+		}
+	}
 }

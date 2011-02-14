@@ -4,8 +4,6 @@ import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.message.FVMessageUtil;
-import org.flowvisor.message.statistics.ClassifiableStatistic;
-import org.flowvisor.message.statistics.SlicableStatistic;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.statistics.OFFlowStatisticsReply;
@@ -33,7 +31,7 @@ public class FVFlowStatisticsReply extends OFFlowStatisticsReply implements
 			FVLog.log(LogLevel.WARN, fvClassifier,
 					"dropping unclassifiable msg: " + msg);
 		else {
-			fvSlicer.sendMsg(msg);
+			fvSlicer.sendMsg(msg, fvClassifier);
 		}
 	}
 

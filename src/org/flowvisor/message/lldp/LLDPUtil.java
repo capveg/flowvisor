@@ -55,7 +55,7 @@ public class LLDPUtil {
 		trailer.appendTo(po);
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "applied lldp hack: " + po
 				+ " slice=" + fvSlicer.getSliceName());
-		fvClassifier.sendMsg(po);
+		fvClassifier.sendMsg(po, fvSlicer);
 		return true;
 	}
 
@@ -100,7 +100,7 @@ public class LLDPUtil {
 				if (fvSlicer.isConnected()) {
 					FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: "
 							+ pi);
-					fvSlicer.sendMsg(pi);
+					fvSlicer.sendMsg(pi, fvClassifier);
 				}
 				return true;
 			}
@@ -120,7 +120,7 @@ public class LLDPUtil {
 		pi.setXid(0xdeaddead); // mark this as broadcasted
 		for (FVSlicer fvSlicer : fvClassifier.getSlicers()) {
 			if (fvSlicer.portInSlice(inport) && fvSlicer.isConnected())
-				fvSlicer.sendMsg(pi);
+				fvSlicer.sendMsg(pi, fvClassifier);
 
 		}
 		return true;

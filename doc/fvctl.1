@@ -5,6 +5,10 @@
 .SH NAME
 fvctl \- commandline tool to administer FlowVisor
 
+.SH AUTHOR
+
+Rob Sherwood <rob.sherwood@stanford.edu>
+
 .SH SYNOPSIS
 .B fvctl
 [\fIoptions\fR] \fIcommand [\fIargs\fR...]
@@ -12,7 +16,7 @@ fvctl \- commandline tool to administer FlowVisor
 .SH DESCRIPTION
 The
 .B fvctl
-program is a command line tool for configuring, monitoring, and
+program is a command line tool for configuring, debugging, monitoring, and
 administering running FlowVisor instances.  It is able to show the
 current state of a FlowVisor, including features, configuration, and
 flowspace entries.
@@ -130,14 +134,16 @@ and the topology that connects them.
 \fBgetLinks\fR
     Displays the links between the devices, as inferred by FlowVisor's topology discovery mechanism.
 
-.TP \fBregisterCallback\fR \fIURL\fR \fIcookie\fR
+.TP 
+\fBregisterCallback\fR \fIURL\fR \fIcookie\fR
 Register a XMLRPC callback for the flowvisor to call when there is
 a change in the topology.  Once registered, with each topology change
 (with some dampenning), FlowVisor will connect to the server listed in
 URL, and make the XMLRPC call to the path of \fIURL\fR with \fIcookie\fR
 as a parameter.
 
-.TP \fBunregisterCallback\fR 
+.TP 
+\fBunregisterCallback\fR 
 UnRegisters a previously registered XMLRPC callback.
 
 .PP
@@ -168,6 +174,62 @@ only the "root" user.
     of the value string must correspond to the type of \fIconfigEntry\fR, e.g., 
     a boolean value must be \fItrue\fR or \fIfalse\fR, an integer must be an
     decimal number, etc.  
+
+.PP
+The following commands relay how many OpenFlow messages have been
+sent/recv/drop'd by switches and slices.  They are currently returned in a
+single block string format, which is suboptimal, but will likely go away
+if we get rid of XMLRPC.  Any message type not listed implicitly has a
+count of zero (never appeared).  The current output looks something like:
+
+.PP
+Switch 00:00:00:00:00:00:00:01's STATS:
+.br
+---Sent---
+.br
+classifier-dpid=00:00:00:00:00:00:00:01 :: FEATURES_REPLY=3,HELLO=1
+.br
+Total :: FEATURES_REPLY=3,HELLO=1
+.br
+---Recv---
+.br
+slicer_bob_dpid=00:00:00:00:00:00:00:01 :: FEATURES_REQUEST=1
+.br
+slicer_alice_dpid=00:00:00:00:00:00:00:01 :: FEATURES_REQUEST=1,PACKET_OUT=1
+.br
+Total :: FEATURES_REQUEST=2,PACKET_OUT=1
+.br
+---Drop---
+.br
+Total ::
+.br
+
+
+.TP
+\fBgetSliceStats\fR \fIsliceName\fR
+    Returns statistics for \fIsliceName\fR in terms of messages sent, received, and dropped, subdivided by message type.
+
+.TP
+\fBgetSwitchStats\fR \fIdpid\fR
+    Returns statistics for the switch with dpid \fIdpid\fR in terms of messages sent, received, and dropped, subdivided by message type.
+
+.TP
+\fBgetSwitchFlowDB\fR \fIdpid\fR
+    Dump's the FlowVisor's view of \fIdpid\fR's flow table.  The FlowVisor
+    tracks the sum of the flow_mods and flow_removed messages, so this
+    DB should be up to date baring race conditions and switch bugs.
+    For hardware switches, this is likely much cheaper to ask the FlowVisor
+    for its cached copy than to ask the switch itself. Note that track_flows must
+    be enabled for this feature to work, else this command will return an empty list.
+    Flow tracking can be enabled with:
+        \fBfvctl\fR \fIsetConfig\fR \fB!flowvisor!track_flows\fR \fItrue\fR
+
+.TP
+\fBgetSliceRewriteDB\fR \fIsliceName\fR \fIdpid\fR
+    Dump how the flowvisor has rewritten the slices flowentries.  This command
+    outputs how the original flowMod \fIfm_original\fR was rewritten to a 
+    sequence of flowMods: \fIfm_rewrite1,fm_rewrite2\fR.  Similar to getSwitchFlowDB,
+    this command returns an empty list if track_flows is disabled.
 
 .PP 
 The following commands are used for debugging the XMLRPC server
@@ -254,19 +316,23 @@ A more complicated FLOW MATCH:
 .B \fBdl_src=00:23:10:ff:a4:b1,dl_type=0x0800,nw_proto=6,tp_dst=80\fR
 
 .SH DPID
-The datapath identifier (DPID) is a unique ID that OpenFlow devices use to identify themselves.  DPIDs are
-8 bytes and can be specified as a decimal number or as 8 hex octets, e.g., 00:00:00:23:10:35:ce:a5.  There
-is also a "wildcard" DPID that matches all DPIDs that can be specified using any of the strings \fBall\fB,
-\fBany\fI, or \fBALL_DPIDS\fR.  
+The datapath identifier (DPID) is a unique ID to name and identify
+OpenFlow devices.  With fvctl, DPIDs are 8 bytes and can be specified as a decimal
+number or as 8 hex octets, e.g., 00:00:00:23:10:35:ce:a5.  The DPID
+ff:ff:ff:ff:ff:ff:ff is a "wildcard" DPID that matches all DPIDs.
+It can be specified using any of the following short cuts: \fBall\fR, \fBany\fR,
+or \fBALL_DPIDS\fR.
 
 .SH SLICEACTIONS
 Slice actions is a comma separated list of slices that have control
 over a specific FlowSpace.
-Slice actions are of the form "Slice:\fIslicename1\fR=\fIperm\fR[\fIslicename2\fR=\fIperm\fR[...]]".
+Slice actions are of the form "Slice:\fIslicename1\fR=\fIperm\fR[\fISlice:slicename2\fR=\fIperm\fR[...]]".
 Each slice can have three types of permissions over a flowspace: \fBDELEGATE\fR, \fBREAD\fR, and \fBWRITE\fR.  
 Permissions are \fIcurrently\fR a bitmask specified as an integer, with DELEGATE=1, READ=2, WRITE=4.  So,
 "Slice:alice=5,bob=2" would give Alice's slice DELEGATE and WRITE permissions (1+4=5), but Bob only READ permissions.
-Improving this interface is on the TODO list.
+Improving this interface is on the TODO list.  For example, 
+
+ \fIfvctl addFlowSpace all 2 any Slice:slice1=4,Slice:slice2=2\fR
 
 .TP 
 .B DELEGATE
@@ -291,8 +357,6 @@ of a slice's flow_mod and the union of its FlowSpace.
 .B TODO
 
 .fi
-.SH AUTHOR
-    Rob Sherwood <r.sherwood@telekom.com> or  <rob.sherwood@stanford.edu>
 .SH "SEE ALSO"
 
 .BR flowvisor (8),

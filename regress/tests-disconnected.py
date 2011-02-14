@@ -97,7 +97,7 @@ try:
                 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
                 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
                 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-                00 00 00 00 00 00 00 07'''
+                00 00 00 00 00 00 00 01'''
     h.runTest(name="packet_in drop rule", timeout=timeout, events= [
             TestEvent( "send","switch",'switch1', packet_to_g0_p0),
             TestEvent( "recv","guest",'alice', packet_to_g0_p0),

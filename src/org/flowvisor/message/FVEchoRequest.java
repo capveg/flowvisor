@@ -29,7 +29,7 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FVEchoReply reply = new FVEchoReply();
 		reply.setXid(this.getXid());
-		fvClassifier.sendMsg(reply);
+		fvClassifier.sendMsg(reply, fvClassifier);
 	}
 
 	/*
@@ -41,12 +41,12 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		fvSlicer.sendMsg(makeReply());
+		fvSlicer.sendMsg(makeReply(), fvSlicer);
 	}
 
 	@Override
 	public void topologyController(TopologyConnection topologyConnection) {
-		topologyConnection.sendMsg(makeReply());
+		topologyConnection.sendMsg(makeReply(), topologyConnection);
 	}
 
 	FVEchoReply makeReply() {

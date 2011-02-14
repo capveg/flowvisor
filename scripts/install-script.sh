@@ -72,12 +72,12 @@ if [ "X$prefix" = "X" ] ; then
     prefix=$prefix_default
 fi
 
-test -z "$fvuser" && read -p "FlowVisor User ($fvuser_default): " fvuser
+test -z "$fvuser" && read -p "FlowVisor User (needs to already exist) ($fvuser_default): " fvuser
 if [ "X$fvuser" = "X" ] ; then
     fvuser=$fvuser_default
 fi
 
-test -z "$fvgroup" && read -p "FlowVisor Group ($fvgroup_default): " fvgroup
+test -z "$fvgroup" && read -p "FlowVisor Group (needs to already exist) ($fvgroup_default): " fvgroup
 if [ "X$fvgroup" = "X" ] ; then
     fvgroup=$fvgroup_default
 fi
@@ -116,6 +116,13 @@ LIBS="\
     xmlrpc-common-3.1.3.jar \
     xmlrpc-server-3.1.3.jar \
     "
+
+DOCS="\
+    README
+    README.dev
+    INSTALL
+    "
+
 owd=`pwd`
 cd $scriptd
 
@@ -126,7 +133,7 @@ done
 
 echo Creating directories
 
-for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 ; do 
+for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 share/doc/flowvisor; do 
     echo Creating $prefix/$d
     $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$prefix/$d
 done
@@ -165,5 +172,9 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=644 flowvisor.8  $ro
 echo Installing configs
 cd $owd
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=644 $scriptd/envs $root$prefix/etc/flowvisor/envs.sh
+
+echo Installing documentation
+cd $owd
+$install $verbose --owner=$binuser --group=$bingroup --mode=644 $DOCS $root$prefix/share/doc/flowvisor
 
 echo NEXT: need to generate a config with \`fvconfig generate $root$prefix/etc/flowvisor/config.xml\`

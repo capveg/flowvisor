@@ -14,9 +14,7 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 	@Override
 	public void sliceFromController(OFMessage msg, FVClassifier fvClassifier,
 			FVSlicer fvSlicer) {
-		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
-		fvClassifier.sendMsg(msg);
+		FVMessageUtil.translateXidAndSend(msg, fvClassifier, fvSlicer);
 	}
 
 	/**
@@ -31,7 +29,7 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 			FVLog.log(LogLevel.WARN, fvClassifier,
 					"dropping unclassifiable msg: " + msg);
 		else {
-			fvSlicer.sendMsg(msg);
+			fvSlicer.sendMsg(msg, fvClassifier);
 		}
 	}
 

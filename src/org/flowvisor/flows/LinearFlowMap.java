@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.openflow.protocol.OFMatch;
 
 /**
@@ -52,12 +53,13 @@ public class LinearFlowMap implements FlowMap, Cloneable {
 	 * sorted by priority, not ID
 	 */
 	@Override
-	public void removeRule(int id) {
+	public void removeRule(int id) throws FlowEntryNotFound {
 		for (FlowEntry flowEntry : this.getRules())
 			if (flowEntry.getId() == id) {
 				this.rules.remove(flowEntry);
-				break;
+				return;
 			}
+		throw new FlowEntryNotFound(id);
 	}
 
 	/**

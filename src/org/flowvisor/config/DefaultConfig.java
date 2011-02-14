@@ -60,14 +60,16 @@ public class DefaultConfig {
 		// now populate the config
 		try {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
-			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer
-					.getDefaultPort());
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT,
+					APIServer.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR,
 					FlowVisor.FLOWVISOR_VERSION);
 			// checkpointing on by default
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// topology server on by default
 			FVConfig.setBoolean(FVConfig.TOPOLOGY_SERVER, true);
+			// track flows off by default -- experimental feature
+			FVConfig.setBoolean(FVConfig.FLOW_TRACKING, false);
 			// set logging to NOTE by default
 			FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.NOTE.toString());
 

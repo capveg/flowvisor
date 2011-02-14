@@ -32,11 +32,11 @@ public class FVTimer {
 	}
 
 	public void addTimer(FVTimerEvent e) {
-		FVLog.log(LogLevel.MOBUG, e.getSrc(), "Scheduleing event " + e.getId()
+		FVLog.log(LogLevel.MOBUG, e.getSrc(), "Scheduleing event ", e.getId()
 				+ " at t=" + new Time(System.currentTimeMillis())
 				+ " to happen at " + new Time(e.getExpireTime()));
 		pq.add(e);
-		FVLog.log(LogLevel.MOBUG, null, "Events in timer queue: " + pq.size());
+		FVLog.log(LogLevel.MOBUG, null, "Events in timer queue: ", pq.size());
 	}
 
 	public void logEventQueue(String prefix, LogLevel level) {
@@ -56,14 +56,11 @@ public class FVTimer {
 		FVTimerEvent e = this.pq.peek();
 
 		while ((e != null) && (e.getExpireTime() <= now)) {
-			this.logEventQueue("before_process_event", LogLevel.MOBUG);
 			pq.remove();
-			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event "
-					+ e.getId() + " scheduling err = "
-					+ (now - e.getExpireTime()));
+			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event ",
+					e.getId(), " scheduling err = ", (now - e.getExpireTime()));
 			e.getDst().handleEvent(e);
 			e = this.pq.peek();
-			this.logEventQueue("after_process_event", LogLevel.MOBUG);
 		}
 
 		if (e == null)

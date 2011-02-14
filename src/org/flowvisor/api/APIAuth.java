@@ -180,7 +180,7 @@ public class APIAuth implements AuthenticationHandler {
 		String filename = args[0];
 		String user = args[1];
 		String passwd = FVConfig.readPasswd("Enter password for account '"
-				+ user + "' on the flowvisor (will be echo'd!):");
+				+ user + "' on the flowvisor:");
 		String passwd2 = FVConfig.readPasswd("Enter password again");
 		if (!passwd.equals(passwd2)) {
 			System.err.println("Passwords do not match: please try again");

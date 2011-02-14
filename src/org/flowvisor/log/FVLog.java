@@ -7,6 +7,9 @@ import org.flowvisor.FlowVisor;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
+import org.flowvisor.message.FVFlowMod;
+import org.flowvisor.message.FVMessageFactory;
+import org.openflow.protocol.OFType;
 
 /**
  * Static method
@@ -26,15 +29,20 @@ public class FVLog {
 	 *            Log priority
 	 * @param source
 	 *            who sent the log message (can be null)
-	 * @param msg
+	 * @param msgs
 	 *            Log message
 	 */
 	public static synchronized void log(LogLevel level, FVEventHandler source,
-			String msg) {
+			Object... msgs) {
 		if (needsInit)
 			doInit();
-		if (level.ordinal() <= threshold.ordinal())
-			logger.log(level, System.currentTimeMillis(), source, msg);
+		if (level.ordinal() <= threshold.ordinal() && (msgs.length > 0)) {
+			StringBuilder stringBuilder = new StringBuilder(msgs[0].toString());
+			for (int i = 1; i < msgs.length; i++)
+				stringBuilder.append(msgs[i].toString());
+			logger.log(level, System.currentTimeMillis(), source,
+					stringBuilder.toString());
+		}
 	}
 
 	private static void doInit() {
@@ -48,8 +56,8 @@ public class FVLog {
 			System.err.println("--- '" + FVConfig.LOG_THRESH
 					+ "' not set in config; defaulting to loglevel 'NOTE'");
 			try {
-				FVConfig.setString(FVConfig.LOG_THRESH, LogLevel.NOTE
-						.toString());
+				FVConfig.setString(FVConfig.LOG_THRESH,
+						LogLevel.NOTE.toString());
 				needConfigFlush = true;
 
 			} catch (ConfigError e1) {
@@ -67,8 +75,11 @@ public class FVLog {
 			logger.init();
 		}
 		System.err.println("--- Setting logging level to " + threshold);
-		if (needConfigFlush)
-			FlowVisor.getInstance().checkPointConfig();
+		if (needConfigFlush) {
+			FlowVisor fv = FlowVisor.getInstance();
+			if (fv != null)
+				fv.checkPointConfig();
+		}
 		for (LogLevel level : LogLevel.class.getEnumConstants()) {
 			if (level != LogLevel.FATAL) // fatal gets broadcasted to console
 				FVLog.log(level, null, "log level enabled: " + level);
@@ -100,5 +111,32 @@ public class FVLog {
 	 */
 	public static void setThreshold(LogLevel l) {
 		FVLog.threshold = l;
+	}
+
+	/**
+	 * Benchmarking tool for the logging systems
+	 * 
+	 * @param args
+	 */
+	public static void main(String args[]) {
+		long iterations = 10000000;
+		FVLog.logger = new DevNullLogger();
+		FVLog.log(LogLevel.ALERT, null, "Setting up logging facility");
+		long start1 = System.currentTimeMillis();
+		FVMessageFactory factory = new FVMessageFactory();
+		FVFlowMod fm = (FVFlowMod) factory.getMessage(OFType.FLOW_MOD);
+		for (long it = 0; it < iterations; it++)
+			FVLog.log(LogLevel.MOBUG, null, "LogLevel.INFO test" + " one "
+					+ " two" + " three " + fm);
+		long stop1 = System.currentTimeMillis();
+		for (long it = 0; it < iterations; it++)
+			FVLog.log(LogLevel.MOBUG, null, "LogLevel.MOBUG test", " one ",
+					" two", " three ", fm);
+		long stop2 = System.currentTimeMillis();
+		double slow = iterations * 1.0 / (stop1 - start1);
+		double fast = iterations * 1.0 / (stop2 - stop1);
+		System.out.println("Slow run logs/second: " + slow);
+		System.out.println("Fast run logs/second: " + fast);
+		System.out.println("Difference: " + fast / slow);
 	}
 }

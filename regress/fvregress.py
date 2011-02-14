@@ -420,12 +420,14 @@ class FvRegress:
         else :
             print "Not killing fv process: using already running flowvisor"
         print "Cleaning up fake switches"
-        for sw in self.fakeSwitches.values() :
-            sw.set_dead()
+        if self.fakeSwitches:
+            for sw in self.fakeSwitches.values() :
+                sw.set_dead()
         self.fakeSwitches=None
         print "Cleaning up fake controllers"
-        for cont in self.fakeControllers.values() :
-            cont.set_dead()
+        if self.fakeControllers:
+            for cont in self.fakeControllers.values() :
+                cont.set_dead()
         self.fakeControllers=None
         print "Sleeping for a second to let things die"
         time.sleep(1)

@@ -104,8 +104,7 @@ public class FVMessageUtil {
 	public static void translateXidAndSend(OFMessage msg,
 			FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVMessageUtil.translateXid(msg, fvClassifier, fvSlicer);
-		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to switch: " + msg);
-		fvClassifier.sendMsg(msg);
+		fvClassifier.sendMsg(msg, fvSlicer);
 	}
 
 	public static void dropUnexpectedMesg(OFMessage msg, FVEventHandler handler) {
@@ -121,7 +120,7 @@ public class FVMessageUtil {
 			return;
 		}
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "sending to controller: " + msg);
-		fvSlicer.sendMsg(msg);
+		fvSlicer.sendMsg(msg, fvClassifier);
 	}
 
 	public static OFMessage makeErrorMsg(OFFlowModFailedCode code, OFMessage msg) {

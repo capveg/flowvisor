@@ -3,11 +3,13 @@ doc/
 dist/
 lib/apache-xmlrpc-3.1.3/
 lib/src/
-regress/.fvregress.py.swp
-regress/.tests-base.py.swp
 regress/fv_regress.log
 sslTest/
 tmp/
 scripts/envs.sh
 pkgbuild/
+<<<<<<< HEAD:.gitignore
+=======
+*.swp
+>>>>>>> dev/unstable:.gitignore
 mySSLKeyStore

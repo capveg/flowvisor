@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from fvregress import *
-import string     # really?  you have to do this?
 import sys
 import xmlrpclib
 import re
@@ -13,8 +12,9 @@ import re
 #    hyperargs=["-v0", "-a", "flowvisor-conf.d-base", "ptcp:%d"% HyperTest.OFPORT],valgrind=valgrindArgs)
 
 def test_failed(str):
-    print "TEST FAILED!!!: " + str
-    sys.exit(1)
+    s = "TEST FAILED!!!: " + str
+    print s
+    raise Exception(s)
 
 wantPause = True
 try:
@@ -45,6 +45,8 @@ try:
     user="root"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (root)
     print "Root ping test"
     x= s.api.ping("Joe mama")
     valid1 = "PONG\(root\): "
@@ -56,6 +58,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid1 + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (root)
     print "Root listFlowSpace test"
     x = s.api.listFlowSpace()
     #for x in  s.api.listFlowSpace():
@@ -65,6 +69,9 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace root test")
     print "     passed"
+
+
+### getDevices (root)
     print "GetDevices Test"
     x =  s.api.listDevices()
     valid_len = 2
@@ -93,6 +100,8 @@ try:
         print "getDeviceInfo return wrong port list: wanted " + right_portlist + " but got " + portList
         test_failed("listDevices root test5")
     print "     passed"
+
+### getLinks (root)
     print "Root getLinks test"
     x = s.api.getLinks()
     linkcount=0
@@ -106,6 +115,18 @@ try:
         for key,val in link.iteritems():
             print "                 " + key  + "=" + val 
     print "     passed"
+
+### changeFlowSpace(1234)
+    print "Root changeFlowSpace(REMOVE, 1234)"
+    change = {"operation" : "REMOVE", "id" : "1234"}
+    try:
+        if not s.api.changeFlowSpace([change]):
+            test_failed("remove illegal flow space")
+    except xmlrpclib.Fault:
+        print "     passed"
+
+
+### Slice Creation: Cathy
     print "Slice creation: Cathy"
     lame_email = "cathy@foo.com"
     if not s.api.createSlice("cathy","cathyPass","tcp:localhost:54323",lame_email) :
@@ -116,6 +137,8 @@ try:
         print "Failed to get correct email for cathy: wanted " + lame_email + " but got " + str(x)
         test_failed("slice creation")
     print "     passed"
+
+### Slice Creation: Doug
     print "Slice creation: Doug (with FieldSeparator) -- should be blocked"
     cool_email = "laudi@daudi.com"
     try:
@@ -125,16 +148,65 @@ try:
     except (xmlrpclib.Fault):
         print "     passed"
 
+### Slice Creation: Cathy again
+    print "Slice creation: Cathy (again) -- should be blocked"
+    some_email = "cathy@dos.com"
+    try:
+        s.api.createSlice("cathy", "otherPass", "tcp:localhost:54323", some_email)
+        print "Failed: created a slice which already existed."
+        test_failed("Slice creation with existing ID")
+    except (xmlrpclib.Fault):
+        print "    passed"
+        
+
+### getSliceInfo (alice)
     print "Test: getSliceInfo(alice)"
     x = s.api.getSliceInfo("alice")
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
+    ################################################################
+    # send some more traffic just so we have some stats to report
+    lldp_out = FvRegress.OFVERSION + '''0d 00 3a 00 00 00 00 ff ff ff ff ff fd 00 08
+            00 00 00 08 00 01 00 00 01 23 20 00 00 01 00 12
+            e2 b8 dc 4c 88 cc 02 07 04 e2 b8 dc 3b 17 95 04
+            03 02 00 01 06 02 00 78 00 00'''
+    lldp_out_after = FvRegress.OFVERSION + '''0d005e00000000fffffffffffd0008
+            00000008000100000123200000010012
+            e2b8dc4c88cc020704e2b8dc3b179504
+            03020001060200780000022407616c69
+            636500202020206d6167696320666c6f
+            777669736f7231000615deadcafe'''
+    h.runTest(name="lldp hack", timeout=timeout, events= [
+            TestEvent( "send","guest",'alice', lldp_out),
+            TestEvent( "recv","switch",'switch1', lldp_out_after),
+            ])
+    ################################################################
+
+
+### getSliceStats (alice)
+    print "Test: getSliceStats(alice)"
+    x = s.api.getSliceStats("alice")
+    if x :
+        print "Alice's STATS:"
+        print x
+    else:
+        test_failed("getSliceStats returned None")
+
+    print "Test: getSwitchStats(00:00:00:00:00:00:00:01)"
+    x = s.api.getSwitchStats("00:00:00:00:00:00:00:01")
+    if x :
+        print "Switch 00:00:00:00:00:00:00:01's STATS:"
+        print x
+    else:
+        test_failed("getSliceStats returned None")
 
 
 #################################### Start Alice Tests
     user="alice"
     passwd="alicePass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (alice)
     print "Alice ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG\(alice\):"
@@ -142,6 +214,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (alice)
     print "Alice listFlowSpace test"
     x = s.api.listFlowSpace()
     valid_len = 6 
@@ -149,12 +223,15 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace alice test")
     print "     passed"
+
     ## FIXME!
     #print s.api.change_passwd("alice","foo")
-#################################### Start Alice Tests
+#################################### Start Bob Tests
     user="bob"
     passwd="bobPass"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (bob)
     print "Bob ping test"
     x= s.api.ping("Joe mama")
     valid = "PONG\(bob\):"
@@ -162,6 +239,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### listFlowSpace (bob)
     print "Bob listFlowSpace test"
     x = s.api.listFlowSpace()
     valid_len = 4 
@@ -169,10 +248,13 @@ try:
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
         test_failed("listFlowSpace bob test")
     print "     passed"
+
 #################################### Start Root Tests
     user="root"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
+
+### ping (2) (root)
     print "Root ping test(2)"
     x= s.api.ping("Joe mama")
     valid = "PONG\(root\):"
@@ -180,6 +262,8 @@ try:
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
+
+### deleteSlice(alice) (root)
     print "Root deleteSlice(alice)"
     if not s.api.deleteSlice('alice') :
         print "Got false!"

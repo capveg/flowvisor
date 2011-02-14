@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.xmlrpc.webserver.WebServer;
 import org.flowvisor.api.APIServer;
@@ -37,7 +39,7 @@ public class FlowVisor {
 
 	/********/
 	String configFile;
-	ArrayList<FVEventHandler> handlers;
+	List<FVEventHandler> handlers;
 
 	private int port;
 
@@ -146,6 +148,19 @@ public class FlowVisor {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+
+		// print some system state
+		boolean flowdb = false;
+		try {
+			if (FVConfig.getBoolean(FVConfig.FLOW_TRACKING))
+				flowdb = true;
+		} catch (ConfigError e) {
+			// assume off if not set
+			FVConfig.setBoolean(FVConfig.FLOW_TRACKING, false);
+		}
+		if (!flowdb)
+			FVLog.log(LogLevel.INFO, null, "flowdb: Disabled");
+
 		// start event processing
 		pollLoop.doEventLoop();
 	}
@@ -230,8 +245,9 @@ public class FlowVisor {
 	private void tearDown() {
 		if (this.apiServer != null)
 			this.apiServer.shutdown(); // shutdown the API Server
-		for (Iterator<FVEventHandler> it = this.handlers.iterator(); it
-				.hasNext();) {
+		List<FVEventHandler> tmp = this.handlers;
+		this.handlers = new LinkedList<FVEventHandler>();
+		for (Iterator<FVEventHandler> it = tmp.iterator(); it.hasNext();) {
 			FVEventHandler handler = it.next();
 			it.remove();
 			handler.tearDown();
@@ -252,8 +268,8 @@ public class FlowVisor {
 		System.err
 				.println("---------------------------------------------------------------");
 		System.err.println("err: " + string);
-		SimpleCLI.printHelp("FlowVisor [options] config.xml", FlowVisor
-				.getOptions());
+		SimpleCLI.printHelp("FlowVisor [options] config.xml",
+				FlowVisor.getOptions());
 		System.exit(-1);
 	}
 
@@ -322,9 +338,8 @@ public class FlowVisor {
 			if (!FVConfig.getBoolean(FVConfig.CHECKPOINTING))
 				return;
 		} catch (ConfigError e1) {
-			FVLog
-					.log(LogLevel.WARN, null,
-							"Checkpointing config not set: assuming you want checkpointing");
+			FVLog.log(LogLevel.WARN, null,
+					"Checkpointing config not set: assuming you want checkpointing");
 		}
 
 		try {

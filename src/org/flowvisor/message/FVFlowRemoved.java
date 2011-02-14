@@ -18,25 +18,37 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 		Slicable {
 
 	/**
-	 * Current algorithm: send this flow expiration to *anyone* who could have
-	 * inserted this flow
+	 * Current algorithm: if flow tracking knows who sent this flow, then just
+	 * send to them
 	 * 
-	 * FIXME: this is dumb: we should record the state of who actually sent it
-	 * and only send it back to that person.
+	 * If flow tracking doesn't know (or is disabled) send to everyone who
+	 * *could* have sent the flow
+	 * 
+	 * FIXME: do the reference counting so that if a flow is expanded three
+	 * ways, only send the flow_removed up to the controller if all three flows
+	 * have expired
 	 */
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
 		FlowMap flowSpace = fvClassifier.getSwitchFlowMap();
-		List<FlowEntry> flowEntries = flowSpace.matches(fvClassifier.getDPID(),
-				this.match);
 		Set<String> slicesToUpdate = new HashSet<String>();
-		// make a list of everyone who could have inserted this flow entry
-		for (FlowEntry flowEntry : flowEntries) {
-			for (OFAction ofAction : flowEntry.getActionsList()) {
-				if (ofAction instanceof SliceAction) {
-					SliceAction sliceAction = (SliceAction) ofAction;
-					if ((sliceAction.getSlicePerms() & SliceAction.WRITE) != 0) {
-						slicesToUpdate.add(sliceAction.getSliceName());
+
+		String sliceName = fvClassifier.getFlowDB().processFlowRemoved(this,
+				fvClassifier.getDPID());
+		if (sliceName != null)
+			slicesToUpdate.add(sliceName);
+		else {
+			// flow tracking either disabled or broken
+			// just fall back to everyone who *could* have inserted this flow
+			List<FlowEntry> flowEntries = flowSpace.matches(
+					fvClassifier.getDPID(), this.match);
+			for (FlowEntry flowEntry : flowEntries) {
+				for (OFAction ofAction : flowEntry.getActionsList()) {
+					if (ofAction instanceof SliceAction) {
+						SliceAction sliceAction = (SliceAction) ofAction;
+						if ((sliceAction.getSlicePerms() & SliceAction.WRITE) != 0) {
+							slicesToUpdate.add(sliceAction.getSliceName());
+						}
 					}
 				}
 			}
@@ -50,7 +62,8 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 								+ slice);
 				continue;
 			}
-			fvSlicer.sendMsg(this); // actually send it to this slice
+			fvSlicer.getFlowRewriteDB().processFlowRemoved(this);
+			fvSlicer.sendMsg(this, fvClassifier);
 		}
 	}
 

@@ -31,9 +31,11 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
+import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
+import org.flowvisor.flows.FlowDBEntry;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -54,6 +56,11 @@ public class FVCtl {
 			new APICmd("deleteSlice", 1, "<slicename>"),
 			new APICmd("changePasswd", 1, "<slicename>"),
 			new APICmd("getSliceInfo", 1, "<slicename>"),
+
+			new APICmd("getSliceStats", 1, "<slicename>"),
+			new APICmd("getSwitchStats", 1, "<dpid>"),
+			new APICmd("getSwitchFlowDB", 1, "<dpid>"),
+			new APICmd("getSliceRewriteDB", 2, "<slicename> <dpid>"),
 
 			new APICmd("listFlowSpace", 0),
 			new APICmd("removeFlowSpace", 1, "<id>"),
@@ -136,7 +143,7 @@ public class FVCtl {
 	public void installDumbTrust() {
 
 		// Create a trust manager that does not validate certificate chains
-		System.err.println("WARN: blindly trusting server cert - FIXME");
+		// System.err.println("WARN: blindly trusting server cert - FIXME");
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public X509Certificate[] getAcceptedIssuers() {
 				return null;
@@ -261,6 +268,56 @@ public class FVCtl {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public void run_getSwitchFlowDB(String dpidString) throws XmlRpcException,
+			MapUnparsable {
+		Object[] reply = (Object[]) this.client.execute("api.getLinks",
+				new Object[] { dpidString });
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		Map<String, String> map;
+		FlowDBEntry flowDBEntry;
+		for (int i = 0; i < reply.length; i++) {
+			if (!(reply[i] instanceof Map<?, ?>)) {
+				System.err.println("not a map: Skipping unparsed reply: "
+						+ reply[i]);
+			} else {
+				map = (Map<String, String>) reply[i];
+				flowDBEntry = new FlowDBEntry();
+				flowDBEntry.fromBacketMap(map);
+				System.out.println("DBEntry " + i + ": " + flowDBEntry);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void run_getSliceRewriteDB(String sliceName, String dpidStr)
+			throws XmlRpcException {
+
+		Object ret = this.client.execute("api.getSliceRewriteDB", new Object[] {
+				sliceName, dpidStr });
+		Map<String, Object[]> flowRewriteDB;
+		if (!(ret instanceof Map)) {
+			throw new XmlRpcException("unknown reply type "
+					+ ret.getClass().toString());
+		}
+		flowRewriteDB = (Map<String, Object[]>) ret;
+		for (String original : flowRewriteDB.keySet()) {
+			System.out.println("============ Original");
+			System.out.println(original);
+			System.out.println("\n=========== Rewritten to:");
+			Object[] objs = flowRewriteDB.get(original);
+			Map<String, String> rewrite;
+			for (int i = 0; i < objs.length; i++) {
+				rewrite = (Map<String, String>) objs[i];
+				System.out.println("\t\t" + BracketParse.encode(rewrite));
+			}
+
+		}
+	}
+
 	public void run_changePasswd(String sliceName) throws IOException,
 			XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
@@ -293,6 +350,40 @@ public class FVCtl {
 		System.out.println("Got reply:");
 		for (String key : reply.keySet())
 			System.out.println(key + "=" + reply.get(key));
+	}
+
+	public void run_getSliceStats(String sliceName) throws IOException,
+			XmlRpcException {
+
+		Object o = this.client.execute("api.getSliceStats",
+				new Object[] { sliceName });
+		if (o == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		String reply = null;
+		if (o instanceof String)
+			reply = (String) o;
+
+		System.out.println("Got reply:");
+		System.out.println(reply);
+	}
+
+	public void run_getSwitchStats(String dpid) throws IOException,
+			XmlRpcException {
+
+		Object o = this.client.execute("api.getSwitchStats",
+				new Object[] { dpid });
+		if (o == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		String reply = null;
+		if (o instanceof String)
+			reply = (String) o;
+
+		System.out.println("Got reply:");
+		System.out.println(reply);
 	}
 
 	public void run_createSlice(String sliceName, String controller_url,
@@ -336,21 +427,28 @@ public class FVCtl {
 	}
 
 	public void run_removeFlowSpace(String indexStr) throws XmlRpcException {
-		FlowChange change = new FlowChange(FlowChangeOp.REMOVE, Integer
-				.valueOf(indexStr));
+		FlowChange change = new FlowChange(FlowChangeOp.REMOVE,
+				Integer.valueOf(indexStr));
 		List<Map<String, String>> mapList = new LinkedList<Map<String, String>>();
 		mapList.add(change.toMap());
-		Object[] reply = (Object[]) this.client.execute("api.changeFlowSpace",
-				new Object[] { mapList });
 
-		if (reply == null) {
-			System.err.println("Got 'null' for reply :-(");
+		try {
+			Object[] reply = (Object[]) this.client.execute(
+					"api.changeFlowSpace", new Object[] { mapList });
+
+			if (reply == null) {
+				System.err.println("Got 'null' for reply :-(");
+				System.exit(-1);
+			}
+			if (reply.length > 0)
+				System.out.println("success: " + (String) reply[0]);
+			else
+				System.err.println("failed!");
+		} catch (XmlRpcException e) {
+			System.err.println("Failed: Flow Entry not found");
 			System.exit(-1);
 		}
-		if (reply.length > 0)
-			System.out.println("success: " + (String) reply[0]);
-		else
-			System.err.println("failed!");
+
 	}
 
 	public void run_addFlowSpace(String dpid, String priority, String match,

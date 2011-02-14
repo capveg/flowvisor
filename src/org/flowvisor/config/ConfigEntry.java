@@ -6,7 +6,8 @@ package org.flowvisor.config;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.flowvisor.events.*;
+import org.flowvisor.events.ConfigUpdateEvent;
+import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -97,14 +98,13 @@ public class ConfigEntry {
 		throw new RuntimeException("need to override this... ");
 	}
 
-	void sendUpdates() {
+	void sendUpdates(String fullPath) {
 		for (FVEventHandler eh : watchList) {
 			try {
-				eh.handleEvent(new ConfigUpdateEvent(eh, this.name));
+				eh.handleEvent(new ConfigUpdateEvent(eh, fullPath));
 			} catch (UnhandledEvent e) {
-				FVLog
-						.log(LogLevel.CRIT, eh,
-								"Doesn't handle ConfigUpdateEvent but asked for them !?");
+				FVLog.log(LogLevel.CRIT, eh,
+						"Doesn't handle ConfigUpdateEvent but asked for them !?");
 			}
 		}
 	}

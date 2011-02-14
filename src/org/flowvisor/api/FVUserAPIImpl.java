@@ -15,17 +15,21 @@ import java.util.Map;
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.classifier.FVClassifier;
+import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
+import org.flowvisor.flows.FlowDBEntry;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
+import org.flowvisor.flows.FlowRewriteDB;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -131,6 +135,25 @@ public class FVUserAPIImpl implements FVUserAPI {
 		else
 			controller_port = FVConfig.OFP_TCP_PORT;
 		// createSlice is synchronized()
+
+		// We need to make sure this slice doesn't already exist
+		List<String> slices = null;
+		synchronized (FVConfig.class) {
+			try {
+				slices = FVConfig.list(FVConfig.SLICES);
+			} catch (ConfigError e) {
+				e.printStackTrace();
+				throw new RuntimeException("no SLICES subdir found in config");
+			}
+			for (Iterator<String> sliceIter = slices.iterator(); sliceIter
+					.hasNext();) {
+				if (sliceName.equals(sliceIter.next())) {
+					throw new PermissionDeniedException(
+							"Cannot create slice with existing name.");
+				}
+			}
+		}
+
 		FVConfig.createSlice(sliceName, list[1], controller_port, passwd,
 				slice_email, APIUserCred.getUserName());
 		FlowVisor.getInstance().checkPointConfig();
@@ -179,8 +202,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<Map<String, String>> getLinks() {
-		FVLog.log(LogLevel.DEBUG, null, "API getLinks() by: "
-				+ APIUserCred.getUserName());
+		FVLog.log(LogLevel.DEBUG, null,
+				"API getLinks() by: " + APIUserCred.getUserName());
 		TopologyController topologyController = TopologyController
 				.getRunningInstance();
 		if (topologyController == null)
@@ -214,8 +237,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> listDevices() {
-		FVLog.log(LogLevel.DEBUG, null, "API listDevices() by: "
-				+ APIUserCred.getUserName());
+		FVLog.log(LogLevel.DEBUG, null,
+				"API listDevices() by: " + APIUserCred.getUserName());
 		FlowVisor fv = FlowVisor.getInstance();
 		// get list from main flowvisor instance
 		List<String> dpids = new ArrayList<String>();
@@ -341,7 +364,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public List<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException {
+			throws MalformedFlowChange, PermissionDeniedException,
+			FlowEntryNotFound {
 		String user = APIUserCred.getUserName();
 		List<String> returnIDs = new LinkedList<String>();
 
@@ -372,8 +396,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 							+ FlowSpaceUtil.toString(change.getActions());
 
 					FlowEntry flowEntry = new FlowEntry(change.getDpid(),
-							change.getMatch(), change.getPriority(), change
-									.getActions());
+							change.getMatch(), change.getPriority(),
+							change.getActions());
 
 					if (operation == FlowChangeOp.ADD)
 						returnIDs.add(String.valueOf(flowEntry.getId()));
@@ -409,7 +433,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 				slices = new LinkedList<String>(entries);
 			} catch (ConfigError e) {
 				e.printStackTrace();
-				new RuntimeException("wtf!?: no SLICES subdir found in config");
+				throw new RuntimeException(
+						"wtf!?: no SLICES subdir found in config");
 			}
 		}
 		return slices;
@@ -430,10 +455,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 		synchronized (FVConfig.class) {
 			try {
-				map.put("contact_email", FVConfig.getString(base
-						+ "contact_email"));
-				map.put("controller_hostname", FVConfig.getString(base
-						+ "controller_hostname"));
+				map.put("contact_email",
+						FVConfig.getString(base + "contact_email"));
+				map.put("controller_hostname",
+						FVConfig.getString(base + "controller_hostname"));
 				map.put("controller_port", String.valueOf(FVConfig.getInt(base
 						+ "controller_port")));
 				map.put("creator", FVConfig.getString(base + "creator"));
@@ -458,9 +483,9 @@ public class FVUserAPIImpl implements FVUserAPI {
 				dpid = classifier.getDPID();
 				FVSlicer fvSlicer = classifier.getSlicerByName(sliceName);
 				if (fvSlicer != null) {
-					map.put("connection_" + connection++, FlowSpaceUtil
-							.dpidToString(dpid)
-							+ "-->" + fvSlicer.getConnectionName());
+					map.put("connection_" + connection++,
+							FlowSpaceUtil.dpidToString(dpid) + "-->"
+									+ fvSlicer.getConnectionName());
 				}
 
 			}
@@ -519,6 +544,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 		// this is synchronized against FVConfig
 		FVConfig.setConfig(nodeName, value);
+		FVConfig.sendUpdates(nodeName);
 		FlowVisor.getInstance().checkPointConfig();
 		FVLog.log(LogLevel.DEBUG, null, "setConfig for user " + user
 				+ " on config " + nodeName + " to " + value);
@@ -547,5 +573,136 @@ public class FVUserAPIImpl implements FVUserAPI {
 			return true;
 		} else
 			return false; // topology server not running
+	}
+
+	@Override
+	public String getSliceStats(String sliceName) throws SliceNotFound,
+			PermissionDeniedException {
+
+		FVSlicer fvSlicer = null;
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (!classifier.isIdentified()) // only print switches have have
+					// been identified
+					continue;
+				fvSlicer = classifier.getSlicerByName(sliceName);
+				if (fvSlicer != null) {
+					break;
+				}
+			}
+		}
+
+		if (fvSlicer == null)
+			throw new SliceNotFound("slice does not exist: " + sliceName);
+		return fvSlicer.getStats().combinedString();
+	}
+
+	@Override
+	public String getSwitchStats(String dpidStr) throws DPIDNotFound,
+			PermissionDeniedException {
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (classifier.getDPID() == dpid)
+					return classifier.getStats().combinedString();
+			}
+		}
+		throw new DPIDNotFound("dpid not found: " + dpidStr);
+	}
+
+	@Override
+	public List<Map<String, String>> getSwitchFlowDB(String dpidStr)
+			throws DPIDNotFound {
+		boolean found = false;
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
+		List<Map<String, String>> ret = new LinkedList<Map<String, String>>();
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (dpid == classifier.getDPID() || dpid == FlowEntry.ALL_DPIDS) {
+					synchronized (classifier) {
+						for (Iterator<FlowDBEntry> it2 = classifier.getFlowDB()
+								.iterator(); it2.hasNext();) {
+							ret.add(it2.next().toBracketMap());
+						}
+					}
+					found = true;
+				}
+			}
+		}
+		if (!found)
+			throw new DPIDNotFound("dpid not found: " + dpidStr);
+		return ret;
+	}
+
+	@Override
+	public Map<String, List<Map<String, String>>> getSliceRewriteDB(
+			String sliceName, String dpidStr) throws DPIDNotFound,
+			SliceNotFound, PermissionDeniedException {
+		long dpid = FlowSpaceUtil.parseDPID(dpidStr);
+		FVSlicer fvSlicer = lookupSlicer(sliceName, dpid);
+		Map<String, List<Map<String, String>>> ret = new HashMap<String, List<Map<String, String>>>();
+		FlowRewriteDB flowRewriteDB = fvSlicer.getFlowRewriteDB();
+		synchronized (flowRewriteDB) {
+			for (FlowDBEntry original : flowRewriteDB.originals()) {
+				Map<String, String> originalMap = original.toBracketMap();
+				List<Map<String, String>> rewrites = new LinkedList<Map<String, String>>();
+				for (FlowDBEntry rewrite : flowRewriteDB.getRewrites(original)) {
+					rewrites.add(rewrite.toBracketMap());
+				}
+				ret.put(BracketParse.encode(originalMap), rewrites);
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * 
+	 * @param sliceName
+	 * @param dpid
+	 * @return a valid fvSlicer (never null)
+	 * @throws DPIDNotFound
+	 * @throws SliceNotFound
+	 */
+
+	private FVSlicer lookupSlicer(String sliceName, long dpid)
+			throws DPIDNotFound, SliceNotFound {
+
+		FVClassifier fvClassifier = lookupClassifier(dpid); // throws dpid not
+															// found
+		synchronized (fvClassifier) {
+			FVSlicer fvSlicer = fvClassifier.getSlicerByName(sliceName);
+			if (fvSlicer == null)
+				throw new SliceNotFound(sliceName);
+			return fvSlicer;
+		}
+	}
+
+	/**
+	 * Returns a valid fvClassifier
+	 * 
+	 * @param dpid
+	 * @return never null
+	 * @throws DPIDNotFound
+	 */
+	private FVClassifier lookupClassifier(long dpid) throws DPIDNotFound {
+		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
+				.getHandlersCopy().iterator(); it.hasNext();) {
+			FVEventHandler eventHandler = it.next();
+			if (eventHandler instanceof FVClassifier) {
+				FVClassifier classifier = (FVClassifier) eventHandler;
+				if (dpid == classifier.getDPID())
+					return classifier;
+			}
+		}
+		throw new DPIDNotFound("No such switch: " + dpid);
 	}
 }

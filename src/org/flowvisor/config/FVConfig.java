@@ -7,12 +7,11 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
+import java.io.Console;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +46,7 @@ public class FVConfig {
 			+ "checkpointing";
 	public static final String TOPOLOGY_SERVER = "flowvisor" + FS
 			+ "run_topology_server";
+	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
 	final static public String VERSION_STR = "version";
 	final static public String SLICES = "slices";
 	final static public String SWITCHES = "switches";
@@ -387,7 +387,7 @@ public class FVConfig {
 							+ node);
 			return;
 		}
-		entry.sendUpdates();
+		entry.sendUpdates(node);
 	}
 
 	/**
@@ -435,10 +435,9 @@ public class FVConfig {
 					controller_port);
 			String salt = APIAuth.getSalt();
 			FVConfig.setString(base + FS + FVConfig.SLICE_SALT, salt);
-			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT, APIAuth
-					.makeCrypt(salt, passwd));
-			FVConfig
-					.setString(base + FS + FVConfig.SLICE_CREATOR, creatorSlice);
+			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT,
+					APIAuth.makeCrypt(salt, passwd));
+			FVConfig.setString(base + FS + FVConfig.SLICE_CREATOR, creatorSlice);
 
 		} catch (ConfigError e) {
 			throw new RuntimeException("failed to create slice " + sliceName
@@ -447,9 +446,9 @@ public class FVConfig {
 	}
 
 	public static String readPasswd(String prompt) throws IOException {
-		System.err.println(prompt);
-		// FIXME turn off echo
-		return new BufferedReader(new InputStreamReader(System.in)).readLine();
+		Console cons = System.console();
+		char[] passwd = cons.readPassword(prompt);
+		return new String(passwd);
 	}
 
 	public static synchronized void deleteSlice(String sliceName)
@@ -501,7 +500,7 @@ public class FVConfig {
 			passwd = args[1];
 		else
 			passwd = FVConfig
-					.readPasswd("Enter password for account 'root' on the flowvisor (will be echo'd!):");
+					.readPasswd("Enter password for account 'root' on the flowvisor:");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
 		// set the listen port, if requested
@@ -509,8 +508,8 @@ public class FVConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, Integer.valueOf(args[2]));
 		// set the api listen port, if requested
 		if (args.length > 3)
-			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, Integer
-					.valueOf(args[3]));
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT,
+					Integer.valueOf(args[3]));
 
 		FVConfig.writeToFile(filename);
 	}
@@ -520,8 +519,7 @@ public class FVConfig {
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
 		try {
 			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
-			FVConfig
-					.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
+			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
