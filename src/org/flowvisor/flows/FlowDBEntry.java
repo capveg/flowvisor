@@ -123,4 +123,22 @@ public class FlowDBEntry extends FlowEntry {
 		FlowDBEntry flowDBEntry = new FlowDBEntry();
 		return flowDBEntry.fromBacketMap(map);
 	}
+
+	/**
+	 * Return a description of how this argument intersects with this
+	 * 
+	 * @param dpid
+	 * @param argMatch
+	 * @param cookie
+	 * @param priority
+	 * @return
+	 */
+
+	public FlowIntersect matches(long dpid, OFMatch argMatch, long cookie,
+			short priority) {
+		if (cookie != this.cookie || priority != this.priority)
+			return new FlowIntersect(this).setMatchType(MatchType.NONE);
+		else
+			return super.matches(dpid, argMatch);
+	}
 }

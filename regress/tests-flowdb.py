@@ -18,6 +18,32 @@ def test_failed(s):
     raise Exception(s)
 
 
+def test_flowdb(s, count, test_type, display=False):
+    print "Testing getSwitchFlowDB: %s" % test_type
+    flows = s.api.getSwitchFlowDB("1")
+    print "Correctly got %d flows" % len(flows)
+    if display:
+        for flow in flows:
+            print "==== Got flow "
+            for key,val in flow.iteritems():
+                print "     %s=%s" % (key,val)
+    if len(flows) != count:
+        test_failed("Wanted %d flows, got %d" % (count, len(flows)))
+    print "     SUCCESS"
+    print "Testing getSliceRewriteDB %s" % test_type
+    rewriteDB = s.api.getSliceRewriteDB("alice","1")
+    print "Correctly got %d rewrites" % len(rewriteDB)
+    if display:
+        for flow, rewrites in rewriteDB.iteritems():
+            print "==== Got original: %s" % flow
+            for rewrite in rewrites:
+                print "--------- Rewrite" 
+                for key,val in rewrite.iteritems():
+                    print "     => %s=%s" % (key,val)
+    if len(rewriteDB) != count:
+        test_failed("Wanted %d rewrites, got %d" % (count, len(rewriteDB)))
+    print "     SUCCESS"
+
 
 try:
 
@@ -88,17 +114,7 @@ try:
           ])
 
 ####################################
-    print "Testing getSwitchFlowDB (track_flows disabled)"            
-    flows = s.api.getSwitchFlowDB("1")
-    if len(flows) != 0:
-        test_failed("Wanted 0 flows, got %d" % len(flows))
-    else: 
-        print "     SUCCESS"
-    print "Got %d flows" % len(flows)
-    for flow in flows:
-        print "==== Got flow "
-        for key,val in flow.iteritems():
-            print "     %s=%s" % (key,val)
+    test_flowdb(s, 0, "flowdb disabled")
 #################################### Start Tests
     print "Testing setConfig track_flows=True"
     try:
@@ -148,34 +164,7 @@ try:
           ])
 
 ####################################
-    print "Testing getSwitchFlowDB"            
-    flows = s.api.getSwitchFlowDB("1")
-    if len(flows) != 3:
-        test_failed("Wanted 3 flows, got %d" % len(flows))
-    else: 
-        print "     SUCCESS"
-    print "Got %d flows" % len(flows)
-    for flow in flows:
-        print "==== Got flow "
-        for key,val in flow.iteritems():
-            print "     %s=%s" % (key,val)
-####################################
-    print "Testing getSliceRewriteDB"            
-    rewriteDB = s.api.getSliceRewriteDB("alice","1")
-    if len(rewriteDB) != 3:
-        test_failed("Wanted 3 rewrites, got %d" % len(rewriteDB))
-    else: 
-        print "     SUCCESS"
-    for original, rewrites in rewriteDB.iteritems():
-        print "========= Original: '%s'" % original
-        print "========= " 
-        for rewrite in rewrites:
-            print "--------- Rewrite" 
-            for key,val in rewrite.iteritems():
-                print "     => %s=%s" % (key,val)
-    #print "Sleeping!"
-    #time.sleep(100000)
-
+    test_flowdb(s, 3, "flowdb enabled")
 ####################################
     flow_expire1 = FvRegress.OFVERSION + \
                 '''0b 00 58 00 00 00 01 
@@ -192,18 +181,62 @@ try:
           TestEvent( "recv","guest",'alice', flow_expire1), 
           ])
 #########################################
-    print "Testing getSwitchFlowDB after remove"            
-    flows = s.api.getSwitchFlowDB("1")
-    if len(flows) != 2:
-        test_failed("Wanted 2 flows, got %d" % len(flows))
-    else: 
-        print "     SUCCESS"
-    print "Testing getSliceRewriteDB after remove"            
-    rewriteDB = s.api.getSliceRewriteDB("alice","1")
-    if len(rewriteDB) != 2:
-        test_failed("Wanted 2 rewrites, got %d" % len(rewriteDB))
-    else: 
-        print "     SUCCESS"
+    test_flowdb(s, 2, "flow removed")
+#########################################
+    flow_del_all = FvRegress.OFVERSION + \
+                          '''0e 00 48 40 00 90 b6 ff ff ff ff 00 00 00 00
+                          00 00 00 02 00 0c 29 c6 36 8d ff ff 00 00 08 06
+                          00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                          00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                          00 00 01 6f 00 00 00 01'''
+    fm_expand1  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 00 00 00
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    fm_expand2  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 00 00 01
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    fm_expand3  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 02 00 00
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    fm_expand4  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 02 00 01
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    fm_expand5  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 03 00 00
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    fm_expand6  = FvRegress.OFVERSION + \
+                          '''0e 00 48 00 00 01 08 00 3f ff fa 00 03 00 01
+                        00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+                        00 00 00 00 c0 01 f9 7b c0 01 f9 79 00 00 00 00
+                        00 00 00 00 00 00 00 00 00 03 00 05 00 00 80 00
+                        00 00 01 6f 00 00 00 01'''
+    h.runTest(name="flowdb del all",timeout=timeout,  events= [
+          # send flow_mod, make sure it succeeds
+          TestEvent( "send","guest",'alice', flow_del_all), 
+          TestEvent( "recv","switch",'switch1', fm_expand1),
+          TestEvent( "recv","switch",'switch1', fm_expand2),
+          TestEvent( "recv","switch",'switch1', fm_expand3),
+          TestEvent( "recv","switch",'switch1', fm_expand4),
+          TestEvent( "recv","switch",'switch1', fm_expand5),
+          TestEvent( "recv","switch",'switch1', fm_expand6),
+          ])
+#########################################
+    test_flowdb(s, 0, "flow all deleted", display=True)
 #########################################
 # more tests for this setup HERE
 #################################### End Tests

@@ -49,8 +49,11 @@ public class LinearFlowDB implements FlowDB, Serializable {
 			op = "MOD";
 			processFlowModModify(flowMod, sliceName, dpid);
 			break;
-		case OFFlowMod.OFPFC_DELETE:
 		case OFFlowMod.OFPFC_DELETE_STRICT:
+			op = "DEL";
+			processFlowModDeleteStrict(flowMod, sliceName, dpid);
+			break;
+		case OFFlowMod.OFPFC_DELETE:
 			op = "DEL";
 			processFlowModDelete(flowMod, sliceName, dpid);
 			break;
@@ -60,6 +63,24 @@ public class LinearFlowDB implements FlowDB, Serializable {
 					flowMod.getCommand());
 		}
 		FVLog.log(LogLevel.DEBUG, null, "flowdb: ", op, ": new size ", size());
+	}
+
+	private void processFlowModDeleteStrict(OFFlowMod flowMod,
+			String sliceName, long dpid) {
+		boolean found = false;
+		for (Iterator<FlowDBEntry> it = this.db.iterator(); it.hasNext();) {
+			FlowDBEntry flowDBEntry = it.next();
+			if (flowDBEntry.matches(dpid, flowMod.getMatch(),
+					flowMod.getCookie(), flowMod.getPriority()).getMatchType() == MatchType.EQUAL) {
+				FVLog.log(LogLevel.DEBUG, fvEventHandler,
+						"flowDB: del by strict: ", flowDBEntry);
+				it.remove();
+				found = true;
+			}
+		}
+		if (!found)
+			FVLog.log(LogLevel.DEBUG, fvEventHandler,
+					"flowDB: delete strict - no match found");
 	}
 
 	/**
@@ -73,6 +94,21 @@ public class LinearFlowDB implements FlowDB, Serializable {
 
 	private void processFlowModDelete(OFFlowMod flowMod, String sliceName,
 			long dpid) {
+		boolean found = false;
+		for (Iterator<FlowDBEntry> it = this.db.iterator(); it.hasNext();) {
+			FlowDBEntry flowDBEntry = it.next();
+			MatchType matchType = flowDBEntry.matches(dpid, flowMod.getMatch(),
+					flowMod.getCookie(), flowMod.getPriority()).getMatchType();
+			if (matchType == MatchType.EQUAL || matchType == MatchType.SUPERSET) {
+				FVLog.log(LogLevel.DEBUG, fvEventHandler,
+						"flowDB: del by non-strict: ", flowDBEntry);
+				it.remove();
+				found = true;
+			}
+		}
+		if (!found)
+			FVLog.log(LogLevel.DEBUG, fvEventHandler,
+					"flowDB: delete - no match found");
 	}
 
 	/**
@@ -85,7 +121,8 @@ public class LinearFlowDB implements FlowDB, Serializable {
 	 */
 	private void processFlowModModify(OFFlowMod flowMod, String sliceName,
 			long dpid) {
-
+		FVLog.log(LogLevel.WARN, fvEventHandler,
+				"flowdb: ignoring unimplemented flowMod.modify");
 	}
 
 	/**

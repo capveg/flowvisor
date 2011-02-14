@@ -4,6 +4,7 @@
 package org.flowvisor.flows;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,6 +46,81 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 	 */
 	@Override
 	public void processFlowMods(OFFlowMod original, OFFlowMod rewrite) {
+		String op = "unknown";
+		switch (original.getCommand()) {
+		case OFFlowMod.OFPFC_ADD:
+			op = "ADD";
+			processFlowModsAdd(original, rewrite);
+			break;
+		case OFFlowMod.OFPFC_MODIFY:
+		case OFFlowMod.OFPFC_MODIFY_STRICT:
+			op = "MOD";
+			processFlowModsModify(original, rewrite);
+			break;
+		case OFFlowMod.OFPFC_DELETE_STRICT:
+			op = "DEL";
+			processFlowModsDeleteStrict(original, rewrite);
+			break;
+		case OFFlowMod.OFPFC_DELETE:
+			op = "DEL";
+			processFlowModsDelete(original, rewrite);
+			break;
+		default:
+			FVLog.log(LogLevel.WARN, fvEventHandler,
+					"flowDB: ignore fm with unknown flow_mod command:: ",
+					original.getCommand());
+		}
+		FVLog.log(LogLevel.DEBUG, null, "flowdb: ", op, ": new size ", size());
+	}
+
+	private void processFlowModsDeleteStrict(OFFlowMod original,
+			OFFlowMod rewrite) {
+		boolean found = false;
+		for (Iterator<FlowDBEntry> it = this.map.keySet().iterator(); it
+				.hasNext();) {
+			FlowDBEntry flowDBEntry = it.next();
+			if (flowDBEntry.matches(dpid, original.getMatch(),
+					original.getCookie(), original.getPriority())
+					.getMatchType() == MatchType.EQUAL) {
+				found = true;
+				FlowDB flowDB = this.map.get(flowDBEntry);
+				flowDB.processFlowMod(rewrite, dpid, sliceName);
+				if (flowDB.size() == 0)
+					it.remove();
+			}
+		}
+		if (!found)
+			FVLog.log(LogLevel.DEBUG, fvEventHandler,
+					"rewriteDB: delete non-strict: no match found");
+	}
+
+	private void processFlowModsDelete(OFFlowMod original, OFFlowMod rewrite) {
+		boolean found = false;
+		for (Iterator<FlowDBEntry> it = this.map.keySet().iterator(); it
+				.hasNext();) {
+			FlowDBEntry flowDBEntry = it.next();
+			MatchType matchType = flowDBEntry.matches(dpid,
+					original.getMatch(), original.getCookie(),
+					original.getPriority()).getMatchType();
+			if (matchType == MatchType.EQUAL || matchType == MatchType.SUPERSET) {
+				found = true;
+				FlowDB flowDB = this.map.get(flowDBEntry);
+				flowDB.processFlowMod(rewrite, dpid, sliceName);
+				if (flowDB.size() == 0)
+					it.remove();
+			}
+		}
+		if (!found)
+			FVLog.log(LogLevel.DEBUG, fvEventHandler,
+					"rewriteDB: delete non-strict: no match found");
+	}
+
+	private void processFlowModsModify(OFFlowMod original, OFFlowMod rewrite) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void processFlowModsAdd(OFFlowMod original, OFFlowMod rewrite) {
 		// FIXME: think about how to change API to prevent
 		// original->originalEntry conversion with each call
 		FlowDBEntry originalEntry = new FlowDBEntry(dpid, 0, original,
@@ -63,7 +139,8 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 			// store reverse map, but only on add
 			FlowDBEntry rewriteEntry = new FlowDBEntry(dpid, 0, rewrite,
 					sliceName);
-			rewriteEntry.setActionsList(null); // so it matches with FlowRemoved
+			rewriteEntry.setActionsList(null); // so it matches with
+												// FlowRemoved
 			reverseMap.put(rewriteEntry, originalEntry);
 		}
 	}
