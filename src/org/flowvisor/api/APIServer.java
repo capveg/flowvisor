@@ -1,5 +1,6 @@
 package org.flowvisor.api;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -68,6 +69,15 @@ public class APIServer {
 		FVLog.log(LogLevel.INFO, null,
 				"initializing FlowVisor UserAPI XMLRPC SSL WebServer on port "
 						+ port);
+		String sslKeyStore = System.getProperty("javax.net.ssl.keyStore");
+		if (sslKeyStore == null) {
+			throw new RuntimeException(
+					"Property javax.net.ssl.keyStore not defined; are you correctly using the flowvisor wrapper script?");
+		}
+		if (!(new File(sslKeyStore)).exists())
+			throw new RuntimeException("SSL Key Store file not found: '"
+					+ sslKeyStore
+					+ "'\nPlease generate with `fvconfig generateCert`");
 		webServer.start();
 		return webServer;
 	}
