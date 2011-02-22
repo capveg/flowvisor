@@ -139,7 +139,7 @@ for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 share/doc/
 done
 
 echo "Creating $prefix/etc/flowvisor (owned by user=$fvuser  group=$fvgroup)"
-$install $verbose --owner=$fvuser --group=$fvgroup --mode=2750 -d $root$prefix/etc/flowvisor
+$install $verbose --owner=$fvuser --group=$fvgroup --mode=2755 -d $root$prefix/etc/flowvisor
 
 echo Installing scripts
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 $bin_SCRIPTS $root$prefix/bin
