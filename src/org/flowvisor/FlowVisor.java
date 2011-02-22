@@ -32,7 +32,7 @@ public class FlowVisor {
 	public final static int FLOWVISOR_VENDOR_EXTENSION = 0x80000001;
 
 	// VERSION
-	public final static String FLOWVISOR_VERSION = "flowvisor-0.7.0";
+	public final static String FLOWVISOR_VERSION = "flowvisor-0.7.1";
 
 	// Max slicename len ; used in LLDP for now; needs to be 1 byte
 	public final static int MAX_SLICENAME_LEN = 255;
