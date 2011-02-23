@@ -421,14 +421,15 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	}
 
 	private void reconnect() {
-		FVLog.log(LogLevel.DEBUG, this,
-				"trying to connect to " + this.hostname, ":", this.port);
+		FVLog.log(LogLevel.INFO, this, "trying to reconnect to ",
+				this.hostname, ":", this.port);
 		// reset our state to unconnected (might be a NOOP)
 		this.isConnected = false;
 		this.msgStream = null;
 		// try to connect socket to controller
 		try {
 			if (this.sock != null)
+				// note that this automatically unregisters from selector
 				this.sock.close();
 			this.sock = SocketChannel.open();
 			sock.configureBlocking(false); // set to non-blocking
@@ -522,6 +523,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		if (this.sock != null)
 			try {
 				this.sock.close();
+				this.sock = null;
+				this.isConnected = false;
 			} catch (IOException e) {
 				FVLog.log(LogLevel.WARN, this,
 						"ignoring error closing socket: ", e);
