@@ -169,8 +169,8 @@ public class FlowSpaceUtil {
 
 		switch (args.length) {
 		case 2:
-			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(FVConfig
-					.getFlowSpaceFlowMap(), dpid);
+			Set<String> slices = FlowSpaceUtil.getSlicesByDPID(
+					FVConfig.getFlowSpaceFlowMap(), dpid);
 			System.out.println("The following slices have access to dpid="
 					+ args[1]);
 			for (String slice : slices)
@@ -182,8 +182,7 @@ public class FlowSpaceUtil {
 			System.out.println("Slice " + args[2] + " on switch " + args[1]
 					+ " has access to port:");
 			if (ports.size() == 1
-					&& ports
-							.contains(Short.valueOf(OFPort.OFPP_ALL.getValue())))
+					&& ports.contains(Short.valueOf(OFPort.OFPP_ALL.getValue())))
 				System.out.println("ALL PORTS");
 			else
 				for (Short port : ports)
@@ -256,8 +255,9 @@ public class FlowSpaceUtil {
 	 * @return a dpid
 	 */
 	public static long parseDPID(String dpidStr) {
-		if (dpidStr.equals("*") || dpidStr.equals("any")
-				|| dpidStr.equals("all") || dpidStr.equals("all_dpids"))
+		if (dpidStr.equals("*") || dpidStr.toLowerCase().equals("any")
+				|| dpidStr.toLowerCase().equals("all")
+				|| dpidStr.toLowerCase().equals("all_dpids"))
 			return FlowEntry.ALL_DPIDS;
 		if (dpidStr.indexOf(':') != 0)
 			return HexString.toLong(dpidStr);
