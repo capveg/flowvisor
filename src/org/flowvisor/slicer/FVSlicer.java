@@ -374,7 +374,8 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			FVLog.log(LogLevel.WARN, this,
 					"keepAlive timeout; trying to reconnnect later");
 			try {
-				this.sock.close();
+				if (this.sock != null)
+					this.sock.close();
 			} catch (IOException e1) {
 				FVLog.log(LogLevel.WARN, this,
 						"ignoring error while closing socket: ", e1);
