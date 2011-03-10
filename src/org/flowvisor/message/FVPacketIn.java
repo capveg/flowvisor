@@ -93,7 +93,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 
 			}
 			if (!foundHome)
-				sendDropRule(fvClassifier, flowEntry, (short) 0, (short) 0);
+				sendDropRule(fvClassifier, flowEntry, (short) 1, (short) 0);
 		}
 	}
 
@@ -110,8 +110,13 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 			short hardTimeout, short idleTimeout) {
 		FVFlowMod flowMod = (FVFlowMod) FlowVisor.getInstance().getFactory()
 				.getMessage(OFType.FLOW_MOD);
-
-		flowMod.setMatch(flowEntry.getRuleMatch());
+		// block this exact flow
+		OFMatch match = new OFMatch();
+		match.loadFromPacket(this.packetData, this.inPort);
+		// different from previous policty of block by rule
+		// TODO: add config option to swap between two policies
+		// flowMod.setMatch(flowEntry.getRuleMatch());
+		flowMod.setMatch(match);
 		flowMod.setCommand(FVFlowMod.OFPFC_ADD);
 		flowMod.setActions(new LinkedList<OFAction>()); // send to zero-length
 		// list, i.e., DROP
