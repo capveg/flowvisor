@@ -7,11 +7,13 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.Console;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -447,8 +449,20 @@ public class FVConfig {
 
 	public static String readPasswd(String prompt) throws IOException {
 		Console cons = System.console();
-		char[] passwd = cons.readPassword(prompt);
-		return new String(passwd);
+		if (cons != null) {
+			char[] passwd = cons.readPassword(prompt);
+			return new String(passwd);
+		} else {
+			/**
+			 * This is a hack to get around the fact that in java,
+			 * System.console() will return null if the calling process is not a
+			 * tty, e.g., with `fvctl listSlices | less`
+			 */
+			System.err.print(prompt);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					System.in));
+			return reader.readLine();
+		}
 	}
 
 	public static synchronized void deleteSlice(String sliceName)
