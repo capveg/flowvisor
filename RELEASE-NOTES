@@ -1,3 +1,10 @@
+FlowVisor 0.7.2 : Mar 17 2011
+    * added changeSlice fvctl/API command
+    * fixed big bug in drop rules for disconnected controllers
+    * fixed Null Pointer Exception race condition
+FlowVisor 0.7.1 : Feb 22 2011
+    * diabled flow tracking by default
+    * fixed bug in getSwitchFlowDB
 FlowVisor 0.7 : 
     * fixed big I/O bug that caused switch flapping
     * added msg statistics, see `fvctl get{Slice,Switch}stats`

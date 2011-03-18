@@ -22,6 +22,7 @@ import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.FlowEntryNotFound;
+import org.flowvisor.exceptions.InvalidUserInfoKey;
 import org.flowvisor.exceptions.MalformedControllerURL;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
@@ -184,6 +185,41 @@ public class FVUserAPIImpl implements FVUserAPI {
 		// set passwd is synchronized
 		FVConfig.setPasswd(sliceName, salt, crypt);
 		FlowVisor.getInstance().checkPointConfig();
+		return true;
+	}
+
+	@Override
+	public boolean changeSlice(String sliceName, String key, String value)
+			throws MalformedURLException, InvalidSliceName,
+			PermissionDeniedException, InvalidUserInfoKey {
+		String changerSlice = APIUserCred.getUserName();
+		if (!APIAuth.transitivelyCreated(changerSlice, sliceName)
+				&& !FVConfig.isSupervisor(changerSlice))
+			throw new PermissionDeniedException("Slice " + changerSlice
+					+ " does not have perms to change the passwd of "
+					+ sliceName);
+		/**
+		 * this is the list of things a user is allowed to change about
+		 * themselves. Critically, it should not include "creator" string as
+		 * this would allow security issues.
+		 */
+
+		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS
+				+ key;
+		try {
+			if (key.equals("contact_email") || key.equals("controller_host"))
+				FVConfig.setString(base, value);
+			else if (key.equals("controller_port"))
+				FVConfig.setInt(base, Integer.valueOf(value));
+			else
+				throw new InvalidUserInfoKey("invalid key: " + key
+						+ "-- only contact_email and "
+						+ "controller_{host,port} can be changed");
+		} catch (ConfigError e) {
+			// this should probably never happen b/c of above checks
+			throw new InvalidUserInfoKey(e.toString());
+		}
+
 		return true;
 	}
 

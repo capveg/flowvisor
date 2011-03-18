@@ -80,6 +80,12 @@ chain to the root slice.
     the slice.
 
 .TP
+\fBchangeSlice\fR \fIslicename\fR \fIkey\fR \fIvalue\fR
+    Allow a slice user to change values associated with their slice.
+    Currently only "contact_email", "controller_host" and "controller_port"
+    are changable.
+
+.TP
 \fBdeleteSlice\fR \fIslicename\fR
     Deletes a slice and removed all of the flowspace corresponding to the
     slice.  

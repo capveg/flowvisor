@@ -53,6 +53,7 @@ public class FVCtl {
 	static APICmd[] cmdlist = new APICmd[] {
 			new APICmd("listSlices", 0),
 			new APICmd("createSlice", 3, "<slicename> <controller_url> <email>"),
+			new APICmd("changeSlice", 3, "<slicename> <key> <value>"),
 			new APICmd("deleteSlice", 1, "<slicename>"),
 			new APICmd("changePasswd", 1, "<slicename>"),
 			new APICmd("getSliceInfo", 1, "<slicename>"),
@@ -323,6 +324,20 @@ public class FVCtl {
 		String passwd = FVConfig.readPasswd("New password: ");
 		Boolean reply = (Boolean) this.client.execute("api.changePasswd",
 				new Object[] { sliceName, passwd });
+		if (reply == null) {
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		if (reply)
+			System.out.println("success!");
+		else
+			System.err.println("failed!");
+	}
+
+	public void run_changeSlice(String sliceName, String key, String value)
+			throws IOException, XmlRpcException {
+		Boolean reply = (Boolean) this.client.execute("api.changeSlice",
+				new Object[] { sliceName, key, value });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);

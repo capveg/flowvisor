@@ -249,6 +249,33 @@ try:
         test_failed("listFlowSpace bob test")
     print "     passed"
 
+### changeSLice (bob)
+    print "Bob changeSlice (email)"
+    x = s.api.changeSlice("bob","contact_email", "bob@elsewhere.com")
+    if not x:
+        print "Got %s ; was expecting true" % (str(x))
+        test_failed("changeSlice bob email test")
+    print "     passed"
+
+
+### changeSLice (bob)
+    print "Bob changeSlice (port)"
+    x = s.api.changeSlice("bob","controller_port", "4444")
+    if not x:
+        print "Got %s ; was expecting true" % (str(x))
+        test_failed("changeSlice bob port test")
+    print "     passed"
+
+### getSliceInfo (bob)
+    print "Bob getSliceInfo"
+    x = s.api.getSliceInfo("bob")
+    if not x['contact_email'] or x['contact_email'] != "bob@elsewhere.com":
+        print "Got %s ; was expecting 'bob@elsewhere.com'" % str(x['contact_email'])
+        test_failed("getSliceInfo bob email test")
+    if not x['controller_port'] or x['controller_port'] != "4444":
+        print "Got %s ; was expecting 4444" % (str(x['4444']))
+        test_failed("getSliceInfo bob port test")
+    print "     passed"
 #################################### Start Root Tests
     user="root"
     passwd="0fw0rk"
