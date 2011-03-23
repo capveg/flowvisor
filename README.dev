@@ -5,14 +5,16 @@ FlowVisor has two logical structures, a classifier
 (org.flowvisor.slicer.FVSlicer.java).  The classifier is responsible for
 figuring out what to do with OF Messages to and from the switch and the
 slicer figures out what to do with messages to and from the controller.
-Both of them have a method sendMsg() and a method handleIOEvent(), and
-depending on your answers above, these are the likey where you would
-want to in tack in your code.  The handleIOEvent() is triggered when a
-message is received from a controller (in FVSlicer) or from the switch
-(in FVClassifier) *before* the FlowVisor does its rewriting, and then
-sendMsg() is for sending a message to the controller (in FVSlicer)
-or to the switch (in FVClassifer) *after* any sort of rewriting takes
-place 
+Both of them have methods sendMsg() and handleIOEvent().
+
+The handleIOEvent() is triggered when a message is received from a
+controller (in FVSlicer) or from the switch (in FVClassifier) *before*
+the FlowVisor does its rewriting.  This is the raw message off the wire.
+
+The method sendMsg() is for sending a message to the controller (in
+FVSlicer) or to the switch (in FVClassifer) *after* any sort of rewriting
+takes place.  The is the post-processed message that is about to be sent
+back onto the wire.
 
 
 CODE LAYOUT:
