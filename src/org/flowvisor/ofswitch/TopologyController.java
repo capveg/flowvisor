@@ -254,7 +254,9 @@ public class TopologyController extends OFSwitchAcceptor {
 			} catch (ConfigError e1) {
 				throw new RuntimeException(e1);
 			}
-			FlowVisor.getInstance().checkPointConfig();
+			FlowVisor fv = FlowVisor.getInstance();
+			if (fv != null)
+				fv.checkPointConfig();
 			return false;
 		}
 	}
