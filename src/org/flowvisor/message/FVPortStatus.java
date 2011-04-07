@@ -6,6 +6,7 @@ import org.flowvisor.events.ConfigUpdateEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.ofswitch.TopologyConnection;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFPortStatus;
 
@@ -17,7 +18,7 @@ import org.openflow.protocol.OFPortStatus;
  */
 
 public class FVPortStatus extends OFPortStatus implements Classifiable,
-		Slicable {
+		Slicable, TopologyControllable {
 
 	@Override
 	public void classifyFromSwitch(FVClassifier fvClassifier) {
@@ -70,5 +71,17 @@ public class FVPortStatus extends OFPortStatus implements Classifiable,
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
 		FVMessageUtil.dropUnexpectedMesg(this, fvSlicer);
+	}
+
+	/**
+	 * Got a dynamically added/removed port,e.g., from an HP add or remove it
+	 * from the list of things we poke for topology
+	 */
+	@Override
+	public void topologyController(TopologyConnection topologyConnection) {
+		if (this.reason == OFPortReason.OFPPR_ADD.ordinal())
+			topologyConnection.addPort(this.getDesc());
+		else if (this.reason == OFPortReason.OFPPR_DELETE.ordinal())
+			topologyConnection.removePort(this.getDesc());
 	}
 }

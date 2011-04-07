@@ -158,7 +158,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	 * 
 	 * </ul>
 	 */
-	private void handleTimerEvent(FVTimerEvent e) {
+	synchronized private void handleTimerEvent(FVTimerEvent e) {
 		FVLog.log(LogLevel.DEBUG, this, "sending probes");
 		// send a probe per fast port
 		for (Iterator<Short> fastIterator = this.fastPorts.iterator(); fastIterator
@@ -384,17 +384,38 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		if (ports.size() < 1)
 			FVLog.log(LogLevel.WARN, this, "got switch with no ports!?!");
 
-		for (OFPhysicalPort port : ports) {
-			FVLog.log(LogLevel.DEBUG, this, "sending init probe to port "
-					+ port.getPortNumber());
-			sendLLDP(port);
-			this.slowPorts.add(Short.valueOf(port.getPortNumber()));
-			this.phyMap.put(Short.valueOf(port.getPortNumber()), port);
-		}
-		this.slowIterator = this.slowPorts.iterator();
+		for (OFPhysicalPort port : ports)
+			this.addPort(port);
+
 		// schedule timer
 		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
 				+ this.fastProbeRate, this, this, null));
+	}
+
+	synchronized public void addPort(OFPhysicalPort port) {
+		// this function is synchronized so it shouldn't get hosed
+		FVLog.log(LogLevel.DEBUG, this, "sending init probe to port "
+				+ port.getPortNumber());
+		sendLLDP(port);
+		this.slowPorts.add(Short.valueOf(port.getPortNumber()));
+		this.phyMap.put(Short.valueOf(port.getPortNumber()), port);
+		this.slowIterator = this.slowPorts.iterator();
+
+	}
+
+	synchronized public void removePort(OFPhysicalPort port) {
+		// this function is synchronized so it shouldn't get hosed
+		if (this.slowPorts.contains(port)) {
+			this.slowPorts.remove(port);
+			this.slowIterator = this.slowPorts.iterator();
+		} else if (this.fastPorts.contains(port)) {
+			this.fastPorts.remove(port);
+			// no iterator to update
+		} else
+			FVLog.log(LogLevel.WARN, this,
+					"tried to dynamically remove non-existant port: "
+							+ port.getPortNumber());
+
 	}
 
 	private void sendLLDP(OFPhysicalPort port) {
@@ -541,7 +562,9 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	synchronized void signalPortTimeout(short port) {
 		Short sPort = Short.valueOf(port);
 		if (this.fastPorts.contains(sPort)) {
-			FVLog.log(LogLevel.MOBUG, this, "setting fast port to slow: ", port);
+			FVLog
+					.log(LogLevel.MOBUG, this, "setting fast port to slow: ",
+							port);
 			this.fastPorts.remove(sPort);
 			this.slowPorts.add(sPort);
 		} else if (!this.slowPorts.contains(sPort)) {
@@ -604,4 +627,5 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	public SendRecvDropStats getStats() {
 		return stats;
 	}
+
 }
