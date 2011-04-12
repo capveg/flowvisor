@@ -34,7 +34,8 @@
 # Description:       FlowVisor is a special purpose OpenFlow controller that acts as a transparent proxy between OpenFlow switches and multiple OpenFlow controllers.
 ### END INIT INFO
 
-FV_USER=openflow
+FV_USER=flowvisor
+FV_CONFIG=/usr/local/etc/flowvisor/config.xml
 
 ## abend 
 # 
@@ -50,11 +51,11 @@ abend ()
 case "$1" in
 start)
 
-  sudo -u $FV_USER flowvisor /usr/etc/flowvisor/flowvisor-config.xml >> /var/log/flowvisor/flowvisor.log 2>&1 &
+  sudo -u $FV_USER flowvisor $FV_CONFIG >> /var/log/flowvisor/flowvisor-stderr.log 2>&1 &
   ;;
 
 stop)
-  sudo -u $FV_USER pkill -f "org.flowvisor.FlowVisor /usr/etc/flowvisor/flowvisor-config.xml"
+  sudo -u $FV_USER pkill -f "org.flowvisor.FlowVisor $FV_CONFIG"
   ;;
 
 restart)
