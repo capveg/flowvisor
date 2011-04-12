@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -152,12 +153,33 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	}
 
 	public void addPort(OFPhysicalPort phyPort) {
+		for (Iterator<OFPhysicalPort> it = switchInfo.getPorts().iterator(); it
+				.hasNext();) {
+			// remove stale info, if it exists
+			OFPhysicalPort lPort = it.next();
+			if (lPort.getPortNumber() == phyPort.getPortNumber()) {
+				it.remove();
+				break;
+			}
+		}
+		// update new info
 		switchInfo.getPorts().add(phyPort);
 		this.activePorts.add(phyPort.getPortNumber());
 	}
 
 	public void removePort(OFPhysicalPort phyPort) {
-		switchInfo.getPorts().remove(phyPort);
+		boolean found = false;
+		for (Iterator<OFPhysicalPort> it = switchInfo.getPorts().iterator(); it
+				.hasNext();) {
+			OFPhysicalPort lPort = it.next();
+			if (lPort.getPortNumber() == phyPort.getPortNumber()) {
+				found = true;
+				it.remove();
+			}
+		}
+		if (!found)
+			FVLog.log(LogLevel.INFO, this,
+					"asked to remove non-existant port: ", phyPort);
 		this.activePorts.remove(phyPort.getPortNumber());
 	}
 
