@@ -48,6 +48,8 @@ public class FVConfig {
 			+ "checkpointing";
 	public static final String TOPOLOGY_SERVER = "flowvisor" + FS
 			+ "run_topology_server";
+	public static final String STATS_DESC_HACK = "flowvisor" + FS
+			+ "stats_desc_hack";
 	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
 	final static public String VERSION_STR = "version";
 	final static public String SLICES = "slices";
@@ -437,9 +439,10 @@ public class FVConfig {
 					controller_port);
 			String salt = APIAuth.getSalt();
 			FVConfig.setString(base + FS + FVConfig.SLICE_SALT, salt);
-			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT,
-					APIAuth.makeCrypt(salt, passwd));
-			FVConfig.setString(base + FS + FVConfig.SLICE_CREATOR, creatorSlice);
+			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT, APIAuth
+					.makeCrypt(salt, passwd));
+			FVConfig
+					.setString(base + FS + FVConfig.SLICE_CREATOR, creatorSlice);
 
 		} catch (ConfigError e) {
 			throw new RuntimeException("failed to create slice " + sliceName
@@ -522,8 +525,8 @@ public class FVConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, Integer.valueOf(args[2]));
 		// set the api listen port, if requested
 		if (args.length > 3)
-			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT,
-					Integer.valueOf(args[3]));
+			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, Integer
+					.valueOf(args[3]));
 
 		FVConfig.writeToFile(filename);
 	}
@@ -533,7 +536,8 @@ public class FVConfig {
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName;
 		try {
 			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_SALT, salt);
-			FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
+			FVConfig
+					.setString(base + FVConfig.FS + FVConfig.SLICE_CRYPT, crypt);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

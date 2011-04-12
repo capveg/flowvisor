@@ -39,7 +39,6 @@ import org.flowvisor.message.FVMessageFactory;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFEchoReply;
-import org.openflow.protocol.OFError.OFHelloFailedCode;
 import org.openflow.protocol.OFFeaturesReply;
 import org.openflow.protocol.OFFeaturesRequest;
 import org.openflow.protocol.OFFlowMod;
@@ -49,6 +48,7 @@ import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.protocol.OFPort;
 import org.openflow.protocol.OFType;
+import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
@@ -79,6 +79,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	OFKeepAlive keepAlive;
 	SendRecvDropStats stats;
 	private FlowDB flowDB;
+	private boolean wantStatsDescHack;
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -100,6 +101,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.missSendLength = 128;
 		this.switchFlowMap = null;
 		this.activePorts = new HashSet<Short>();
+		this.wantStatsDescHack = true;
 		FVConfig.watch(this, FVConfig.FLOW_TRACKING);
 		updateFlowTrackingConfig();
 	}
@@ -204,6 +206,23 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		// start up keep alive events
 		this.keepAlive = new OFKeepAlive(this, this, loop);
 		this.keepAlive.scheduleNextCheck();
+
+		try {
+			this.wantStatsDescHack = FVConfig
+					.getBoolean(FVConfig.STATS_DESC_HACK);
+			FVConfig.watch(this, FVConfig.STATS_DESC_HACK);
+		} catch (ConfigError e) {
+			try {
+				FVLog.log(LogLevel.WARN, this, "config: "
+						+ FVConfig.STATS_DESC_HACK
+						+ " not set; defaulting to off");
+				this.wantStatsDescHack = false;
+				FVConfig.setBoolean(FVConfig.STATS_DESC_HACK, false);
+			} catch (ConfigError e1) {
+				throw new RuntimeException("Tried to set default "
+						+ FVConfig.STATS_DESC_HACK + "=true, but got: " + e1);
+			}
+		}
 	}
 
 	public void registerPong() {
@@ -357,6 +376,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		}
 		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // unregister for FS updates
 		FVConfig.unwatch(this, FVConfig.FLOW_TRACKING);
+		FVConfig.unwatch(this, FVConfig.STATS_DESC_HACK);
 		this.msgStream = null; // force GC
 	}
 
@@ -384,8 +404,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		case HELLO: // aleady sent our hello; just NOOP here
 			if (m.getVersion() != OFMessage.OFP_VERSION) {
 				FVLog.log(LogLevel.WARN, this,
-						"Mismatched version from switch ", sock, " Got: ",
-						m.getVersion(), " Wanted: ", OFMessage.OFP_VERSION);
+						"Mismatched version from switch ", sock, " Got: ", m
+								.getVersion(), " Wanted: ",
+						OFMessage.OFP_VERSION);
 				FVError fvError = (FVError) this.factory
 						.getMessage(OFType.ERROR);
 				fvError.setErrorCode(OFHelloFailedCode.OFPHFC_INCOMPATIBLE);
@@ -453,8 +474,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			strbuf.append(sliceName);
 		}
 
-		FVLog.log(LogLevel.DEBUG, this, "slices with access=",
-				strbuf.toString());
+		FVLog.log(LogLevel.DEBUG, this, "slices with access=", strbuf
+				.toString());
 		// foreach slice, make sure it has access to this switch
 		for (String sliceName : newSlices) {
 			if (slicerMap == null)
@@ -551,7 +572,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 				this.tearDown();
 			}
 		} else {
-			FVLog.log(LogLevel.WARN, this, "dropping msg: no connection: ", msg);
+			FVLog
+					.log(LogLevel.WARN, this, "dropping msg: no connection: ",
+							msg);
 			this.stats.increment(FVStatsType.DROP, from, msg);
 		}
 
@@ -582,5 +605,14 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	public FlowDB getFlowDB() {
 		return flowDB;
+	}
+
+	public SocketChannel getSocketChannel() {
+		return this.sock;
+	}
+
+	public boolean wantStatsDescHack() {
+		// TODO make this a configurable option
+		return wantStatsDescHack;
 	}
 }
