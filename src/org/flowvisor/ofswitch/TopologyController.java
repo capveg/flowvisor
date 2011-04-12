@@ -143,13 +143,13 @@ public class TopologyController extends OFSwitchAcceptor {
 		for (Iterator<LinkAdvertisement> it = this.latestProbes.keySet()
 				.iterator(); it.hasNext();) {
 			LinkAdvertisement linkAdvertisement = it.next();
-			long tooLate = System.currentTimeMillis() + this.timeoutPeriod;
+			long now = System.currentTimeMillis();
 			long thisProbe = latestProbes.get(linkAdvertisement).longValue();
-			if (thisProbe > tooLate) {
-				FVLog.log(LogLevel.INFO, this, "removing link "
+			if ((thisProbe + this.timeoutPeriod) < now) {
+				FVLog.log(LogLevel.INFO, this, "timeout: removing link "
 						+ linkAdvertisement);
-				FVLog.log(LogLevel.DEBUG, this, "timeout: " + thisProbe + " > "
-						+ tooLate);
+				FVLog.log(LogLevel.DEBUG, this, "timeout: " + thisProbe + "+"
+						+ this.timeoutPeriod + " > " + now);
 				this.doCallback = true;
 				it.remove();
 			}
@@ -163,7 +163,6 @@ public class TopologyController extends OFSwitchAcceptor {
 	}
 
 	private synchronized void processCallback() {
-		// TODO Auto-generated method stub
 		FVLog.log(LogLevel.INFO, this, "topology changed: doing callbacks");
 		for (TopologyCallback topologyCallback : this.callBackDB.values())
 			topologyCallback.spawn();
