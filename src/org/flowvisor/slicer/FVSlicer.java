@@ -340,6 +340,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				+ FVConfig.SLICE_CONTROLLER_HOSTNAME);
 		FVConfig.unwatch(this, sliceBase + FVConfig.FS
 				+ FVConfig.SLICE_CONTROLLER_PORT);
+		FVConfig.unwatch(this, FVConfig.FLOW_TRACKING);
 	}
 
 	/*
@@ -471,11 +472,12 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				msgStream = new FVMessageAsyncStream(this.sock,
 						new FVMessageFactory(), this, this.stats);
 			} catch (IOException e1) {
-				FVLog.log(
-						LogLevel.WARN,
-						this,
-						"Trying again later; while creating OFMessageAsyncStream, got: ",
-						e1);
+				FVLog
+						.log(
+								LogLevel.WARN,
+								this,
+								"Trying again later; while creating OFMessageAsyncStream, got: ",
+								e1);
 				this.reconnectLater();
 				return;
 			}
