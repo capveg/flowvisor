@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+#from cmd2 import Cmd, make_option, options
+from cmd import Cmd
+import xmlrpclib
+import pprint
+import sys
+import getpass
+from optparse import OptionParser
+
+class Connection(object):
+  def __init__ (self, user, passwd, host, port):
+    self.user = user
+    self.host = host
+    self.port = int(port)
+    self.conn = xmlrpclib.ServerProxy("https://%s:%s@%s:%d/xmlrpc" % (user, passwd, host, self.port))
+    self.__device_list = None
+    self.__links = None
+
+  def __str__ (self):
+    return "[%s@%s:%d]" % (self.user, self.host, self.port)
+
+  def __listDevices (self):
+    return self.__device_list
+
+  def __populate_devicecache (self):
+    self.__device_list = self.conn.api.listDevices()
+    self.listDevices = self.__listDevices
+    return self.listDevices()
+
+  def reset_devicecache (self):
+    self.listDevices = self.__populate_devicecache
+
+  listDevices = __populate_devicecache
+
+  def __populate_linkcache (self):
+    self.__links = self.conn.api.getLinks()
+    self.listLinks = self.__listLinks
+    return self.listLinks()
+
+  def __listLinks (self):
+    return self.__links
+
+  def reset_linkcache (self):
+    self.listLinks = self.__populate_linkcache
+
+  listLinks = __populate_linkcache
+
+  def getDeviceInfo (self, dpid):
+    return self.conn.api.getDeviceInfo(dpid)
+
+  def listSlices (self):
+    return self.conn.api.listSlices()
+
+  def getSliceInfo (self, name):
+    return self.conn.api.getSliceInfo(name)
+
+  def getSliceStats (self, name):
+    return self.conn.api.getSliceStats(name)
+
+
+class FVCtl(Cmd):
+  prompt = "(FVCtl) "
+
+  def __init__ (self, host, user, port, passwd):
+    Cmd.__init__(self)
+    self.connections = []
+    self.__ac = None
+    self.__connect(host, user, port, passwd)
+    FVCtl.prompt = "[%s@%s] " % (user, host)
+
+  def __connect (self, host, user, port, passwd):
+    port = 8080
+    conn = Connection(user, passwd, host, port)
+    self.connections.append(conn)
+    self.__ac = conn
+
+  def do_connections (self, arg):
+    for x,c in enumerate(self.connections):
+      if self.__ac == c:
+        print "* [%d] %s" % (x,c)
+      else:
+        print "[%d] %s" % (x,c)
+
+  def do_reset (self, arg):
+    # {'linkcache' : reset_linkcache,
+    #  'devicecache' : reset_devicecache} 
+    arglist = arg.split()
+    if arglist[0] == "linkcache":
+      self.__ac.reset_linkcache()
+    elif arglist[0] == "devicecache":
+      self.__ac.reset_devicecache()
+    else:
+      print "Unknown command: reset %s" % (" ".join(arglist))
+
+  def do_show (self, arg):
+    # {'device' : (None, None,  
+    #   { 'list' : (do_list, "Help String", None)
+    #     Regex('([:]{0,1}[0-9a-f][0-9a-f]){1,8}') : (do_dpid, "<DPID>",
+    #       { 'links' : (dpid_links, "Show links attached to this DPID", None) })
+    #     }),
+    # {'link' : (None, None, 
+    #   { 'list' : (link_list, "Global link list", None)}
+    #  )}
+    #}
+    # device list
+    # device <dpid>
+    # device <dpid> links
+    # link list 
+    # slice list
+    arglist = arg.split()
+    if arglist[0] == "device":
+      if arglist[1] == "list":
+        pprint.pprint(self.__ac.listDevices())
+        return
+      elif arglist[1].count(":") > 0:
+        pprint.pprint(self.__ac.getDeviceInfo(arglist[1]))
+        return
+    elif arglist[0] == "link":
+      if arglist[1] == "list":
+        pprint.pprint(self.__ac.listLinks())
+        return
+    elif arglist[0] == "slice":
+      if arglist[1] == "list":
+        pprint.pprint(self.__ac.listSlices())
+        return
+      elif arglist[1].count('"') > 0:
+        slname = arglist[1][1:-1]
+        if len(arglist) == 2:
+          pprint.pprint(self.__ac.getSliceInfo(slname))
+          return
+        elif arglist[2] == "stats":
+          pprint.pprint(self.__ac.getSliceStats(slname))
+          return
+    print "Unknown command: show %s" % (" ".join(arglist))
+
+
+def parse_args (args):
+  parser = OptionParser()
+  parser.add_option("-p", "--port", dest="rpcport", type="int", default="8080")
+  parser.add_option("-u", "--user", dest="user", default="root")
+  parser.add_option("-n", "--name", dest="host")
+
+  (options, args) = parser.parse_args()
+  return options
+
+if __name__ == '__main__':
+  options = parse_args(sys.argv)
+  passwd = getpass.getpass("Password: ")
+  app = FVCtl(options.host, options.user, options.rpcport, passwd)
+  app.cmdloop()
