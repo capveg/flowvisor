@@ -75,6 +75,12 @@ class Connection(object):
   def write_config (self):
     json.dump(self.__info, open(self.infopath, "w+"))
 
+  def get_local_device_info (self, dpid):
+    try:
+      return self.__info['devices'][dpid]
+    except:
+      return {}
+
   def __listDevices (self):
     return self.__device_list
 
@@ -167,8 +173,15 @@ class FVCtl(Cmd):
       "slice" : (None, "Slice Information", slice_cmds)
       })
 
+  def set_device_info (self, dpid):
+    fvinfo = self.__ac.getDeviceInfo(dpid)
+    lclinfo = self.__ac.get_local_device_info(dpid)
+
   def show_device_list (self):
-    pprint.pprint(self.__ac.listDevices())
+    dl = self.__ac.listDevices()
+    dl.sort()
+    [sys.stdout.write("%s\n" % x) for x in dl]
+    print "Devices: %d" % (len(dl))
 
   def show_device_dpid (self, dpid):
     pprint.pprint(self.__ac.getDeviceInfo(dpid))
