@@ -6,6 +6,9 @@ import pprint
 import sys
 import getpass
 import re
+import json
+import os.path
+import os
 from optparse import OptionParser
 
 class CmdRegex(object):
@@ -51,11 +54,26 @@ class Connection(object):
     self.host = host
     self.port = int(port)
     self.conn = xmlrpclib.ServerProxy("https://%s:%s@%s:%d/xmlrpc" % (user, passwd, host, self.port))
+
+    self.infopath = os.path.expanduser("~/.fvcli/%s.info" % (self.host))
+    if not os.path.exists(os.path.split(self.infopath)[0]):
+      os.makedirs(os.path.split(self.infopath)[0])
+
     self.__device_list = None
     self.__links = None
+    self.__info = {}
+
+    self.load_config()
 
   def __str__ (self):
     return "[%s@%s:%d]" % (self.user, self.host, self.port)
+
+  def load_config (self):
+    if os.path.exists(self.infopath):
+      self.__info = json.load(open(self.infopath, "r"))
+
+  def write_config (self):
+    json.dump(self.__info, open(self.infopath, "w+"))
 
   def __listDevices (self):
     return self.__device_list
@@ -221,6 +239,14 @@ class FVCtl(Cmd):
           self.show_slice_stats(slname)
           return
     print "Unknown command: show %s" % (" ".join(arglist))
+
+  def do_quit (self, arg):
+    for conn in self.connections:
+      conn.write_config()
+    sys.exit()
+
+  def do_exit (self, arg):
+    self.do_quit(arg)
 
 
 def parse_args (args):
