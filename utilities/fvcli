@@ -174,10 +174,11 @@ class FVCtl(Cmd):
     # endidx is where it ends
     elements = line[:begidx].split()
     cmds = self.cmd_show
-    for element in elements:
+    # (strip off the first element, it's "show", whose commands we already have)
+    for element in elements[1:]:
       cmds = cmds.match(element)[2]
-      if cmds is not None:
-        return cmds.list()
+    if cmds is not None:
+      return cmds.list()
     return []
 
   def do_show (self, arg):
