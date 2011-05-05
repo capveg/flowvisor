@@ -5,7 +5,45 @@ import xmlrpclib
 import pprint
 import sys
 import getpass
+import re
 from optparse import OptionParser
+
+class CmdRegex(object):
+  def __init__ (self, regex):
+    self.pattern = regex
+    self._re = re.compile(self.pattern)
+
+  def __str__ (self):
+    return "(regex) %s" % (self.pattern)
+
+class Commands(object):
+  def __init__ (self, cmd_dict):
+    self.cmd_dict = cmd_dict
+    self.populate_subtype_dicts()
+
+  def populate_subtype_dicts (self):
+    self.str_dict = {}
+    self.re_dict = {}
+
+    for k,v in self.cmd_dict.iteritems():
+      if isinstance(k, str):
+        self.str_dict[k] = v
+      elif isinstance(k, CmdRegex):
+        self.re_dict[k] = v
+
+  def list (self):
+    s = self.str_dict.keys()
+    s.sort()
+    s.extend([str(x) for x in self.re_dict.keys()])
+    return s
+
+  def match (self, element):
+    try:
+      return self.str_dict[element]
+    except IndexError, e:
+      for regex, cmd in self.re_dict.iteritems():
+        if regex.match(element):
+          return cmd
 
 class Connection(object):
   def __init__ (self, user, passwd, host, port):
@@ -68,6 +106,8 @@ class FVCtl(Cmd):
     self.__connect(host, user, port, passwd)
     FVCtl.prompt = "[%s@%s] " % (user, host)
 
+    self.setup_show_cmds()
+
   def __connect (self, host, user, port, passwd):
     port = 8080
     conn = Connection(user, passwd, host, port)
@@ -92,6 +132,54 @@ class FVCtl(Cmd):
     else:
       print "Unknown command: reset %s" % (" ".join(arglist))
 
+  def setup_show_cmds (self):
+    device_cmds = Commands({
+      "list" : (self.show_device_list, "Help String", None),
+      CmdRegex('([:]{0,1}[0-9a-f][09a-f][0-9a-f]){1,8}') :  (self.show_device_dpid, "Help String", None)
+      })
+    link_cmds = Commands({
+      "list" : (self.show_link_list, "Help String", None)
+      })
+    slice_cmds = Commands({
+      "list" : (self.show_slice_list, "Help String", None)
+      })
+    self.cmd_show = Commands({
+      "device" : (None, "Device Information", device_cmds),
+      "link" : (None, "Link Information", link_cmds),
+      "slice" : (None, "Slice Information", slice_cmds)
+      })
+
+  def show_device_list (self):
+    pprint.pprint(self.__ac.listDevices())
+
+  def show_device_dpid (self, dpid):
+    pprint.pprint(self.__ac.getDeviceInfo(dpid))
+
+  def show_link_list (self):
+    pprint.pprint(self.__ac.listLinks())
+
+  def show_slice_list (self):
+    pprint.pprint(self.__ac.listSlices())
+
+  def show_slice_info (self, slname):
+    pprint.pprint(self.__ac.getSliceInfo(slname))
+
+  def show_slice_stats (self, slname):
+    pprint.pprint(self.__ac.getSliceStats(slname))
+
+  def complete_show (self, text, line, begidx, endidx):
+    # text is the characters in the last entry
+    # line is the actual line
+    # begidx is where the last entry starts
+    # endidx is where it ends
+    elements = line[:begidx].split()
+    cmds = self.cmd_show
+    for element in elements:
+      cmds = cmds.match(element)[2]
+      if cmds is not None:
+        return cmds.list()
+    return []
+
   def do_show (self, arg):
     # {'device' : (None, None,  
     #   { 'list' : (do_list, "Help String", None)
@@ -110,26 +198,26 @@ class FVCtl(Cmd):
     arglist = arg.split()
     if arglist[0] == "device":
       if arglist[1] == "list":
-        pprint.pprint(self.__ac.listDevices())
+        self.show_device_list()
         return
       elif arglist[1].count(":") > 0:
-        pprint.pprint(self.__ac.getDeviceInfo(arglist[1]))
+        self.show_device_dpid(arglist[1])
         return
     elif arglist[0] == "link":
       if arglist[1] == "list":
-        pprint.pprint(self.__ac.listLinks())
+        self.show_link_list()
         return
     elif arglist[0] == "slice":
       if arglist[1] == "list":
-        pprint.pprint(self.__ac.listSlices())
+        self.show_slice_list()
         return
       elif arglist[1].count('"') > 0:
         slname = arglist[1][1:-1]
         if len(arglist) == 2:
-          pprint.pprint(self.__ac.getSliceInfo(slname))
+          self.show_slice_info(slname)
           return
         elif arglist[2] == "stats":
-          pprint.pprint(self.__ac.getSliceStats(slname))
+          self.show_slice_stats(slname)
           return
     print "Unknown command: show %s" % (" ".join(arglist))
 
