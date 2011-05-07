@@ -183,6 +183,14 @@ class FVCtl(Cmd):
     [sys.stdout.write("%s\n" % x) for x in dl]
     print "Devices: %d" % (len(dl))
 
+  def show_device_list_detail (self):
+    dl = self.__ac.listDevices()
+    dl.sort()
+    for dpid in dl:
+      info = self.__ac.getDeviceInfo(dpid)
+      sys.stdout.write("[%s] (%s)\n" % (dpid, info['remote']))
+    print "Devices: %d" % (len(dl))
+
   def show_device_dpid (self, dpid):
     pprint.pprint(self.__ac.getDeviceInfo(dpid))
 
@@ -230,8 +238,13 @@ class FVCtl(Cmd):
     arglist = arg.split()
     if arglist[0] == "device":
       if arglist[1] == "list":
-        self.show_device_list()
-        return
+        if len(arglist) == 2:
+          self.show_device_list()
+          return
+        elif len(arglist) == 3:
+          if arglist[2] == "detail":
+            self.show_device_list_detail()
+            return
       elif arglist[1].count(":") > 0:
         self.show_device_dpid(arglist[1])
         return
