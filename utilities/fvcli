@@ -10,6 +10,7 @@ import json
 import os.path
 import os
 from optparse import OptionParser
+import socket
 
 class CmdRegex(object):
   def __init__ (self, regex):
@@ -287,5 +288,8 @@ def parse_args (args):
 if __name__ == '__main__':
   options = parse_args(sys.argv)
   passwd = getpass.getpass("Password: ")
+
+  options.host = socket.gethostbyname(options.host)
+
   app = FVCtl(options.host, options.user, options.rpcport, passwd)
   app.cmdloop()
