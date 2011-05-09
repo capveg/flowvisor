@@ -120,6 +120,12 @@ class Connection(object):
   def getSliceStats (self, name):
     return self.conn.api.getSliceStats(name)
 
+  def getFlowspace (self):
+    return self.conn.api.listFlowSpace()
+
+  def createSlice (self, name, passwd, controller_url, email):
+    return self.conn.api.createSlice(name, passwd, controller_url, email)
+
 
 class FVCtl(Cmd):
   prompt = "(FVCtl) "
@@ -145,6 +151,14 @@ class FVCtl(Cmd):
         print "* [%d] %s" % (x,c)
       else:
         print "[%d] %s" % (x,c)
+
+  def do_add (self, arg):
+    arglist = arg.split()
+    if arglist[0] == "slice":
+      self.__ac.createSlice(*arglist[1:])
+      return
+    elif arglist[0] == "flowspace":
+      return
 
   def do_reset (self, arg):
     # {'linkcache' : reset_linkcache,
@@ -207,6 +221,9 @@ class FVCtl(Cmd):
   def show_slice_stats (self, slname):
     pprint.pprint(self.__ac.getSliceStats(slname))
 
+  def show_flowspace (self):
+    pprint.pprint(self.__ac.getFlowspace())
+
   def complete_show (self, text, line, begidx, endidx):
     # text is the characters in the last entry
     # line is the actual line
@@ -249,6 +266,9 @@ class FVCtl(Cmd):
       elif arglist[1].count(":") > 0:
         self.show_device_dpid(arglist[1])
         return
+    elif arglist[0] == "flowspace":
+      self.show_flowspace()
+      return
     elif arglist[0] == "link":
       if arglist[1] == "list":
         self.show_link_list()
