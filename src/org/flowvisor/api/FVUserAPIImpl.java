@@ -207,14 +207,14 @@ public class FVUserAPIImpl implements FVUserAPI {
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS
 				+ key;
 		try {
-			if (key.equals("contact_email") || key.equals("controller_host"))
+			if (key.equals("contact_email") || key.equals("controller_hostname"))
 				FVConfig.setString(base, value);
 			else if (key.equals("controller_port"))
 				FVConfig.setInt(base, Integer.valueOf(value));
 			else
 				throw new InvalidUserInfoKey("invalid key: " + key
 						+ "-- only contact_email and "
-						+ "controller_{host,port} can be changed");
+						+ "controller_{hostname,port} can be changed");
 		} catch (ConfigError e) {
 			// this should probably never happen b/c of above checks
 			throw new InvalidUserInfoKey(e.toString());

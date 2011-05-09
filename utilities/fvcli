@@ -126,6 +126,9 @@ class Connection(object):
   def createSlice (self, name, passwd, controller_url, email):
     return self.conn.api.createSlice(name, passwd, controller_url, email)
 
+  def changeSlice (self, name, key, value):
+    return self.conn.api.changeSlice(name, key, value)
+
 
 class FVCtl(Cmd):
   prompt = "(FVCtl) "
@@ -145,6 +148,21 @@ class FVCtl(Cmd):
     self.connections.append(conn)
     self.__ac = conn
 
+  def change_slice (self, name):
+    if name[0] == '"':
+      name = name[1:-1]
+    info = self.__ac.getSliceInfo(name)
+    email = raw_input("Email [%s]: " % (info['contact_email']))
+    hostname = raw_input("Controller [%s]: " % (info['controller_hostname']))
+    port = raw_input("Port [%s]: " % (info['controller_port']))
+
+    if email != "":
+      self.__ac.changeSlice(name, "contact_email", email)
+    if hostname != "":
+      self.__ac.changeSlice(name, "controller_hostname", hostname)
+    if port != "":
+      self.__ac.changeSlice(name, "controller_port", port)
+
   def do_connections (self, arg):
     for x,c in enumerate(self.connections):
       if self.__ac == c:
@@ -158,6 +176,12 @@ class FVCtl(Cmd):
       self.__ac.createSlice(*arglist[1:])
       return
     elif arglist[0] == "flowspace":
+      return
+
+  def do_change (self, arg):
+    arglist = arg.split()
+    if arglist[0] == "slice":
+      self.change_slice(" ".join(arglist[1:]))
       return
 
   def do_reset (self, arg):
