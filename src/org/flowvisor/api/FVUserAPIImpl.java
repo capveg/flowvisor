@@ -215,6 +215,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 				throw new InvalidUserInfoKey("invalid key: " + key
 						+ "-- only contact_email and "
 						+ "controller_{hostname,port} can be changed");
+			FlowVisor.getInstance().checkPointConfig();
 		} catch (ConfigError e) {
 			// this should probably never happen b/c of above checks
 			throw new InvalidUserInfoKey(e.toString());
