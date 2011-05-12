@@ -33,8 +33,8 @@ class FlowSpaceAction(object):
       return "%s:%s(%s)" % (self.type, self.key, self.val)
 
 class FlowSpaceEntry(object):
-  def __init__ (self, fsstr = None):
-    self.show_slices = False
+  def __init__ (self, fsstr = None, show_slices = False):
+    self.show_slices = show_slices 
     self.dpid = None
     self.priority = None
     self.id = None
@@ -79,6 +79,13 @@ class FlowSpaceEntry(object):
           ",".join(str(x) for x in self.rules))
       else:
         return "DPID (%s), Prio: %d, Match: Any" % (self.dpid, self.priority)
+    else:
+      if self.rules:
+        return "DPID (%s), Prio: %d, Match: %s, Slices: %s" % (self.dpid, self.priority,
+          ",".join(str(x) for x in self.rules), ",".join(str(x) for x in self.actions))
+      else:
+        return "DPID (%s), Prio: %d, Match: Any, Slices: %s" % (self.dpid, self.priority,
+          ",".join(str(x) for x in self.actions))
 
 
 class CmdRegex(object):
@@ -120,6 +127,7 @@ class Commands(object):
 
 class Connection(object):
   def __init__ (self, user, passwd, host, port):
+    self.nocache = False
     self.user = user
     self.host = host
     self.port = int(port)
@@ -152,6 +160,8 @@ class Connection(object):
       return {}
 
   def __listDevices (self):
+    if (self.nocache):
+      self.listDevices = self.__populate_devicecache
     return self.__device_list
 
   def __populate_devicecache (self):
@@ -242,6 +252,11 @@ class FVCtl(Cmd):
       else:
         print "[%d] %s" % (x,c)
 
+  def do_no (self, arg):
+    arglist = arg.split()
+    if arglist[0] == "cache":
+      self.__ac.nocache = True
+
   def do_add (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
@@ -326,7 +341,9 @@ class FVCtl(Cmd):
       for x in fs if x.count(slname)]
 
   def show_flowspace (self):
-    pprint.pprint(self.__ac.getFlowspace())
+    fs = self.__ac.getFlowspace()
+    xfs = [FlowSpaceEntry(x, True) for x in fs]
+    [sys.stdout.write(str(x)+"\n") for x in xfs]
 
   def complete_show (self, text, line, begidx, endidx):
     # text is the characters in the last entry
