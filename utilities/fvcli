@@ -46,9 +46,12 @@ class FlowSpaceEntry(object):
 
   def parse_fsstr(self, e):
     xdpid = e.index("dpid")
-    self.dpid = e[xdpid+6:xdpid+29]
-
-    e = e[xdpid+29:]
+    if e[xdpid+6:xdpid+15] == "all_dpids":
+      self.dpid = "All"
+      e = e[xdpid+6:]
+    else:
+      self.dpid = e[xdpid+6:xdpid+29]
+      e = e[xdpid+29:]
 
     xprio = e.index("priority=")
     self.priority = int(e[xprio+10:e[xprio:].index("]") + xprio])
@@ -211,6 +214,11 @@ class Connection(object):
   def getDeviceStats (self, dpid):
     return self.conn.api.getSwitchStats(dpid)
 
+class FlowspaceCtl(Cmd):
+  prompt = ""
+
+  def __init__ (self, slname, conn):
+    FlowspaceCtl.prompt = "[%s]" % (slname)
 
 class FVCtl(Cmd):
   prompt = "(FVCtl) "
@@ -245,6 +253,22 @@ class FVCtl(Cmd):
     if port != "":
       self.__ac.changeSlice(name, "controller_port", port)
 
+  def change_slice_flowspace (self, name):
+    return
+
+  def add_slice (self):
+    sname = raw_input("Slice Name: ")
+    passwd = getpass.getpass("Password: ")
+    email = raw_input("Admin Email: ")
+    controller = raw_input("Controller Hostname: ")
+    port = raw_input("Controller Port [6633]: ")
+
+    if port == "":
+      port = "6633"
+
+    url = "tcp:%s:%s" % (controller, port)
+    self.__ac.createSlice(sname, passwd, url, email)
+
   def do_connections (self, arg):
     for x,c in enumerate(self.connections):
       if self.__ac == c:
@@ -260,7 +284,7 @@ class FVCtl(Cmd):
   def do_add (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
-      self.__ac.createSlice(*arglist[1:])
+      self.add_slice()
       return
     elif arglist[0] == "flowspace":
       return
@@ -268,8 +292,15 @@ class FVCtl(Cmd):
   def do_change (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
-      self.change_slice(" ".join(arglist[1:]))
-      return
+      if arglist[:-1].count('"') > 0:
+        slname = arglist[1][1:-1]
+        if len(arglist) == 2:
+          self.change_slice(slname)
+          return
+        elif len(arglist) == 3:
+          if arglist[2] == "flowspace":
+            self.change_slice_flowspace(slname)
+            return
 
   def do_reset (self, arg):
     # {'linkcache' : reset_linkcache,

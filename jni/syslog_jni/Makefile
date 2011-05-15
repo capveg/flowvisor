@@ -17,7 +17,7 @@ MYCFLAGS=-Wall
 
 
 # Sun's default location on linux, for convenience
-MYCFLAGS+=-I/usr/lib/jvm/java-6-sun/include/ -I/usr/lib/jvm/java-6-sun/include/linux
+MYCFLAGS+=-I/usr/lib/jvm/java-6-sun/include/ -I/usr/lib/jvm/java-6-sun/include/linux -I/usr/lib/jvm/java-6-openjdk/include/linux -I/usr/lib/jvm/java-6-openjdk/include
 
 all: libsyslog_jni.so
 
