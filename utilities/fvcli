@@ -12,6 +12,10 @@ import os
 from optparse import OptionParser
 import socket
 
+class SubinterpreterExit(Exception):
+  def __init__ (self):
+    return
+
 class FlowSpaceRule(object):
   def __init__ (self, key, val):
     self.key = key
@@ -33,13 +37,15 @@ class FlowSpaceAction(object):
       return "%s:%s(%s)" % (self.type, self.key, self.val)
 
 class FlowSpaceEntry(object):
-  def __init__ (self, fsstr = None, show_slices = False):
+  def __init__ (self, fsstr = None, show_slices = False, show_ids = False):
     self.show_slices = show_slices 
+    self.show_ids = show_ids
     self.dpid = None
     self.priority = None
     self.id = None
     self.rules = None
     self.actions = None
+    self.slices = set()
 
     if fsstr is not None:
       self.parse_fsstr(fsstr)
@@ -74,20 +80,31 @@ class FlowSpaceEntry(object):
       (typ,act) = action.split(":")
       (key,val) = act.split("=")
       self.actions.append(FlowSpaceAction(typ,key,val))
+      if typ == "Slice":
+        self.slices.add(key)
+
+  def in_slice (self, name):
+    if name in self.slices:
+      return True
+    return False
 
   def __str__ (self):
+    fsid = ""
+    if self.show_ids:
+      fsid = "[%d] " % (self.id)
+
     if not self.show_slices:
       if self.rules:
-        return "DPID (%s), Prio: %d, Match: %s" % (self.dpid, self.priority,
+        return "%s DPID (%s), Prio: %d, Match: %s" % (fsid, self.dpid, self.priority,
           ",".join(str(x) for x in self.rules))
       else:
-        return "DPID (%s), Prio: %d, Match: Any" % (self.dpid, self.priority)
+        return "%s DPID (%s), Prio: %d, Match: Any" % (fsid, self.dpid, self.priority)
     else:
       if self.rules:
-        return "DPID (%s), Prio: %d, Match: %s, Slices: %s" % (self.dpid, self.priority,
+        return "%s DPID (%s), Prio: %d, Match: %s, Slices: %s" % (fsid, self.dpid, self.priority,
           ",".join(str(x) for x in self.rules), ",".join(str(x) for x in self.actions))
       else:
-        return "DPID (%s), Prio: %d, Match: Any, Slices: %s" % (self.dpid, self.priority,
+        return "%s DPID (%s), Prio: %d, Match: Any, Slices: %s" % (fsid, self.dpid, self.priority,
           ",".join(str(x) for x in self.actions))
 
 
@@ -218,7 +235,73 @@ class FlowspaceCtl(Cmd):
   prompt = ""
 
   def __init__ (self, slname, conn):
-    FlowspaceCtl.prompt = "[%s]" % (slname)
+    Cmd.__init__(self)
+    self.conn = conn
+    self.name = slname
+    FlowspaceCtl.prompt = "[Flowspace: %s] " % (slname)
+    self.uncommitted_deletes = set()
+
+  def do_exit (self, arglist):
+    raise SubinterpreterExit()
+
+  def do_list (self, arg):
+    fs = self.print_flowspace()
+
+  def get_flowspace (self, live = True, deleted = True):
+    fs = self.conn.getFlowspace()
+    pfs = []
+    for x in fs:
+      e = FlowSpaceEntry(x, show_ids = True)
+      pfs.append(e)
+    return pfs
+
+  def print_flowspace (self, live = True, deleted = True):
+    fs = self.getFlowSpace()
+    for e in fs:
+      if e.in_slice(self.name):
+        if e.id in self.uncommitted_deletes:
+          print "(-) %s" % (str(e))
+        else:
+          print "%s" % (str(e))
+    return fs
+
+  def delete_entry (self, fsid):
+    self.uncommitted_deletes.add(fsid)
+
+  def clear_flowspace (self, fs):
+    for e in fs:
+      self.uncommitted_deletes.add(e.id)
+
+  def do_delete (self, arg):
+    arglist = arg.split()
+    if len(arglist) == 0:
+      fs = self.print_flowspace()
+      fsid = raw_input("ID: ")
+      if fsid.lower() == "all":
+        self.clear_flowspace(fs)
+      else:
+        self.delete_entry(int(fsid))
+    else:
+      fs = self.get_flowspace()
+      if arglist[0].lower() == "all":
+        self.clear_flowspace(fs)
+      else:
+        self.delete_entry(int(arglist[0]))
+
+  def do_undelete (self, arg):
+    arglist = arg.split()
+    if len(arglist) == 0:
+      fs = self.print_flowspace(live = False)
+      fsid = raw_input("ID: ")
+      if fsid.lower() == "all":
+        self.uncommitted_deletes = set()
+      else:
+        self.uncommitted_deletes.remove(int(fsid))
+    else:
+      if arglist[0].lower() == "all":
+        self.uncommitted_deletes = set()
+      else:
+        self.uncommitted_deletes.remove(int(arglist[0]))
 
 class FVCtl(Cmd):
   prompt = "(FVCtl) "
@@ -254,7 +337,11 @@ class FVCtl(Cmd):
       self.__ac.changeSlice(name, "controller_port", port)
 
   def change_slice_flowspace (self, name):
-    return
+    ctl = FlowspaceCtl(name, self.__ac)
+    try:
+      ctl.cmdloop()
+    except SubinterpreterExit:
+      return
 
   def add_slice (self):
     sname = raw_input("Slice Name: ")
@@ -292,7 +379,7 @@ class FVCtl(Cmd):
   def do_change (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
-      if arglist[:-1].count('"') > 0:
+      if arglist[1].count('"') > 0:
         slname = arglist[1][1:-1]
         if len(arglist) == 2:
           self.change_slice(slname)
