@@ -256,7 +256,7 @@ class FlowspaceCtl(Cmd):
     return pfs
 
   def print_flowspace (self, live = True, deleted = True):
-    fs = self.getFlowSpace()
+    fs = self.get_flowspace()
     for e in fs:
       if e.in_slice(self.name):
         if e.id in self.uncommitted_deletes:
