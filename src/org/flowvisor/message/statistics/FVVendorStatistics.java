@@ -20,9 +20,4 @@ public class FVVendorStatistics extends OFVendorStatistics implements
 		FVMessageUtil.untranslateXidAndSend(msg, fvClassifier);
 	}
 
-	@Override
-	public int getLength() {
-		// TODO Auto-generated method stub :: ????
-		return 0;
-	}
 }
