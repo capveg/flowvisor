@@ -137,6 +137,8 @@ for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 share/doc/
     echo Creating $prefix/$d
     $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$prefix/$d
 done
+    echo Creating /etc/init.d
+    $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root/etc/init.d
 
 echo "Creating $prefix/etc/flowvisor (owned by user=$fvuser  group=$fvgroup)"
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=2755 -d $root$prefix/etc/flowvisor
@@ -144,6 +146,12 @@ $install $verbose --owner=$fvuser --group=$fvgroup --mode=2755 -d $root$prefix/e
 echo Installing scripts
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 $bin_SCRIPTS $root$prefix/bin
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 $sbin_SCRIPTS $root$prefix/sbin
+
+echo "Installing SYSV startup script (not enabled by default)"
+cp fv-startup.sh fv-startup
+sed -i -e "s/FVUSER/$fvuser/" fv-startup
+$install $verbose --owner=$binuser --group=$bingroup --mode=755 fv-startup  $root/etc/init.d/flowvisor
+
 
 echo Installing JNI libraries
 cd $owd
