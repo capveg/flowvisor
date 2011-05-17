@@ -31,5 +31,8 @@ RUN:
     To run flowvisor:
         flowvisor config.xml
 
+        or link the /etc/init.d/flowvisor script into your 
+        systems startup.
+
     To configure running flowvisor, use ./scripts/fvctl.sh
         `man 1 fvctl` or `man ./doc/fvctl.1` for details

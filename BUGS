@@ -1,9 +1,9 @@
 
 Please post bugs to:
 
-    http://www.openflow.org/bugs/flowvisor
+    https://openflow.stanford.edu/bugs/browse/FLOWVISOR
 
-The best bug reports include:
+Any bug report is appreciated but the best bug reports include:
 
 1) if and how the bug can be replicated
 2) a stack trace (if available)
