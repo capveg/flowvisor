@@ -64,6 +64,7 @@ public class DefaultConfig {
 					.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR,
 					FlowVisor.FLOWVISOR_VERSION);
+			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR, FVConfig.CONFIG_VERSION);
 			// checkpointing on by default
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// stats_desc hack on by default
@@ -77,12 +78,12 @@ public class DefaultConfig {
 
 			// create slices
 
-			FVConfig.createSlice("root", "none", 0, rootPasswd,
-					"root@localhost", "root");
+			FVConfig.createSlice(FVConfig.SUPER_USER, "none", 0, rootPasswd,
+					"fvadmin@localhost", FVConfig.SUPER_USER);
 			FVConfig.createSlice("alice", "localhost", 54321, "alicePass",
-					"alice@foo.com", "root");
+					"alice@foo.com", FVConfig.SUPER_USER);
 			FVConfig.createSlice("bob", "localhost", 54322, "bobPass",
-					"bob@foo.com", "root");
+					"bob@foo.com", FVConfig.SUPER_USER);
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);

@@ -51,7 +51,10 @@ public class FVConfig {
 	public static final String STATS_DESC_HACK = "flowvisor" + FS
 			+ "stats_desc_hack";
 	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
-	final static public String VERSION_STR = "version";
+	final static public String VERSION_STR = "version"; // This is the flowvisor version
+	// Config file version number, should be updated if config file format changes
+	public static final int	CONFIG_VERSION = 1; 
+	public static final String CONFIG_VERSION_STR = "config_version";
 	final static public String SLICES = "slices";
 	final static public String SWITCHES = "switches";
 	final static public String FLOWSPACE = "flowspace";
@@ -67,6 +70,8 @@ public class FVConfig {
 	public static final String LOG_FACILITY = "flowvisor" + FS + "log_facility";
 	public static final String LOG_IDENT = "flowvisor" + FS + "log_ident";
 
+    public static final String SUPER_USER = "fvadmin";
+    
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 
 	/**
@@ -405,8 +410,61 @@ public class FVConfig {
 		XMLDecoder dec = new XMLDecoder(new BufferedInputStream(
 				new FileInputStream(filename)));
 		FVConfig.root = (ConfDirEntry) dec.readObject();
+		//Check to see if version number exists. If not set it
+		try {
+			int version = FVConfig.getInt(CONFIG_VERSION_STR);
+			if(version < CONFIG_VERSION)
+				updateVersion(version, filename);
+		} catch (ConfigError e) {
+			updateVersion(-1, filename);
+		}
 	}
 
+	/*
+	 * @param currVersion the version of the config we are updating FROM
+	 */
+	private static void updateVersion(int currVersion, String filename){
+		if (currVersion < 1){
+			// Need to change name of su slice to fvadmin from root
+			ConfDirEntry sliceList = (ConfDirEntry) lookup(FVConfig.SLICES);
+			if (sliceList.entries.containsKey("root")){ // this should always be the case but check anyways
+				ConfigEntry suSliceEntry = sliceList.entries.get("root");				
+				suSliceEntry.setName(FVConfig.SUPER_USER);
+				sliceList.remove("root");
+				sliceList.add(suSliceEntry);				
+			}
+			// Need to change name of creators of any slice that was created by root to fvadmin
+			for (String sliceName : sliceList.entries.keySet()){
+				String base = FVConfig.SLICES + FVConfig.FS + sliceName;	
+			
+				try {
+					String creator = FVConfig.getString(base + FVConfig.FS + FVConfig.SLICE_CREATOR);
+					if(creator.equals("root")){
+						FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_CREATOR, FVConfig.SUPER_USER);
+					}
+				} catch (ConfigError e) {
+					FVLog.log(LogLevel.ALERT, null, "Error updating config: + " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+		// Update Version number
+		try {
+			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR, FVConfig.CONFIG_VERSION);
+		} catch (ConfigError e) {
+			FVLog.log(LogLevel.ALERT, null, "Error updating config: + " + e.getMessage());
+			e.printStackTrace();
+		}
+		// Write out update config
+		try {
+			writeToFile(filename);
+		} catch (FileNotFoundException e) {
+			FVLog.log(LogLevel.ALERT, null, "Error writing out updated config: + " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+		
+	
 	/**
 	 * Write XML-encoded config to filename
 	 * 
@@ -487,7 +545,7 @@ public class FVConfig {
 	 * @return
 	 */
 	public static boolean isSupervisor(String user) {
-		return "root".equals(user);
+		return SUPER_USER.equals(user);
 	}
 
 	public static String sanitize(String str) {
@@ -508,7 +566,7 @@ public class FVConfig {
 			IOException, NumberFormatException, ConfigError {
 		if (args.length < 1) {
 			System.err
-					.println("Usage: FVConfig config.xml [root_passwd] [of_listen_port] [rpc_listen_port]");
+					.println("Usage: FVConfig config.xml [fvadmin_passwd] [of_listen_port] [rpc_listen_port]");
 			System.exit(1);
 		}
 		String filename = args[0];
@@ -517,7 +575,7 @@ public class FVConfig {
 			passwd = args[1];
 		else
 			passwd = FVConfig
-					.readPasswd("Enter password for account 'root' on the flowvisor:");
+					.readPasswd("Enter password for account 'fvadmin' on the flowvisor:");
 		System.err.println("Generating default config to " + filename);
 		DefaultConfig.init(passwd);
 		// set the listen port, if requested

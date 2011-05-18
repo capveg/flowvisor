@@ -39,7 +39,7 @@ import org.flowvisor.log.LogLevel;
 public class TopologyController extends OFSwitchAcceptor {
 
 	static TopologyController runningInstance = null;
-	public static String TopoUser = "root";
+	public static String TopoUser = FVConfig.SUPER_USER;
 	List<TopologyConnection> topologyConnections;
 	Map<LinkAdvertisement, Long> latestProbes;
 	private boolean doCallback;

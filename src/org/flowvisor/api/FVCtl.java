@@ -597,7 +597,7 @@ public class FVCtl {
 		// FVCtl client = new
 		// FVCtl("https://root:joemama@localhost:8080/xmlrpc");
 		String URL = "https://localhost:8080/xmlrpc";
-		String user = "root";
+		String user = FVConfig.SUPER_USER;
 		String passwd = null;
 		boolean debug = false;
 
