@@ -27,17 +27,17 @@ import org.flowvisor.log.LogLevel;
 /**
  * Central collection of all configuration and policy information, e.g., slice
  * permissions, what port to run on, etc.
- * 
+ *
  * Uses get/set on a hierarchy of nodes like sysctl,snmp, etc.
  * getInt("flowvisor.list_port") --> 6633
  * setString("slice.alice.controller_hostname"
  * ,"alice-controller.controllers.org")
- * 
+ *
  * All of the set* operations will dynamically create the entry if it does not
  * exist.
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVConfig {
 	public static final String FS = "!";
@@ -53,7 +53,7 @@ public class FVConfig {
 	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
 	final static public String VERSION_STR = "version"; // This is the flowvisor version
 	// Config file version number, should be updated if config file format changes
-	public static final int	CONFIG_VERSION = 1; 
+	public static final int	CONFIG_VERSION = 1;
 	public static final String CONFIG_VERSION_STR = "config_version";
 	final static public String SLICES = "slices";
 	final static public String SWITCHES = "switches";
@@ -71,12 +71,12 @@ public class FVConfig {
 	public static final String LOG_IDENT = "flowvisor" + FS + "log_ident";
 
     public static final String SUPER_USER = "fvadmin";
-    
+
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 
 	/**
 	 * Return the config entry specific in name
-	 * 
+	 *
 	 * @param name
 	 * @return null if not found
 	 */
@@ -135,7 +135,7 @@ public class FVConfig {
 	/**
 	 * Sets an integer in the config Will dynamically create the path if it does
 	 * not exist
-	 * 
+	 *
 	 * @param node
 	 *            e.g., "path.to.configname"
 	 * @param val
@@ -157,7 +157,7 @@ public class FVConfig {
 
 	/**
 	 * Return the integer associated with this node
-	 * 
+	 *
 	 * @param node
 	 *            Full path to node
 	 * @return integer
@@ -198,7 +198,7 @@ public class FVConfig {
 	/**
 	 * Sets an integer in the config Will dynamically create the path if it does
 	 * not exist
-	 * 
+	 *
 	 * @param node
 	 *            e.g., "path.to.configname"
 	 * @param val
@@ -220,7 +220,7 @@ public class FVConfig {
 
 	/**
 	 * Return the integer associated with this node
-	 * 
+	 *
 	 * @param node
 	 *            Full path to node
 	 * @return integer
@@ -239,7 +239,7 @@ public class FVConfig {
 
 	/**
 	 * Return the flowmap associated with this node
-	 * 
+	 *
 	 * @param node
 	 * @return
 	 * @throws ConfigError
@@ -266,7 +266,7 @@ public class FVConfig {
 
 	/**
 	 * Set the flowmap at this entry, creating it if it does not exist
-	 * 
+	 *
 	 * @param node
 	 * @param val
 	 * @throws ConfigError
@@ -284,7 +284,7 @@ public class FVConfig {
 
 	/**
 	 * Returns a list of nodes at this subdirectory
-	 * 
+	 *
 	 * @param base
 	 * @return List of nodes
 	 * @throws ConfigError
@@ -304,7 +304,7 @@ public class FVConfig {
 	/**
 	 * Recusively step through the config tree from the root and call walker on
 	 * each non-directory node
-	 * 
+	 *
 	 * @param walker
 	 */
 
@@ -382,9 +382,9 @@ public class FVConfig {
 	/**
 	 * Tell all of the FVHandler's that are watching this node that the value
 	 * has changed and they need to refresh it
-	 * 
+	 *
 	 * Fails silently if node does not exist
-	 * 
+	 *
 	 * @param node
 	 *            nodename
 	 */
@@ -401,7 +401,7 @@ public class FVConfig {
 
 	/**
 	 * Read XML-encoded config from filename
-	 * 
+	 *
 	 * @param filename
 	 *            fully qualified or relative pathname
 	 */
@@ -428,15 +428,15 @@ public class FVConfig {
 			// Need to change name of su slice to fvadmin from root
 			ConfDirEntry sliceList = (ConfDirEntry) lookup(FVConfig.SLICES);
 			if (sliceList.entries.containsKey("root")){ // this should always be the case but check anyways
-				ConfigEntry suSliceEntry = sliceList.entries.get("root");				
+				ConfigEntry suSliceEntry = sliceList.entries.get("root");
 				suSliceEntry.setName(FVConfig.SUPER_USER);
 				sliceList.remove("root");
-				sliceList.add(suSliceEntry);				
+				sliceList.add(suSliceEntry);
 			}
 			// Need to change name of creators of any slice that was created by root to fvadmin
 			for (String sliceName : sliceList.entries.keySet()){
-				String base = FVConfig.SLICES + FVConfig.FS + sliceName;	
-			
+				String base = FVConfig.SLICES + FVConfig.FS + sliceName;
+
 				try {
 					String creator = FVConfig.getString(base + FVConfig.FS + FVConfig.SLICE_CREATOR);
 					if(creator.equals("root")){
@@ -463,11 +463,11 @@ public class FVConfig {
 			e.printStackTrace();
 		}
 	}
-		
-	
+
+
 	/**
 	 * Write XML-encoded config to filename
-	 * 
+	 *
 	 * @param filename
 	 *            fully qualified or relative pathname
 	 */
@@ -541,7 +541,7 @@ public class FVConfig {
 
 	/**
 	 * Return the name of the super user account
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isSupervisor(String user) {
@@ -554,7 +554,7 @@ public class FVConfig {
 
 	/**
 	 * Create a default config file and write it to arg1
-	 * 
+	 *
 	 * @param args
 	 *            filename
 	 * @throws FileNotFoundException
