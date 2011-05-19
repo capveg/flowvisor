@@ -644,7 +644,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 
 		if (fvSlicer == null)
-			return SendRecvDropStats.createNoStatsString();
+			return SendRecvDropStats.NO_STATS_AVAILABLE_MSG;
 
 		return fvSlicer.getStats().combinedString();
 	}

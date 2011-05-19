@@ -7,6 +7,9 @@ import org.flowvisor.classifier.FVSendMsg;
 import org.openflow.protocol.OFMessage;
 
 public class SendRecvDropStats {
+
+	public static final String NO_STATS_AVAILABLE_MSG = "No stats exist for this slice";
+
 	public enum FVStatsType {
 		SEND, RECV, DROP
 	}
@@ -34,10 +37,6 @@ public class SendRecvDropStats {
 		ret.append("---Drop---\n");
 		ret.append(this.stats.get(FVStatsType.DROP).toString());
 		return ret.toString();
-	}
-
-	public static String createNoStatsString(){
-		return "No stats exist for this slice";
 	}
 
 	public void increment(FVStatsType stat, FVSendMsg from, OFMessage ofm) {
