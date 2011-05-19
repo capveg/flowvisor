@@ -18,7 +18,7 @@ public interface FVUserAPI {
 
 	/**
 	 * For debugging
-	 * 
+	 *
 	 * @param arg
 	 *            test string
 	 * @return response test string
@@ -27,14 +27,14 @@ public interface FVUserAPI {
 
 	/**
 	 * Lists all the flowspace this user has control over
-	 * 
+	 *
 	 * @return
 	 */
 	public String[] listFlowSpace();
 
 	/**
 	 * Create a new slice (without flowspace)
-	 * 
+	 *
 	 * @param sliceName
 	 * @param passwd
 	 *            Cleartext! FIXME
@@ -54,9 +54,9 @@ public interface FVUserAPI {
 
 	/**
 	 * Changes a key of a slice to value
-	 * 
+	 *
 	 * Only callable by a the slice owner or a transitive creator
-	 * 
+	 *
 	 * @param sliceName
 	 * @param key
 	 * @param value
@@ -71,14 +71,14 @@ public interface FVUserAPI {
 			PermissionDeniedException, InvalidUserInfoKey;
 
 	public Map<String, String> getSliceInfo(String sliceName)
-			throws PermissionDeniedException;
+			throws PermissionDeniedException, SliceNotFound;
 
 	/**
 	 * Change the password for this slice
-	 * 
+	 *
 	 * A slice is allowed to change its own password and the password of any
 	 * slice that it has (transitively) created
-	 * 
+	 *
 	 * @param sliceName
 	 * @param newPasswd
 	 */
@@ -92,17 +92,17 @@ public interface FVUserAPI {
 	/**
 	 * Get the list of device DPIDs (e.g., switches, routers, APs) connected to
 	 * the FV
-	 * 
+	 *
 	 * @return
 	 */
 	public List<String> listDevices();
 
 	/**
 	 * Get information about a device
-	 * 
+	 *
 	 * @param dpidStr
 	 *            8 colon separated hex bytes, e..g., "00:00:00:00:00:00:00:01"
-	 * 
+	 *
 	 * @return a map of key=value pairs where the value may itself be a more
 	 *         complex object
 	 */
@@ -113,7 +113,7 @@ public interface FVUserAPI {
 	 * Get the list of links between the devices in getDevices() Links are
 	 * directional, so switch1 --> switch2 does not imply the reverse; they will
 	 * be both listed if the link is bidirectional
-	 * 
+	 *
 	 * @return
 	 */
 
@@ -121,11 +121,11 @@ public interface FVUserAPI {
 
 	/**
 	 * Delete the named slice
-	 * 
+	 *
 	 * Requestor only has permission to delete its own slice or the slice that
 	 * it (transitively) created. Since root has transitively created all
 	 * slices, root can delete all slices.
-	 * 
+	 *
 	 * @param sliceName
 	 * @return Success
 	 * @throws {@link SliceNotFound}, {@link PermissionDeniedException}
@@ -136,54 +136,54 @@ public interface FVUserAPI {
 
 	/**
 	 * Make changes to the flowspace
-	 * 
+	 *
 	 * Changes are processed in order and only after the last change is applied
 	 * to the changes take affect, i.e., this is transactional
-	 * 
+	 *
 	 * FIXME: make this more codified; is XMLRPC the right thing here?
 	 * Protobufs?
-	 * 
+	 *
 	 * Each Map should contain the an "operation" element; all keys and values
 	 * are strings key="operation", value={CHANGE,ADD,REMOVE}
-	 * 
+	 *
 	 * remove: { "operation" : "REMOVE:", "id":"4235253" }
-	 * 
+	 *
 	 * add: { "operation" : "ADD", "priority":"100", "dpid" :
 	 * "00:00:23:20:10:25:55:af" "match":"in_port=5,dl_src=00:23:20:10:10:10",
 	 * "actions":"Slice=alice:4" }
-	 * 
+	 *
 	 * change: { "operation": "CHANGE" "id":"4353454", "priority":"105", // new
 	 * priority "dpid" : "all", // new dpid
 	 * "match":"in_port=5,dl_src=00:23:20:10:10:10", // new match
 	 * "actions":"Slice=alice:4" // new actions }
-	 * 
-	 * 
+	 *
+	 *
 	 * The changeFlowSpace() call will return a list of strings, where each
 	 * element is an ID. If the operation was a REMOVE or a CHANGE, it's the ID
 	 * of the removed/changed entry. If it's an ADD, it's the ID of the new
 	 * entry.
-	 * 
+	 *
 	 * key="dpid", value=8 octet hexcoded string, e.g.,
 	 * "00:00:23:20:10:25:55:af" the dpid string will be pushed off to
 	 * FlowSpaceUtils.parseDPID()
-	 * 
+	 *
 	 * key="match", value=dpctl-style OFMatch string, see below
-	 * 
+	 *
 	 * key="actions", value=comma separated string of SliceActions suitable to
 	 * call SliceAction.fromString e.g., "SliceAction:alice=4,SliceAction:bob=2
-	 * 
+	 *
 	 * FIXME: change perms flags to human readable letters, e.g.,
 	 * "(r)read,(w)rite,(d)elegate"
-	 * 
+	 *
 	 * The "match" value string is a comma separated string of the form
 	 * "match_field=value", e.g., "in_port=5,dl_src=00:43:af:35:22:11,tp_src=80"
 	 * similar to dpctl from the OpenFlow reference switch. Any field not
 	 * explicitly listed is assumed to be wildcarded.
-	 * 
+	 *
 	 * The string will get wrapped with "OFMatch[" + match_value + "]" and
 	 * passed off to OFMatch.fromString("OFMatch[" + match_value + "]") and
 	 * generally follows the same convention as dpctl
-	 * 
+	 *
 	 * @param list
 	 *            of changes
 	 * @throws MalformedFlowChange
@@ -197,14 +197,14 @@ public interface FVUserAPI {
 
 	/**
 	 * Return a list of slices in the flowvisor: root only!
-	 * 
+	 *
 	 * @return
 	 */
 	public List<String> listSlices() throws PermissionDeniedException;
 
 	/**
 	 * Returns a list of strings that represents the requested config element
-	 * 
+	 *
 	 * @param nodeName
 	 *            config element name
 	 * @return List of strings
@@ -215,7 +215,7 @@ public interface FVUserAPI {
 
 	/**
 	 * Sets a config element by name
-	 * 
+	 *
 	 * @param nodeName
 	 *            config element name
 	 * @param value
@@ -228,21 +228,21 @@ public interface FVUserAPI {
 
 	/**
 	 * Reload last checkpointed config from disk
-	 * 
+	 *
 	 * Only available to root
-	 * 
+	 *
 	 * TODO: implement!
-	 * 
+	 *
 	 * @return success
 	 */
 	public boolean revertToLastCheckpoint();
 
 	/**
 	 * Register an XMLRPC URL to be called when the topology changes.
-	 * 
+	 *
 	 * When the topology changes, FV will make a XMLRPC call to URL with
 	 * parameter "cookie"
-	 * 
+	 *
 	 * @param URL
 	 *            XMLRPC Address/proceedure
 	 * @param cookie
@@ -254,24 +254,24 @@ public interface FVUserAPI {
 
 	/**
 	 * Unregister a previously registered callback
-	 * 
-	 * 
+	 *
+	 *
 	 * @return true if successful, false otherwise
 	 */
 	public boolean unregisterTopologyChangeCallback();
 
 	/**
 	 * Return a multiline string of the slice's stats
-	 * 
+	 *
 	 * The string is of the form:
-	 * 
+	 *
 	 * ---SENT--- $switch1 :: $type1=$count1[,$type2=$count2[...]] $switch2 ::
 	 * $type1=$count1[,$type2=$count2[...]] Total ::
 	 * $type1=$count1[,$type2=$count2[...]] ---DROP--- $switch1 ::
 	 * $type1=$count1[,$type2=$count2[...]] $switch2 ::
 	 * $type1=$count1[,$type2=$count2[...]] Total ::
 	 * $type1=$count1[,$type2=$count2[...]]
-	 * 
+	 *
 	 * @param sliceName
 	 *            which slice do you wants stats for
 	 * @return A string of the above form
@@ -283,16 +283,16 @@ public interface FVUserAPI {
 
 	/**
 	 * Return a multiline string of the switch's stats
-	 * 
+	 *
 	 * The string is of the form:
-	 * 
+	 *
 	 * ---SENT--- $slice1 :: $type1=$count1[,$type2=$count2[...]] $slice2 ::
 	 * $type1=$count1[,$type2=$count2[...]] Total ::
 	 * $type1=$count1[,$type2=$count2[...]] ---DROP--- $slice1 ::
 	 * $type1=$count1[,$type2=$count2[...]] $slice2 ::
 	 * $type1=$count1[,$type2=$count2[...]] Total ::
 	 * $type1=$count1[,$type2=$count2[...]]
-	 * 
+	 *
 	 * @param dpid
 	 *            of the switchyou wants stats for
 	 * @return A string of the above form
@@ -305,7 +305,7 @@ public interface FVUserAPI {
 
 	/**
 	 * Get a List of FlowDBEnty's converted by toBracketMap()
-	 * 
+	 *
 	 * @param dpid
 	 *            a specific switch or "all" for all
 	 * @return
@@ -316,12 +316,12 @@ public interface FVUserAPI {
 	/**
 	 * Return a map of the flow entries the slice requested to what the
 	 * flowvisor produced
-	 * 
+	 *
 	 * @note KILL ME; this map crap is horrible, but we seemingly can't rely on
 	 *       the remote side to support the extensions that serializable needs
 	 *       so I have to do this by hand... need to rewrite everything here and
 	 *       maybe move to SOAP or ProtoBufs
-	 * 
+	 *
 	 * @param sliceName
 	 * @param dpidstr
 	 * @return

@@ -480,8 +480,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	@Override
 	public Map<String, String> getSliceInfo(String sliceName)
-			throws PermissionDeniedException {
-		HashMap<String, String> map = new HashMap<String, String>();
+			throws PermissionDeniedException, SliceNotFound {
+
 		/*
 		 * relaxed security -- anyone can read slice info for now String user =
 		 * APIUserCred.getUserName(); if (!FVConfig.isSupervisor(user) &&
@@ -489,6 +489,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 		 * PermissionDeniedException(
 		 * "not superuser or transitive slice creator");
 		 */
+		if (!(doesSliceExist(sliceName))){
+			throw new SliceNotFound("Slice does not exist: " + sliceName);
+		}
+
+		HashMap<String, String> map = new HashMap<String, String>();
 		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS;
 
 		synchronized (FVConfig.class) {
@@ -530,6 +535,20 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 
 		return map;
+	}
+
+	/*
+	 * @return true if slice exists, otherwise false
+	 * @param sliceName name of slice to check for existance
+	 */
+	private boolean doesSliceExist(String sliceName){
+		List<String> slices = new ArrayList<String>();
+		try {
+			slices = FVConfig.list(FVConfig.SLICES);
+		} catch (ConfigError e) {
+			e.printStackTrace();
+		}
+		return slices.contains(sliceName);
 	}
 
 	/*
@@ -617,13 +636,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public String getSliceStats(String sliceName) throws SliceNotFound,
 			PermissionDeniedException {
 
-		List<String> slices = new ArrayList<String>();
-		try {
-			slices = FVConfig.list(FVConfig.SLICES);
-		} catch (ConfigError e) {
-			e.printStackTrace();
-		}
-		if (!(slices.contains(sliceName))){
+		if (!(doesSliceExist(sliceName))){
 			throw new SliceNotFound("Slice does not exist: " + sliceName);
 		}
 
