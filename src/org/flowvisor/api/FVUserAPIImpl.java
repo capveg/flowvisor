@@ -34,6 +34,7 @@ import org.flowvisor.flows.FlowRewriteDB;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.log.SendRecvDropStats;
 import org.flowvisor.ofswitch.TopologyController;
 import org.flowvisor.slicer.FVSlicer;
 import org.openflow.protocol.OFFeaturesReply;
@@ -45,9 +46,9 @@ import org.openflow.util.U16;
  * This is the actual UserAPI that gets wrapped via XMLRPC In theory
  * ("God willin' and the creek dun rise"), XMLRPC calls will call these function
  * directly
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVUserAPIImpl implements FVUserAPI {
 	/**
@@ -57,7 +58,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * For debugging
-	 * 
+	 *
 	 * @param arg
 	 *            test string
 	 * @return response test string
@@ -70,7 +71,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Lists all the flowspace
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -94,9 +95,9 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Create a new slice (without flowspace)
-	 * 
+	 *
 	 * Slices that contain the field separator are rewritten with underscores
-	 * 
+	 *
 	 * @param sliceName
 	 *            Cannot contain FVConfig.FS == '!'
 	 * @param passwd
@@ -163,10 +164,10 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Change the password for this slice
-	 * 
+	 *
 	 * A slice is allowed to change its own password and the password of any
 	 * slice that it has (transitively) created
-	 * 
+	 *
 	 * @param sliceName
 	 * @param newPasswd
 	 */
@@ -312,7 +313,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.api.FVUserAPI#getDeviceInfo()
 	 */
 	@Override
@@ -392,11 +393,11 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Implements {@link org.flowvisor.api.FVUserAPI#changeFlowSpace}
-	 * 
+	 *
 	 * Allow this change if it affectst the flowspace delagated to this slice.
-	 * 
+	 *
 	 * @throws PermissionDeniedException
-	 * 
+	 *
 	 */
 
 	@Override
@@ -533,7 +534,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.api.FVUserAPI#revertToLastCheckpoint()
 	 */
 	@Override
@@ -544,7 +545,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.api.FVUserAPI#getConfig(java.lang.String)
 	 */
 	@Override
@@ -565,7 +566,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.api.FVUserAPI#setConfig(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -616,6 +617,16 @@ public class FVUserAPIImpl implements FVUserAPI {
 	public String getSliceStats(String sliceName) throws SliceNotFound,
 			PermissionDeniedException {
 
+		List<String> slices = new ArrayList<String>();
+		try {
+			slices = FVConfig.list(FVConfig.SLICES);
+		} catch (ConfigError e) {
+			e.printStackTrace();
+		}
+		if (!(slices.contains(sliceName))){
+			throw new SliceNotFound("Slice does not exist: " + sliceName);
+		}
+
 		FVSlicer fvSlicer = null;
 		for (Iterator<FVEventHandler> it = FlowVisor.getInstance()
 				.getHandlersCopy().iterator(); it.hasNext();) {
@@ -633,7 +644,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 
 		if (fvSlicer == null)
-			throw new SliceNotFound("slice does not exist: " + sliceName);
+			return SendRecvDropStats.createNoStatsString();
+
 		return fvSlicer.getStats().combinedString();
 	}
 
@@ -702,7 +714,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param sliceName
 	 * @param dpid
 	 * @return a valid fvSlicer (never null)
@@ -725,7 +737,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 
 	/**
 	 * Returns a valid fvClassifier
-	 * 
+	 *
 	 * @param dpid
 	 * @return never null
 	 * @throws DPIDNotFound

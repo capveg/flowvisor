@@ -36,6 +36,10 @@ public class SendRecvDropStats {
 		return ret.toString();
 	}
 
+	public static String createNoStatsString(){
+		return "No stats exist for this slice";
+	}
+
 	public void increment(FVStatsType stat, FVSendMsg from, OFMessage ofm) {
 		this.stats.get(stat).increment(from, ofm);
 	}
