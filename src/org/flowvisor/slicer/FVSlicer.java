@@ -71,6 +71,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	SendRecvDropStats stats;
 	FlowRewriteDB flowRewriteDB;
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
+	boolean reconnectEventScheduled = false;
 
 	// get OFPP_FLOOD'd
 
@@ -362,8 +363,10 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 			handleKeepAlive(e);
 		else if (e instanceof ConfigUpdateEvent)
 			updateConfig((ConfigUpdateEvent) e);
-		else if (e instanceof ReconnectEvent)
+		else if (e instanceof ReconnectEvent){
+			this.reconnectEventScheduled = false;
 			this.reconnect();
+		}
 		else if (e instanceof TearDownEvent)
 			this.tearDown();
 		else
@@ -532,10 +535,16 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 				FVLog.log(LogLevel.WARN, this,
 						"ignoring error closing socket: ", e);
 			}
+		if (this.reconnectEventScheduled){
+			// Don't schedule another reconnect, one's already in there
+			return;
+		}
+
 		// exponential back off
 		this.reconnectSeconds = Math.min(2 * this.reconnectSeconds + 1,
 				this.maxReconnectSeconds);
 		this.loop.addTimer(new ReconnectEvent(this.reconnectSeconds, this));
+		this.reconnectEventScheduled = true;
 	}
 
 	public String getSliceName() {
