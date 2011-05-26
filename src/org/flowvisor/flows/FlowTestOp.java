@@ -15,9 +15,9 @@ public class FlowTestOp {
 
 	/**
 	 * What type of test should we do on these params?
-	 * 
+	 *
 	 * This is the common code for all of the tests
-	 * 
+	 *
 	 * @param flowIntersect
 	 * @param wildIndex
 	 * @param wildX

@@ -12,9 +12,9 @@ import org.openflow.protocol.OFPortStatus;
 
 /**
  * Send the port status message to each slice that uses this port
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVPortStatus extends OFPortStatus implements Classifiable,

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -12,14 +12,14 @@ import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * This is a stub class that's loaded when flow tracking is disabled
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -34,7 +34,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#processFlowMods(org.flowvisor.message
 	 * .FVFlowMod, org.flowvisor.message.FVFlowMod)
@@ -46,7 +46,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#processFlowRemoved(org.flowvisor.message
 	 * .FVFlowRemoved)
@@ -58,7 +58,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.flows.FlowRewriteDB#originals()
 	 */
 	@Override
@@ -68,7 +68,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc) Always returns null
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#getRewrites(org.flowvisor.flows.FlowDBEntry
 	 * )
@@ -80,7 +80,7 @@ public class NoopFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.flows.FlowRewriteDB#size()
 	 */
 	@Override

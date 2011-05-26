@@ -12,7 +12,7 @@ public class FVPortMod extends OFPortMod implements Classifiable, Slicable {
 
 	/**
 	 * Send to all slices with this port
-	 * 
+	 *
 	 * FIXME: decide if port_mod's can come *up* from switch?
 	 */
 	@Override

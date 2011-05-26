@@ -9,14 +9,14 @@ import org.openflow.protocol.OFMessage;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVError extends org.openflow.protocol.OFError implements
 		Classifiable, Slicable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.flowvisor.message.Classifiable#classifyFromSwitch(org.flowvisor.
 	 * classifier.FVClassifier)
 	 */
@@ -27,7 +27,7 @@ public class FVError extends org.openflow.protocol.OFError implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.message.Slicable#sliceFromController(org.flowvisor.classifier
 	 * .FVClassifier, org.flowvisor.slicer.FVSlicer)
@@ -39,7 +39,7 @@ public class FVError extends org.openflow.protocol.OFError implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

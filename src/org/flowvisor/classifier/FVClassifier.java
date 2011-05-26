@@ -53,12 +53,12 @@ import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
- * 
+ *
  * Also handles all of the switch-specific but slice-general state and
  * rewriting.
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVClassifier implements FVEventHandler, FVSendMsg {
@@ -201,7 +201,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * on init, send HELLO, delete all flow entries, and send features request
-	 * 
+	 *
 	 * @throws IOException
 	 */
 
@@ -297,7 +297,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	/**
 	 * Something in the config has changed since we only register for FlowSpace
 	 * changes, must be a new FlowSpace
-	 * 
+	 *
 	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
@@ -405,7 +405,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	/**
 	 * Main function Pass this message on to the appropriate Slicer as defined
 	 * by XID, FlowSpace, config, etc.
-	 * 
+	 *
 	 * @param m
 	 */
 	private void classifyOFMessage(OFMessage msg) {
@@ -415,9 +415,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * State machine for switches before we know which switch it is
-	 * 
+	 *
 	 * Wait for FEATURES_REPLY; ignore everything else
-	 * 
+	 *
 	 * @param m
 	 *            incoming message
 	 */
@@ -473,12 +473,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * Figure out which slices have access to the switch and spawn a Slicer
 	 * EventHandler for each of them. Also, close the connection to any slice
 	 * that is no longer listed
-	 * 
+	 *
 	 * Also make a connection for the topology discovery daemon here if
 	 * configured
-	 * 
+	 *
 	 * Assumes The switch is already been identified;
-	 * 
+	 *
 	 */
 	private void connectToControllers() {
 		Set<String> newSlices;
@@ -540,7 +540,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Called by FVSlicer to tell us to forget about them
-	 * 
+	 *
 	 * @param sliceName
 	 */
 	public void tearDownSlice(String sliceName) {
@@ -570,7 +570,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Send a message to the switch connected to this classifier
-	 * 
+	 *
 	 * @param msg
 	 *            OFMessage
 	 */

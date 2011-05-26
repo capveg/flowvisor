@@ -40,7 +40,7 @@ import org.openflow.protocol.statistics.OFStatisticsType;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVMessageFactory extends BasicFactory {
 

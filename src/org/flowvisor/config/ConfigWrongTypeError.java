@@ -5,7 +5,7 @@ package org.flowvisor.config;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class ConfigWrongTypeError extends ConfigError {
 

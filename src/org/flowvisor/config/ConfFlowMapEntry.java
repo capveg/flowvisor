@@ -7,7 +7,7 @@ import org.flowvisor.flows.*;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class ConfFlowMapEntry extends ConfigEntry {
 	FlowMap flowMap;

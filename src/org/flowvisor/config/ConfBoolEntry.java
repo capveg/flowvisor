@@ -5,7 +5,7 @@ package org.flowvisor.config;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class ConfBoolEntry extends ConfigEntry {
 	private boolean bool;

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.ofswitch;
 
@@ -53,9 +53,9 @@ import org.openflow.util.HexString;
  * Divide ports on a switch in to "slowPorts" and "fastPorts" send topology
  * discovery probes the fastPorts more often then slowports if we get an lldp
  * message on a port, make it a fast port
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
@@ -108,7 +108,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	@Override
@@ -118,7 +118,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getThreadContext()
 	 */
 	@Override
@@ -128,7 +128,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.
 	 * FVEvent)
@@ -147,15 +147,15 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * Handle a timer event
-	 * 
+	 *
 	 * On each timer event:<br>
-	 * 
+	 *
 	 * <ul> <li> send a probe to each fast Port
-	 * 
+	 *
 	 * <li> send a probe to the next slow port
-	 * 
+	 *
 	 * <li> reschedule timer
-	 * 
+	 *
 	 * </ul>
 	 */
 	synchronized private void handleTimerEvent(FVTimerEvent e) {
@@ -219,7 +219,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#needsAccept()
 	 */
 	@Override
@@ -229,7 +229,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#needsConnect()
 	 */
 	@Override
@@ -239,7 +239,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#needsRead()
 	 */
 	@Override
@@ -249,7 +249,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#needsWrite()
 	 */
 	@Override
@@ -262,7 +262,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#tearDown()
 	 */
 	@Override
@@ -279,9 +279,9 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Setup the connection
-	 * 
+	 *
 	 * Queue up OFHello(), OFFeatureRequest(), and Stats Desc request messages
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void init() throws IOException {
@@ -310,10 +310,10 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Return whether this topology instance is fully connected and initialized.
-	 * 
+	 *
 	 * Specifically, do we have responses to the initial features request and
 	 * stats.desc requests
-	 * 
+	 *
 	 * @return
 	 */
 
@@ -324,7 +324,7 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 	/**
 	 * Return the DPID of the switch associated with this TopologyConnection
 	 * instance
-	 * 
+	 *
 	 * @return null if featuresReply not yet received
 	 */
 	public Long getDataPathID() {

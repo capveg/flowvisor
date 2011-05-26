@@ -52,7 +52,7 @@ public class FVFeaturesReply extends org.openflow.protocol.OFFeaturesReply
 
 	/**
 	 * If a topologyConnection gets this message, then register it
-	 * 
+	 *
 	 */
 	@Override
 	public void topologyController(TopologyConnection topologyConnection) {

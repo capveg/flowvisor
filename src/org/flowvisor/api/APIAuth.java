@@ -21,9 +21,9 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * Figure out if this request should be allowed or not
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class APIAuth implements AuthenticationHandler {
 
@@ -41,7 +41,7 @@ public class APIAuth implements AuthenticationHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.
 	 * AuthenticationHandler#isAuthorized(org.apache.xmlrpc.XmlRpcRequest)
 	 */
@@ -133,7 +133,7 @@ public class APIAuth implements AuthenticationHandler {
 
 	/**
 	 * Did changerSlice transitively create sliceName?
-	 * 
+	 *
 	 * @param changerSlice
 	 *            the slice trying to perform a change
 	 * @param sliceName
@@ -163,10 +163,10 @@ public class APIAuth implements AuthenticationHandler {
 
 	/**
 	 * Load a config, and reset the passwd for a given user
-	 * 
+	 *
 	 * @param args
 	 *            <config.xml> <user>
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 */
 

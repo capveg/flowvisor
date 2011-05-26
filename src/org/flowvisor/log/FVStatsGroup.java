@@ -8,9 +8,9 @@ import org.openflow.protocol.OFMessage;
 
 /**
  * A collection of FVStats, organized by their senders
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVStatsGroup {
@@ -73,7 +73,7 @@ public class FVStatsGroup {
 	/**
 	 * Creates a shared reference to a stats group; this is used by all slicer
 	 * instances in a slice, i.e., one per switch
-	 * 
+	 *
 	 * @param owner
 	 *            the name of the slice
 	 * @return An already instantiated FVStatsGroup

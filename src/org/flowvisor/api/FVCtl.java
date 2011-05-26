@@ -39,12 +39,12 @@ import org.flowvisor.flows.FlowDBEntry;
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
- * 
+ *
  * This is pretty hacky and just for testing; people should write their own
  * clients and/or call the XMLRPC directly
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVCtl {
 	String URL;
@@ -111,7 +111,7 @@ public class FVCtl {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param URL
 	 *            Server URL
 	 */
@@ -121,9 +121,9 @@ public class FVCtl {
 
 	/**
 	 * Init connection to XMLRPC Server in URL
-	 * 
+	 *
 	 * @throws MalformedURLException
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void init(String user, String passwd) throws MalformedURLException {
@@ -583,7 +583,7 @@ public class FVCtl {
 
 	/**
 	 * Front-end cmdline parser for FVCtl
-	 * 
+	 *
 	 * @param args
 	 * @throws SecurityException
 	 * @throws IllegalArgumentException

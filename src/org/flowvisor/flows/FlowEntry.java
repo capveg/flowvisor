@@ -31,7 +31,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 		Serializable, Bracketable<FlowEntry> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final long ALL_DPIDS = Long.MIN_VALUE;
@@ -46,7 +46,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/**
 	 * IF switch is dpid and packet match's match, then perform action list
-	 * 
+	 *
 	 * @param dpid
 	 *            switch's datapath id (from FeaturesReply) or ALL_DPIDS
 	 * @param match
@@ -139,13 +139,13 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 	 * <br>
 	 * EQUAL means they have perfect overlap (rule == param) <br>
 	 * NONE means they do not have any overlap ( rule ^ param == 0 ) <br>
-	 * 
+	 *
 	 * General algorithm: step through each possible element of match (dpid,
 	 * src_ip, etc.)
-	 * 
+	 *
 	 * NOTE: if you want to match a packet against a rule, first convert the
 	 * packet to an OFMatch using match.loadFromPacket()
-	 * 
+	 *
 	 * @param dpid
 	 *            switch's DPID
 	 * @param match
@@ -296,9 +296,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/**
 	 * Parse the output from this.toString() and return a matching FlowEntry
-	 * 
+	 *
 	 * Minimal error checking
-	 * 
+	 *
 	 * @param string
 	 * @return an initialized flowentry
 	 */
@@ -356,7 +356,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -375,7 +375,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -418,7 +418,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -432,7 +432,7 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	/**
 	 * Does this slice have permissions 'perms' for this flowEntry
-	 * 
+	 *
 	 * @param sliceName
 	 * @param perms
 	 * @return true == yes, false == no

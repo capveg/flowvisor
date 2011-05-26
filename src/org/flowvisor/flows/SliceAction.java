@@ -9,7 +9,7 @@ import org.flowvisor.*;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class SliceAction extends OFActionVendor implements Cloneable {
 	public static final int READ = (1 << 1);
@@ -34,7 +34,7 @@ public class SliceAction extends OFActionVendor implements Cloneable {
 	/**
 	 * Guaranteed to never print commas, so commas can be used as delimiters in
 	 * lists of slice perms
-	 * 
+	 *
 	 * @return "Slice:$name=3" for name = READ + WRITE, etc.
 	 */
 	@Override

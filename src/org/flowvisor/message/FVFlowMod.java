@@ -24,9 +24,9 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 
 	/**
 	 * FlowMod slicing
-	 * 
+	 *
 	 * 1) make sure all actions are ok
-	 * 
+	 *
 	 * 2) expand this FlowMod to the intersection of things in the given match
 	 * and the slice's flowspace
 	 */
@@ -98,7 +98,7 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

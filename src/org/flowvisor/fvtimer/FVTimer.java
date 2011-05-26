@@ -13,11 +13,11 @@ import org.flowvisor.log.LogLevel;
  * A priority queue of timer events does NOT actually call events directly.
  * External callers (e.g., eventLoop) do addTimer() and repeated call
  * processTimer()
- * 
+ *
  * NOT threadsafe!
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVTimer {
 	public static final long MAX_TIMEOUT = 5000;
@@ -71,7 +71,7 @@ public class FVTimer {
 
 	/****
 	 * Cancels a timer that has previously been added via addTimer()
-	 * 
+	 *
 	 * @param id
 	 *            the id of the timer as returned by FVTimerEvent.getID()
 	 * @return true if found and removed, else false

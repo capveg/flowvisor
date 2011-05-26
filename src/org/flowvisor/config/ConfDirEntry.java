@@ -11,16 +11,16 @@ import java.util.List;
 /**
  * A directory in the config hierarchy. Does not support multiple nodes with the
  * same name; they will overwrite
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class ConfDirEntry extends ConfigEntry {
 	HashMap<String, ConfigEntry> entries;
 
 	/**
 	 * A directory entry in the Config Hierarchy
-	 * 
+	 *
 	 * @param name
 	 */
 	public ConfDirEntry(String name) {
@@ -42,7 +42,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Lookup an entry in this directory
-	 * 
+	 *
 	 * @param name
 	 *            entry name
 	 * @return
@@ -54,7 +54,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Add an entry to this directory
-	 * 
+	 *
 	 * @param entry
 	 */
 	public void add(ConfigEntry entry) {
@@ -63,7 +63,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Remove an entry from this direclty
-	 * 
+	 *
 	 * @param name
 	 *            name of entry
 	 */
@@ -73,7 +73,7 @@ public class ConfDirEntry extends ConfigEntry {
 
 	/**
 	 * Return a list of entries for this node
-	 * 
+	 *
 	 * @return
 	 */
 	public List<String> list() {

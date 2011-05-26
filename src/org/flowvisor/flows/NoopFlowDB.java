@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -14,9 +14,9 @@ import org.openflow.protocol.OFFlowRemoved;
  * implement the FlowDB interface, but do nothing used when FlowTracking is
  * disabled because it's easier and cleaner than having a lot of if/then's in
  * the code
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class NoopFlowDB implements FlowDB {
 

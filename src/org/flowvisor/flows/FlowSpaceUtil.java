@@ -21,16 +21,16 @@ import org.openflow.util.HexString;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FlowSpaceUtil {
 	/**
 	 * Consult the FlowSpace and get a list of all slices that get connections
 	 * to this switch, as specified by it's DPID
-	 * 
+	 *
 	 * This function is somewhat expensive (think DB join), so the results
 	 * should be cached, and then updated when the FlowSpace signals a change
-	 * 
+	 *
 	 * @param flowMap
 	 *            A map of flow entries, like that from
 	 *            FVConfig.getFlowSpaceFlowMap();
@@ -60,10 +60,10 @@ public class FlowSpaceUtil {
 
 	/**
 	 * Return the flowspace controlled by this slice
-	 * 
+	 *
 	 * Note that this correctly removes the "holes" caused by higher priority
 	 * flowspace entries
-	 * 
+	 *
 	 * @param sliceName
 	 * @return
 	 */
@@ -96,14 +96,14 @@ public class FlowSpaceUtil {
 	/**
 	 * Consult the flowspace and return the set of ports that this slice is
 	 * supposed to use on this switch
-	 * 
+	 *
 	 * This function is somewhat expensive (think DB join), so the results
 	 * should be cached, and then updated when the FlowSpace signals a change
-	 * 
+	 *
 	 * OFPort.OFPP_ALL (0xfffc) is used to describe that all ports are supposed
 	 * to be used. If all ports are valid, then OFPP_ALL will be the only port
 	 * returned.
-	 * 
+	 *
 	 * @param dpid
 	 *            the switch identifier (from OFFeaturesReply)
 	 * @param slice
@@ -152,7 +152,7 @@ public class FlowSpaceUtil {
 
 	/**
 	 * Mini-frontend for querying FlowSpace
-	 * 
+	 *
 	 * @param args
 	 * @throws FileNotFoundException
 	 */
@@ -194,7 +194,7 @@ public class FlowSpaceUtil {
 	/**
 	 * Get the FlowMap that is the intersection of the Master FlowSpace and this
 	 * dpid
-	 * 
+	 *
 	 * @param dpid
 	 *            As returned from OFFeatureReply
 	 * @return A valid flowmap (never null)
@@ -212,7 +212,7 @@ public class FlowSpaceUtil {
 	 * Get the FlowMap that is the intersection of this FlowMap and the given
 	 * flowSpace that is, any rule in the source flowmap that matches any part
 	 * of dpid and match is added to the returned flowmap
-	 * 
+	 *
 	 * @param flowMap
 	 *            Source flow map
 	 * @param dpid
@@ -250,7 +250,7 @@ public class FlowSpaceUtil {
 	/**
 	 * Convert a string to a DPID "*","all","all_dpids" --> ALL_DPIDS constant
 	 * if there is a ':", treat as a hex string else assume it's decimal
-	 * 
+	 *
 	 * @param dpidStr
 	 * @return a dpid
 	 */
@@ -274,11 +274,11 @@ public class FlowSpaceUtil {
 
 	/**
 	 * Remove all of the flowSpace associated with a slice
-	 * 
+	 *
 	 * Does NOT send updates to classifiers
-	 * 
+	 *
 	 * DOES lock the flowSpace for synchronization
-	 * 
+	 *
 	 * @param sliceName
 	 */
 	public static void deleteFlowSpaceBySlice(String sliceName) {

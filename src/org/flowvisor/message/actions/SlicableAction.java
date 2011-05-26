@@ -13,7 +13,7 @@ import org.openflow.protocol.action.OFAction;
 
 /**
  * @author capveg
- * 
+ *
  */
 public interface SlicableAction {
 
@@ -21,7 +21,7 @@ public interface SlicableAction {
 	 * See if this action is allowed in the slice definition, given this match
 	 * If yes, then write it to the approvedActions list (possibly rewritten) or
 	 * expanded
-	 * 
+	 *
 	 * @param approvedActions
 	 *            list of already approved actions
 	 * @param match

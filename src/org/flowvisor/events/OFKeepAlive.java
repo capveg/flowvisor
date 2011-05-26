@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.events;
 
@@ -10,7 +10,7 @@ import org.openflow.protocol.OFType;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class OFKeepAlive extends FVTimerEvent {
 	long lastPongTime;
@@ -76,7 +76,7 @@ public class OFKeepAlive extends FVTimerEvent {
 
 	/**
 	 * Have we gotten a pong in the timeout period?
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isAlive() {

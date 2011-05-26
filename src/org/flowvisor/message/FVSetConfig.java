@@ -14,15 +14,15 @@ public class FVSetConfig extends OFSetConfig implements Classifiable, Slicable {
 
 	/**
 	 * Fake variable missSendLength parameters
-	 * 
+	 *
 	 * Save the missSendLength parameter for this slice and the switch<br>
-	 * 
+	 *
 	 * The switch should always use the MAX missLen of all the slices.
-	 * 
+	 *
 	 * Update the switch's missLen if it's larger than previously asked for
 	 * Replace the missSendLength param with with one for the switch and send it
 	 * on the switch
-	 * 
+	 *
 	 */
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {

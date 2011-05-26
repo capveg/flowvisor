@@ -9,19 +9,19 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * Given an echo request, just send an immediate response from the fv
- * 
+ *
  * FIXME consider sending these all the way through instead of faking NEED to
  * update regression tests
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 		implements Classifiable, Slicable, TopologyControllable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.flowvisor.message.Classifiable#classifyFromSwitch(org.flowvisor.
 	 * classifier.FVClassifier)
 	 */
@@ -34,7 +34,7 @@ public class FVEchoRequest extends org.openflow.protocol.OFEchoRequest
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.message.Slicable#sliceFromController(org.flowvisor.classifier
 	 * .FVClassifier, org.flowvisor.slicer.FVSlicer)

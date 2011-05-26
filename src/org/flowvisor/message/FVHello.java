@@ -9,14 +9,14 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVHello extends org.openflow.protocol.OFHello implements
 		Classifiable, Slicable, TopologyControllable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.flowvisor.message.Classifiable#classifyFromSwitch(org.flowvisor.
 	 * classifier.FVClassifier)
 	 */
@@ -27,7 +27,7 @@ public class FVHello extends org.openflow.protocol.OFHello implements
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.message.Slicable#sliceFromController(org.flowvisor.classifier
 	 * .FVClassifier, org.flowvisor.slicer.FVSlicer)

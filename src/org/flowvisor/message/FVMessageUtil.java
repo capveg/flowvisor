@@ -29,14 +29,14 @@ import org.openflow.protocol.action.OFAction;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVMessageUtil {
 
 	/**
 	 * Translate the XID of a message from controller-unique to switch unique
 	 * Also, record the <oldXid,FVSlicer> mapping so we can reverse this later
-	 * 
+	 *
 	 * @param msg
 	 * @param fvClassifier
 	 * @param fvSlicer
@@ -50,7 +50,7 @@ public class FVMessageUtil {
 
 	/**
 	 * Undo the effect of translateXID, and return the FVSlicer this came from
-	 * 
+	 *
 	 * @param msg
 	 * @param fvClassifier
 	 * @return the fvSlicer that was input in the translate step or null if not
@@ -69,10 +69,10 @@ public class FVMessageUtil {
 	/**
 	 * Is this slice allowed to use this list of actions with this ofmatch
 	 * structure?
-	 * 
+	 *
 	 * Return a (potentially edited) list of actions or throw an exception if
 	 * not allowed
-	 * 
+	 *
 	 * @param actionList
 	 * @param match
 	 *            inPort is encapsulated in the match

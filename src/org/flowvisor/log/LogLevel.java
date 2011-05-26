@@ -6,9 +6,9 @@ package org.flowvisor.log;
 /**
  * Logging Priority Levels (very similar to syslog) Sorted in descending order
  * of importance.
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public enum LogLevel {
 	FATAL(Syslog.Priority.LOG_EMERG), // The world is on fire

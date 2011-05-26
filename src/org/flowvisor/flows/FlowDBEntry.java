@@ -11,7 +11,7 @@ import org.openflow.protocol.action.OFAction;
 
 public class FlowDBEntry extends FlowEntry {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	String sliceName;
@@ -35,7 +35,7 @@ public class FlowDBEntry extends FlowEntry {
 
 	/**
 	 * Init from a flowMod for simplicity
-	 * 
+	 *
 	 * @param dpid
 	 * @param flowID
 	 *            unique id for this flow
@@ -126,7 +126,7 @@ public class FlowDBEntry extends FlowEntry {
 
 	/**
 	 * Return a description of how this argument intersects with this
-	 * 
+	 *
 	 * @param dpid
 	 * @param argMatch
 	 * @param cookie

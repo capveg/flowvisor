@@ -19,7 +19,7 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVEventLoop {
 	long thread_id;
@@ -37,7 +37,7 @@ public class FVEventLoop {
 
 	/**
 	 * Register a new event listener with socket
-	 * 
+	 *
 	 * @param ch
 	 * @param ops
 	 * @param handler
@@ -55,7 +55,7 @@ public class FVEventLoop {
 
 	/**
 	 * Clean up after a dying event handler
-	 * 
+	 *
 	 * @param ch
 	 *            the socket that was previous registered
 	 * @param handler
@@ -81,7 +81,7 @@ public class FVEventLoop {
 
 	/****
 	 * Pass a timer event on to the Timer class
-	 * 
+	 *
 	 * @param e
 	 */
 	public void addTimer(FVTimerEvent e) {
@@ -99,7 +99,7 @@ public class FVEventLoop {
 	 * Main top-level IO loop this dispatches all IO events and timer events
 	 * together I believe this is fairly efficient for processing IO events and
 	 * events queued should cause the select to wake up
-	 * 
+	 *
 	 */
 	public void doEventLoop() throws IOException, UnhandledEvent {
 		this.thread_id = Thread.currentThread().getId();

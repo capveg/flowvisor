@@ -10,9 +10,9 @@ import org.flowvisor.exceptions.MapUnparsable;
 import org.flowvisor.flows.FlowSpaceUtil;
 
 /**
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class LinkAdvertisement {
 	String srcDPID;
@@ -90,7 +90,7 @@ public class LinkAdvertisement {
 
 	/**
 	 * I *SWEAR* XMLRPC is supposed to be able to handle this for me... :-(
-	 * 
+	 *
 	 * @return a key=value paired map of information on this link
 	 */
 
@@ -143,7 +143,7 @@ public class LinkAdvertisement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -159,7 +159,7 @@ public class LinkAdvertisement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -177,7 +177,7 @@ public class LinkAdvertisement {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

@@ -16,9 +16,9 @@ import org.openflow.protocol.action.OFActionOutput;
 /**
  * Allow/deny based on slice config if OFPP_ALL or OFPP_FLOOD, expand if
  * necessary
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVActionOutput extends OFActionOutput implements SlicableAction,

@@ -168,9 +168,9 @@ public class FlowVisor {
 
 	/**
 	 * FlowVisor Daemon Executable Main
-	 * 
+	 *
 	 * Takes a config file as only parameter
-	 * 
+	 *
 	 * @param args
 	 *            config file
 	 * @throws Throwable
@@ -257,7 +257,7 @@ public class FlowVisor {
 
 	/**
 	 * Print usage message and warning string then exit
-	 * 
+	 *
 	 * @param string
 	 *            warning
 	 */
@@ -281,7 +281,7 @@ public class FlowVisor {
 
 	/**
 	 * Get the running fv instance
-	 * 
+	 *
 	 * @return
 	 */
 	public static FlowVisor getInstance() {
@@ -290,7 +290,7 @@ public class FlowVisor {
 
 	/**
 	 * Set the running fv instance
-	 * 
+	 *
 	 * @param instance
 	 */
 	public static void setInstance(FlowVisor instance) {
@@ -300,10 +300,10 @@ public class FlowVisor {
 	/**
 	 * Returns a unique, shallow copy of the list of event handlers registered
 	 * in the flowvisor
-	 * 
+	 *
 	 * Is unique to prevent concurrency problems, i.e., when wakling through the
 	 * list and a handler gets deleted
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized ArrayList<FVEventHandler> getHandlersCopy() {
@@ -324,9 +324,9 @@ public class FlowVisor {
 
 	/**
 	 * Save the running config back to disk
-	 * 
+	 *
 	 * Write to a temp file and only if it succeeds, move it into place
-	 * 
+	 *
 	 * FIXME: add versioning
 	 */
 	public void checkPointConfig() {

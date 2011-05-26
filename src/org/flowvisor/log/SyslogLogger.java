@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.log;
 
@@ -10,7 +10,7 @@ import org.flowvisor.log.Syslog.Facility;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class SyslogLogger implements FVLogInterface {
 
@@ -28,7 +28,7 @@ public class SyslogLogger implements FVLogInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.log.FVLogInterface#init()
 	 */
 	@Override
@@ -73,7 +73,7 @@ public class SyslogLogger implements FVLogInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.log.FVLogInterface#log(org.flowvisor.log.LogLevel,
 	 * long, org.flowvisor.events.FVEventHandler, java.lang.String)
 	 */

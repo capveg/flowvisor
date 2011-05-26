@@ -11,23 +11,23 @@ import org.openflow.util.StringByteSerializer;
 
 /**
  * @author capveg
- * 
+ *
  *         append a slice-identifying trailer to an lldp packet
- * 
+ *
  *         2 bytes: tlv : type, length, value pair : (CHASISID)
- * 
+ *
  *         1 byte : chasis subtype (LOCAL)
- * 
+ *
  *         variable length, 0-term asci str: slice name
- * 
+ *
  *         variable length, 0-term asci str: flowvisor name
- * 
+ *
  *         1 byte: length of slice name str
- * 
+ *
  *         1 byte: length of flowvisor name str
- * 
+ *
  *         4 bytes: magic number to identify trailer
- * 
+ *
  */
 public class LLDPTrailer {
 	public final static int MAGIC = 0xdeadcafe;
@@ -76,7 +76,7 @@ public class LLDPTrailer {
 
 	/**
 	 * Append this trailer to the packet out; update the length and everything
-	 * 
+	 *
 	 * @param po
 	 */
 	public void appendTo(FVPacketOut po) {
@@ -107,7 +107,7 @@ public class LLDPTrailer {
 	/**
 	 * Checks if the LLDP trailer exists and if so, parses it and removes it
 	 * from the packet
-	 * 
+	 *
 	 * @param po
 	 * @return
 	 */

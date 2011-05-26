@@ -7,9 +7,9 @@ package org.flowvisor.events;
 /**
  * Let an event handler know that a config element that it was watching needs
  * updating
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class ConfigUpdateEvent extends FVEvent {
 	String config;

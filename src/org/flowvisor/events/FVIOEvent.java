@@ -8,9 +8,9 @@ import java.nio.channels.*;
 
 /**
  * Event: underlying socket has pending I/O
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVIOEvent extends FVEvent {
 	SelectionKey sk;

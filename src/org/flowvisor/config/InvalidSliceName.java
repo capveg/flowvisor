@@ -9,7 +9,7 @@ public class InvalidSliceName extends FVException {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

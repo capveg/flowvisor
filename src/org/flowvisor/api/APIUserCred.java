@@ -4,11 +4,11 @@ import org.flowvisor.api.APIUserCred;
 
 /**
  * Thread-local list of this User's credentials
- * 
+ *
  * used as a HACK to get around the fact that servlets are stateless
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class APIUserCred {
 	String userName;

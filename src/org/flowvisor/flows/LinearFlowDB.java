@@ -13,16 +13,16 @@ import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * Internal DB for tracking the switch's state
- * 
+ *
  * NOT internally thread-safe
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class LinearFlowDB implements FlowDB, Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	SortedSet<FlowDBEntry> db;
@@ -85,9 +85,9 @@ public class LinearFlowDB implements FlowDB, Serializable {
 
 	/**
 	 * Remove one or more flowdb entries
-	 * 
+	 *
 	 * fail silently if there is nothing deleted
-	 * 
+	 *
 	 * @param flowMod
 	 * @param sliceName
 	 */
@@ -113,9 +113,9 @@ public class LinearFlowDB implements FlowDB, Serializable {
 
 	/**
 	 * Change one or more flowdb entries
-	 * 
+	 *
 	 * fail silently if nothing matches
-	 * 
+	 *
 	 * @param flowMod
 	 * @param sliceName
 	 */
@@ -127,7 +127,7 @@ public class LinearFlowDB implements FlowDB, Serializable {
 
 	/**
 	 * Add a new flowdb entry
-	 * 
+	 *
 	 * @param flowMod
 	 * @param sliceName
 	 * @param dpid

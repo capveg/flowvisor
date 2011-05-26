@@ -14,9 +14,9 @@ import org.openflow.protocol.OFMatch;
 /**
  * List of things to populate FVConfig with on startup Everything here can be
  * overridden from the config file
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class DefaultConfig {
 
@@ -98,7 +98,7 @@ public class DefaultConfig {
 
 	/**
 	 * Print default config to stdout
-	 * 
+	 *
 	 * @param args
 	 * @throws FileNotFoundException
 	 */

@@ -1,10 +1,10 @@
 package org.flowvisor.flows;
 
 /**
- * Very similar to FlowDB, but instead of containing a list of 
+ * Very similar to FlowDB, but instead of containing a list of
  * flows in the switch, it contains the map of how flows were
- * rewritten by the flowvisor, i.e., 
- * 
+ * rewritten by the flowvisor, i.e.,
+ *
  * alice sends flow f which the flowvisor rewrites as f1..fn
  * so FlowRewriteDB stores the "f --> f1..fn" mapping
  */
@@ -18,7 +18,7 @@ import org.openflow.protocol.OFFlowRemoved;
 public interface FlowRewriteDB extends Serializable {
 	/**
 	 * Update the contents of the FlowDB with
-	 * 
+	 *
 	 * @param flowMod
 	 * @param Slicename
 	 */

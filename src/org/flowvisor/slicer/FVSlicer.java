@@ -48,7 +48,7 @@ import org.openflow.protocol.OFPort;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVSlicer implements FVEventHandler, FVSendMsg {
 
@@ -168,7 +168,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Return the list of ports in this slice on this switch
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<Short> getPorts() {
@@ -177,7 +177,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Return the list of ports that have flooding enabled for OFPP_FLOOD
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<Short> getFloodPorts() {
@@ -210,7 +210,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	/**
 	 * Set the OFPP_FLOOD flag for this port silently fail if this port is not
 	 * in the slice
-	 * 
+	 *
 	 * @param port
 	 * @param status
 	 */
@@ -222,7 +222,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Is this port in this slice on this switch?
-	 * 
+	 *
 	 * @param port
 	 * @return true is yes, false is no.. durh
 	 */
@@ -286,7 +286,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	@Override
@@ -297,7 +297,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getThreadContext()
 	 */
 	@Override
@@ -308,7 +308,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#tearDown()
 	 */
 	@Override
@@ -345,7 +345,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.
 	 * FVEvent)
@@ -394,7 +394,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * We got a signal that something in the config changed
-	 * 
+	 *
 	 * @param e
 	 */
 
@@ -411,7 +411,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * The FlowSpace just changed; update all cached dependencies
-	 * 
+	 *
 	 * @param e
 	 */
 

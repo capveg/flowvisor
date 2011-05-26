@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.flows;
 
@@ -16,7 +16,7 @@ import org.openflow.protocol.OFFlowRemoved;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class LinearFlowRewriteDB implements FlowRewriteDB {
 
@@ -39,7 +39,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#processFlowMods(org.flowvisor.message
 	 * .FVFlowMod, org.flowvisor.message.FVFlowMod, long, java.lang.String)
@@ -147,7 +147,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#processFlowRemoved(org.flowvisor.message
 	 * .FVFlowRemoved, long)
@@ -180,7 +180,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.flows.FlowRewriteDB#originals()
 	 */
 	@Override
@@ -190,7 +190,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.flows.FlowRewriteDB#getRewrites(org.flowvisor.flows.FlowDBEntry
 	 * )
@@ -202,7 +202,7 @@ public class LinearFlowRewriteDB implements FlowRewriteDB {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.flows.FlowRewriteDB#size()
 	 */
 	@Override

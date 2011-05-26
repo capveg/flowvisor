@@ -13,9 +13,9 @@ import org.openflow.protocol.OFType;
 
 /**
  * Static method
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVLog {
 	static boolean needsInit = true;
@@ -24,7 +24,7 @@ public class FVLog {
 
 	/**
 	 * Wrapper around the default logger
-	 * 
+	 *
 	 * @param level
 	 *            Log priority
 	 * @param source
@@ -88,7 +88,7 @@ public class FVLog {
 
 	/**
 	 * Change the default logger
-	 * 
+	 *
 	 * @param logger
 	 *            New logger
 	 */
@@ -99,7 +99,7 @@ public class FVLog {
 
 	/**
 	 * Get the logging threshold
-	 * 
+	 *
 	 */
 	public static LogLevel getThreshold() {
 		return FVLog.threshold;
@@ -115,7 +115,7 @@ public class FVLog {
 
 	/**
 	 * Benchmarking tool for the logging systems
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String args[]) {

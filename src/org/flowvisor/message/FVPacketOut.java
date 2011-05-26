@@ -22,11 +22,11 @@ import org.openflow.util.HexString;
  * Verify that this packet_out operation is allowed by slice definition, in
  * terms of destination port, the flowspace of the embedded packet, the
  * buffer_id, and the actions.
- * 
+ *
  * Send an error msg back to controller if it's not
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
@@ -114,7 +114,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

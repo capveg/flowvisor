@@ -33,9 +33,9 @@ public class DeviceAdvertisement {
 	/**
 	 * This is a fugly hack to turn these structs into something that our XMLRPC
 	 * encoder can handler
-	 * 
+	 *
 	 * FIXME: figure out if a better XMLRPC encoder can solve this for us
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, Object> toMap() {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.slicer;
 
@@ -8,13 +8,13 @@ import org.flowvisor.events.FVTimerEvent;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class ReconnectEvent extends FVTimerEvent {
 
 	/**
 	 * Signal that we should reconnect in secondsToNextReconnect
-	 * 
+	 *
 	 * @param secondsToNextReconnect
 	 *            relative time
 	 * @param src

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.flowvisor.ofswitch;
 
@@ -29,12 +29,12 @@ import org.flowvisor.log.LogLevel;
 /**
  * A simple OpenFlow controller that runs inside the flowvisor to discover and
  * report the network's topology
- * 
+ *
  * Can only run one instance of topology controller at a time; use spawn() to
  * create or get running instance
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class TopologyController extends OFSwitchAcceptor {
 
@@ -103,7 +103,7 @@ public class TopologyController extends OFSwitchAcceptor {
 	/**
 	 * Add a new URL to the list of things to make an XMLRPC call to if the
 	 * topology changes
-	 * 
+	 *
 	 * @param user
 	 *            FVUser (e.g., "alice") who registered this callback
 	 * @param URL
@@ -135,7 +135,7 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	/**
 	 * On each processUpdate signal, step through list of probes,
-	 * 
+	 *
 	 * @return
 	 */
 	private synchronized void processUpdate() {
@@ -199,9 +199,9 @@ public class TopologyController extends OFSwitchAcceptor {
 	/**
 	 * Return a list of datapath ids (encoded as raw longs) of all the
 	 * switches/devices connected to this topology controller
-	 * 
+	 *
 	 * Used by FVUserAPI getDevices() call
-	 * 
+	 *
 	 * @return never null, may return an empty list if nothing is connected
 	 */
 
@@ -216,9 +216,9 @@ public class TopologyController extends OFSwitchAcceptor {
 	/**
 	 * Return a list of links (encoded as LinkAdvertisements) of all discovered
 	 * links of all switches connected to this topology controller.
-	 * 
+	 *
 	 * Used by FVUserAPI getLinks() call
-	 * 
+	 *
 	 * @return
 	 */
 
@@ -238,7 +238,7 @@ public class TopologyController extends OFSwitchAcceptor {
 	/**
 	 * Returns true if the FV is configured to do topology discovery and it's
 	 * running
-	 * 
+	 *
 	 * @return true == yes, the topology discovery process is running
 	 */
 
@@ -293,7 +293,7 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	/**
 	 * This gets called when a topology connection is killed
-	 * 
+	 *
 	 * @param topologyConnection
 	 */
 	public void disconnect(TopologyConnection topologyConnection) {

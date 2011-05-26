@@ -17,9 +17,9 @@ import org.openflow.util.HexString;
 
 /**
  * Object that holds a change to the flowspace
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FlowChange {
 	final static public String OP_KEY = "operation";
@@ -42,7 +42,7 @@ public class FlowChange {
 
 	/**
 	 * Convert this Map to a FlowChange
-	 * 
+	 *
 	 * @return a key=value map representing this flowchange
 	 */
 	public Map<String, String> toMap() {
@@ -61,7 +61,7 @@ public class FlowChange {
 
 	/**
 	 * Convert a map to a FlowChange that is, reverse the actions of toMap()
-	 * 
+	 *
 	 * @param map
 	 * @return
 	 * @throws MalformedFlowChange
@@ -138,7 +138,7 @@ public class FlowChange {
 
 	/**
 	 * Create a map from the parameters
-	 * 
+	 *
 	 * @param add
 	 * @param idStr
 	 * @param priorityStr
@@ -168,7 +168,7 @@ public class FlowChange {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param operation
 	 * @param index
 	 * @param dpid

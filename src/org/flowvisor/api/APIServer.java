@@ -15,12 +15,12 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * This is stolen pretty directly from the apache-xml example code.
- * 
+ *
  * FIXME: Come back and make asynchronous FIXME: address all of the issues with
  * the WebServer code that the author's bring up
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class APIServer {
@@ -34,7 +34,7 @@ public class APIServer {
 
 	/**
 	 * Spawn a thread to run the XMLRPC FlowVisor UserAPI WebServer
-	 * 
+	 *
 	 * @return the webServer
 	 * @throws XmlRpcException
 	 * @throws IOException

@@ -5,9 +5,9 @@ package org.flowvisor.events;
 
 /**
  * Event: a timer has expired
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 	long expireTime;
@@ -17,7 +17,7 @@ public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 
 	/**
 	 * Send an event from src to dst at absolute time expireTime
-	 * 
+	 *
 	 * @param expireTime
 	 *            Absolute wallclock time since the epoch in milliseconds
 	 * @param src
@@ -82,7 +82,7 @@ public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
@@ -95,7 +95,7 @@ public class FVTimerEvent extends FVEvent implements Comparable<FVTimerEvent> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

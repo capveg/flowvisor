@@ -15,9 +15,9 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * Set of utilities for handling our LLDP virtualization hacks
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class LLDPUtil {
 	final public static short ETHER_LLDP = (short) 0x88cc;
@@ -30,7 +30,7 @@ public class LLDPUtil {
 	 * If this msg is lldp, then 1) add a slice identifying trailer 2) send to
 	 * switch -- all slices can send lldp, no matter flowspace 3) return true,
 	 * we've handled this packet else return false
-	 * 
+	 *
 	 * @param po
 	 *            message
 	 * @param fvClassifier
@@ -61,7 +61,7 @@ public class LLDPUtil {
 
 	/**
 	 * Is this an lldp packet?
-	 * 
+	 *
 	 * @param po
 	 * @return
 	 */
@@ -83,7 +83,7 @@ public class LLDPUtil {
 	 * If this msg is lldp, then 1) remove the slice identifying trailer 2) send
 	 * to controller -- all slices can send lldp, no matter flowspace 3) return
 	 * true, we've handled this packet
-	 * 
+	 *
 	 * @param po
 	 * @param fvClassifier
 	 * @return did we handle this message?

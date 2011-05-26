@@ -14,7 +14,7 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Get the node's value
-	 * 
+	 *
 	 * @return
 	 */
 	public int getInt() {
@@ -23,7 +23,7 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Set the node's value
-	 * 
+	 *
 	 * @param val
 	 */
 	public void setInt(int val) {
@@ -32,7 +32,7 @@ public class ConfIntEntry extends ConfigEntry {
 
 	/**
 	 * Convert val to an integer and store it
-	 * 
+	 *
 	 * @param val
 	 *            e.g., "12345"
 	 */

@@ -10,7 +10,7 @@ import org.flowvisor.events.FVEventHandler;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class StderrLogger implements FVLogInterface {
 
@@ -18,7 +18,7 @@ public class StderrLogger implements FVLogInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.log.FVLogInterface#init()
 	 */
 	@Override
@@ -31,7 +31,7 @@ public class StderrLogger implements FVLogInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.log.FVLogInterface#log(org.flowvisor.log.FVLogLevel,
 	 * org.flowvisor.events.FVEventHandler, java.lang.String)
 	 */

@@ -8,14 +8,14 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVBarrierReply extends org.openflow.protocol.OFBarrierReply
 		implements Classifiable, Slicable {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seeorg.flowvisor.message.Classifiable#classifyFromSwitch(org.flowvisor.
 	 * classifier.FVClassifier)
 	 */
@@ -26,7 +26,7 @@ public class FVBarrierReply extends org.openflow.protocol.OFBarrierReply
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.message.Slicable#sliceFromController(org.flowvisor.classifier
 	 * .FVClassifier, org.flowvisor.slicer.FVSlicer)

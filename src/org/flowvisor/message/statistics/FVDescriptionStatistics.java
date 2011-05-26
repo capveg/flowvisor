@@ -20,7 +20,7 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 	/**
 	 * NOTE: we no long do any DescriptionStatistics rewriting, now that 1.0
 	 * support dp_desc field.
-	 * 
+	 *
 	 * NOTE: now that no 1.0 vendors use dp_desc the way I wanted them to, we're
 	 * going to do rewriting again... *sigh*
 	 */

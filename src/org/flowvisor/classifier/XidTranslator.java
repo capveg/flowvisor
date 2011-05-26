@@ -8,7 +8,7 @@ import org.openflow.util.LRULinkedHashMap;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class XidTranslator {
 

@@ -7,12 +7,12 @@ import org.openflow.protocol.OFMatch;
 
 /**
  * Describe the intersection between two FlowEntry's.
- * 
+ *
  * Contains an MatchType and if MatchType != NONE, then a FlowEntry structure
  * that describes the overlap
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class FlowIntersect {
 	MatchType matchType;
@@ -62,7 +62,7 @@ public class FlowIntersect {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

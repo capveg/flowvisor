@@ -20,10 +20,10 @@ public class FVFlowRemoved extends OFFlowRemoved implements Classifiable,
 	/**
 	 * Current algorithm: if flow tracking knows who sent this flow, then just
 	 * send to them
-	 * 
+	 *
 	 * If flow tracking doesn't know (or is disabled) send to everyone who
 	 * *could* have sent the flow
-	 * 
+	 *
 	 * FIXME: do the reference counting so that if a flow is expanded three
 	 * ways, only send the flow_removed up to the controller if all three flows
 	 * have expired

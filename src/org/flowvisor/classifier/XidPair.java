@@ -7,7 +7,7 @@ import org.flowvisor.slicer.FVSlicer;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class XidPair {
 	int xid;

@@ -8,9 +8,9 @@ import org.flowvisor.exceptions.*;
 /**
  * Basic implementation of an event handler Both for reference and used in
  * derived classes
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class ExampleHandler implements FVEventHandler {
 
@@ -18,7 +18,7 @@ public class ExampleHandler implements FVEventHandler {
 
 	/**
 	 * Construct a basic event handler
-	 * 
+	 *
 	 * @param loop
 	 *            the event loop this handler will reside in
 	 */
@@ -28,7 +28,7 @@ public class ExampleHandler implements FVEventHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getThreadContext()
 	 */
 	@Override
@@ -38,7 +38,7 @@ public class ExampleHandler implements FVEventHandler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.
 	 * FVEvent)
@@ -59,7 +59,7 @@ public class ExampleHandler implements FVEventHandler {
 
 	/**
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	public String getName() {

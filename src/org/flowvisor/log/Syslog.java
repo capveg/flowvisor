@@ -2,9 +2,9 @@ package org.flowvisor.log;
 
 /**
  * The Java-side wrapper around the syslog-jni library
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class Syslog {

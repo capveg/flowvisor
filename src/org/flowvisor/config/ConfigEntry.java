@@ -14,9 +14,9 @@ import org.flowvisor.log.LogLevel;
 
 /**
  * An abstract class entry in the Config
- * 
+ *
  * @author capveg
- * 
+ *
  */
 public class ConfigEntry {
 	String name;
@@ -60,7 +60,7 @@ public class ConfigEntry {
 	/**
 	 * Add this {@link FVEventHandler} to the list of things that get updated if
 	 * this config entry changes
-	 * 
+	 *
 	 * @param eh
 	 */
 	public void watch(FVEventHandler eh) {
@@ -70,7 +70,7 @@ public class ConfigEntry {
 	/**
 	 * Remove this {@link FVEventHandler} from the list of things that get
 	 * updated on config change
-	 * 
+	 *
 	 * @param eh
 	 */
 	public void unwatch(FVEventHandler eh) {
@@ -79,7 +79,7 @@ public class ConfigEntry {
 
 	/**
 	 * Convert from string to the given value
-	 * 
+	 *
 	 * @param val
 	 */
 	public void setValue(String val) {
@@ -89,7 +89,7 @@ public class ConfigEntry {
 
 	/**
 	 * Convert the node's value to a string
-	 * 
+	 *
 	 * @return
 	 */
 	public String[] getValue() {
@@ -111,7 +111,7 @@ public class ConfigEntry {
 
 	/**
 	 * Does this config entry get saved across FV sessions? Default is yes.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean getPersistent() {
@@ -120,7 +120,7 @@ public class ConfigEntry {
 
 	/**
 	 * Set whether this config entry gets saved across FV sessions
-	 * 
+	 *
 	 * @param val
 	 */
 	public void setPersistent(boolean val) {
