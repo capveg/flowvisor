@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIAuth;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.flows.FlowMap;
@@ -456,12 +457,8 @@ public class FVConfig {
 			e.printStackTrace();
 		}
 		// Write out update config
-		try {
-			writeToFile(filename);
-		} catch (FileNotFoundException e) {
-			FVLog.log(LogLevel.ALERT, null, "Error writing out updated config: + " + e.getMessage());
-			e.printStackTrace();
-		}
+		if (FlowVisor.getInstance() != null)
+			FlowVisor.getInstance().checkPointConfig();
 	}
 
 
