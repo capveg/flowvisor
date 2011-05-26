@@ -52,12 +52,17 @@ public class FVConfig {
 	public static final String STATS_DESC_HACK = "flowvisor" + FS
 			+ "stats_desc_hack";
 	public static final String FLOW_TRACKING = "flowvisor" + FS + "track_flows";
-	final static public String VERSION_STR = "version"; // This is the flowvisor version
-	// Config file version number, should be updated if config file format changes
-	public static final int	CONFIG_VERSION = 1;
+	final static public String VERSION_STR = "version"; // This is the flowvisor
+	// version
+	// Config file version number, should be updated if config file format
+	// changes
+	public static final int CONFIG_VERSION = 2;
 	public static final String CONFIG_VERSION_STR = "config_version";
 	final static public String SLICES = "slices";
 	final static public String SWITCHES = "switches";
+	final public static String SWITCHES_DEFAULT = "default";
+	public static final String FLOOD_PERM = "flood_perm";
+
 	final static public String FLOWSPACE = "flowspace";
 	final static public String SLICE_CONTROLLER_HOSTNAME = "controller_hostname";
 	final static public String SLICE_CONTROLLER_PORT = "controller_port";
@@ -71,7 +76,7 @@ public class FVConfig {
 	public static final String LOG_FACILITY = "flowvisor" + FS + "log_facility";
 	public static final String LOG_IDENT = "flowvisor" + FS + "log_ident";
 
-    public static final String SUPER_USER = "fvadmin";
+	public static final String SUPER_USER = "fvadmin";
 
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 
@@ -411,10 +416,10 @@ public class FVConfig {
 		XMLDecoder dec = new XMLDecoder(new BufferedInputStream(
 				new FileInputStream(filename)));
 		FVConfig.root = (ConfDirEntry) dec.readObject();
-		//Check to see if version number exists. If not set it
+		// Check to see if version number exists. If not set it
 		try {
 			int version = FVConfig.getInt(CONFIG_VERSION_STR);
-			if(version < CONFIG_VERSION)
+			if (version < CONFIG_VERSION)
 				updateVersion(version, filename);
 		} catch (ConfigError e) {
 			updateVersion(-1, filename);
@@ -422,38 +427,25 @@ public class FVConfig {
 	}
 
 	/*
+	 * Given the current version of this config, auto-magic update it to the
+	 * current version. This is where we "port" old configs up to the current
+	 * config file format
+	 *
 	 * @param currVersion the version of the config we are updating FROM
 	 */
-	private static void updateVersion(int currVersion, String filename){
-		if (currVersion < 1){
-			// Need to change name of su slice to fvadmin from root
-			ConfDirEntry sliceList = (ConfDirEntry) lookup(FVConfig.SLICES);
-			if (sliceList.entries.containsKey("root")){ // this should always be the case but check anyways
-				ConfigEntry suSliceEntry = sliceList.entries.get("root");
-				suSliceEntry.setName(FVConfig.SUPER_USER);
-				sliceList.remove("root");
-				sliceList.add(suSliceEntry);
-			}
-			// Need to change name of creators of any slice that was created by root to fvadmin
-			for (String sliceName : sliceList.entries.keySet()){
-				String base = FVConfig.SLICES + FVConfig.FS + sliceName;
+	private static void updateVersion(int currVersion, String filename) {
+		if (currVersion < 1) // Update Version number
+			updateVersion_0_to_1();
+		if (currVersion < 2)
+			updateVersion_1_to_2();
 
-				try {
-					String creator = FVConfig.getString(base + FVConfig.FS + FVConfig.SLICE_CREATOR);
-					if(creator.equals("root")){
-						FVConfig.setString(base + FVConfig.FS + FVConfig.SLICE_CREATOR, FVConfig.SUPER_USER);
-					}
-				} catch (ConfigError e) {
-					FVLog.log(LogLevel.ALERT, null, "Error updating config: + " + e.getMessage());
-					e.printStackTrace();
-				}
-			}
-		}
-		// Update Version number
+		// set the version number to current
 		try {
-			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR, FVConfig.CONFIG_VERSION);
+			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR,
+					FVConfig.CONFIG_VERSION);
 		} catch (ConfigError e) {
-			FVLog.log(LogLevel.ALERT, null, "Error updating config: + " + e.getMessage());
+			FVLog.log(LogLevel.ALERT, null, "Error updating config: + "
+					+ e.getMessage());
 			e.printStackTrace();
 		}
 		// Write out update config
@@ -461,6 +453,55 @@ public class FVConfig {
 			FlowVisor.getInstance().checkPointConfig();
 	}
 
+	/*
+	 * add a "switches!default!flood_perm" branch to the config
+	 */
+
+	protected static void updateVersion_1_to_2() {
+		ConfDirEntry switches = new ConfDirEntry(FVConfig.SWITCHES);
+		ConfDirEntry def = new ConfDirEntry(FVConfig.SWITCHES_DEFAULT);
+		ConfStrEntry floodPerm = new ConfStrEntry(FVConfig.FLOOD_PERM);
+		floodPerm.setString(FVConfig.SUPER_USER); // give the root slice flood
+		// perms by default
+		def.add(floodPerm);
+		switches.add(def);
+		FVConfig.root.add(switches);
+	}
+
+	/**
+	 * change the superuser account from "root" to "fvadmin"
+	 */
+
+	private static void updateVersion_0_to_1() {
+		// Need to change name of su slice to fvadmin from root
+		ConfDirEntry sliceList = (ConfDirEntry) lookup(FVConfig.SLICES);
+		if (sliceList.entries.containsKey("root")) { // this should always be
+			// the case but check
+			// anyways
+			ConfigEntry suSliceEntry = sliceList.entries.get("root");
+			suSliceEntry.setName(FVConfig.SUPER_USER);
+			sliceList.remove("root");
+			sliceList.add(suSliceEntry);
+		}
+		// Need to change name of creators of any slice that was created by root
+		// to fvadmin
+		for (String sliceName : sliceList.entries.keySet()) {
+			String base = FVConfig.SLICES + FVConfig.FS + sliceName;
+
+			try {
+				String creator = FVConfig.getString(base + FVConfig.FS
+						+ FVConfig.SLICE_CREATOR);
+				if (creator.equals("root")) {
+					FVConfig.setString(base + FVConfig.FS
+							+ FVConfig.SLICE_CREATOR, FVConfig.SUPER_USER);
+				}
+			} catch (ConfigError e) {
+				FVLog.log(LogLevel.ALERT, null, "Error updating config: + "
+						+ e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * Write XML-encoded config to filename

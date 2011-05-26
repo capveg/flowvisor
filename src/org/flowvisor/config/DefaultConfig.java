@@ -64,7 +64,8 @@ public class DefaultConfig {
 					.getDefaultPort());
 			FVConfig.setString(FVConfig.VERSION_STR,
 					FlowVisor.FLOWVISOR_VERSION);
-			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR, FVConfig.CONFIG_VERSION);
+			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR,
+					FVConfig.CONFIG_VERSION);
 			// checkpointing on by default
 			FVConfig.setBoolean(FVConfig.CHECKPOINTING, true);
 			// stats_desc hack on by default
@@ -87,6 +88,9 @@ public class DefaultConfig {
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);
+
+			// set .switches.default.flood_perm to the super user
+			FVConfig.updateVersion_1_to_2();
 		} catch (ConfigError e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
