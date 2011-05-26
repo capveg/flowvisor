@@ -24,6 +24,9 @@ count:
 install: all
 	./scripts/install-script.sh
 
+whitespace:
+	./scripts/fix_trailing_whitespace.pl -fix `find src -name \*.java`
+
 clean:
 	ant clean
 	rm -rf pkgbuild
