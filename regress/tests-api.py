@@ -41,15 +41,15 @@ try:
 
     if wantPause:
         doPause("start tests")
-#################################### Start Root Tests
-    user="root"
+#################################### Start fvadmin Tests
+    user="fvadmin"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
 
-### ping (root)
-    print "Root ping test"
+### ping (fvadmin)
+    print "fvadmin ping test"
     x= s.api.ping("Joe mama")
-    valid1 = "PONG\(root\): "
+    valid1 = "PONG\(fvadmin\): "
     valid2 = "Joe mama"
     if not re.search(valid2,x):
         print "Got '"+ x + "' but wanted '" + valid2 + "'"
@@ -59,19 +59,19 @@ try:
         test_failed("ping test")
     print "     passed"
 
-### listFlowSpace (root)
-    print "Root listFlowSpace test"
+### listFlowSpace (fvadmin)
+    print "fvadmin listFlowSpace test"
     x = s.api.listFlowSpace()
     #for x in  s.api.listFlowSpace():
     #        print x
     valid_len = 10
     if len(x) != valid_len: 
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
-        test_failed("listFlowSpace root test")
+        test_failed("listFlowSpace fvadmin test")
     print "     passed"
 
 
-### getDevices (root)
+### getDevices (fvadmin)
     print "GetDevices Test"
     x =  s.api.listDevices()
     valid_len = 2
@@ -79,36 +79,36 @@ try:
         print "                 " + device
     if len(x) != valid_len :
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len)
-        test_failed("listDevices root test1")
+        test_failed("listDevices fvadmin test1")
     valid = "00:00:00:00:00:00:00:01"
     if x[0] != valid:
         print "Got " + x[0] + " but wanted " + valid
-        test_failed("listDevices root test2")
+        test_failed("listDevices fvadmin test2")
     valid = "00:00:00:00:00:00:00:02"
     if x[1] != valid:
         print "Got " + x[1] + " but wanted " + valid
-        test_failed("listDevices root test3")
+        test_failed("listDevices fvadmin test3")
     x = s.api.getDeviceInfo("00:00:00:00:00:00:00:01")
     for key,val in  x.iteritems():
         print "                 "+ key + "="  + val
     portList= x["portList"]
     if not portList : 
         print "getDeviceInfo failed to return a portList"
-        test_failed("listDevices root test4")
+        test_failed("listDevices fvadmin test4")
     right_portlist = "0,1,2,3"
     if portList != right_portlist : 
         print "getDeviceInfo return wrong port list: wanted " + right_portlist + " but got " + portList
-        test_failed("listDevices root test5")
+        test_failed("listDevices fvadmin test5")
     print "     passed"
 
-### getLinks (root)
-    print "Root getLinks test"
+### getLinks (fvadmin)
+    print "fvadmin getLinks test"
     x = s.api.getLinks()
     linkcount=0
     valid_len = 2
     if len(x) != valid_len: 
         print "Got " + str(len(x)) + " links but wanted " + str(valid_len)
-        test_failed("getLinks root test")
+        test_failed("getLinks fvadmin test")
     for link in x:
         print "             Link " + str(linkcount) + ":"
         linkcount+=1
@@ -117,7 +117,7 @@ try:
     print "     passed"
 
 ### changeFlowSpace(1234)
-    print "Root changeFlowSpace(REMOVE, 1234)"
+    print "fvadmin changeFlowSpace(REMOVE, 1234)"
     change = {"operation" : "REMOVE", "id" : "1234"}
     try:
         if not s.api.changeFlowSpace([change]):
@@ -276,22 +276,22 @@ try:
         print "Got %s ; was expecting 4444" % (str(x['4444']))
         test_failed("getSliceInfo bob port test")
     print "     passed"
-#################################### Start Root Tests
-    user="root"
+#################################### Start fvadmin Tests
+    user="fvadmin"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
 
-### ping (2) (root)
-    print "Root ping test(2)"
+### ping (2) (fvadmin)
+    print "fvadmin ping test(2)"
     x= s.api.ping("Joe mama")
-    valid = "PONG\(root\):"
+    valid = "PONG\(fvadmin\):"
     if(not re.search(valid,x)):
         print "Got '"+ x + "' but wanted '" + valid + "'"
         test_failed("ping test")
     print "     passed"
 
-### deleteSlice(alice) (root)
-    print "Root deleteSlice(alice)"
+### deleteSlice(alice) (fvadmin)
+    print "fvadmin deleteSlice(alice)"
     if not s.api.deleteSlice('alice') :
         print "Got false!"
         test_failed("remove slice test")
@@ -301,7 +301,7 @@ try:
     valid_len = 4
     if len(x) != valid_len: 
         print "Got " + str(len(x)) + " entries but wanted " + str(valid_len) + " :: FlowSpace delete failed"
-        test_failed("listFlowSpace root test")
+        test_failed("listFlowSpace fvadmin test")
     print "     passed"
 
 

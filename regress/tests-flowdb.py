@@ -65,7 +65,7 @@ try:
     h.addSwitch(name='switch1',port=port)
     h.addSwitch(name='switch2',port=port)
 
-    user = "root"
+    user = "fvadmin"
     passwd = "0fw0rk"
     rpcport = 18080
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")

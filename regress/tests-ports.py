@@ -323,7 +323,7 @@ try:
 
     #########################################
     rpcport=18080
-    user="root"
+    user="fvadmin"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
     change = { "operation" : "REMOVE", "id" : "1008"}

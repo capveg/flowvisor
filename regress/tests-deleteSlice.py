@@ -39,7 +39,7 @@ try:
     if wantPause:
         doPause("start tests")
 #################################### Start Tests
-    user="root"
+    user="fvadmin"
     passwd="0fw0rk"
     rpcport=18080
     t=1
