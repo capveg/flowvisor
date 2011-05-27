@@ -2,6 +2,8 @@ package org.flowvisor.flows;
 
 import junit.framework.TestCase;
 
+import org.flowvisor.log.DevNullLogger;
+import org.flowvisor.log.FVLog;
 import org.flowvisor.message.FVFlowMod;
 import org.flowvisor.message.FVMessageFactory;
 import org.openflow.protocol.OFType;
@@ -16,6 +18,7 @@ public class LinearFlowDBTest extends TestCase {
 		FVFlowMod flowMod2 = (FVFlowMod) factory.getMessage(OFType.FLOW_MOD);
 		FVFlowMod flowMod3 = (FVFlowMod) factory.getMessage(OFType.FLOW_MOD);
 
+		FVLog.setDefaultLogger(new DevNullLogger());
 		flowDB.processFlowMod(flowMod1, 1, "alice");
 		flowDB.processFlowMod(flowMod2, 1, "alice");
 		flowDB.processFlowMod(flowMod3, 1, "alice");
