@@ -7,7 +7,7 @@ import org.flowvisor.message.FVMessageFactory;
 import org.openflow.protocol.OFType;
 import org.openflow.protocol.factory.OFMessageFactory;
 
-public class LinearFlowDBTest {
+public class LinearFlowDBTest extends TestCase {
 
 	public void testInsert() {
 		OFMessageFactory factory = new FVMessageFactory();

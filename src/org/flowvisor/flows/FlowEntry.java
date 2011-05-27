@@ -460,7 +460,8 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 			map.put("dpid", ALL_DPIDS_STR);
 		else
 			map.put("dpid", FlowSpaceUtil.dpidToString(dpid));
-		map.put("ruleMatch", this.ruleMatch.toString());
+		if (this.ruleMatch != null)
+			map.put("ruleMatch", this.ruleMatch.toString());
 		map.put("actionsList", FlowSpaceUtil.toString(actionsList));
 		map.put("id", String.valueOf(this.id));
 		map.put("priority", String.valueOf(this.priority));
