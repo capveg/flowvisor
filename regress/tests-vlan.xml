@@ -26,7 +26,7 @@
          <string>checkpointing</string> 
          <object class="org.flowvisor.config.ConfBoolEntry"> 
           <void property="bool"> 
-           <boolean>true</boolean> 
+           <boolean>false</boolean> 
           </void> 
           <void property="name"> 
            <string>checkpointing</string> 
