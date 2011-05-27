@@ -18,6 +18,7 @@ tests-kk-topo.py \
 tests-disconnected.py \
 tests-stats.py \
 tests-flowdb.py \
+tests-config.sh \
 "
 
     

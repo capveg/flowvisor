@@ -80,11 +80,11 @@ public class DefaultConfig {
 			// create slices
 
 			FVConfig.createSlice(FVConfig.SUPER_USER, "none", 0, rootPasswd,
-					"fvadmin@localhost", FVConfig.SUPER_USER);
+					"sillysalt", "fvadmin@localhost", FVConfig.SUPER_USER);
 			FVConfig.createSlice("alice", "localhost", 54321, "alicePass",
-					"alice@foo.com", FVConfig.SUPER_USER);
+					"sillysalt", "alice@foo.com", FVConfig.SUPER_USER);
 			FVConfig.createSlice("bob", "localhost", 54322, "bobPass",
-					"bob@foo.com", FVConfig.SUPER_USER);
+					"sillysalt", "bob@foo.com", FVConfig.SUPER_USER);
 			// create switches
 			FVConfig.create(FVConfig.SWITCHES, ConfigType.DIR);
 			FVConfig.setFlowMap(FVConfig.FLOWSPACE, flowMap);

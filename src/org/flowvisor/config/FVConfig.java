@@ -518,9 +518,18 @@ public class FVConfig {
 		enc.close();
 	}
 
-	public synchronized static void createSlice(String sliceName,
+	public static void createSlice(String sliceName,
 			String controller_hostname, int controller_port, String passwd,
 			String slice_email, String creatorSlice) throws InvalidSliceName {
+		FVConfig.createSlice(sliceName, controller_hostname, controller_port,
+				passwd, APIAuth.getSalt(), slice_email, creatorSlice);
+	}
+
+	public synchronized static void createSlice(String sliceName,
+			String controller_hostname, int controller_port, String passwd,
+			String salt, String slice_email, String creatorSlice)
+			throws InvalidSliceName {
+
 		if (sliceName.contains(FS))
 			throw new InvalidSliceName("invalid slicename: cannot contain '"
 					+ FS + "' : " + sliceName);
@@ -533,7 +542,6 @@ public class FVConfig {
 					controller_hostname);
 			FVConfig.setInt(base + FS + FVConfig.SLICE_CONTROLLER_PORT,
 					controller_port);
-			String salt = APIAuth.getSalt();
 			FVConfig.setString(base + FS + FVConfig.SLICE_SALT, salt);
 			FVConfig.setString(base + FS + FVConfig.SLICE_CRYPT, APIAuth
 					.makeCrypt(salt, passwd));
