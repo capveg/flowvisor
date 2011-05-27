@@ -31,7 +31,7 @@ public class FlowSpaceUtilsTest extends TestCase {
 		TestCase.assertEquals(3, slices.size());
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
-		TestCase.assertTrue(slices.contains("root"));
+		TestCase.assertTrue(slices.contains("fvadmin"));
 	}
 
 	public void testByPort() {
@@ -113,7 +113,7 @@ public class FlowSpaceUtilsTest extends TestCase {
 		Set<String> slices = FlowSpaceUtil.getSlicesByDPID(flowMap, 1);
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
-		TestCase.assertTrue(slices.contains("root"));
+		TestCase.assertTrue(slices.contains("fvadmin"));
 		TestCase.assertEquals(3, slices.size());
 
 		FlowMap subMap = FlowSpaceUtil.getSubFlowMap(flowMap, 1, new OFMatch());
@@ -121,7 +121,7 @@ public class FlowSpaceUtilsTest extends TestCase {
 		slices = FlowSpaceUtil.getSlicesByDPID(subMap, 1);
 		TestCase.assertTrue(slices.contains("alice"));
 		TestCase.assertTrue(slices.contains("bob"));
-		TestCase.assertTrue(slices.contains("root"));
+		TestCase.assertTrue(slices.contains("fvadmin"));
 		TestCase.assertEquals(3, slices.size());
 
 	}
