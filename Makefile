@@ -13,9 +13,14 @@ docs:
 doc:
 	ant javadoc
 
-test: all
-	make -C regress tests
-tests: all
+test: tests
+
+tests: all unit-tests regression-tests 
+
+unit-tests:
+	ant tests
+
+regression-tests:
 	make -C regress tests
 
 count: 
