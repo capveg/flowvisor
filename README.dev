@@ -1,3 +1,28 @@
+High-level:
+    This document describes the FlowVisor's internals and is intended for
+    people looking to modify/develop the actual code.
+
+    It covers:
+    * testing
+    * I/O Logic
+    * Code layout
+    * Thread logic
+
+    A higher-level view of the code is described at:
+        https://openflow.stanford.edu/display/flowvisor/Internals+and+Dev+Docs
+
+
+
+
+====================================
+
+Tests:
+    Flowvisor has both JUNIT tests inside the java code
+    (./src/tests/....) and regression tests (`make tests`).  At minimum,
+    any changes to the code should not break these tests and would
+    ideally add their own tests.
+
+
 I/O LOGIC: 
 
 FlowVisor has two logical structures, a classifier
