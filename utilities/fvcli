@@ -11,6 +11,7 @@ import os.path
 import os
 from optparse import OptionParser
 import socket
+import exceptions
 
 class SubinterpreterExit(Exception):
   def __init__ (self):
@@ -314,6 +315,17 @@ class FVCtl(Cmd):
     FVCtl.prompt = "[%s@%s] " % (user, host)
 
     self.setup_show_cmds()
+
+  def cmdloop (self):
+    while True:
+      try:
+        Cmd.cmdloop(self)
+      except exceptions.SystemExit, e:
+        sys.exit()
+      except:
+        (self.__exc_t, self.__exc_v, self.__exc_tb) = sys.exc_info()
+        print self.__exc_t
+        continue
 
   def __connect (self, host, user, port, passwd):
     port = 8080
