@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIServer;
+import org.flowvisor.exceptions.DuplicateControllerException;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.LinearFlowMap;
@@ -21,6 +22,7 @@ import org.openflow.protocol.OFMatch;
 public class DefaultConfig {
 
 	static public void init(String rootPasswd) {
+		FVConfig.clear(); // remove any pre-existing config
 		// setup a bunch of default things in the config
 		FlowMap flowMap = new LinearFlowMap();
 		SliceAction aliceAction = new SliceAction("alice", SliceAction.WRITE);
@@ -97,6 +99,8 @@ public class DefaultConfig {
 		} catch (InvalidSliceName e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
+		} catch (DuplicateControllerException e) {
+			e.printStackTrace();
 		}
 	}
 

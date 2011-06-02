@@ -21,6 +21,7 @@ import org.flowvisor.config.FVConfig;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.DuplicateControllerException;
 import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.InvalidUserInfoKey;
 import org.flowvisor.exceptions.MalformedControllerURL;
@@ -109,12 +110,13 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @return success
 	 * @throws InvalidSliceName
 	 * @throws PermissionDeniedException
+	 * @throws DuplicateControllerException
 	 */
 	@Override
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
 			throws MalformedControllerURL, InvalidSliceName,
-			PermissionDeniedException {
+			PermissionDeniedException, DuplicateControllerException {
 		// FIXME: make sure this user has perms to do this OP
 		// for now, all slices can create other slices
 		// FIXME: for now, only handle tcp, not ssl controller url
@@ -149,7 +151,8 @@ public class FVUserAPIImpl implements FVUserAPI {
 			}
 			for (Iterator<String> sliceIter = slices.iterator(); sliceIter
 					.hasNext();) {
-				if (sliceName.equals(sliceIter.next())) {
+				String existingSlice = sliceIter.next();
+				if (sliceName.equals(existingSlice)) {
 					throw new PermissionDeniedException(
 							"Cannot create slice with existing name.");
 				}
@@ -192,7 +195,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	@Override
 	public boolean changeSlice(String sliceName, String key, String value)
 			throws MalformedURLException, InvalidSliceName,
-			PermissionDeniedException, InvalidUserInfoKey {
+			PermissionDeniedException, InvalidUserInfoKey, DuplicateControllerException {
 		String changerSlice = APIUserCred.getUserName();
 		if (!APIAuth.transitivelyCreated(changerSlice, sliceName)
 				&& !FVConfig.isSupervisor(changerSlice))
@@ -204,14 +207,28 @@ public class FVUserAPIImpl implements FVUserAPI {
 		 * themselves. Critically, it should not include "creator" string as
 		 * this would allow security issues.
 		 */
-
-		String base = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS
-				+ key;
+		String baseNoKey = FVConfig.SLICES + FVConfig.FS + sliceName + FVConfig.FS;
+		String base = baseNoKey + key;
 		try {
-			if (key.equals("contact_email") || key.equals("controller_hostname"))
+			if (key.equals("contact_email"))
 				FVConfig.setString(base, value);
-			else if (key.equals("controller_port"))
+			else if (key.equals("controller_hostname")){
+				// make sure there isn't already a slice with this hostname and port
+				// that this slice uses
+				if (isSecondSliceSharingController(sliceName, value, FVConfig.getInt(baseNoKey + "controller_port"))){
+					throw new DuplicateControllerException(value, FVConfig.getInt(baseNoKey + "controller_port"), sliceName, "changed");
+				}
+				FVConfig.setString(base, value);
+			}
+			else if (key.equals("controller_port")){
+				// Make sure that there isn't already a slice on this port that uses
+				// the same hostname that this slice uses
+				if (isSecondSliceSharingController(sliceName, FVConfig.getString(baseNoKey + "controller_hostname"), Integer.parseInt(value))){
+					throw new DuplicateControllerException(FVConfig.getString(baseNoKey + "controller_hostname"),
+							Integer.parseInt(value), sliceName, "changed");
+				}
 				FVConfig.setInt(base, Integer.valueOf(value));
+			}
 			else
 				throw new InvalidUserInfoKey("invalid key: " + key
 						+ "-- only contact_email and "
@@ -223,6 +240,33 @@ public class FVUserAPIImpl implements FVUserAPI {
 		}
 
 		return true;
+	}
+
+	private boolean isSecondSliceSharingController(String thisSlice, String hostname, int port){
+		List<String> sliceList;
+		try {
+			sliceList = listSlices();
+		} catch (PermissionDeniedException e1) {
+			return false;
+		}
+		for(String otherSlice : sliceList){
+			if(otherSlice.equals(thisSlice)){
+				// This is actually the same slice, ignore
+				continue;
+			}
+			String base = FVConfig.SLICES + FVConfig.FS + otherSlice + FVConfig.FS;
+			try {
+				if(FVConfig.getString(base + "controller_hostname").equalsIgnoreCase(hostname)){
+					if(FVConfig.getInt(base + "controller_port") == port){
+						return true;
+					}
+				}
+			} catch (ConfigError e) {
+				// Guess it wasn't a match. just ignore
+			}
+		}
+
+		return false;
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.exceptions.DPIDNotFound;
+import org.flowvisor.exceptions.DuplicateControllerException;
 import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.InvalidUserInfoKey;
 import org.flowvisor.exceptions.MalformedControllerURL;
@@ -45,12 +46,13 @@ public interface FVUserAPI {
 	 * @return success
 	 * @throws InvalidSliceName
 	 * @throws PermissionDeniedException
+	 * @throws DuplicateControllerException
 	 */
 
 	public boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
 			throws MalformedControllerURL, InvalidSliceName,
-			PermissionDeniedException;
+			PermissionDeniedException, DuplicateControllerException;
 
 	/**
 	 * Changes a key of a slice to value
@@ -64,11 +66,12 @@ public interface FVUserAPI {
 	 * @throws MalformedURLException
 	 * @throws InvalidSliceName
 	 * @throws PermissionDeniedException
+	 * @throws DuplicateControllerException
 	 */
 
 	public boolean changeSlice(String sliceName, String key, String value)
 			throws MalformedURLException, InvalidSliceName,
-			PermissionDeniedException, InvalidUserInfoKey;
+			PermissionDeniedException, InvalidUserInfoKey, DuplicateControllerException;
 
 	public Map<String, String> getSliceInfo(String sliceName)
 			throws PermissionDeniedException, SliceNotFound;

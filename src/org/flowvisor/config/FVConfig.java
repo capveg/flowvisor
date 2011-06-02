@@ -21,6 +21,7 @@ import java.util.List;
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIAuth;
 import org.flowvisor.events.FVEventHandler;
+import org.flowvisor.exceptions.DuplicateControllerException;
 import org.flowvisor.flows.FlowMap;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
@@ -102,6 +103,16 @@ public class FVConfig {
 				base = null;
 		}
 		return ret;
+	}
+
+	/**
+	 * Clear out the entire config
+	 *
+	 * FIXME: make sure this doesn't cause an object leak Generally only used
+	 * with testing harness, but still...
+	 */
+	static protected void clear() {
+		FVConfig.root = new ConfDirEntry("");
 	}
 
 	static protected ConfigEntry create(String name, ConfigType type)
@@ -520,7 +531,8 @@ public class FVConfig {
 
 	public static void createSlice(String sliceName,
 			String controller_hostname, int controller_port, String passwd,
-			String slice_email, String creatorSlice) throws InvalidSliceName {
+			String slice_email, String creatorSlice) throws InvalidSliceName,
+			DuplicateControllerException {
 		FVConfig.createSlice(sliceName, controller_hostname, controller_port,
 				passwd, APIAuth.getSalt(), slice_email, creatorSlice);
 	}
@@ -528,11 +540,37 @@ public class FVConfig {
 	public synchronized static void createSlice(String sliceName,
 			String controller_hostname, int controller_port, String passwd,
 			String salt, String slice_email, String creatorSlice)
-			throws InvalidSliceName {
-
+			throws InvalidSliceName, DuplicateControllerException {
 		if (sliceName.contains(FS))
 			throw new InvalidSliceName("invalid slicename: cannot contain '"
 					+ FS + "' : " + sliceName);
+
+		// Check to make sure we aren't creating a slice with a pre-existing
+		// controller hostname/port pair
+		try {
+			List<String> slices = FVConfig.list(FVConfig.SLICES);
+			for (String sliceNameItr : slices) {
+				String baseItr = FVConfig.SLICES + FVConfig.FS + sliceNameItr
+						+ FVConfig.FS;
+				try {
+					if (getString(baseItr + "controller_hostname")
+							.equalsIgnoreCase(controller_hostname)) {
+						if (getInt(baseItr + "controller_port") == controller_port) {
+							throw new DuplicateControllerException(
+									getString(baseItr + "controller_hostname"),
+									getInt(baseItr + "controller_port"),
+									sliceName, "created");
+						}
+					}
+				} catch (ConfigError e) {
+					// Ignore, but continue looking for other slices
+					e.printStackTrace();
+				}
+			}
+		} catch (ConfigError e) {
+			// ignore assume we can create slice
+		}
+
 		String base = FVConfig.SLICES + FS + sliceName;
 		try {
 			FVConfig.create(base, ConfigType.DIR);
