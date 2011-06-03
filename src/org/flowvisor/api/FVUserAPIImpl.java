@@ -654,16 +654,36 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean registerTopologyChangeCallback(String URL, String cookie)
+	public boolean registerTopologyChangeCallback(String URL, String methodName,String cookie)
 			throws MalformedURLException {
 		// this will throw MalformedURL back to the client if the URL is bad
 		new URL(URL);
 		TopologyController tc = TopologyController.getRunningInstance();
 		if (tc != null) {
-			tc.registerCallBack(APIUserCred.getUserName(), URL, cookie);
+
+
+			tc.registerCallBack(APIUserCred.getUserName(), URL, methodName,cookie);
 			return true;
 		} else
 			return false; // topology server not running
+	}
+
+	@Override
+	public String getTopologyCallback(){
+
+		TopologyController tc=TopologyController.getRunningInstance();
+		String URL="";//="No callback defined yet"		
+		if (tc!=null){
+			URL=tc.getTopologyCallback(APIUserCred.getUserName());	
+		}
+		
+		if (URL==null || URL.equals("")){
+			return "No callback defined yet";
+		}
+		else{
+			return URL;	
+		}
+		
 	}
 
 	@Override

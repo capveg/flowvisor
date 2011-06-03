@@ -1,3 +1,4 @@
+
 /**
  *
  */
@@ -77,7 +78,8 @@ public class FVCtl {
 			new APICmd("getConfig", 1, "<configEntry>"),
 			new APICmd("setConfig", 2, "<configEntry> <value>"),
 
-			new APICmd("registerCallback", 2, "<URL> <cookie>"),
+			new APICmd("registerCallback", 3, "<URL> <methodName> <cookie>"),
+			new APICmd("getCallback",0),
 			new APICmd("unregisterCallback", 0), };
 
 	static class APICmd {
@@ -534,11 +536,11 @@ public class FVCtl {
 		}
 	}
 
-	public void run_registerCallback(String URL, String cookie)
+	public void run_registerCallback(String URL, String methodName, String cookie)
 			throws IOException, XmlRpcException, MalformedURLException {
 		Boolean reply = (Boolean) this.client.execute(
 				"api.registerTopologyChangeCallback", new Object[] { URL,
-						cookie });
+						methodName,cookie });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
@@ -547,6 +549,17 @@ public class FVCtl {
 			System.out.println("success!");
 		else
 			System.err.println("failed!");
+	}
+
+	public void run_getCallback() throws IOException, XmlRpcException, MalformedURLException{
+		String reply= (String) this.client.execute("api.getTopologyCallback", new Object[] {});
+		
+		if (reply==null){
+			System.err.println("Got 'null' for reply :-(");
+			System.exit(-1);
+		}
+		System.out.println(reply);
+
 	}
 
 	public void run_unregisterCallback() throws IOException, XmlRpcException,

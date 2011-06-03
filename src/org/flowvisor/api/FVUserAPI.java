@@ -252,8 +252,16 @@ public interface FVUserAPI {
 	 *            opaque string with some meaningful state from the caller
 	 * @return success on registering the callback
 	 */
-	public boolean registerTopologyChangeCallback(String URL, String cookie)
+	public boolean registerTopologyChangeCallback(String URL, String methodName,String cookie)
 			throws MalformedURLException;
+ 
+
+
+	/**
+	*
+	*/	
+	public String getTopologyCallback();
+	
 
 	/**
 	 * Unregister a previously registered callback

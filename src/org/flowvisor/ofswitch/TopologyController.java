@@ -111,9 +111,30 @@ public class TopologyController extends OFSwitchAcceptor {
 	 * @param cookie
 	 *            Some state locally meaningful to user
 	 */
-	public synchronized void registerCallBack(String user, String URL,
+	public synchronized void registerCallBack(String user, String URL,String methodName,
 			String cookie) {
-		this.callBackDB.put(user, new TopologyCallback(URL, cookie));
+		this.callBackDB.put(user, new TopologyCallback(URL,methodName, cookie));
+	}
+
+	public synchronized String getTopologyCallback(String user){
+		TopologyCallback tempTopologyCallback=(TopologyCallback)this.callBackDB.get(user);
+		String tempString;
+		String tempMethodName;
+
+		if (tempTopologyCallback!=null){
+			tempString=tempTopologyCallback.getURL();
+			tempMethodName=tempTopologyCallback.getMethodName();		
+		}
+		else{
+			return null;
+		} 
+				
+		if (tempString!=null && tempMethodName!=null){
+ 			return	tempString+" -- XMLRPC method name="+tempMethodName;
+		}
+		else{
+			return "";
+		}
 	}
 
 	public synchronized void unregisterCallBack(String user) {

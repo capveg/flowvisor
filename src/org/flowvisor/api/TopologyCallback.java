@@ -24,19 +24,48 @@ public class TopologyCallback implements Runnable {
 
 	String URL;
 	String cookie;
+	String methodName;
+	
+	String httpBasicUserName;
+	String httpBasicPassword;	
+	
 	XmlRpcClientConfigImpl config;
 	XmlRpcClient client;
 
-	public TopologyCallback(String uRL, String cookie) {
+	public TopologyCallback(String uRL, String methodName,String cookie) {
 		super();
 		URL = uRL;
+		this.methodName=methodName;
 		this.cookie = cookie;
+		
+		int indexAt;
+		int indexSemicolon;
+
+		indexAt=uRL.indexOf("@");
+		if (indexAt>3){//means there is a username/password encoded in the URL
+			String newString;
+			newString=uRL.substring(uRL.indexOf("://")+3,indexAt-uRL.indexOf("://")+5);
+			this.httpBasicUserName=newString.substring(0,newString.indexOf(":"));
+			this.httpBasicPassword=newString.substring(newString.indexOf(":")+1);
+		}
+		else{
+			this.httpBasicUserName="";
+			this.httpBasicPassword="";
+		}
+		
 	}
 
 	public void spawn() {
 		new Thread(this).start();
 	}
 
+	public String getURL() {		
+		return this.URL;
+	}
+
+	public String getMethodName(){
+		return this.methodName;	
+	}
 	/*
 	 * (non-Javadoc)
 	 *
@@ -55,7 +84,13 @@ public class TopologyCallback implements Runnable {
 			throw new RuntimeException(e);
 		}
 		config.setEnabledForExtensions(true);
-
+		
+		if (httpBasicUserName!=null && httpBasicUserName!="" && httpBasicPassword!="" && httpBasicPassword!=null)
+		{
+			config.setBasicUserName(httpBasicUserName);
+			config.setBasicPassword(httpBasicPassword);
+		}
+		
 		client = new XmlRpcClient();
 		// client.setTransportFactory(new
 		// XmlRpcCommonsTransportFactory(client));
@@ -65,8 +100,9 @@ public class TopologyCallback implements Runnable {
 			String call = urlType.getPath();
 			if (call.startsWith("/"))
 				call = call.substring(1);
-			this.client.execute(call, new Object[] { cookie });
-		} catch (XmlRpcException e) {
+			//this.client.execute(this.methodName, new Object[] { cookie });
+this.client.execute(this.methodName,new Object[]{ null});		
+	} catch (XmlRpcException e) {
 			FVLog.log(LogLevel.WARN, TopologyController.getRunningInstance(),
 					"topoCallback to URL=" + URL + " failed: " + e);
 		}
