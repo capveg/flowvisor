@@ -96,7 +96,7 @@ try:
     drop_rule = FvRegress.OFVERSION + '''0e 00 48 00 00 00 00 00 00 00 00 00 01 00 00
                 00 00 00 01 00 00 00 00 00 02 ff ff 00 00 08 00
                 00 ff 00 00 c0 a8 00 28 c0 a8 01 28 00 00 00 00
-                00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
+                00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00
                 00 00 00 00 00 00 00 01'''
     h.runTest(name="packet_in drop rule", timeout=timeout, events= [
             TestEvent( "send","switch",'switch1', packet_to_g0_p0),
