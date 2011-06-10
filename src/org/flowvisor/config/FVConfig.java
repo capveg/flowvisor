@@ -78,12 +78,14 @@ public class FVConfig {
 	public static final String LOG_IDENT = "flowvisor" + FS + "log_ident";
 
 	public static final String SUPER_USER = "fvadmin";
+	// complain if event processing takes > DelayWarning milliseconds
+	public static final long DelayWarning = 10;
 
 	static ConfDirEntry root = new ConfDirEntry(""); // base of all config info
 
 	/**
 	 * Return the config entry specific in name
-	 *
+	 * 
 	 * @param name
 	 * @return null if not found
 	 */

@@ -4,6 +4,7 @@ import java.sql.Time;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 
+import org.flowvisor.events.FVEventUtils;
 import org.flowvisor.events.FVTimerEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
@@ -57,9 +58,11 @@ public class FVTimer {
 
 		while ((e != null) && (e.getExpireTime() <= now)) {
 			pq.remove();
-			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event ",
-					e.getId(), " scheduling err = ", (now - e.getExpireTime()));
+			FVLog.log(LogLevel.MOBUG, e.getDst(), "processing event ", e
+					.getId(), " scheduling err = ", (now - e.getExpireTime()));
+			long startCounter = System.currentTimeMillis();
 			e.getDst().handleEvent(e);
+			FVEventUtils.starvationTest(startCounter, e.getDst(), e);
 			e = this.pq.peek();
 		}
 

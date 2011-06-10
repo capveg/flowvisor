@@ -553,7 +553,7 @@ public class FVCtl {
 
 	public void run_getCallback() throws IOException, XmlRpcException, MalformedURLException{
 		String reply= (String) this.client.execute("api.getTopologyCallback", new Object[] {});
-		
+
 		if (reply==null){
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);

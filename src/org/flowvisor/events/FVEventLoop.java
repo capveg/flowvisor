@@ -107,6 +107,7 @@ public class FVEventLoop {
 			long nextTimerEvent;
 			int nEvents;
 			List<FVEvent> tmpQueue = null;
+			long startCounter;
 
 			// copy queued events out of the way and clear queue
 			synchronized (eventQueue) {
@@ -118,8 +119,11 @@ public class FVEventLoop {
 
 			// process all queued events, if any
 			if (tmpQueue != null)
-				for (FVEvent e : tmpQueue)
+				for (FVEvent e : tmpQueue) {
+					startCounter = System.currentTimeMillis();
 					e.getDst().handleEvent(e);
+					FVEventUtils.starvationTest(startCounter, e.getDst(), e);
+				}
 
 			// calc time until next timer event
 			nextTimerEvent = this.fvtimer.processEvent(); // this fires off a
@@ -155,7 +159,11 @@ public class FVEventLoop {
 						handler = (FVEventHandler) sk.attachment();
 						FVLog.log(LogLevel.MOBUG, null, "sending IO Event= ",
 								sk.readyOps(), " to ", handler.getName());
-						handler.handleEvent(new FVIOEvent(sk, null, handler));
+						startCounter = System.currentTimeMillis();
+						FVIOEvent ioEvent = new FVIOEvent(sk, null, handler);
+						handler.handleEvent(ioEvent);
+						FVEventUtils.starvationTest(startCounter, handler,
+								ioEvent);
 					}
 				}
 				selector.selectedKeys().clear(); // mark all keys as processed
