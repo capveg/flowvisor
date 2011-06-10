@@ -5,14 +5,18 @@ FlowVisor:
 
 Documentation:
 
-    Start with the INSTALL file and then refer to 
-    http://www.openflowswitch.org/wk/index.php/FlowVisor
+    Start with the INSTALL file and then refer to:
+        https://openflow.stanford.edu/display/flowvisor/Home
+    for more information and to:
+        https://openflow.stanford.edu/display/flowvisor/fv_deploy
+    for configuration and deployment instructions.  Also,
+    the manpages are in the ./doc directory and can be viewed
+    without installing them using `man ./doc/fvctl.1`
 
+    For developers, check out README.dev and the architecture diagrams:
+        https://openflow.stanford.edu/display/flowvisor/Internals+and+Dev+Docs
     Also, `make docs` produces the source code documentation and
     there are manpages under ./doc
 
 Questions:
     openflow-discuss@openflowswitch.org
-
-Bugs: 
-    http://www.openflowswitch.org/bugs/flowvisor

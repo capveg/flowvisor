@@ -64,21 +64,19 @@ All of the per-message processing logic is in
 
 THREAD MODEL:
 
-FlowVisor has very little inter-thread interaction
-and consequently very little locking.  Threads send
-events to each other with the following logic.
+FlowVisor has very little inter-thread interaction and consequently very
+little locking.  Threads send events to each other with the following
+logic.
 
-All FVEventHandlers support handleEvent().  This event
-first looks at the thread ID of the calling thread
-and compares it to the thread ID of the EventHandler.
-If they match, the event is processed immediately, and
-if not, then the event is queued into the handler's
-event loop.  There is no shared state between event handlers,
-only copies of state and events to update the copies when
-they become stale.
+All FVEventHandlers support handleEvent().  This event first looks at
+the thread ID of the calling thread and compares it to the thread ID of
+the EventHandler.  If they match, the event is processed immediately,
+and if not, then the event is queued into the handler's event loop.
+There is no shared state between event handlers, only copies of state
+and events to update the copies when they become stale.
 
 All of the calls to FVConfig should have synchronization applied to them
-on the FVConfig.class object (because they it is static).
+on the FVConfig.class object (because the methods and class are static).
 
 INLINE DOCUMENTATION:
 
