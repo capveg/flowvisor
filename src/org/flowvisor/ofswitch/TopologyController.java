@@ -67,6 +67,7 @@ public class TopologyController extends OFSwitchAcceptor {
 		this.doCallback = false;
 		this.callBackDB = new HashMap<String, TopologyCallback>();
 		this.setUpdatePeriod(TopologyController.defaultUpdatePeriod);
+		this.setTimeoutPeriod(TopologyController.defaultTimeoutPeriod);
 		// schedule the update timer
 		pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
 				+ this.updatePeriod, this, this, null));
