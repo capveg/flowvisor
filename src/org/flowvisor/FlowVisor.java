@@ -49,7 +49,7 @@ public class FlowVisor {
 	FVMessageFactory factory;
 
 	private static final Options options = Options.make(new Option[] {
-			new Option("d", "debug", "DEBUG",
+			new Option("d", "debug", LogLevel.NOTE.toString(),
 					"Override default logging threshold in config"),
 			new Option("l", "logging", "Log to stderr instead of syslog"),
 			new Option("p", "port", 0, "Override port from config"),
