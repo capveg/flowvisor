@@ -39,7 +39,6 @@ public class TopologyCallback implements Runnable {
 		this.cookie = cookie;
 		
 		int indexAt;
-		int indexSemicolon;
 
 		indexAt=uRL.indexOf("@");
 		if (indexAt>3){//means there is a username/password encoded in the URL
