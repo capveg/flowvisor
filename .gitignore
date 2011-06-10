@@ -1,3 +1,4 @@
+.settings/
 build/
 build.tests/
 dist/
