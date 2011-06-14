@@ -634,8 +634,14 @@ public class FVConfig {
 		return SUPER_USER.equals(user);
 	}
 
+	/**
+	 * Replace all non-kosher characters with underscores
+	 * 
+	 * @param str
+	 * @return
+	 */
 	public static String sanitize(String str) {
-		return str.replaceAll(FS, "_");
+		return str.replaceAll("[^a-zA-Z0-9,_+=:-]", "_");
 	}
 
 	/**
