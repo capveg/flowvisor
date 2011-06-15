@@ -85,7 +85,7 @@ public class FVConfig {
 
 	/**
 	 * Return the config entry specific in name
-	 * 
+	 *
 	 * @param name
 	 * @return null if not found
 	 */
@@ -636,7 +636,7 @@ public class FVConfig {
 
 	/**
 	 * Replace all non-kosher characters with underscores
-	 * 
+	 *
 	 * @param str
 	 * @return
 	 */

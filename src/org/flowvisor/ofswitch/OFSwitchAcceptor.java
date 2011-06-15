@@ -1,6 +1,7 @@
 package org.flowvisor.ofswitch;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -30,7 +31,9 @@ public class OFSwitchAcceptor implements FVEventHandler {
 
 		ssc = ServerSocketChannel.open();
 		ssc.socket().setReuseAddress(true);
-		ssc.socket().bind(new InetSocketAddress(port), backlog);
+		ssc.socket().bind(
+				new InetSocketAddress(InetAddress.getByName("::"), port),
+				backlog);
 		ssc.configureBlocking(false);
 		this.listenPort = ssc.socket().getLocalPort();
 
