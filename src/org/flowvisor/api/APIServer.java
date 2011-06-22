@@ -25,12 +25,17 @@ import org.flowvisor.log.LogLevel;
 
 public class APIServer {
 
-	// FIXME: replace with a FVConfig entry
 	private static final int default_port = 8080;
 
 	public static int getDefaultPort() {
 		return default_port;
 	}
+
+	public static void spawnJettyServer(){
+		Thread jettyThread = new Thread(new JettyServer());
+		jettyThread.start();
+	}
+
 
 	/**
 	 * Spawn a thread to run the XMLRPC FlowVisor UserAPI WebServer
@@ -41,6 +46,8 @@ public class APIServer {
 	 * @throws Exception
 	 */
 	public static WebServer spawn() throws XmlRpcException, IOException {
+
+		spawnJettyServer();
 		int port;
 
 		try {

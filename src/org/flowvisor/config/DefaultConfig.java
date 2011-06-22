@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.APIServer;
+import org.flowvisor.api.JettyServer;
 import org.flowvisor.exceptions.DuplicateControllerException;
 import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.flows.FlowMap;
@@ -64,6 +65,7 @@ public class DefaultConfig {
 			FVConfig.setInt(FVConfig.LISTEN_PORT, FVConfig.OFP_TCP_PORT);
 			FVConfig.setInt(FVConfig.API_WEBSERVER_PORT, APIServer
 					.getDefaultPort());
+			FVConfig.setInt(FVConfig.API_JETTY_WEBSERVER_PORT, JettyServer.default_jetty_port);
 			FVConfig.setString(FVConfig.VERSION_STR,
 					FlowVisor.FLOWVISOR_VERSION);
 			FVConfig.setInt(FVConfig.CONFIG_VERSION_STR,

@@ -30,6 +30,17 @@ $jars/xmlrpc-server-3.1.3.jar:\
 $jars/commons-logging-1.1.jar:\
 $jars/ws-commons-util-1.0.2.jar:\
 $jars/jsse.jar:\
+$jars/asm-3.0.jar:\
+$jars/cglib-2.2.jar:\
+$jars/commons-codec-1.4.jar:\
+$jars/jsonrpc-1.1.2.jar:\
+$jars/jetty-continuation-7.0.2.v20100331.jar:\
+$jars/jetty-http-7.0.2.v20100331.jar:\
+$jars/jetty-io-7.0.2.v20100331.jar:\
+$jars/jetty-security-7.0.2.v20100331.jar:\
+$jars/jetty-server-7.0.2.v20100331.jar:\
+$jars/jetty-util-7.0.2.v20100331.jar:\
+$jars/servlet-api-2.5.jar:\
 $install_dir/flowvisor.jar
 
 # ssl options for the jvm
