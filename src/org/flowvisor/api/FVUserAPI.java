@@ -1,6 +1,7 @@
 package org.flowvisor.api;
 
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public interface FVUserAPI {
 	 *
 	 * @return
 	 */
-	public String[] listFlowSpace();
+	public Collection<String> listFlowSpace();
 
 	/**
 	 * Create a new slice (without flowspace)
@@ -49,7 +50,7 @@ public interface FVUserAPI {
 	 * @throws DuplicateControllerException
 	 */
 
-	public boolean createSlice(String sliceName, String passwd,
+	public Boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
 			throws MalformedControllerURL, InvalidSliceName,
 			PermissionDeniedException, DuplicateControllerException;
@@ -69,7 +70,7 @@ public interface FVUserAPI {
 	 * @throws DuplicateControllerException
 	 */
 
-	public boolean changeSlice(String sliceName, String key, String value)
+	public Boolean changeSlice(String sliceName, String key, String value)
 			throws MalformedURLException, InvalidSliceName,
 			PermissionDeniedException, InvalidUserInfoKey, DuplicateControllerException;
 
@@ -85,11 +86,11 @@ public interface FVUserAPI {
 	 * @param sliceName
 	 * @param newPasswd
 	 */
-	public boolean changePasswd(String sliceName, String newPasswd)
+	public Boolean changePasswd(String sliceName, String newPasswd)
 			throws PermissionDeniedException;
 
 	// have both names, b/c it makes the OM's life easier
-	public boolean change_password(String sliceName, String newPasswd)
+	public Boolean change_password(String sliceName, String newPasswd)
 			throws PermissionDeniedException;
 
 	/**
@@ -98,7 +99,7 @@ public interface FVUserAPI {
 	 *
 	 * @return
 	 */
-	public List<String> listDevices();
+	public Collection<String> listDevices();
 
 	/**
 	 * Get information about a device
@@ -120,7 +121,7 @@ public interface FVUserAPI {
 	 * @return
 	 */
 
-	public List<Map<String, String>> getLinks();
+	public Collection<Map<String, String>> getLinks();
 
 	/**
 	 * Delete the named slice
@@ -134,7 +135,7 @@ public interface FVUserAPI {
 	 * @throws {@link SliceNotFound}, {@link PermissionDeniedException}
 	 */
 
-	public boolean deleteSlice(String sliceName) throws SliceNotFound,
+	public Boolean deleteSlice(String sliceName) throws SliceNotFound,
 			PermissionDeniedException;
 
 	/**
@@ -194,7 +195,7 @@ public interface FVUserAPI {
 	 * @throws MalformedFlowChange
 	 * @throws PermissionDeniedException
 	 */
-	public List<String> changeFlowSpace(List<Map<String, String>> changes)
+	public Collection<String> changeFlowSpace(List<Map<String, String>> changes)
 			throws MalformedFlowChange, PermissionDeniedException,
 			FlowEntryNotFound;
 
@@ -203,7 +204,7 @@ public interface FVUserAPI {
 	 *
 	 * @return
 	 */
-	public List<String> listSlices() throws PermissionDeniedException;
+	public Collection<String> listSlices() throws PermissionDeniedException;
 
 	/**
 	 * Returns a list of strings that represents the requested config element
@@ -213,7 +214,7 @@ public interface FVUserAPI {
 	 * @return List of strings
 	 * @throws ConfigError
 	 */
-	public List<String> getConfig(String nodeName) throws ConfigError,
+	public Collection<String> getConfig(String nodeName) throws ConfigError,
 			PermissionDeniedException;
 
 	/**
@@ -226,7 +227,7 @@ public interface FVUserAPI {
 	 * @return success
 	 * @throws ConfigError
 	 */
-	public boolean setConfig(String nodeName, String value) throws ConfigError,
+	public Boolean setConfig(String nodeName, String value) throws ConfigError,
 			PermissionDeniedException;
 
 	/**
@@ -238,7 +239,7 @@ public interface FVUserAPI {
 	 *
 	 * @return success
 	 */
-	public boolean revertToLastCheckpoint();
+	public Boolean revertToLastCheckpoint();
 
 	/**
 	 * Register an XMLRPC URL to be called when the topology changes.
@@ -252,16 +253,13 @@ public interface FVUserAPI {
 	 *            opaque string with some meaningful state from the caller
 	 * @return success on registering the callback
 	 */
-	public boolean registerTopologyChangeCallback(String URL, String methodName,String cookie)
+	public Boolean registerTopologyChangeCallback(String URL, String methodName, String cookie)
 			throws MalformedURLException;
- 
-
 
 	/**
-	*
-	*/	
+	 *
+	 */
 	public String getTopologyCallback();
-	
 
 	/**
 	 * Unregister a previously registered callback
@@ -269,7 +267,7 @@ public interface FVUserAPI {
 	 *
 	 * @return true if successful, false otherwise
 	 */
-	public boolean unregisterTopologyChangeCallback();
+	public Boolean unregisterTopologyChangeCallback();
 
 	/**
 	 * Return a multiline string of the slice's stats
@@ -321,7 +319,7 @@ public interface FVUserAPI {
 	 *            a specific switch or "all" for all
 	 * @return
 	 */
-	public List<Map<String, String>> getSwitchFlowDB(String dpidstr)
+	public Collection<Map<String, String>> getSwitchFlowDB(String dpidstr)
 			throws DPIDNotFound;
 
 	/**

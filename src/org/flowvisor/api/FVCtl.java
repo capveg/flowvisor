@@ -1,4 +1,3 @@
-
 /**
  *
  */
@@ -28,15 +27,19 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import lib.jsonrpc.ServiceProxy;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
 import org.flowvisor.flows.FlowDBEntry;
+
 
 /**
  * Client side stand alone command-line tool for invoking the FVUserAPI
@@ -52,35 +55,34 @@ public class FVCtl {
 	XmlRpcClientConfigImpl config;
 	XmlRpcClient client;
 	static APICmd[] cmdlist = new APICmd[] {
-			new APICmd("listSlices", 0),
-			new APICmd("createSlice", 3, "<slicename> <controller_url> <email>"),
-			new APICmd("changeSlice", 3, "<slicename> <key> <value>"),
-			new APICmd("deleteSlice", 1, "<slicename>"),
-			new APICmd("changePasswd", 1, "<slicename>"),
-			new APICmd("getSliceInfo", 1, "<slicename>"),
+		new APICmd("listSlices", 0),
+		new APICmd("createSlice", 3, "<slicename> <controller_url> <email>"),
+		new APICmd("changeSlice", 3, "<slicename> <key> <value>"),
+		new APICmd("deleteSlice", 1, "<slicename>"),
+		new APICmd("changePasswd", 1, "<slicename>"),
+		new APICmd("getSliceInfo", 1, "<slicename>"),
 
-			new APICmd("getSliceStats", 1, "<slicename>"),
-			new APICmd("getSwitchStats", 1, "<dpid>"),
-			new APICmd("getSwitchFlowDB", 1, "<dpid>"),
-			new APICmd("getSliceRewriteDB", 2, "<slicename> <dpid>"),
+		new APICmd("getSliceStats", 1, "<slicename>"),
+		new APICmd("getSwitchStats", 1, "<dpid>"),
+		new APICmd("getSwitchFlowDB", 1, "<dpid>"),
+		new APICmd("getSliceRewriteDB", 2, "<slicename> <dpid>"),
 
-			new APICmd("listFlowSpace", 0),
-			new APICmd("removeFlowSpace", 1, "<id>"),
-			new APICmd("addFlowSpace", 4, "<dpid> <priority> <match> <actions>"),
-			new APICmd("changeFlowSpace", 5,
-					"<id> <dpid> <priority> <match> <actions>"),
+		new APICmd("listFlowSpace", 0),
+		new APICmd("removeFlowSpace", 1, "<id>"),
+		new APICmd("addFlowSpace", 4, "<dpid> <priority> <match> <actions>"),
+		new APICmd("changeFlowSpace", 5,
+		"<id> <dpid> <priority> <match> <actions>"),
 
-			new APICmd("listDevices", 0),
-			new APICmd("getDeviceInfo", 1, "<dpid>"),
-			new APICmd("getLinks", 0),
+		new APICmd("listDevices", 0),
+		new APICmd("getDeviceInfo", 1, "<dpid>"),
+		new APICmd("getLinks", 0),
 
-			new APICmd("ping", 1, "<msg>"),
-			new APICmd("getConfig", 1, "<configEntry>"),
-			new APICmd("setConfig", 2, "<configEntry> <value>"),
+		new APICmd("ping", 1, "<msg>"),
+		new APICmd("getConfig", 1, "<configEntry>"),
+		new APICmd("setConfig", 2, "<configEntry> <value>"),
 
-			new APICmd("registerCallback", 3, "<URL> <methodName> <cookie>"),
-			new APICmd("getCallback",0),
-			new APICmd("unregisterCallback", 0), };
+		new APICmd("registerCallback", 2, "<URL> <cookie>"),
+		new APICmd("unregisterCallback", 0), };
 
 	static class APICmd {
 		String name;
@@ -102,8 +104,8 @@ public class FVCtl {
 		@SuppressWarnings("unchecked")
 		// Need to figure out magic java sauce to fix this
 		void invoke(FVCtl client, String args[]) throws SecurityException,
-				NoSuchMethodException, IllegalArgumentException,
-				IllegalAccessException, InvocationTargetException {
+		NoSuchMethodException, IllegalArgumentException,
+		IllegalAccessException, InvocationTargetException {
 			Class<String>[] params = new Class[args.length];
 			for (int i = 0; i < args.length; i++)
 				params[i] = String.class;
@@ -141,10 +143,26 @@ public class FVCtl {
 		// XmlRpcCommonsTransportFactory(client));
 		// client.setTransportFactory(new )
 		client.setConfig(config);
+
+		try {
+			// Jetty Client
+			ServiceProxy proxy;
+			proxy = new AuthorizedServiceProxy(FVUserAPI.class, "https://fallofman:8443/flowvisor", user, passwd);
+			FVUserAPI apiService = (FVUserAPI)proxy.create();
+/* Comment out for now so that this command doesn't actually get issued
+			System.out.println("executing request");
+			String stats  = apiService.getSliceStats("alice");
+			System.out.println("Reponse: " + stats);
+			System.out.println("----------------------------------------");
+*/
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+
+
 	}
 
-	public void installDumbTrust() {
-
+	private TrustManager[] getTrustAllManager(){
 		// Create a trust manager that does not validate certificate chains
 		// System.err.println("WARN: blindly trusting server cert - FIXME");
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
@@ -162,6 +180,11 @@ public class FVCtl {
 				// Trust always
 			}
 		} };
+		return trustAllCerts;
+	}
+	public void installDumbTrust() {
+
+		TrustManager[] trustAllCerts = getTrustAllManager();
 		try {
 			// Install the all-trusting trust manager
 			SSLContext sc = SSLContext.getInstance("SSL");
@@ -174,7 +197,7 @@ public class FVCtl {
 
 			sc.init(null, trustAllCerts, new java.security.SecureRandom());
 			HttpsURLConnection
-					.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			.setDefaultSSLSocketFactory(sc.getSocketFactory());
 			HttpsURLConnection.setDefaultHostnameVerifier(hv);
 		} catch (KeyManagementException e) {
 			e.printStackTrace();
@@ -226,7 +249,7 @@ public class FVCtl {
 		else
 			for (int i = 0; i < objects.length; i++)
 				System.out
-						.println(name + " " + i + " = " + (String) objects[i]);
+				.println(name + " " + i + " = " + (String) objects[i]);
 	}
 
 	public void run_setConfig(String name, String value) throws XmlRpcException {
@@ -273,7 +296,7 @@ public class FVCtl {
 
 	@SuppressWarnings("unchecked")
 	public void run_getSwitchFlowDB(String dpidString) throws XmlRpcException,
-			MapUnparsable {
+	MapUnparsable {
 		Object[] reply = (Object[]) this.client.execute("api.getSwitchFlowDB",
 				new Object[] { dpidString });
 		if (reply == null) {
@@ -297,7 +320,7 @@ public class FVCtl {
 
 	@SuppressWarnings("unchecked")
 	public void run_getSliceRewriteDB(String sliceName, String dpidStr)
-			throws XmlRpcException {
+	throws XmlRpcException {
 
 		Object ret = this.client.execute("api.getSliceRewriteDB", new Object[] {
 				sliceName, dpidStr });
@@ -322,7 +345,7 @@ public class FVCtl {
 	}
 
 	public void run_changePasswd(String sliceName) throws IOException,
-			XmlRpcException {
+	XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
 		Boolean reply = (Boolean) this.client.execute("api.changePasswd",
 				new Object[] { sliceName, passwd });
@@ -337,7 +360,7 @@ public class FVCtl {
 	}
 
 	public void run_changeSlice(String sliceName, String key, String value)
-			throws IOException, XmlRpcException {
+	throws IOException, XmlRpcException {
 		Boolean reply = (Boolean) this.client.execute("api.changeSlice",
 				new Object[] { sliceName, key, value });
 		if (reply == null) {
@@ -352,7 +375,7 @@ public class FVCtl {
 
 	@SuppressWarnings("unchecked")
 	public void run_getSliceInfo(String sliceName) throws IOException,
-			XmlRpcException {
+	XmlRpcException {
 
 		Object o = this.client.execute("api.getSliceInfo",
 				new Object[] { sliceName });
@@ -370,7 +393,7 @@ public class FVCtl {
 	}
 
 	public void run_getSliceStats(String sliceName) throws IOException,
-			XmlRpcException {
+	XmlRpcException {
 
 		Object o = this.client.execute("api.getSliceStats",
 				new Object[] { sliceName });
@@ -387,7 +410,7 @@ public class FVCtl {
 	}
 
 	public void run_getSwitchStats(String dpid) throws IOException,
-			XmlRpcException {
+	XmlRpcException {
 
 		Object o = this.client.execute("api.getSwitchStats",
 				new Object[] { dpid });
@@ -407,8 +430,8 @@ public class FVCtl {
 			String slice_email) throws IOException, XmlRpcException {
 		String passwd = FVConfig.readPasswd("New password: ");
 		Boolean reply = (Boolean) this.client
-				.execute("api.createSlice", new Object[] { sliceName, passwd,
-						controller_url, slice_email });
+		.execute("api.createSlice", new Object[] { sliceName, passwd,
+				controller_url, slice_email });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
@@ -483,7 +506,7 @@ public class FVCtl {
 
 	private void do_flowSpaceChange(FlowChangeOp op, String dpid, String idStr,
 			String priority, String match, String actions)
-			throws XmlRpcException {
+	throws XmlRpcException {
 		if (match.equals("") || match.equals("any") || match.equals("all"))
 			match = "OFMatch[]";
 		Map<String, String> map = FlowChange.makeMap(op, dpid, idStr, priority,
@@ -536,11 +559,11 @@ public class FVCtl {
 		}
 	}
 
-	public void run_registerCallback(String URL, String methodName, String cookie)
-			throws IOException, XmlRpcException, MalformedURLException {
+	public void run_registerCallback(String URL, String cookie)
+	throws IOException, XmlRpcException, MalformedURLException {
 		Boolean reply = (Boolean) this.client.execute(
 				"api.registerTopologyChangeCallback", new Object[] { URL,
-						methodName,cookie });
+						cookie });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
@@ -551,19 +574,8 @@ public class FVCtl {
 			System.err.println("failed!");
 	}
 
-	public void run_getCallback() throws IOException, XmlRpcException, MalformedURLException{
-		String reply= (String) this.client.execute("api.getTopologyCallback", new Object[] {});
-
-		if (reply==null){
-			System.err.println("Got 'null' for reply :-(");
-			System.exit(-1);
-		}
-		System.out.println(reply);
-
-	}
-
 	public void run_unregisterCallback() throws IOException, XmlRpcException,
-			MalformedURLException {
+	MalformedURLException {
 		Boolean reply = (Boolean) this.client.execute(
 				"api.unregisterTopologyChangeCallback", new Object[] {});
 		if (reply == null) {
@@ -584,8 +596,8 @@ public class FVCtl {
 		System.err.println(string);
 		if (printFull) {
 			System.err
-					.println("Usage: FVCtl [--debug=true] [--user=user] [--url=url] "
-							+ "[--passwd-file=filename] command [args...] ");
+			.println("Usage: FVCtl [--debug=true] [--user=user] [--url=url] "
+					+ "[--passwd-file=filename] command [args...] ");
 			for (int i = 0; i < FVCtl.cmdlist.length; i++) {
 				APICmd cmd = FVCtl.cmdlist[i];
 				System.err.println("\t" + cmd.name + " " + cmd.usage);

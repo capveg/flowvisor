@@ -1,6 +1,5 @@
 package org.flowvisor.api;
 
-import org.flowvisor.api.APIUserCred;
 
 /**
  * Thread-local list of this User's credentials

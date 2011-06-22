@@ -27,7 +27,7 @@ import org.flowvisor.log.LogLevel;
  */
 public class APIAuth implements AuthenticationHandler {
 
-	class AuthFailException extends Exception {
+	static class AuthFailException extends Exception {
 		/**
 		 *
 		 */
@@ -53,7 +53,11 @@ public class APIAuth implements AuthenticationHandler {
 				.getConfig();
 		String user = config.getBasicUserName();
 		String passwd = config.getBasicPassword();
-		APIUserCred.setUserName(config.getBasicUserName());
+		return isAuthorized(user, passwd, method);
+	}
+
+	public static boolean isAuthorized(String user, String passwd, String request){
+		APIUserCred.setUserName(user);
 		try {
 			if (user == null)
 				throw new AuthFailException("client did not try to auth");
@@ -64,17 +68,18 @@ public class APIAuth implements AuthenticationHandler {
 				throw new AuthFailException("incorrect passwd for " + user);
 
 		} catch (AuthFailException e) {
-			String err = "API auth failed for: " + method + "::" + e;
+			String err = "API auth failed for: " + request + "::" + e;
 			FVLog.log(LogLevel.WARN, null, err);
 			// throw new XmlRpcException(err);
 			return false;
 		}
-		FVLog.log(LogLevel.DEBUG, null, "API auth " + method + " for user '"
+		FVLog.log(LogLevel.DEBUG, null, "API auth " + request + " for user '"
 				+ user + "'");
 		// HACK to tie this thread to the user
 
 		return true;
 	}
+
 
 	public static String makeCrypt(String salt, String passwd) {
 		MessageDigest md;
@@ -111,7 +116,7 @@ public class APIAuth implements AuthenticationHandler {
 		return buf.toString();
 	}
 
-	private String getPasswdElm(String user, String elm)
+	private static String getPasswdElm(String user, String elm)
 			throws AuthFailException {
 		String base = FVConfig.SLICES + FVConfig.FS + user;
 		if (!FVConfig.confirm(base))

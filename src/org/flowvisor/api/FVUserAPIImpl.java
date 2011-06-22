@@ -6,11 +6,15 @@ package org.flowvisor.api;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import lib.jsonrpc.BasicRPCService;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
@@ -51,7 +55,7 @@ import org.openflow.util.U16;
  * @author capveg
  *
  */
-public class FVUserAPIImpl implements FVUserAPI {
+public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	/**
 	 *
 	 */
@@ -76,7 +80,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @return
 	 */
 	@Override
-	public String[] listFlowSpace() {
+	public Collection<String> listFlowSpace() {
 		String sliceName = APIUserCred.getUserName();
 		String[] fs;
 		FVLog.log(LogLevel.DEBUG, null, "API listFlowSpace() by: " + sliceName);
@@ -91,7 +95,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 			for (FlowEntry flowEntry : flowMap.getRules())
 				fs[i++] = flowEntry.toString();
 		}
-		return fs;
+		return Arrays.asList(fs);
 	}
 
 	/**
@@ -113,7 +117,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @throws DuplicateControllerException
 	 */
 	@Override
-	public boolean createSlice(String sliceName, String passwd,
+	public Boolean createSlice(String sliceName, String passwd,
 			String controller_url, String slice_email)
 			throws MalformedControllerURL, InvalidSliceName,
 			PermissionDeniedException, DuplicateControllerException {
@@ -175,7 +179,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @param newPasswd
 	 */
 	@Override
-	public boolean changePasswd(String sliceName, String newPasswd)
+	public Boolean changePasswd(String sliceName, String newPasswd)
 			throws PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
 		if (!APIAuth.transitivelyCreated(changerSlice, sliceName)
@@ -193,7 +197,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean changeSlice(String sliceName, String key, String value)
+	public Boolean changeSlice(String sliceName, String key, String value)
 			throws MalformedURLException, InvalidSliceName,
 			PermissionDeniedException, InvalidUserInfoKey, DuplicateControllerException {
 		String changerSlice = APIUserCred.getUserName();
@@ -242,7 +246,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 		return true;
 	}
 
-	private boolean isSecondSliceSharingController(String thisSlice, String hostname, int port){
+	private Boolean isSecondSliceSharingController(String thisSlice, String hostname, int port){
 		List<String> sliceList;
 		try {
 			sliceList = listSlices();
@@ -270,7 +274,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean change_password(String sliceName, String newPasswd)
+	public Boolean change_password(String sliceName, String newPasswd)
 			throws PermissionDeniedException {
 		return changePasswd(sliceName, newPasswd);
 		// just call changePasswd(); keeping the two names made things easier
@@ -408,7 +412,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean deleteSlice(String sliceName) throws SliceNotFound,
+	public Boolean deleteSlice(String sliceName) throws SliceNotFound,
 			PermissionDeniedException {
 		String changerSlice = APIUserCred.getUserName();
 		if (!APIAuth.transitivelyCreated(changerSlice, sliceName)) {
@@ -585,7 +589,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @return true if slice exists, otherwise false
 	 * @param sliceName name of slice to check for existance
 	 */
-	private boolean doesSliceExist(String sliceName){
+	public static boolean doesSliceExist(String sliceName){
 		List<String> slices = new ArrayList<String>();
 		try {
 			slices = FVConfig.list(FVConfig.SLICES);
@@ -601,7 +605,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * @see org.flowvisor.api.FVUserAPI#revertToLastCheckpoint()
 	 */
 	@Override
-	public boolean revertToLastCheckpoint() {
+	public Boolean revertToLastCheckpoint() {
 		// TODO: implement!
 		return false;
 	}
@@ -634,7 +638,7 @@ public class FVUserAPIImpl implements FVUserAPI {
 	 * java.lang.String)
 	 */
 	@Override
-	public boolean setConfig(String nodeName, String value) throws ConfigError,
+	public Boolean setConfig(String nodeName, String value) throws ConfigError,
 			PermissionDeniedException {
 		String user = APIUserCred.getUserName();
 		if (!FVConfig.isSupervisor(user)) {
@@ -654,40 +658,37 @@ public class FVUserAPIImpl implements FVUserAPI {
 	}
 
 	@Override
-	public boolean registerTopologyChangeCallback(String URL, String methodName,String cookie)
+	public Boolean registerTopologyChangeCallback(String URL, String methodName, String cookie)
 			throws MalformedURLException {
 		// this will throw MalformedURL back to the client if the URL is bad
 		new URL(URL);
 		TopologyController tc = TopologyController.getRunningInstance();
 		if (tc != null) {
-
-
-			tc.registerCallBack(APIUserCred.getUserName(), URL, methodName,cookie);
+			tc.registerCallBack(APIUserCred.getUserName(), URL, methodName, cookie);
 			return true;
 		} else
 			return false; // topology server not running
 	}
 
-	@Override
 	public String getTopologyCallback(){
 
 		TopologyController tc=TopologyController.getRunningInstance();
-		String URL="";//="No callback defined yet"		
+		String URL="";//="No callback defined yet"
 		if (tc!=null){
-			URL=tc.getTopologyCallback(APIUserCred.getUserName());	
+			URL=tc.getTopologyCallback(APIUserCred.getUserName());
 		}
-		
+
 		if (URL==null || URL.equals("")){
 			return "No callback defined yet";
 		}
 		else{
-			return URL;	
+			return URL;
 		}
-		
+
 	}
 
 	@Override
-	public boolean unregisterTopologyChangeCallback() {
+	public Boolean unregisterTopologyChangeCallback() {
 		TopologyController tc = TopologyController.getRunningInstance();
 		if (tc != null) {
 			tc.unregisterCallBack(APIUserCred.getUserName());

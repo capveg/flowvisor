@@ -46,6 +46,8 @@ public class FVConfig {
 	final static public String LISTEN_PORT = "flowvisor" + FS + "listen_port";
 	public static final String API_WEBSERVER_PORT = "flowvisor" + FS
 			+ "api_webserver_port";
+	public static final String API_JETTY_WEBSERVER_PORT = "flowvisor" + FS
+			+ "api_jetty_webserver_port";
 	public static final String CHECKPOINTING = "flowvisor" + FS
 			+ "checkpointing";
 	public static final String TOPOLOGY_SERVER = "flowvisor" + FS
