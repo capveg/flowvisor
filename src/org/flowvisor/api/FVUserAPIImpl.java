@@ -247,7 +247,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	}
 
 	private Boolean isSecondSliceSharingController(String thisSlice, String hostname, int port){
-		List<String> sliceList;
+		Collection<String> sliceList;
 		try {
 			sliceList = listSlices();
 		} catch (PermissionDeniedException e1) {
@@ -287,7 +287,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	 */
 
 	@Override
-	public List<Map<String, String>> getLinks() {
+	public Collection<Map<String, String>> getLinks() {
 		FVLog.log(LogLevel.DEBUG, null,
 				"API getLinks() by: " + APIUserCred.getUserName());
 		TopologyController topologyController = TopologyController
@@ -449,7 +449,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	 */
 
 	@Override
-	public List<String> changeFlowSpace(List<Map<String, String>> changes)
+	public Collection<String> changeFlowSpace(List<Map<String, String>> changes)
 			throws MalformedFlowChange, PermissionDeniedException,
 			FlowEntryNotFound {
 		String user = APIUserCred.getUserName();
@@ -505,7 +505,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	}
 
 	@Override
-	public List<String> listSlices() throws PermissionDeniedException {
+	public Collection<String> listSlices() throws PermissionDeniedException {
 		/*
 		 * relaxed security; anyone can get a list of slices if
 		 * (!FVConfig.isSupervisor(APIUserCred.getUserName())) throw new
@@ -616,7 +616,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	 * @see org.flowvisor.api.FVUserAPI#getConfig(java.lang.String)
 	 */
 	@Override
-	public List<String> getConfig(String nodeName) throws ConfigError,
+	public Collection<String> getConfig(String nodeName) throws ConfigError,
 			PermissionDeniedException {
 		String user = APIUserCred.getUserName();
 		if (!FVConfig.isSupervisor(user)) {
@@ -744,7 +744,7 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 	}
 
 	@Override
-	public List<Map<String, String>> getSwitchFlowDB(String dpidStr)
+	public Collection<Map<String, String>> getSwitchFlowDB(String dpidStr)
 			throws DPIDNotFound {
 		boolean found = false;
 		long dpid = FlowSpaceUtil.parseDPID(dpidStr);

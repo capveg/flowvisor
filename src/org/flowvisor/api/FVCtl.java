@@ -144,22 +144,28 @@ public class FVCtl {
 		// client.setTransportFactory(new )
 		client.setConfig(config);
 
+	}
+
+	public void runJetty(String user, String passwd, String methodName, String[] args){
 		try {
+			this.installDumbTrust();
 			// Jetty Client
 			ServiceProxy proxy;
-			proxy = new AuthorizedServiceProxy(FVUserAPI.class, "https://fallofman:8443/flowvisor", user, passwd);
+			proxy = new AuthorizedServiceProxy(FVUserAPI.class, this.URL, user, passwd);
 			FVUserAPI apiService = (FVUserAPI)proxy.create();
-/* Comment out for now so that this command doesn't actually get issued
+			Class<?> [] argTypes = new Class[args.length];
+			for (int argNum = 0; argNum < args.length; argNum++){
+				argTypes[argNum] = String.class;
+			}
+			Method serviceMethod = FVUserAPI.class.getDeclaredMethod(methodName, argTypes);
 			System.out.println("executing request");
-			String stats  = apiService.getSliceStats("alice");
+			Object stats  = serviceMethod.invoke(apiService, (Object[])args);
 			System.out.println("Reponse: " + stats);
 			System.out.println("----------------------------------------");
-*/
+
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-
-
 	}
 
 	private TrustManager[] getTrustAllManager(){
@@ -596,7 +602,7 @@ public class FVCtl {
 		System.err.println(string);
 		if (printFull) {
 			System.err
-			.println("Usage: FVCtl [--debug=true] [--user=user] [--url=url] "
+			.println("Usage: FVCtl [--debug=true] [--jetty=true] [--user=user] [--url=url] "
 					+ "[--passwd-file=filename] command [args...] ");
 			for (int i = 0; i < FVCtl.cmdlist.length; i++) {
 				APICmd cmd = FVCtl.cmdlist[i];
@@ -622,9 +628,11 @@ public class FVCtl {
 		// FVCtl client = new
 		// FVCtl("https://root:joemama@localhost:8080/xmlrpc");
 		String URL = "https://localhost:8080/xmlrpc";
+		String JETTY_URL = "https://localhost:8081/flowvisor";
 		String user = FVConfig.SUPER_USER;
 		String passwd = null;
 		boolean debug = false;
+		boolean jetty = false;
 
 		int cmdIndex = 0;
 		// FIXME: find a decent java cmdline args parsing lib
@@ -648,7 +656,10 @@ public class FVCtl {
 				} catch (IOException e) {
 					die(debug, "IO: ", e);
 				}
-			} else
+			}
+			else if (params[0].equals("--jetty")){
+				jetty = true;
+			}else
 				usage("unknown parameter: " + params[0]);
 			cmdIndex++;
 		}
@@ -668,9 +679,15 @@ public class FVCtl {
 		try {
 			if (passwd == null)
 				passwd = FVConfig.readPasswd("Enter " + user + "'s passwd: ");
-			FVCtl client = new FVCtl(URL);
-			client.init(user, passwd);
-			cmd.invoke(client, strippedArgs);
+			FVCtl client = new FVCtl(jetty ? JETTY_URL : URL);
+
+			if (jetty){
+				client.runJetty(user, passwd, cmd.name, strippedArgs);
+			}
+			else{
+				client.init(user, passwd);
+				cmd.invoke(client, strippedArgs);
+			}
 		} catch (Exception e) {
 			die(debug, "error: ", e);
 		}

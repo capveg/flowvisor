@@ -22,7 +22,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -34,7 +33,7 @@ public class JettyServer implements Runnable{
 	public static String REALM_NAME = "JETTYREALM";
 	private Server jettyServer;
 
-	protected RPCService service = new FVUserAPIImpl();
+	protected RPCService service = new FVUserAPIJSONImpl();
 
 	public JettyServer(){
 		init();
@@ -50,12 +49,10 @@ public class JettyServer implements Runnable{
 		}
 
 		jettyServer = new Server(port);
-		Connector connector = new SelectChannelConnector();
-		connector.setPort(port);
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
 
-		sslConnector.setPort(8443);
+		sslConnector.setPort(port);
 		String sslKeyStore = System.getProperty("javax.net.ssl.keyStore");
 		if (sslKeyStore == null) {
 			throw new RuntimeException(
