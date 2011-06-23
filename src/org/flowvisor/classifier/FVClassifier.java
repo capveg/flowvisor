@@ -53,12 +53,12 @@ import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
- *
+ * 
  * Also handles all of the switch-specific but slice-general state and
  * rewriting.
- *
+ * 
  * @author capveg
- *
+ * 
  */
 
 public class FVClassifier implements FVEventHandler, FVSendMsg {
@@ -81,6 +81,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	SendRecvDropStats stats;
 	private FlowDB flowDB;
 	private boolean wantStatsDescHack;
+	String floodPermsSlice; // the slice that has permission to use native
+
+	// OFPP_FLOOD
 
 	public FVClassifier(FVEventLoop loop, SocketChannel sock) {
 		this.loop = loop;
@@ -97,6 +100,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		this.sock = sock;
 		this.switchInfo = null;
 		this.doneID = false;
+		this.floodPermsSlice = ""; // disabled, at first
 		this.slicerMap = new HashMap<String, FVSlicer>();
 		this.xidTranslator = new XidTranslator();
 		this.missSendLength = 128;
@@ -201,7 +205,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * on init, send HELLO, delete all flow entries, and send features request
-	 *
+	 * 
 	 * @throws IOException
 	 */
 
@@ -244,6 +248,33 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 				throw new RuntimeException("Tried to set default "
 						+ FVConfig.STATS_DESC_HACK + "=true, but got: " + e1);
 			}
+		}
+		updateFloodPerms();
+	}
+
+	/*
+	 * Parse the flood_perms out of the config
+	 * 
+	 * Check "switches.$dpid.flood_perms" if we know $dpid, else check
+	 * "switches.default.flood_perms" also add it to the watch list
+	 */
+
+	void updateFloodPerms() {
+		String dpid;
+		if (this.doneID)
+			dpid = FlowSpaceUtil.dpidToString(this.getDPID());
+		else
+			dpid = FVConfig.SWITCHES_DEFAULT;
+		try {
+			String entry = FVConfig.SWITCHES + FVConfig.FS + dpid + FVConfig.FS
+					+ FVConfig.FLOOD_PERM;
+			this.floodPermsSlice = FVConfig.getString(entry);
+			FVLog.log(LogLevel.DEBUG, this, "giving flood perms to slice: "
+					+ this.floodPermsSlice);
+			// note: watch() is smart and won't double enter this
+			FVConfig.watch(this, entry);
+		} catch (ConfigError e) {
+			// do nothing if no entry
 		}
 	}
 
@@ -295,9 +326,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	}
 
 	/**
-	 * Something in the config has changed since we only register for FlowSpace
-	 * changes, must be a new FlowSpace
-	 *
+	 * Something in the config has changed; figure out what and re-cache it
+	 * 
 	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
@@ -311,6 +341,8 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 				this.loop.queueEvent(new ConfigUpdateEvent(e).setDst(fvSlicer));
 		} else if (config.equals(FVConfig.FLOW_TRACKING)) {
 			updateFlowTrackingConfig();
+		} else if (config.endsWith(FVConfig.FLOOD_PERM)) {
+			this.updateFloodPerms();
 		} else {
 			FVLog.log(LogLevel.WARN, this, "ignoring unknown config update: ",
 					e.getConfig());
@@ -399,13 +431,22 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		FVConfig.unwatch(this, FVConfig.FLOWSPACE); // unregister for FS updates
 		FVConfig.unwatch(this, FVConfig.FLOW_TRACKING);
 		FVConfig.unwatch(this, FVConfig.STATS_DESC_HACK);
-		this.msgStream = null; // force GC
+
+		if (this.doneID)
+			FVConfig.unwatch(this, FVConfig.SWITCHES + FVConfig.FS
+					+ FlowSpaceUtil.dpidToString(getDPID()) + FVConfig.FS
+					+ FVConfig.FLOOD_PERM);
+		FVConfig
+				.unwatch(this, FVConfig.SWITCHES + FVConfig.FS
+						+ FVConfig.SWITCHES_DEFAULT + FVConfig.FS
+						+ FVConfig.FLOOD_PERM);
+		this.msgStream = null; // trick GC; prob not needed
 	}
 
 	/**
 	 * Main function Pass this message on to the appropriate Slicer as defined
 	 * by XID, FlowSpace, config, etc.
-	 *
+	 * 
 	 * @param m
 	 */
 	private void classifyOFMessage(OFMessage msg) {
@@ -415,9 +456,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * State machine for switches before we know which switch it is
-	 *
+	 * 
 	 * Wait for FEATURES_REPLY; ignore everything else
-	 *
+	 * 
 	 * @param m
 	 *            incoming message
 	 */
@@ -461,9 +502,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			FVConfig.watch(this, FVConfig.FLOWSPACE); // register for FS updates
 			this.connectToControllers(); // connect to controllers
 			doneID = true;
+			updateFloodPerms();
 			break;
 		default:
-			// FIXME add logging
 			FVLog.log(LogLevel.WARN, this, "Got unknown message type " + m
 					+ " to unidentified switch");
 		}
@@ -473,12 +514,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * Figure out which slices have access to the switch and spawn a Slicer
 	 * EventHandler for each of them. Also, close the connection to any slice
 	 * that is no longer listed
-	 *
+	 * 
 	 * Also make a connection for the topology discovery daemon here if
 	 * configured
-	 *
+	 * 
 	 * Assumes The switch is already been identified;
-	 *
+	 * 
 	 */
 	private void connectToControllers() {
 		Set<String> newSlices;
@@ -540,7 +581,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Called by FVSlicer to tell us to forget about them
-	 *
+	 * 
 	 * @param sliceName
 	 */
 	public void tearDownSlice(String sliceName) {
@@ -570,7 +611,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Send a message to the switch connected to this classifier
-	 *
+	 * 
 	 * @param msg
 	 *            OFMessage
 	 */
@@ -637,4 +678,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		// TODO make this a configurable option
 		return wantStatsDescHack;
 	}
+
+	/**
+	 * @return the floodPermsSlice
+	 */
+	public String getFloodPermsSlice() {
+		return floodPermsSlice;
+	}
+
 }

@@ -1,6 +1,0 @@
-#Name: bob
-Id: 2
-Host: tcp:localhost:54322
-AllowedPorts: 1,3	switch1
-FlowSpace: allow: dl_src: 00:00:00:00:00:01
-FlowSpace: allow: dl_src: 00:01:00:00:00:01

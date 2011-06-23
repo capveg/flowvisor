@@ -16,9 +16,9 @@ import org.openflow.protocol.action.OFActionOutput;
 /**
  * Allow/deny based on slice config if OFPP_ALL or OFPP_FLOOD, expand if
  * necessary
- *
+ * 
  * @author capveg
- *
+ * 
  */
 
 public class FVActionOutput extends OFActionOutput implements SlicableAction,
@@ -67,6 +67,28 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction,
 			approvedActions.add(this);
 			return;
 		}
+
+		// short cut if we have perms to do a native flood
+		if (port == OFPort.OFPP_FLOOD.getValue()) {
+			if (fvSlicer.hasFloodPerms()) {
+				approvedActions.add(this);
+				return;
+			} else {
+				if (fvClassifier.getFloodPermsSlice().equals(
+						fvSlicer.getSliceName())) {
+					fvSlicer.setFloodPerms(true);
+					turnOffOutOfSliceFloodBits(fvSlicer, fvClassifier);
+					approvedActions.add(this);
+					return;
+				} else {
+					FVLog.log(LogLevel.DEBUG, fvClassifier,
+							"slice has no flood perms: "
+									+ fvSlicer.getSliceName() + "!='"
+									+ fvClassifier.getFloodPermsSlice() + "'");
+				}
+			}
+		}
+
 		Set<Short> portList;
 		if (port == OFPort.OFPP_ALL.getValue())
 			portList = fvSlicer.getPorts();
@@ -93,9 +115,19 @@ public class FVActionOutput extends OFActionOutput implements SlicableAction,
 
 	}
 
+	private void turnOffOutOfSliceFloodBits(FVSlicer fvSlicer,
+			FVClassifier fvClassifier) {
+		FVLog.log(LogLevel.ALERT, fvClassifier,
+				"Would be turning off flooding ports for slice "
+						+ fvSlicer.getSliceName() + " but its NOT IMPLEMENTED");
+		/**
+		 * TODO Need to send OFPortMod msgs to turn off the flood bit for all
+		 * ports NOT in this slice
+		 */
+	}
+
 	@Override
 	public FVActionOutput clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
 		return (FVActionOutput) super.clone();
 	}
 
