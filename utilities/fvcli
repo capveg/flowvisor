@@ -229,6 +229,9 @@ class Connection(object):
   def changeSlice (self, name, key, value):
     return self.conn.api.changeSlice(name, key, value)
 
+  def deleteSlice (self, name):
+    return self.conn.api.deleteSlice(name)
+
   def getDeviceStats (self, dpid):
     return self.conn.api.getSwitchStats(dpid)
 
@@ -241,12 +244,18 @@ class FlowspaceCtl(Cmd):
     self.name = slname
     FlowspaceCtl.prompt = "[Flowspace: %s] " % (slname)
     self.uncommitted_deletes = set()
+    self.uncommitted_adds = []
 
   def do_exit (self, arglist):
     raise SubinterpreterExit()
 
   def do_list (self, arg):
     fs = self.print_flowspace()
+    for i,entry in enumerate(self.uncommitted_adds):
+      print "(%3d) %s" % (i, str(entry))
+
+  def do_commit (self, arg):
+    self.commit_flowspace()
 
   def get_flowspace (self, live = True, deleted = True):
     fs = self.conn.getFlowspace()
@@ -255,6 +264,17 @@ class FlowspaceCtl(Cmd):
       e = FlowSpaceEntry(x, show_ids = True)
       pfs.append(e)
     return pfs
+
+  def commit_flowspace (self):
+    return
+
+  def do_add (self, arg):
+    try:
+      dpid = raw_input("DPID(s): ")
+      priority = raw_input("Priority: ")
+      match = raw_input("Match: ")
+    except KeyboardInterrupt:
+      return
 
   def print_flowspace (self, live = True, deleted = True):
     fs = self.get_flowspace()
@@ -272,6 +292,7 @@ class FlowspaceCtl(Cmd):
   def clear_flowspace (self, fs):
     for e in fs:
       self.uncommitted_deletes.add(e.id)
+    self.uncommitted_adds = []
 
   def do_delete (self, arg):
     arglist = arg.split()
@@ -348,6 +369,11 @@ class FVCtl(Cmd):
     if port != "":
       self.__ac.changeSlice(name, "controller_port", port)
 
+  def delete_slice (self, name):
+    if name[0] == '"':
+      name = name[1:-1]
+    self.__ac.deleteSlice(name)
+
   def change_slice_flowspace (self, name):
     ctl = FlowspaceCtl(name, self.__ac)
     try:
@@ -400,6 +426,13 @@ class FVCtl(Cmd):
           if arglist[2] == "flowspace":
             self.change_slice_flowspace(slname)
             return
+
+  def do_delete (self, arg):
+    arglist = arg.split()
+    if arglist[0] == "slice":
+      if arglist[1].count('"') > 0:
+        slname = arglist[1][1:-1]
+        self.delete_slice(slname)
 
   def do_reset (self, arg):
     # {'linkcache' : reset_linkcache,
