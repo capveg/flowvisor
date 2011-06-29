@@ -22,6 +22,10 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+<<<<<<< HEAD
+=======
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+>>>>>>> d1eb6e22fbe518cc761faa267510db3b0edeccc9
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -33,7 +37,11 @@ public class JettyServer implements Runnable{
 	public static String REALM_NAME = "JETTYREALM";
 	private Server jettyServer;
 
+<<<<<<< HEAD
 	protected RPCService service = new FVUserAPIJSONImpl();
+=======
+	protected RPCService service = new FVUserAPIImpl();
+>>>>>>> d1eb6e22fbe518cc761faa267510db3b0edeccc9
 
 	public JettyServer(){
 		init();
@@ -49,10 +57,19 @@ public class JettyServer implements Runnable{
 		}
 
 		jettyServer = new Server(port);
+<<<<<<< HEAD
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
 
 		sslConnector.setPort(port);
+=======
+		Connector connector = new SelectChannelConnector();
+		connector.setPort(port);
+
+		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+
+		sslConnector.setPort(8443);
+>>>>>>> d1eb6e22fbe518cc761faa267510db3b0edeccc9
 		String sslKeyStore = System.getProperty("javax.net.ssl.keyStore");
 		if (sslKeyStore == null) {
 			throw new RuntimeException(
