@@ -601,11 +601,7 @@ public class FVCtl {
 		System.err.println(string);
 		if (printFull) {
 			System.err
-<<<<<<< HEAD
 			.println("Usage: FVCtl [--debug=true] [--jetty=true] [--user=user] [--url=url] "
-=======
-			.println("Usage: FVCtl [--debug=true] [--user=user] [--url=url] "
->>>>>>> d1eb6e22fbe518cc761faa267510db3b0edeccc9
 					+ "[--passwd-file=filename] command [args...] ");
 			for (int i = 0; i < FVCtl.cmdlist.length; i++) {
 				APICmd cmd = FVCtl.cmdlist[i];
