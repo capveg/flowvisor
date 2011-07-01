@@ -5,8 +5,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.net.BCodec;
+import org.apache.commons.codec.binary.Base64;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.security.DefaultUserIdentity;
 import org.eclipse.jetty.security.ServerAuthException;
@@ -22,7 +21,9 @@ public class FlowVisorAuthenticator extends BasicAuthenticator {
 			ServletResponse arg1, boolean arg2) throws ServerAuthException {
 		String credentials = ((HttpServletRequest) req).getHeader(HttpHeaders.AUTHORIZATION);
 		try {
-			String decoded = new BCodec().decode(credentials);
+			byte[] b64 = new Base64().decode(credentials.substring(6).getBytes());
+			String decoded = new String(b64);
+
 			String username = decoded.substring(0, decoded.indexOf(":"));
 			String password = decoded.substring(decoded.indexOf(":") + 1);
 			if ((APIAuth.isAuthorized(username, password, ""))){
@@ -30,20 +31,17 @@ public class FlowVisorAuthenticator extends BasicAuthenticator {
 			}
 			else
 				return Authentication.UNAUTHENTICATED;
-		} catch (DecoderException e) {
+		} catch (Exception e) {
+
 			return Authentication.UNAUTHENTICATED;
 		}
 	}
 
 	public class FlowVisorAuthenticatedUser implements Authentication.User {
 
-		private String name;
-
-		private String passwd;
 
 		public FlowVisorAuthenticatedUser(String username, String password){
-			name = username;
-			passwd = password;
+
 		}
 
 		@Override

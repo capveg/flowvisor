@@ -9,8 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lib.jsonrpc.RPCService;
-
 import org.eclipse.jetty.http.security.Constraint;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -22,7 +20,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -34,7 +31,7 @@ public class JettyServer implements Runnable{
 	public static String REALM_NAME = "JETTYREALM";
 	private Server jettyServer;
 
-	protected RPCService service = new FVUserAPIJSONImpl();
+	protected BasicJSONRPCService service = new FVUserAPIJSONImpl();
 
 	public JettyServer(){
 		init();
@@ -53,10 +50,6 @@ public class JettyServer implements Runnable{
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
 		sslConnector.setPort(port);
-		
-		Connector connector = new SelectChannelConnector();
-		connector.setPort(port);
-
 		String sslKeyStore = System.getProperty("javax.net.ssl.keyStore");
 		if (sslKeyStore == null) {
 			throw new RuntimeException(

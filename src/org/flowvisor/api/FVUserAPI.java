@@ -28,13 +28,6 @@ public interface FVUserAPI {
 	public String ping(String arg);
 
 	/**
-	 * Lists all the flowspace this user has control over
-	 *
-	 * @return
-	 */
-	public Collection<String> listFlowSpace();
-
-	/**
 	 * Create a new slice (without flowspace)
 	 *
 	 * @param sliceName
