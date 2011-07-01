@@ -33,7 +33,7 @@ $jars/jsse.jar:\
 $jars/asm-3.0.jar:\
 $jars/cglib-2.2.jar:\
 $jars/commons-codec-1.4.jar:\
-$jars/jsonrpc-1.1.2.jar:\
+$jars/gson-1.7.1.jar:\
 $jars/jetty-continuation-7.0.2.v20100331.jar:\
 $jars/jetty-http-7.0.2.v20100331.jar:\
 $jars/jetty-io-7.0.2.v20100331.jar:\

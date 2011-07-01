@@ -27,8 +27,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import lib.jsonrpc.ServiceProxy;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
@@ -149,14 +147,14 @@ public class FVCtl {
 		try {
 			this.installDumbTrust();
 			// Jetty Client
-			ServiceProxy proxy;
-			proxy = new AuthorizedServiceProxy(FVUserAPI.class, this.URL, user, passwd);
-			FVUserAPI apiService = (FVUserAPI)proxy.create();
+			AuthorizedServiceProxy proxy;
+			proxy = new AuthorizedServiceProxy(FVUserAPIJSON.class, this.URL, user, passwd);
+			FVUserAPIJSON apiService = (FVUserAPIJSON)proxy.create();
 			Class<?> [] argTypes = new Class[args.length];
 			for (int argNum = 0; argNum < args.length; argNum++){
 				argTypes[argNum] = String.class;
 			}
-			Method serviceMethod = FVUserAPI.class.getDeclaredMethod(methodName, argTypes);
+			Method serviceMethod = FVUserAPIJSON.class.getDeclaredMethod(methodName, argTypes);
 			System.out.println("executing request");
 			Object stats  = serviceMethod.invoke(apiService, (Object[])args);
 			System.out.println("Reponse: " + stats);

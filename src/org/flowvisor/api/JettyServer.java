@@ -9,8 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lib.jsonrpc.RPCService;
-
 import org.eclipse.jetty.http.security.Constraint;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -33,7 +31,7 @@ public class JettyServer implements Runnable{
 	public static String REALM_NAME = "JETTYREALM";
 	private Server jettyServer;
 
-	protected RPCService service = new FVUserAPIJSONImpl();
+	protected BasicJSONRPCService service = new FVUserAPIJSONImpl();
 
 	public JettyServer(){
 		init();

@@ -6,15 +6,12 @@ package org.flowvisor.api;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import lib.jsonrpc.BasicRPCService;
 
 import org.flowvisor.FlowVisor;
 import org.flowvisor.api.FlowChange.FlowChangeOp;
@@ -55,7 +52,7 @@ import org.openflow.util.U16;
  * @author capveg
  *
  */
-public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
+public class FVUserAPIImpl extends BasicJSONRPCService implements FVUserAPI {
 	/**
 	 *
 	 */
@@ -74,15 +71,9 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 				+ "::" + arg;
 	}
 
-	/**
-	 * Lists all the flowspace
-	 *
-	 * @return
-	 */
-	@Override
-	public Collection<String> listFlowSpace() {
+
+	protected Collection<FlowEntry> getFlowEntries() {
 		String sliceName = APIUserCred.getUserName();
-		String[] fs;
 		FVLog.log(LogLevel.DEBUG, null, "API listFlowSpace() by: " + sliceName);
 		FlowMap flowMap;
 		synchronized (FVConfig.class) {
@@ -90,12 +81,8 @@ public class FVUserAPIImpl extends BasicRPCService implements FVUserAPI {
 				flowMap = FVConfig.getFlowSpaceFlowMap();
 			else
 				flowMap = FlowSpaceUtil.getSliceFlowSpace(sliceName);
-			fs = new String[flowMap.countRules()];
-			int i = 0;
-			for (FlowEntry flowEntry : flowMap.getRules())
-				fs[i++] = flowEntry.toString();
+			return flowMap.getRules();
 		}
-		return Arrays.asList(fs);
 	}
 
 	/**

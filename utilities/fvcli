@@ -12,6 +12,8 @@ import os
 from optparse import OptionParser
 import socket
 import exceptions
+from jsonrpc import ServiceProxy
+from math import pow
 
 class SubinterpreterExit(Exception):
   def __init__ (self):
@@ -38,7 +40,7 @@ class FlowSpaceAction(object):
       return "%s:%s(%s)" % (self.type, self.key, self.val)
 
 class FlowSpaceEntry(object):
-  def __init__ (self, fsstr = None, show_slices = False, show_ids = False):
+  def __init__ (self, fsdict = None, show_slices = False, show_ids = False):
     self.show_slices = show_slices 
     self.show_ids = show_ids
     self.dpid = None
@@ -47,42 +49,37 @@ class FlowSpaceEntry(object):
     self.rules = None
     self.actions = None
     self.slices = set()
+    if fsdict is not None:
+      self.parse_fsdict(fsdict)
 
-    if fsstr is not None:
-      self.parse_fsstr(fsstr)
-
-  def parse_fsstr(self, e):
-    xdpid = e.index("dpid")
-    if e[xdpid+6:xdpid+15] == "all_dpids":
+  def parse_fsdict(self, fsdict):
+    dpid = fsdict['dpid']
+    if dpid == - pow(2, 63):
       self.dpid = "All"
-      e = e[xdpid+6:]
     else:
-      self.dpid = e[xdpid+6:xdpid+29]
-      e = e[xdpid+29:]
+      self.dpid = dpid
+    self.priority = fsdict['priority']
 
-    xprio = e.index("priority=")
-    self.priority = int(e[xprio+10:e[xprio:].index("]") + xprio])
+    self.id = fsdict['id']
 
-    xid = e.index("id=")
-    self.id = int(e[xid+4:e[xid:].index("]") + xid])
-
-    xrule = e.index("OFMatch")
-    rulestr = e[xrule+8:e[xrule:].index("]") + xrule]
     self.rules = []
-    for rule in rulestr.split(","):
+    # Parse out the prepending OFMatch[ and the postpending ]
+    match = fsdict['ruleMatch'][8:len(fsdict['ruleMatch'])-1]
+    for rule in match.split(","):
       comps = rule.split("=")
       if len(comps) == 2:
         self.rules.append(FlowSpaceRule(comps[0], comps[1]))
 
-    xactions = e.index("actionsList=")
-    actionstr = e[xactions+13:e[xactions:].index("]") + xactions]
+    actions = fsdict['actionsList']
     self.actions = []
-    for action in actionstr.split(","):
-      (typ,act) = action.split(":")
-      (key,val) = act.split("=")
-      self.actions.append(FlowSpaceAction(typ,key,val))
+    for action in actions:
+      typ = "?"
+      if action['vendor'] == (1 - pow(2, 31)):
+        # This is a Slice Action
+        typ = "Slice"
+      self.actions.append(FlowSpaceAction(typ, action['sliceName'], action['slicePerms']))
       if typ == "Slice":
-        self.slices.add(key)
+        self.slices.add(action['sliceName'])
 
   def in_slice (self, name):
     if name in self.slices:
@@ -147,13 +144,13 @@ class Commands(object):
           return cmd
 
 class Connection(object):
-  def __init__ (self, user, passwd, host, port):
+  def __init__ (self, user, passwd, host, port, json_port):
     self.nocache = False
     self.user = user
     self.host = host
     self.port = int(port)
     self.conn = xmlrpclib.ServerProxy("https://%s:%s@%s:%d/xmlrpc" % (user, passwd, host, self.port))
-
+    self.jsonconn = ServiceProxy("https://%s:%s@%s:%d" % (user, passwd, host, json_port))
     self.infopath = os.path.expanduser("~/.fvcli/%s.info" % (self.host))
     if not os.path.exists(os.path.split(self.infopath)[0]):
       os.makedirs(os.path.split(self.infopath)[0])
@@ -218,10 +215,12 @@ class Connection(object):
     return self.conn.api.getSliceInfo(name)
 
   def getSliceStats (self, name):
-    return self.conn.api.getSliceStats(name)
+    #return self.conn.api.getSliceStats(name)
+    return self.jsonconn.getSliceStats(name)
 
   def getFlowspace (self):
-    return self.conn.api.listFlowSpace()
+    #return self.conn.api.listFlowSpace()
+    return self.jsonconn.listFlowSpace()
 
   def createSlice (self, name, passwd, controller_url, email):
     return self.conn.api.createSlice(name, passwd, controller_url, email)
@@ -328,11 +327,11 @@ class FlowspaceCtl(Cmd):
 class FVCtl(Cmd):
   prompt = "(FVCtl) "
 
-  def __init__ (self, host, user, port, passwd):
+  def __init__ (self, host, user, port, json_port, passwd):
     Cmd.__init__(self)
     self.connections = []
     self.__ac = None
-    self.__connect(host, user, port, passwd)
+    self.__connect(host, user, port, json_port, passwd)
     FVCtl.prompt = "[%s@%s] " % (user, host)
 
     self.setup_show_cmds()
@@ -348,9 +347,8 @@ class FVCtl(Cmd):
         print self.__exc_t
         continue
 
-  def __connect (self, host, user, port, passwd):
-    port = 8080
-    conn = Connection(user, passwd, host, port)
+  def __connect (self, host, user, port, json_port, passwd):
+    conn = Connection(user, passwd, host, port, json_port)
     self.connections.append(conn)
     self.__ac = conn
 
@@ -500,12 +498,17 @@ class FVCtl(Cmd):
 
   def show_slice_flowspace (self, slname):
     fs = self.__ac.getFlowspace()
-    [sys.stdout.write(str(FlowSpaceEntry(x)) + "\n")
-      for x in fs if x.count(slname)]
+    fslist = json.loads(fs['valueAsJson'])
+    for fs in fslist:
+      for action in fs['actionsList']:
+        if action['sliceName'] == slname:
+          sys.stdout.write(str(FlowSpaceEntry(fs)) + "\n")
+          break;
 
   def show_flowspace (self):
     fs = self.__ac.getFlowspace()
-    xfs = [FlowSpaceEntry(x, True) for x in fs]
+    fslist = json.loads(fs['valueAsJson'])
+    xfs = [FlowSpaceEntry(x, True) for x in fslist]
     [sys.stdout.write(str(x)+"\n") for x in xfs]
 
   def complete_show (self, text, line, begidx, endidx):
@@ -591,7 +594,8 @@ class FVCtl(Cmd):
 def parse_args (args):
   parser = OptionParser()
   parser.add_option("-p", "--port", dest="rpcport", type="int", default="8080")
-  parser.add_option("-u", "--user", dest="user", default="root")
+  parser.add_option("-q", "--jetty_port", dest="jettyport", type="int", default="8081")
+  parser.add_option("-u", "--user", dest="user", default="fvadmin")
   parser.add_option("-n", "--name", dest="host")
 
   (options, args) = parser.parse_args()
@@ -603,5 +607,5 @@ if __name__ == '__main__':
 
   options.host = socket.gethostbyname(options.host)
 
-  app = FVCtl(options.host, options.user, options.rpcport, passwd)
+  app = FVCtl(options.host, options.user, options.rpcport, options.jettyport, passwd)
   app.cmdloop()
