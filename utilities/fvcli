@@ -570,14 +570,17 @@ class FVCtl(Cmd):
         self.show_slice_list()
         return
       elif arglist[1].count('"') > 0:
-        slname = arglist[1][1:-1]
-        if len(arglist) == 2:
+        cmd_str = " ".join(arglist[1:])
+        last_quote = cmd_str.index('"', 1)
+        slname = cmd_str[1:last_quote]
+        last_arg = cmd_str[last_quote+1:].strip()
+        if last_arg == "detail":
           self.show_slice_info(slname)
           return
-        elif arglist[2] == "stats":
+        elif last_arg == "stats":
           self.show_slice_stats(slname)
           return
-        elif arglist[2] == "flowspace":
+        elif last_arg  == "flowspace":
           self.show_slice_flowspace(slname)
           return
     print "Unknown command: show %s" % (" ".join(arglist))
