@@ -51,7 +51,6 @@ public class JettyServer implements Runnable{
 		jettyServer = new Server(port);
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
-
 		sslConnector.setPort(port);
 		String sslKeyStore = System.getProperty("javax.net.ssl.keyStore");
 		if (sslKeyStore == null) {

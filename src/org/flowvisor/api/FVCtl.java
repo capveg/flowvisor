@@ -143,7 +143,6 @@ public class FVCtl {
 		// XmlRpcCommonsTransportFactory(client));
 		// client.setTransportFactory(new )
 		client.setConfig(config);
-
 	}
 
 	public void runJetty(String user, String passwd, String methodName, String[] args){
