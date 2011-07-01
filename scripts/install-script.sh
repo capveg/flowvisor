@@ -118,7 +118,7 @@ LIBS="\
     asm-3.0.jar \
     cglib-2.2.jar \
     commons-codec-1.4.jar \
-    gson1.7.1.jar \
+    gson-1.7.1.jar \
     jetty/jetty-continuation-7.0.2.v20100331.jar \
     jetty/jetty-http-7.0.2.v20100331.jar \
     jetty/jetty-io-7.0.2.v20100331.jar \
