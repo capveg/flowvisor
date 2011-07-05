@@ -119,13 +119,13 @@ LIBS="\
     cglib-2.2.jar \
     commons-codec-1.4.jar \
     gson-1.7.1.jar \
-    jetty/jetty-continuation-7.0.2.v20100331.jar \
-    jetty/jetty-http-7.0.2.v20100331.jar \
-    jetty/jetty-io-7.0.2.v20100331.jar \
-    jetty/jetty-security-7.0.2.v20100331.jar \
-    jetty/jetty-server-7.0.2.v20100331.jar \
-    jetty/jetty-util-7.0.2.v20100331.jar \
-    jetty/servlet-api-2.5.jar \
+    jetty-continuation-7.0.2.v20100331.jar \
+    jetty-http-7.0.2.v20100331.jar \
+    jetty-io-7.0.2.v20100331.jar \
+    jetty-security-7.0.2.v20100331.jar \
+    jetty-server-7.0.2.v20100331.jar \
+    jetty-util-7.0.2.v20100331.jar \
+    servlet-api-2.5.jar \
     "
 
 DOCS="\
