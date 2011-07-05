@@ -34,13 +34,13 @@ $jars/asm-3.0.jar:\
 $jars/cglib-2.2.jar:\
 $jars/commons-codec-1.4.jar:\
 $jars/gson-1.7.1.jar:\
-$jars/jetty/jetty-continuation-7.0.2.v20100331.jar:\
-$jars/jetty/jetty-http-7.0.2.v20100331.jar:\
-$jars/jetty/jetty-io-7.0.2.v20100331.jar:\
-$jars/jetty/jetty-security-7.0.2.v20100331.jar:\
-$jars/jetty/jetty-server-7.0.2.v20100331.jar:\
-$jars/jetty/jetty-util-7.0.2.v20100331.jar:\
-$jars/jetty/servlet-api-2.5.jar:\
+$jars/jetty-continuation-7.0.2.v20100331.jar:\
+$jars/jetty-http-7.0.2.v20100331.jar:\
+$jars/jetty-io-7.0.2.v20100331.jar:\
+$jars/jetty-security-7.0.2.v20100331.jar:\
+$jars/jetty-server-7.0.2.v20100331.jar:\
+$jars/jetty-util-7.0.2.v20100331.jar:\
+$jars/servlet-api-2.5.jar:\
 $install_dir/flowvisor.jar
 
 # ssl options for the jvm
