@@ -154,7 +154,7 @@ public class FVCtl {
 			for (int argNum = 0; argNum < args.length; argNum++){
 				argTypes[argNum] = String.class;
 			}
-			Method serviceMethod = FVUserAPIJSON.class.getDeclaredMethod(methodName, argTypes);
+			Method serviceMethod = FVUserAPIJSON.class.getMethod(methodName, argTypes);
 			System.out.println("executing request");
 			Object stats  = serviceMethod.invoke(apiService, (Object[])args);
 			System.out.println("Reponse: " + stats);
