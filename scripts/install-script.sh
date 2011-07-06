@@ -161,6 +161,7 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=755 $sbin_SCRIPTS $r
 echo "Installing SYSV startup script (not enabled by default)"
 cp fv-startup.sh fv-startup
 sed -i -e "s/FVUSER/$fvuser/" fv-startup
+sed -i -e "s,FVCONFIG,$prefix/etc/flowvisor/config.xml," fv-startup
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 fv-startup  $root/etc/init.d/flowvisor
 
 

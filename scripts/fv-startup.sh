@@ -35,7 +35,7 @@
 ### END INIT INFO
 
 FV_USER=FVUSER
-FV_CONFIG=/usr/local/etc/flowvisor/config.xml
+FV_CONFIG=FVCONFIG
 
 ## abend 
 # 
