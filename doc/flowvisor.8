@@ -58,11 +58,16 @@ JVM optimizations, like fancy garbage collectors.
 .TP
 FV_DEBUG_PORT
 
-Turns on remote debugging support for the JVM and sets the
-JVM to listen on port $FV_DEBUG_PORT, e.g., for `jdb -attach
-fvserver.foo.com:$FV_DEBUG_PORT`.  \fINOTE\fR: there is no security in
-the JVM debugging protocol, so by enabling this option you potentially
-open your running FlowVisor to remote control/manipulation.  See
+Turns on remote debugging support for the JVM and sets the JVM to
+listen on port $FV_DEBUG_PORT.  This is useful for attaching a
+remote debugger, e.g., `jdb -attach fvserver.foo.com:$FV_DEBUG_PORT`.
+\fINOTE\fR: there is no security in the JVM debugging protocol, so
+by enabling this option you potentially open your running FlowVisor
+to remote control/manipulation.  FV_DEBUG_PORT is specified as
+\fI[local_address:]port\fR, where \fIlocal_address\fR defaults to "all
+interfaces", so if you are interested in binding to a specific
+interface, e.g., the loopback interface on port 12345, can set
+FV_DEBUG_PORT=localhost:12345 .  See
 \fIhttp://download.oracle.com/javase/6/docs/technotes/guides/jpda/conninv.html#Invocation\fR
 for more information.
 
