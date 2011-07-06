@@ -144,12 +144,18 @@ done
 
 echo Creating directories
 
-for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 share/doc/flowvisor; do 
+for d in bin sbin libexec/flowvisor etc share/man/man1 share/man/man8 share/doc/flowvisor ; do 
     echo Creating $prefix/$d
     $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$prefix/$d
 done
-    echo Creating /etc/init.d
-    $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root/etc/init.d
+
+for d in /etc/init.d /var/log/flowvisor ; do
+    if [ ! -d $root$d ] ; then
+        echo Creating $d
+        $install $verbose --owner=$binuser --group=$bingroup --mode=755 -d $root$d
+    fi
+done
+
 
 echo "Creating $prefix/etc/flowvisor (owned by user=$fvuser  group=$fvgroup)"
 $install $verbose --owner=$fvuser --group=$fvgroup --mode=2755 -d $root$prefix/etc/flowvisor
@@ -161,7 +167,7 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=755 $sbin_SCRIPTS $r
 echo "Installing SYSV startup script (not enabled by default)"
 cp fv-startup.sh fv-startup
 sed -i -e "s/FVUSER/$fvuser/" fv-startup
-sed -i -e "s,FVCONFIG,$prefix/etc/flowvisor/config.xml," fv-startup
+sed -i -e "s,PREFIX,$prefix," fv-startup
 $install $verbose --owner=$binuser --group=$bingroup --mode=755 fv-startup  $root/etc/init.d/flowvisor
 
 
@@ -199,5 +205,5 @@ $install $verbose --owner=$binuser --group=$bingroup --mode=644 $DOCS $root$pref
 
 echo Generating FlowVisor Cert file
 FV_FAKE_ROOT=$root $root$prefix/sbin/fvconfig generateCert
-
-echo NEXT: need to generate a config with \`fvconfig generate $root$prefix/etc/flowvisor/config.xml\`
+echo Generating a default config FlowVisor config
+FV_FAKE_ROOT=$root $root$prefix/sbin/fvconfig generate $root$prefix/etc/flowvisor/config.xml

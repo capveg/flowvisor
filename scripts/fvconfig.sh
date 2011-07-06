@@ -71,7 +71,7 @@ case "X$cmd" in
         usage
     ;;
     *)
-        echo "Unknown command '$1' : $@" >&2
+        echo "Unknown command '$cmd' : $@" >&2
         usage
     ;;
 esac

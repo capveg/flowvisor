@@ -35,7 +35,7 @@
 ### END INIT INFO
 
 FV_USER=FVUSER
-FV_CONFIG=FVCONFIG
+FV_CONFIG=PREFIX/etc/flowvisor/config.xml
 
 ## abend 
 # 
@@ -50,8 +50,12 @@ abend ()
 
 case "$1" in
 start)
+  if [ ! -f $FV_CONFIG ] ; then
+      echo FlowVisor Config file not found -- refusing to start >&2
+      echo File \"$FV_CONFIG\" not found >&2
+  fi
 
-  sudo -u $FV_USER flowvisor $FV_CONFIG >> /var/log/flowvisor/flowvisor-stderr.log 2>&1 &
+  sudo -u $FV_USER PREFIX/sbin/flowvisor $FV_CONFIG >> /var/log/flowvisor/flowvisor-stderr.log 2>&1 &
   ;;
 
 stop)
