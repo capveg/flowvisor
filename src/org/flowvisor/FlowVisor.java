@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.xmlrpc.webserver.WebServer;
 import org.flowvisor.api.APIServer;
+import org.flowvisor.api.JettyServer;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
 import org.flowvisor.events.FVEventHandler;
@@ -184,7 +185,9 @@ public class FlowVisor {
 		while (true) {
 			FlowVisor fv = new FlowVisor();
 			fv.parseArgs(args);
+
 			try {
+				JettyServer.spawnJettyServer();
 				fv.run();
 			} catch (Throwable e) {
 				FVLog.log(LogLevel.CRIT, null, "MAIN THREAD DIED!!!");

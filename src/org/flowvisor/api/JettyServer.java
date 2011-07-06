@@ -29,25 +29,18 @@ import org.flowvisor.log.LogLevel;
 
 public class JettyServer implements Runnable{
 
-	public static final int default_jetty_port = 8081;
+	public static final int default_jetty_port = -1;
 
 	public static String REALM_NAME = "JETTYREALM";
 	private Server jettyServer;
 
 	protected BasicJSONRPCService service = new FVUserAPIJSONImpl();
 
-	public JettyServer(){
-		init();
+	public JettyServer(int port){
+		init(port);
 	}
 
-	private void init(){
-		int port;
-
-		try {
-			port = FVConfig.getInt(FVConfig.API_JETTY_WEBSERVER_PORT);
-		} catch (ConfigError e) {
-			port = default_jetty_port; // not explicitly configured
-		}
+	private void init(int port){
 
 		System.setProperty("org.eclipse.jetty.util.log.class", JettyLog.class.getCanonicalName());
 
@@ -156,4 +149,22 @@ public class JettyServer implements Runnable{
 
 		return security;
 	}
+
+	public static void spawnJettyServer(){
+		int port;
+		try {
+			port = FVConfig.getInt(FVConfig.API_JETTY_WEBSERVER_PORT);
+		} catch (ConfigError e) {
+			port = default_jetty_port; // not explicitly configured
+		}
+
+		if (port == -1) {
+			FVLog.log(LogLevel.INFO, null, "JSON service disabled in config (" + FVConfig.API_JETTY_WEBSERVER_PORT + "== -1)");
+			return;
+		}
+
+		Thread jettyThread = new Thread(new JettyServer(port));
+		jettyThread.start();
+	}
+
 }

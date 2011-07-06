@@ -31,10 +31,6 @@ public class APIServer {
 		return default_port;
 	}
 
-	public static void spawnJettyServer(){
-		Thread jettyThread = new Thread(new JettyServer());
-		jettyThread.start();
-	}
 
 
 	/**
@@ -47,13 +43,17 @@ public class APIServer {
 	 */
 	public static WebServer spawn() throws XmlRpcException, IOException {
 
-		spawnJettyServer();
 		int port;
 
 		try {
 			port = FVConfig.getInt(FVConfig.API_WEBSERVER_PORT);
 		} catch (ConfigError e) {
 			port = default_port; // not explicitly configured
+		}
+
+		if (port == -1) {
+			FVLog.log(LogLevel.INFO, null, "XMLRPC service disabled in config (" + FVConfig.API_WEBSERVER_PORT + "== -1)");
+			return null;
 		}
 
 		WebServer webServer = new SSLWebServer(port);

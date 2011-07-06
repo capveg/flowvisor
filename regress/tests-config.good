@@ -9,7 +9,7 @@
 !flowspace::FLOWMAP : 7 FlowEntry[dpid=[all_dpids],ruleMatch=[OFMatch[in_port=1,dl_src=00:01:00:00:00:01]],actionsList=[Slice:bob=4],id=[7],priority=[32000],]
 !flowspace::FLOWMAP : 8 FlowEntry[dpid=[all_dpids],ruleMatch=[OFMatch[in_port=3,dl_src=00:00:00:00:00:01]],actionsList=[Slice:bob=4],id=[8],priority=[32000],]
 !flowspace::FLOWMAP : 9 FlowEntry[dpid=[all_dpids],ruleMatch=[OFMatch[in_port=3,dl_src=00:01:00:00:00:01]],actionsList=[Slice:bob=4],id=[9],priority=[32000],]
-!flowvisor!api_jetty_webserver_port::INT : 8081
+!flowvisor!api_jetty_webserver_port::INT : -1
 !flowvisor!api_webserver_port::INT : 8080
 !flowvisor!checkpointing::BOOL : true
 !flowvisor!listen_port::INT : 6633
