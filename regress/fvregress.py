@@ -15,6 +15,7 @@ import string
 import subprocess
 import traceback
 import pdb
+import re
 from struct import *
 
 class FvExcept(Exception):
@@ -67,7 +68,13 @@ def a2b(str):
     """Translate almost human readible form with whitespace to a binary form"""
     return binascii.unhexlify(str.translate(string.maketrans('',''),string.whitespace))
 
-def findInPath(binary):
+def findInPathorEnv(binary):
+    """Lookup program 'binary' in our environment first (as $BINARY) and then 
+        in our path and return the full path to it"""
+    #pdb.set_trace()
+    envname = re.sub('\.sh','',binary).upper()    # export FLOWVISOR=/my/path/to/flowvisor
+    if envname in os.environ:
+        return os.environ[envname]
     for dir in ['', '..', "../scripts"] + os.environ['PATH'].split(':'):
         if dir == '':
             sep = ''
@@ -306,7 +313,7 @@ class FvRegress:
         fc.start()
     def spawnFlowVisor(self,configFile="test-base.xml",port=OFPORT,fv_cmd="flowvisor.sh",fv_args=["-d","DEBUG", "-l"]):
         """start the flowvisor"""
-        cmd = findInPath(fv_cmd)
+        cmd = findInPathorEnv(fv_cmd)
         if cmd:
             print "    Using flowvisor from : " + cmd
         else:
