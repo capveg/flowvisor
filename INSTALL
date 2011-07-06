@@ -36,3 +36,23 @@ RUN:
 
     To configure running flowvisor, use ./scripts/fvctl.sh
         `man 1 fvctl` or `man ./doc/fvctl.1` for details
+
+PROBLEMS:
+
+If you see this compile error, then you need to update your JVM:
+
+compile:
+    [javac] /home/capveg/git/flowvisor/build.xml:34: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 152 source files to /home/capveg/git/flowvisor/build
+    [javac] /home/capveg/git/flowvisor/src/org/json/JSONParam.java:20: type parameters of <T>T cannot be determined; no unique maximal instance exists for type variable T with upper bounds T,java.lang.Object
+    [javac]         return gson.fromJson(valueAsJson, t);
+    [javac]                             ^
+    [javac] /home/capveg/git/flowvisor/src/org/json/JSONResult.java:20: type parameters of <T>T cannot be determined; no unique maximal instance exists for type variable T with upper bounds T,java.lang.Object
+    [javac]         return gson.fromJson(valueAsJson, type);
+    [javac]                             ^
+    [javac] 2 errors
+
+NOTES:
+    http://stackoverflow.com/questions/314572/bug-in-eclipse-compiler-or-in-javac
+    http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954
+    Had this problem with 1.6.0_24 but it was fixed with 1.6.0_26
