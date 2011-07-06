@@ -6,8 +6,6 @@ FlowVisor 0.8.0 : July 8 2011
     * added better support for remote debugging and JVM tweaks
     * fixed IPv6 dual-stack local port binding bug
     * changed superuser from 'root' to 'fvadmin'
-    * added (beta) fvcli client: more like IOS
-    * added (beta) support for JSON-replacement of XMLRPC
     * lots of bugs fixed and sanity checks implemented
 
 FlowVisor 0.7.2 : Mar 17 2011
