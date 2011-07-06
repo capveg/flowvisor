@@ -16,5 +16,18 @@ else
     exit 1
 fi
 
+default_jvm_args="-server -Xms100M -Xmx1000M -XX:OnError=flowvisor-crash-logger"
+
+if [ -z $FV_JVM_ARGS ]; then
+    export FV_JVM_ARGS="$default_jvm_args"
+fi
+
+if [ ! -z $FV_DEBUG_PORT ] ; then
+# Checkout http://java.dzone.com/articles/how-debug-remote-java-applicat for 
+# remote debugging details in java
+    FV_JVM_ARGS="$FV_JVM_ARGS -Xdebug -Xrunjdwp:transport=dt_socket,suspend=n,address=$FV_DEBUG_PORT,server=y"
+fi
+
 echo Starting FlowVisor >&2 
-exec java -server -Xms100M -Xmx1000M $fv_defines $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 
+echo Running with FV_JVM_ARGS=$FV_JVM_ARGS >&2
+exec java $FV_JVM_ARGS $fv_defines $sslopts -cp $classpath org.flowvisor.FlowVisor "$@" 

@@ -46,6 +46,27 @@ Logs to stderr instead of to syslog()
 Overrides listenning port from config.xml and sets it to \fIport\fR.  Does not modify config.xml.
 Mostly used for manual debugging.
 
+.SH ENVIRONMENT
+
+.TP 
+FV_JVM_ARGS
+
+The override the default arguments to the JVM with those in $FV_JVM_ARGS.
+May be useful for increasing memory efficiency or playing with special
+JVM optimizations, like fancy garbage collectors.
+
+.TP
+FV_DEBUG_PORT
+
+Turns on remote debugging support for the JVM and sets the
+JVM to listen on port $FV_DEBUG_PORT, e.g., for `jdb -attach
+fvserver.foo.com:$FV_DEBUG_PORT`.  \fINOTE\fR: there is no security in
+the JVM debugging protocol, so by enabling this option you potentially
+open your running FlowVisor to remote control/manipulation.  See
+\fIhttp://download.oracle.com/javase/6/docs/technotes/guides/jpda/conninv.html#Invocation\fR
+for more information.
+
+
 
 .SH "SEE ALSO"
 
