@@ -1,11 +1,25 @@
+FlowVisor 0.8.0 : July 8 2011
+    * fixed memleaks that caused instability
+    * fixed dynamic ports and topology discovery issues
+    * fixed bugs in Vendor Stats and sendlen handling
+    * updated developer documentation
+    * added better support for remote debugging and JVM tweaks
+    * fixed IPv6 dual-stack local port binding bug
+    * changed superuser from 'root' to 'fvadmin'
+    * added (beta) fvcli client: more like IOS
+    * added (beta) support for JSON-replacement of XMLRPC
+    * lots of bugs fixed and sanity checks implemented
+
 FlowVisor 0.7.2 : Mar 17 2011
     * added changeSlice fvctl/API command
     * fixed big bug in drop rules for disconnected controllers
     * fixed Null Pointer Exception race condition; stops crashing
     * added MRTG formatting scripts (thanks Chris Tengi!)
+
 FlowVisor 0.7.1 : Feb 22 2011
     * diabled flow tracking by default
     * fixed bug in getSwitchFlowDB
+
 FlowVisor 0.7 : 
     * fixed big I/O bug that caused switch flapping
     * added msg statistics, see `fvctl get{Slice,Switch}stats`
@@ -16,6 +30,7 @@ FlowVisor 0.7 :
     * lots of small bugs fixed
     * password prompt no longer echos plaintext
     * better error handling in create slice and change flowspace
+
 FlowVisor 0.6 - total rewrite (in Java!)
     * Single, unified flowspace config, not divided by slice
     * lldp is now rewritten with a trailer, not by rewritting the dst mac
