@@ -242,6 +242,13 @@ The following commands are used for debugging the XMLRPC server
 .TP
 \fBping\fR \fImsg\fR
     Simply echo's \fImsg\fR back, verifying that the XMLRPC server is up, functioning, and the authentication is working.
+    Also includes the version of the current running flowvisor (only to authenticated users), for example:
+    
+    % fvctl ping "Hello"
+    Enter fvadmin's passwd: 
+    Got reply:
+    PONG(fvadmin): FV version=flowvisor-0.7.2::Hello
+
 
 
 .SH "FLOW SYNTAX"
