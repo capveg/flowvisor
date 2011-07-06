@@ -38,8 +38,11 @@ public class FVLog {
 			doInit();
 		if (level.ordinal() <= threshold.ordinal() && (msgs.length > 0)) {
 			StringBuilder stringBuilder = new StringBuilder(msgs[0].toString());
-			for (int i = 1; i < msgs.length; i++)
-				stringBuilder.append(msgs[i].toString());
+			for (int i = 1; i < msgs.length; i++){
+				if (msgs[i] != null)
+					stringBuilder.append(msgs[i].toString());
+			}
+
 			logger.log(level, System.currentTimeMillis(), source,
 					stringBuilder.toString());
 		}

@@ -23,6 +23,9 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.log.FVLog;
+import org.flowvisor.log.JettyLog;
+import org.flowvisor.log.LogLevel;
 
 public class JettyServer implements Runnable{
 
@@ -46,6 +49,11 @@ public class JettyServer implements Runnable{
 			port = default_jetty_port; // not explicitly configured
 		}
 
+		System.setProperty("org.eclipse.jetty.util.log.class", JettyLog.class.getCanonicalName());
+
+		FVLog.log(LogLevel.INFO, null,
+				"initializing FlowVisor UserAPI JSONRPC SSL WebServer on port "
+						+ port);
 		jettyServer = new Server(port);
 
 		SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
