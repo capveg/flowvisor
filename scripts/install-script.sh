@@ -196,4 +196,7 @@ echo Installing documentation
 cd $owd
 $install $verbose --owner=$binuser --group=$bingroup --mode=644 $DOCS $root$prefix/share/doc/flowvisor
 
+echo Generating FlowVisor Cert file
+$root$prefix/sbin/fvconfig generateCert
+
 echo NEXT: need to generate a config with \`fvconfig generate $root$prefix/etc/flowvisor/config.xml\`
