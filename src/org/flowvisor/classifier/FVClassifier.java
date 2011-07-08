@@ -19,6 +19,7 @@ import org.flowvisor.events.FVEvent;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.events.FVEventLoop;
 import org.flowvisor.events.FVIOEvent;
+import org.flowvisor.events.FVRequestTimeoutEvent;
 import org.flowvisor.events.OFKeepAlive;
 import org.flowvisor.events.TearDownEvent;
 import org.flowvisor.exceptions.BufferFull;
@@ -53,12 +54,12 @@ import org.openflow.protocol.OFError.OFHelloFailedCode;
 
 /**
  * Map OF messages from the switch to the appropriate slice
- * 
+ *
  * Also handles all of the switch-specific but slice-general state and
  * rewriting.
- * 
+ *
  * @author capveg
- * 
+ *
  */
 
 public class FVClassifier implements FVEventHandler, FVSendMsg {
@@ -205,7 +206,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * on init, send HELLO, delete all flow entries, and send features request
-	 * 
+	 *
 	 * @throws IOException
 	 */
 
@@ -224,6 +225,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 		// request the switch's features
 		sendMsg(new OFFeaturesRequest(), this);
 		msgStream.flush();
+
+		// Schedule an event to timeout on the features request
+		FVRequestTimeoutEvent requestTimeoutEvent = new FVRequestTimeoutEvent(this);
+		requestTimeoutEvent.setExpireTime(System.currentTimeMillis() + FVRequestTimeoutEvent.WAIT_TIME);
+		loop.addTimer(requestTimeoutEvent);
+
 		int ops = SelectionKey.OP_READ;
 		if (msgStream.needsFlush())
 			ops |= SelectionKey.OP_WRITE;
@@ -254,7 +261,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * Parse the flood_perms out of the config
-	 * 
+	 *
 	 * Check "switches.$dpid.flood_perms" if we know $dpid, else check
 	 * "switches.default.flood_perms" also add it to the watch list
 	 */
@@ -311,8 +318,18 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 			updateConfig((ConfigUpdateEvent) e);
 		else if (e instanceof TearDownEvent)
 			this.tearDown();
+		else if (e instanceof FVRequestTimeoutEvent)
+			handleRequestTimeout();
 		else
 			throw new UnhandledEvent(e);
+	}
+
+	private void handleRequestTimeout(){
+		if (switchName.startsWith("unidentified")){
+			// Haven't got reply yet, tear down socket
+			tearDown();
+		}
+
 	}
 
 	private void handleKeepAlive(FVEvent e) {
@@ -327,7 +344,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Something in the config has changed; figure out what and re-cache it
-	 * 
+	 *
 	 * @param e
 	 */
 	private void updateConfig(ConfigUpdateEvent e) {
@@ -446,7 +463,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	/**
 	 * Main function Pass this message on to the appropriate Slicer as defined
 	 * by XID, FlowSpace, config, etc.
-	 * 
+	 *
 	 * @param m
 	 */
 	private void classifyOFMessage(OFMessage msg) {
@@ -456,9 +473,9 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * State machine for switches before we know which switch it is
-	 * 
+	 *
 	 * Wait for FEATURES_REPLY; ignore everything else
-	 * 
+	 *
 	 * @param m
 	 *            incoming message
 	 */
@@ -514,12 +531,12 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 	 * Figure out which slices have access to the switch and spawn a Slicer
 	 * EventHandler for each of them. Also, close the connection to any slice
 	 * that is no longer listed
-	 * 
+	 *
 	 * Also make a connection for the topology discovery daemon here if
 	 * configured
-	 * 
+	 *
 	 * Assumes The switch is already been identified;
-	 * 
+	 *
 	 */
 	private void connectToControllers() {
 		Set<String> newSlices;
@@ -581,7 +598,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Called by FVSlicer to tell us to forget about them
-	 * 
+	 *
 	 * @param sliceName
 	 */
 	public void tearDownSlice(String sliceName) {
@@ -611,7 +628,7 @@ public class FVClassifier implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Send a message to the switch connected to this classifier
-	 * 
+	 *
 	 * @param msg
 	 *            OFMessage
 	 */
