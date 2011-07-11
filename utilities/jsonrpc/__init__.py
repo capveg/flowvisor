@@ -19,7 +19,7 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-from jsonrpc.proxy import ServiceProxy, JSONRPCException
+from jsonrpc.proxy import ServiceProxy, JSONRPCException, JSONParam
 from jsonrpc.serviceHandler import ServiceMethod, ServiceHandler, ServiceMethodNotFound, ServiceException
 from jsonrpc.cgiwrapper import handleCGI
 from jsonrpc.modpywrapper import handler

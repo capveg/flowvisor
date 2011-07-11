@@ -87,10 +87,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 	}
 
 	public FlowEntry() {
-		// set nothing; java bean
 	}
 
-	synchronized static int getUniqueId() {
+	public synchronized static int getUniqueId() {
 		// find a unique entry if this is the first call or wrapped
 		if (FlowEntry.UNIQUE_FLOW_ID < 0) {
 			FlowEntry.UNIQUE_FLOW_ID = 0;

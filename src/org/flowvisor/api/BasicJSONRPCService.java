@@ -16,21 +16,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.flowvisor.exceptions.RPCException;
+import org.flowvisor.flows.FlowEntry;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.json.JSONDeserializers;
 import org.json.JSONParam;
 import org.json.JSONRequest;
 import org.json.JSONResponse;
 import org.json.JSONResult;
+import org.json.JSONSerializers;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
 public class BasicJSONRPCService {
 
@@ -38,8 +37,12 @@ public class BasicJSONRPCService {
 	private Map<String, Method> methods = new HashMap<String, Method>();
 
 	private static final Gson gson =
-		new GsonBuilder().registerTypeAdapter(OFAction.class, new OFActionSerializer())
-		.registerTypeAdapter(OFMatch.class, new OFMatchSerializer()).create();
+		new GsonBuilder().registerTypeAdapter(OFAction.class, new JSONSerializers.OFActionSerializer())
+		.registerTypeAdapter(OFAction.class, new JSONDeserializers.OFActionDeserializer())
+		.registerTypeAdapter(OFMatch.class, new JSONSerializers.OFActionSerializer())
+		.registerTypeAdapter(OFMatch.class, new JSONDeserializers.OFMatchDeserializer())
+		.registerTypeAdapter(FlowEntry.class, new JSONSerializers.FlowEntrySerializer())
+		.registerTypeAdapter(FlowEntry.class, new JSONDeserializers.FlowEntryDeserializer()).create();
 
 	/**
 	 * Gets the method.
@@ -79,11 +82,11 @@ public class BasicJSONRPCService {
 
 				args = parseArguments(method, jreq);
 
-				FVLog.log(LogLevel.INFO, null, "---------invoke:" + jreq.toString());
+				FVLog.log(LogLevel.DEBUG, null, "---------invoke:" + jreq.toString());
 				Object retObj = method.invoke(this, args);
 
 				JSONResponse jResp = new JSONResponse(new JSONResult(gson.toJson(retObj, method.getGenericReturnType())), id);
-				FVLog.log(LogLevel.INFO, null, "---------invoke ret:" + jResp.toString());
+				FVLog.log(LogLevel.DEBUG, null, "---------invoke ret:" + jResp.toString());
 				writeJSONObject(resp, jResp);
 			} catch (IOException e) {
 				FVLog.log(LogLevel.WARN, null, e.getMessage(), e);
@@ -189,15 +192,4 @@ public class BasicJSONRPCService {
 		}
 	}
 
-	private static class OFActionSerializer implements JsonSerializer<OFAction> {
-		  public JsonElement serialize(OFAction src, Type typeOfSrc, JsonSerializationContext context) {
-		    return context.serialize(src, src.getClass());
-		  }
-		}
-
-	private static class OFMatchSerializer implements JsonSerializer<OFMatch>{
-		public JsonElement serialize(OFMatch src, Type typeOfSrc, JsonSerializationContext context){
-			return new JsonPrimitive(src.toString());
-		}
-	}
 }

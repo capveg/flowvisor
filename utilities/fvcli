@@ -12,7 +12,7 @@ import os
 from optparse import OptionParser
 import socket
 import exceptions
-from jsonrpc import ServiceProxy
+from jsonrpc import ServiceProxy, JSONParam
 from math import pow
 
 class SubinterpreterExit(Exception):
@@ -53,11 +53,7 @@ class FlowSpaceEntry(object):
       self.parse_fsdict(fsdict)
 
   def parse_fsdict(self, fsdict):
-    dpid = fsdict['dpid']
-    if dpid == - pow(2, 63):
-      self.dpid = "All"
-    else:
-      self.dpid = dpid
+    self.dpid = fsdict['dpid']
     self.priority = fsdict['priority']
 
     self.id = fsdict['id']
@@ -106,6 +102,17 @@ class FlowSpaceEntry(object):
           ",".join(str(x) for x in self.actions))
 
 
+class FlowSpaceChangeRequest(object):
+  def __init__ (self, flowentry, changetype):
+    self.entry = flowentry
+    self.changetype = changetype
+
+  def getEntry(self):
+    return self.entry
+
+  def getChangeType(self):
+    return self.changetype
+
 class CmdRegex(object):
   def __init__ (self, regex):
     self.pattern = regex
@@ -143,6 +150,31 @@ class Commands(object):
         if regex.match(element):
           return cmd
 
+class JSONParamEncoder(json.JSONEncoder):
+    def default(self, obj):
+      if isinstance(obj, JSONParam):
+        return obj.getValueAsJson()
+      elif isinstance(obj, FlowSpaceChangeRequest):
+        return {'entry': obj.getEntry(), 'changeType': obj.getChangeType()}
+      elif isinstance(obj, FlowSpaceEntry):
+        ruleMatchStr = "OFMatch["
+        for rule in obj.rules:
+          ruleMatchStr = "%s%s=%s," % (ruleMatchStr, rule.key, rule.val)
+        ruleMatchStr = ruleMatchStr[0:len(ruleMatchStr)-1] + "]"
+        actionsList = []
+        for action in obj.actions:
+          actionDict = {}
+          actionsList.append(actionDict)
+          if action.type == 'Slice':
+            actionDict['vendor'] = (1 - pow(2, 31))
+          actionDict['type'] = "VENDOR"
+          actionDict['length'] = 8
+          actionDict['sliceName'] = action.key
+          actionDict['slicePerms'] = action.val
+        return {'id':obj.id, 'ruleMatch':ruleMatchStr, 'actionsList':actionsList, 'dpid':obj.dpid, 'priority':obj.priority}
+      else:
+        return json.JSONEncoder.default(self, obj)
+
 class Connection(object):
   def __init__ (self, user, passwd, host, port, json_port):
     self.nocache = False
@@ -150,7 +182,7 @@ class Connection(object):
     self.host = host
     self.port = int(port)
     self.conn = xmlrpclib.ServerProxy("https://%s:%s@%s:%d/xmlrpc" % (user, passwd, host, self.port))
-    self.jsonconn = ServiceProxy("https://%s:%s@%s:%d" % (user, passwd, host, json_port))
+    self.jsonconn = ServiceProxy("https://%s:%s@%s:%d" % (user, passwd, host, json_port), JSONParamEncoder)
     self.infopath = os.path.expanduser("~/.fvcli/%s.info" % (self.host))
     if not os.path.exists(os.path.split(self.infopath)[0]):
       os.makedirs(os.path.split(self.infopath)[0])
@@ -257,9 +289,10 @@ class FlowspaceCtl(Cmd):
     self.commit_flowspace()
 
   def get_flowspace (self, live = True, deleted = True):
-    fs = self.conn.getFlowspace()
+    fs = self.conn.jsonconn.listFlowSpace()
+    fslist = json.loads(fs['valueAsJson'])
     pfs = []
-    for x in fs:
+    for x in fslist:
       e = FlowSpaceEntry(x, show_ids = True)
       pfs.append(e)
     return pfs
@@ -272,6 +305,15 @@ class FlowspaceCtl(Cmd):
       dpid = raw_input("DPID(s): ")
       priority = raw_input("Priority: ")
       match = raw_input("Match: ")
+      fe = FlowSpaceEntry()
+      fe.dpid = "all_dpids"
+      fe.priority = 32000
+      match = FlowSpaceRule("in_port", 0)
+      fe.rules = [match]
+      action = FlowSpaceAction("Slice", "alice", 4)
+      fe.actions = [action]
+      fsr = FlowSpaceChangeRequest(fe, "ADD")
+      print self.conn.jsonconn.changeFlowSpace([fsr])
     except KeyboardInterrupt:
       return
 

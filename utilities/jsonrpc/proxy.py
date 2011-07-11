@@ -61,29 +61,24 @@ class JSONParam(object):
     def getValueAsJson(self):
       return {'valueAsJson' : self.__valueAsJson}
 
-class JSONParamEncoder(json.JSONEncoder):
-    def default(self, obj):
-      if isinstance(obj, JSONParam):
-        return obj.getValueAsJson()
-      else:
-        return json.JSONEncoder.default(self, obj)
-
 class ServiceProxy(object):
-    def __init__(self, serviceURL, serviceName=None):
+    def __init__(self, serviceURL, paramEncoder, serviceName=None):
       self.__serviceURL = serviceURL
       self.__serviceName = serviceName
+      self.__paramEncoder = paramEncoder
 
     def __getattr__(self, name):
       if self.__serviceName != None:
         name = "%s.%s" % (self.__serviceName, name)
-      return ServiceProxy(self.__serviceURL, name)
+      return ServiceProxy(self.__serviceURL, self.__paramEncoder, name)
 
     def __call__(self, *args):
       # astruble: updated to spec 2.0
       jsonArgs = []
       for arg in args:
-        jsonArgs.append(JSONParam(json.dumps(arg)))
-      postdata = json.dumps({"method": self.__serviceName, 'params': jsonArgs, 'id':1, 'jsonrpc':'2.0'}, cls=JSONParamEncoder)
+        jsonArgs.append(JSONParam(json.dumps(arg, cls=self.__paramEncoder)))
+
+      postdata = json.dumps({"method": self.__serviceName, 'params': jsonArgs, 'id':1, 'jsonrpc':'2.0'}, cls=self.__paramEncoder)
 
       try:
         respdata = urllib.urlopen(self.__serviceURL, postdata).read()

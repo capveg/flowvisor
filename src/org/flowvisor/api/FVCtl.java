@@ -15,6 +15,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +38,10 @@ import org.flowvisor.config.FVConfig;
 import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.MapUnparsable;
 import org.flowvisor.flows.FlowDBEntry;
+import org.flowvisor.flows.FlowEntry;
+import org.flowvisor.flows.FlowSpaceUtil;
+import org.flowvisor.flows.SliceAction;
+import org.openflow.protocol.action.OFAction;
 
 
 /**
@@ -143,7 +148,8 @@ public class FVCtl {
 		client.setConfig(config);
 	}
 
-	public void runJetty(String user, String passwd, String methodName, String[] args){
+	@SuppressWarnings("unchecked")
+	public void runJetty(String user, String passwd, String methodName, Object[] args){
 		try {
 			this.installDumbTrust();
 			// Jetty Client
@@ -154,15 +160,80 @@ public class FVCtl {
 			for (int argNum = 0; argNum < args.length; argNum++){
 				argTypes[argNum] = String.class;
 			}
+
+			if (methodName.equals("changeFlowSpace") ||
+				methodName.equals("removeFlowSpace") ||
+				methodName.equals("addFlowSpace")){
+				args = convertFlowspaceArgs(methodName, args);
+				methodName = "changeFlowSpace";
+				argTypes = new Class[1];
+				argTypes[0] = List.class;
+				}
+
 			Method serviceMethod = FVUserAPIJSON.class.getMethod(methodName, argTypes);
 			System.out.println("executing request");
-			Object stats  = serviceMethod.invoke(apiService, (Object[])args);
-			System.out.println("Reponse: " + stats);
+			Object result  = serviceMethod.invoke(apiService, (Object[])args);
+			if(methodName.equals("listFlowSpace")){
+				handleFlowSpaceResults((List<FlowEntry>)result);
+				return;
+			}
+			System.out.println("Reponse: " + result);
 			System.out.println("----------------------------------------");
 
 		} catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+
+	private void handleFlowSpaceResults(List<FlowEntry> flows){
+		for(FlowEntry flow : flows){
+			System.out.println(flow.toString());
+		}
+	}
+
+	private Object[] convertFlowspaceArgs(String methodName, Object[] initArgs) throws NumberFormatException, MalformedFlowChange{
+		// Args need to be converted to a FlowEntry
+		Object[] args = new Object[1];
+		List<FlowSpaceChangeRequest> flowChanges = new ArrayList<FlowSpaceChangeRequest>();
+		args[0] = flowChanges;
+
+		if(methodName.equals("changeFlowSpace")){
+			//<id> <dpid> <priority> <match> <actions>"
+			String list[] = ((String)initArgs[4]).split(",");
+			List<OFAction> alist = new LinkedList<OFAction>();
+			for (int i = 0; i < list.length; i++)
+				alist.add(SliceAction.fromString(list[i]));
+			String match = (String)initArgs[3];
+			if (match.equals("") || match.equals("any") || match.equals("all"))
+				match = "OFMatch[]";
+			FlowEntry entry = new FlowEntry(FlowSpaceUtil.parseDPID((String)initArgs[1]),
+					FlowSpaceUtil.ofMatchFromString(match),
+					new Integer((String)initArgs[0]),
+					new Integer((String)initArgs[2]),
+					alist);
+			flowChanges.add(new FlowSpaceChangeRequest(entry, "CHANGE"));
+		}else if(methodName.equals("addFlowSpace")){
+			//<dpid> <priority> <match> <actions>"
+			String list[] = ((String)initArgs[3]).split(",");
+			List<OFAction> alist = new LinkedList<OFAction>();
+			for (int i = 0; i < list.length; i++)
+				alist.add(SliceAction.fromString(list[i]));
+			String match = (String)initArgs[2];
+			if (match.equals("") || match.equals("any") || match.equals("all"))
+				match = "OFMatch[]";
+			FlowEntry entry = new FlowEntry(FlowSpaceUtil.parseDPID((String)initArgs[0]),
+					FlowSpaceUtil.ofMatchFromString(match),
+					new Integer((String)initArgs[1]),
+					alist);
+			flowChanges.add(new FlowSpaceChangeRequest(entry, "ADD"));
+		}else{
+			// Remove Flowspace
+			FlowEntry flowEntry = new FlowEntry();
+			flowEntry.setId(new Integer((String)initArgs[0]));
+			flowChanges.add(new FlowSpaceChangeRequest(flowEntry, "REMOVE"));
+		}
+
+		return args;
 	}
 
 	private TrustManager[] getTrustAllManager(){
