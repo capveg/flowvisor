@@ -203,7 +203,7 @@ echo Installing documentation
 cd $owd
 $install $verbose --owner=$binuser --group=$bingroup --mode=644 $DOCS $root$prefix/share/doc/flowvisor
 
-echo Generating FlowVisor Cert file
-FV_FAKE_ROOT=$root $root$prefix/sbin/fvconfig generateCert
-echo Generating a default config FlowVisor config
-FV_FAKE_ROOT=$root $root$prefix/sbin/fvconfig generate $root$prefix/etc/flowvisor/config.xml
+if [ ! -f $root$prefix/etc/flowvisor/config.xml ] ; then 
+    echo Generating a default config FlowVisor config
+    FV_FAKE_ROOT=$root $root$prefix/sbin/fvconfig generate $root$prefix/etc/flowvisor/config.xml
+fi
