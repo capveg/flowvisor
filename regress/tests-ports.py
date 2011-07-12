@@ -326,7 +326,7 @@ try:
     user="fvadmin"
     passwd="0fw0rk"
     s = xmlrpclib.ServerProxy("https://" + user + ":" + passwd + "@localhost:" + str(rpcport) + "/xmlrpc")
-    change = { "operation" : "REMOVE", "id" : "1008"}
+    change = { "operation" : "REMOVE", "id" : "3"}
     print "Sleeping 1 sec to let change propagate"
     time.sleep(1)
     ### now remove access from Bob on port 3
@@ -372,7 +372,7 @@ try:
             TestEvent( "recv","switch","switch1", packet=bob_with_port2),
             ])
     #########################################
-    change = { "operation" : "REMOVE", "id" : "1003" }
+    change = { "operation" : "REMOVE", "id" : "5" }
     ### now remove access from all Alice's ports
     if not s.api.changeFlowSpace([change]) :
         raise "FAILED: FlowSpace Change failed!"

@@ -5,6 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.flowvisor.log.DevNullLogger;
+import org.flowvisor.log.FVLog;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.util.U16;
@@ -16,6 +18,7 @@ public class LinearFlowMapTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
+		FVLog.setDefaultLogger(new DevNullLogger());
 		this.flowmap = new LinearFlowMap();
 		OFMatch match = new OFMatch();
 		match.fromString("nw_src=128.8.0.0/16");
@@ -40,10 +43,10 @@ public class LinearFlowMapTest extends TestCase {
 	/**
 	 * this is a junit test of tests-vlan.py: this must pass before that can
 	 * pass
-	 * 
+	 *
 	 * Make sure that a higher priority FlowEntry with a specific vlan does not
 	 * eclipse a match all entry
-	 * 
+	 *
 	 */
 	public void testPacketLookupOnVlanEclipe() {
 		FlowMap flowMap = new LinearFlowMap();

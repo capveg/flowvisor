@@ -1,12 +1,19 @@
 package org.flowvisor.config;
 
-import org.flowvisor.flows.FlowEntry;
-import org.flowvisor.flows.SliceAction;
-import org.openflow.protocol.OFMatch;
-
 import junit.framework.TestCase;
 
+import org.flowvisor.flows.FlowEntry;
+import org.flowvisor.flows.SliceAction;
+import org.flowvisor.log.DevNullLogger;
+import org.flowvisor.log.FVLog;
+import org.openflow.protocol.OFMatch;
+
 public class BracketParseTest extends TestCase {
+
+	@Override
+	protected void setUp() {
+		FVLog.setDefaultLogger(new DevNullLogger());
+	}
 	public void testBracketParse() {
 		OFMatch match = new OFMatch();
 		match.setWildcards(OFMatch.OFPFW_ALL & (~OFMatch.OFPFW_IN_PORT));

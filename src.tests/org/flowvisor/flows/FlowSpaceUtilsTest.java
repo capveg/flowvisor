@@ -6,6 +6,8 @@ import junit.framework.TestCase;
 
 import org.flowvisor.config.DefaultConfig;
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.log.DevNullLogger;
+import org.flowvisor.log.FVLog;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPort;
 import org.openflow.util.U16;
@@ -14,12 +16,13 @@ public class FlowSpaceUtilsTest extends TestCase {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		FVLog.setDefaultLogger(new DevNullLogger());
 		// load default config
 		DefaultConfig.init("0fw0rk");
 	}
@@ -89,10 +92,10 @@ public class FlowSpaceUtilsTest extends TestCase {
 	/**
 	 * this is a junit test of tests-vlan.py: this must pass before that can
 	 * pass
-	 * 
+	 *
 	 * Make sure that a higher priority FlowEntry with a specific vlan does not
 	 * eclipse a match all entry
-	 * 
+	 *
 	 */
 	public void testVlanEclipe() {
 		FlowMap flowMap = new LinearFlowMap();
@@ -127,17 +130,17 @@ public class FlowSpaceUtilsTest extends TestCase {
 	}
 	/*
 	 * TODO: Need to fix!
-	 * 
+	 *
 	 * public void testDPID2Str() { long dpid = 0xffffffffffffffffl; String
 	 * good_str = "ff:ff:ff:ff:ff:ff:ff:ff"; String test_str =
 	 * FlowSpaceUtil.dpidToString(dpid); TestCase.assertEquals(good_str,
 	 * test_str); long test_dpid = FlowSpaceUtil.parseDPID(test_str);
 	 * TestCase.assertEquals(dpid, test_dpid); }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+	 *
+	 *
+	 *
+	 *
+	 *
 	 * public void testDPID2Str2() { long dpid = 0x9fffffffffffaf00l; String
 	 * good_str = "9f:ff:ff:ff:ff:ff:af:00"; String test_str =
 	 * FlowSpaceUtil.dpidToString(dpid); TestCase.assertEquals(good_str,
