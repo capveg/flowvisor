@@ -76,11 +76,30 @@ test -z "$fvuser" && read -p "FlowVisor User (needs to already exist) ($fvuser_d
 if [ "X$fvuser" = "X" ] ; then
     fvuser=$fvuser_default
 fi
+id $fvuser 2>/dev/null 1>/dev/null
+
+while [ "$?" -ne "0" ] ; do
+    read -p "FlowVisor User (needs to already exist, '$fvuser' does not exist) ($fvuser_default): " fvuser
+    if [ "X$fvuser" = "X" ] ; then
+    	fvuser=$fvuser_default
+    fi
+    id $fvuser 2>/dev/null 1>/dev/null
+done
 
 test -z "$fvgroup" && read -p "FlowVisor Group (needs to already exist) ($fvgroup_default): " fvgroup
 if [ "X$fvgroup" = "X" ] ; then
     fvgroup=$fvgroup_default
 fi
+id -g $fvgroup 2>/dev/null 1>/dev/null
+
+while [ "$?" -ne "0" ] ; do
+    read -p "FlowVisor Group (needs to already exist, '$fvgroup' does not exist) ($fvgroup_default): " fvgroup
+    if [ "X$fvgroup" = "X" ] ; then
+        fvgroup=$fvgroup_default
+    fi
+    id -g $fvgroup 2>/dev/null 1>/dev/null
+done
+
 
 if [ "X$binuser" = "X" ] ; then
     binuser=$binuser_default
