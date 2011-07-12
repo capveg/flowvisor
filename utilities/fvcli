@@ -467,7 +467,7 @@ class FVCtl(Cmd):
     if arglist[0] == "slice":
       if arglist[1].count('"') > 0:
         (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
-        if lastarg = "": 
+        if lastarg == "": 
           self.change_slice(slname)
           return
         if lastarg == "flowspace":
