@@ -17,7 +17,10 @@ public class JSONResult {
 	}
 
 	public <T>T getValue(Gson gson, Type type){
-		return gson.fromJson(valueAsJson, type);
+		// forcing <T> cast to work around
+		// broken 1.6.0._2{1,2,3,4} openjdk javac
+		// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954
+		return gson.<T>fromJson(valueAsJson, type);
 	}
 
 }
