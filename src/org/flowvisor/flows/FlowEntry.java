@@ -33,6 +33,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 	/**
 	 *
 	 */
+	enum DefragmentPolicy  { DefragAll, DefragEven, DefragOdd};
+
+
 	private static final long serialVersionUID = 1L;
 	public static final long ALL_DPIDS = Long.MIN_VALUE;
 	public static final String ALL_DPIDS_STR = "all_dpids";
@@ -43,6 +46,9 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 	long dpid;
 	int priority;
 	int id;
+	// swap the policy after each defrag for version-ing
+	static DefragmentPolicy CurrentDefragPolicy = DefragmentPolicy.DefragEven;
+
 
 	/**
 	 * IF switch is dpid and packet match's match, then perform action list
@@ -92,25 +98,92 @@ public class FlowEntry implements Comparable<FlowEntry>, Cloneable,
 
 	synchronized static int getUniqueId() {
 		// find a unique entry if this is the first call or wrapped
-		if (FlowEntry.UNIQUE_FLOW_ID < 0) {
-			FlowEntry.UNIQUE_FLOW_ID = 0;
-
-			try {
-				for (FlowEntry flowEntry : FVConfig.getFlowMap(
-						FVConfig.FLOWSPACE).getRules())
-					if (FlowEntry.UNIQUE_FLOW_ID <= flowEntry.getId())
-						FlowEntry.UNIQUE_FLOW_ID = flowEntry.getId() + 1;
-			} catch (ConfigError e) {
-				// no flowspace, nothing to conflict with!
-			}
+		if (FlowEntry.UNIQUE_FLOW_ID == -1) {
+			FlowEntry.UNIQUE_FLOW_ID = defragmentFlowIDS();
 			if (FlowEntry.UNIQUE_FLOW_ID < 0) {
-				String msg = "unable to find a free flow ID!";
-				FVLog.log(LogLevel.FATAL, null, msg);
-				throw new RuntimeException(msg);
+					FVLog.log(LogLevel.FATAL, null,
+							"STILL unable to find a free flow ID "+
+							"- FlowSpace > 2Billion?- dying");
+					throw new RuntimeException(
+							"failed to find free FlowEntry.iD "+
+							" even after defrag");
 			}
-
 		}
-		return FlowEntry.UNIQUE_FLOW_ID++;
+		if (CurrentDefragPolicy == DefragmentPolicy.DefragAll)
+			return FlowEntry.UNIQUE_FLOW_ID++;
+		else
+			return FlowEntry.UNIQUE_FLOW_ID +=2;
+	}
+
+	/**
+	 * This function will renumber the unique IDs associated with each flowEntry.
+	 *
+	 * The 'policy' denotes whether we should renumber using all possible IDs,
+	 * or only using the even numbers (0,2,4...) or only using odd numbers (1,3,5..)
+	 *
+	 * The idea is to use the LSB as a 1-bit "version" field for the IDs,
+	 * so that if we have a race condition between renumbering and a delete flow ID=x
+	 * operation, we want to make sure that flow ID=x does not accidentally delete
+	 * a different, newly renumbered flow
+	 *
+	 * When called without options, we make a decision based on existing policy
+	 *
+	 * @param policy
+	 * @return returns the highest assigned ID
+	 */
+
+	public static int defragmentFlowIDS() {
+		switch(CurrentDefragPolicy) {
+		case DefragAll:
+			// NOOP
+			break;
+		case DefragEven:
+			CurrentDefragPolicy = DefragmentPolicy.DefragOdd;
+			break;
+		case DefragOdd:
+			CurrentDefragPolicy = DefragmentPolicy.DefragEven;
+			break;
+		}
+		return defragmentFlowIDS(CurrentDefragPolicy);
+
+	}
+
+	public synchronized static int defragmentFlowIDS( DefragmentPolicy policy) {
+		int neoId;
+		int increment;
+
+		FVLog.log(LogLevel.INFO, null, "defragmenting flowentry IDs using policy " + CurrentDefragPolicy);
+
+		switch(policy) {
+			case DefragAll:
+				neoId = 0;
+				increment = 1;
+				break;
+			case DefragEven:
+				neoId = 0;
+				increment=2;
+				break;
+			case DefragOdd:
+				neoId = 1;
+				increment = 2;
+				break;
+			default:
+				throw new RuntimeException("unknown FlowID defrag policy: " + policy);
+		}
+
+		try {
+			synchronized(FVConfig.class) {  // stop everyone from accessing flowmap for a second
+				for (FlowEntry flowEntry : FVConfig.getFlowMap(
+						FVConfig.FLOWSPACE).getRules()) {
+					flowEntry.setId(neoId);
+					neoId += increment;
+				}
+			}
+		} catch (ConfigError e) {
+			// no flowspace, nothing to conflict with!
+			// needed for unittests
+		}
+		return neoId;
 	}
 
 	public long getDPID() {

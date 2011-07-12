@@ -50,6 +50,11 @@ public class FVLog {
 
 	private static void doInit() {
 		needsInit = false;
+		// hack around setup if we don't want any logging
+		if (FVLog.logger instanceof DevNullLogger) {
+			threshold = LogLevel.FATAL;
+			return;
+		}
 		boolean needConfigFlush = false;
 		try {
 			if (threshold == null)
