@@ -15,6 +15,14 @@ import exceptions
 from jsonrpc import ServiceProxy, JSONParam
 from math import pow
 
+def parse_quoted_slice_name (arglist):
+  cmd_str = " ".join(arglist)
+  last_quote = cmd_str.index('"', 1)
+  slname = cmd_str[1:last_quote]
+  last_arg = cmd_str[last_quote+1:].strip()
+
+  return (slname, last_arg)
+
 class SubinterpreterExit(Exception):
   def __init__ (self):
     return
@@ -458,20 +466,19 @@ class FVCtl(Cmd):
     arglist = arg.split()
     if arglist[0] == "slice":
       if arglist[1].count('"') > 0:
-        slname = arglist[1][1:-1]
-        if len(arglist) == 2:
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
+        if lastarg = "": 
           self.change_slice(slname)
           return
-        elif len(arglist) == 3:
-          if arglist[2] == "flowspace":
-            self.change_slice_flowspace(slname)
-            return
+        if lastarg == "flowspace":
+          self.change_slice_flowspace(slname)
+          return
 
   def do_delete (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
       if arglist[1].count('"') > 0:
-        slname = arglist[1][1:-1]
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
         self.delete_slice(slname)
 
   def do_reset (self, arg):
@@ -612,17 +619,14 @@ class FVCtl(Cmd):
         self.show_slice_list()
         return
       elif arglist[1].count('"') > 0:
-        cmd_str = " ".join(arglist[1:])
-        last_quote = cmd_str.index('"', 1)
-        slname = cmd_str[1:last_quote]
-        last_arg = cmd_str[last_quote+1:].strip()
-        if last_arg == "detail":
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
+        if lastarg == "detail":
           self.show_slice_info(slname)
           return
-        elif last_arg == "stats":
+        elif lastarg == "stats":
           self.show_slice_stats(slname)
           return
-        elif last_arg  == "flowspace":
+        elif lastarg  == "flowspace":
           self.show_slice_flowspace(slname)
           return
     print "Unknown command: show %s" % (" ".join(arglist))
