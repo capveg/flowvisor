@@ -3,6 +3,8 @@ package org.flowvisor.flows;
 import junit.framework.TestCase;
 
 import org.flowvisor.config.DefaultConfig;
+import org.flowvisor.log.DevNullLogger;
+import org.flowvisor.log.FVLog;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 import org.openflow.util.U16;
@@ -11,14 +13,16 @@ public class FlowEntryTest extends TestCase {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		FVLog.setDefaultLogger(new DevNullLogger());
 		DefaultConfig.init("blah"); // setup a default config
 	}
+
 
 	public void testFlowMatch() {
 		OFMatch allmatch = new OFMatch();
