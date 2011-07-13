@@ -18,7 +18,7 @@ EOF
 if [ -z $base ] ; then
     envs=`dirname $0`/../scripts/envs.sh
 else 
-    envs=$FV_FAKE_ROOT$base/etc/flowvisor/envs.sh
+    envs=$install_root$base/etc/flowvisor/envs.sh
 fi
 
 if [ -f $envs ] ; then
@@ -42,7 +42,7 @@ makeSSL() {
         fi
         echo Generating cert with common name == $cn
         dname="-dname cn=$cn"
-        keytool -genkey -keystore $FV_FAKE_ROOT$SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
+        keytool -genkey -keystore $SSL_KEYSTORE -storepass $SSL_KEYPASSWD -keypass $SSL_KEYPASSWD -keyalg RSA $dname
 }
 
 cmd=$1
