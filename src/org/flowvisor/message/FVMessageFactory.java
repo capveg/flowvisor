@@ -46,8 +46,8 @@ public class FVMessageFactory extends BasicFactory {
 
 	// not sure how to deal with this...
 	// HACK to convert OFMessage* to FVMessage*
-	@SuppressWarnings({ "rawtypes" })
-	static final Class convertMap[] = { FVHello.class, FVError.class,
+	@SuppressWarnings("unchecked")
+	static final Class convertMap[] = {FVHello.class, FVError.class,
 			FVEchoRequest.class, FVEchoReply.class, FVVendor.class,
 			FVFeaturesRequest.class, FVFeaturesReply.class,
 			FVGetConfigRequest.class, FVGetConfigReply.class,
@@ -57,7 +57,7 @@ public class FVMessageFactory extends BasicFactory {
 			FVStatisticsReply.class, FVBarrierRequest.class,
 			FVBarrierReply.class };
 
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	static final Class convertActionsMap[] = { FVActionOutput.class,
 			FVActionVirtualLanIdentifier.class,
 			FVActionVirtualLanPriorityCodePoint.class,
@@ -70,14 +70,14 @@ public class FVMessageFactory extends BasicFactory {
 			FVActionTransportLayerDestination.class, FVActionEnqueue.class,
 			FVActionVendor.class };
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	static final Class convertStatsRequestMap[] = {
 			FVDescriptionStatistics.class, FVFlowStatisticsRequest.class,
 			FVAggregateStatisticsRequest.class, FVTableStatistics.class,
 			FVPortStatisticsRequest.class, FVQueueStatisticsRequest.class,
 			FVVendorStatistics.class };
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	static final Class convertStatsReplyMap[] = {
 			FVDescriptionStatistics.class, FVFlowStatisticsReply.class,
 			FVAggregateStatisticsReply.class, FVTableStatistics.class,
