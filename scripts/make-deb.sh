@@ -14,6 +14,7 @@ if [ `id -u` != 0 ]; then
 fi
 
 version=$1
+ARCH=`uname -i`
 
 base=`pwd`
  rm -rf $base/pkgbuild/root
@@ -28,7 +29,7 @@ cd $base/pkgbuild/root/DEBIAN
  cat > control << EOF
 Package: flowvisor
 Version: $version
-Architecture: i386
+Architecture: $ARCH
 Maintainer: Rob Sherwood <rob.sherwood@stanford.edu>
 Section: misc
 Priority: optional
@@ -51,3 +52,7 @@ pkgname=$(grep "^Package:" ${ctlfile} | awk '{print $2}')
 arch=$(grep "^Architecture:" ${ctlfile} | awk '{print $2}')
 tgtfile="${pkgname}_${version}_${arch}.deb"
 dpkg -b root $tgtfile
+dir=unstable/binary-${ARCH}
+cp $tgtfile $base/scripts/DEB/$dir
+cd  $base/scripts/DEB
+make

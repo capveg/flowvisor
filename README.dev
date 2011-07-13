@@ -81,3 +81,24 @@ on the FVConfig.class object (because the methods and class are static).
 INLINE DOCUMENTATION:
 
 Most (all?) of the code is commented with javadoc.  See `make doc`.
+
+RELEASES:
+Just run:
+    ./scripts/make-release flowvisor-$version
+        - for the make install prompts, enter:
+            /usr/local  (default)
+            root
+            root
+            <empty>     (default)
+nothing you have done yet is public or permanent; to make it 
+    permanent in git, run `git push --tags` and copy the ./scripts/DEB
+    tree into place on yuba per the instructions in ./scripts/DEB/README
+
+FYI, the make-release script will, all in one automated swoop:
+    1) update the version string in src/org/flowvisor/flowvisor.java
+    1.1) makes a new git comment with comment "release flowvisor-$version"
+    1.2) runs `git tag flowvisor-$version`
+    2) `make tests` and die if error
+    3) call ./scripts/make-deb.sh $version
+        - builds a debian package for the local architecture
+        - dumps the resulting .deb pkg in ./scripts/DEB/unstable/binary-$ARCH
