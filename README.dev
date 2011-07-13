@@ -83,7 +83,7 @@ INLINE DOCUMENTATION:
 Most (all?) of the code is commented with javadoc.  See `make doc`.
 
 RELEASES:
-Just run:
+Update the RELEASE-NOTES and then run:
     ./scripts/make-release flowvisor-$version
         - for the make install prompts, enter:
             /usr/local  (default)
