@@ -1,4 +1,5 @@
-FlowVisor 0.8.0 : July 8 2011
+FlowVisor 0.8.0 : July 13 2011
+    * fixed problem with FlowIDs exhausting
     * fixed memleaks that caused instability
     * fixed dynamic ports and topology discovery issues
     * fixed bugs in Vendor Stats and sendlen handling
