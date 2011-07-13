@@ -645,7 +645,7 @@ def parse_args (args):
   parser.add_option("-p", "--port", dest="rpcport", type="int", default="8080")
   parser.add_option("-q", "--jetty_port", dest="jettyport", type="int", default="8081")
   parser.add_option("-u", "--user", dest="user", default="fvadmin")
-  parser.add_option("-n", "--name", dest="host")
+  parser.add_option("-n", "--name", dest="host", default="localhost")
 
   (options, args) = parser.parse_args()
   return options
