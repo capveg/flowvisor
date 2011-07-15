@@ -31,9 +31,19 @@ public class OFSwitchAcceptor implements FVEventHandler {
 
 		ssc = ServerSocketChannel.open();
 		ssc.socket().setReuseAddress(true);
-		ssc.socket().bind(
-				new InetSocketAddress(InetAddress.getByName("::"), port),
-				backlog);
+		try {
+			// FIXME: check -Djava.net.preferIPv4Stack=true instead of brute force?
+			// try IPv6 first; this works on dual stacked machines too
+			ssc.socket().bind(
+					new InetSocketAddress(InetAddress.getByName("::"), port),
+					backlog);
+		} catch (java.net.SocketException e) {
+			// try default/ipv4 if that fails
+			FVLog.log(LogLevel.NOTE, this, "failed to bind IPv6 address; trying IPv4");
+			ssc.socket().bind(
+					new InetSocketAddress(port),
+					backlog);
+		}
 		ssc.configureBlocking(false);
 		this.listenPort = ssc.socket().getLocalPort();
 
