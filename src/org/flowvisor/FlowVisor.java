@@ -124,10 +124,7 @@ public class FlowVisor {
 	public void run() throws ConfigError, IOException, UnhandledEvent {
 		FlowVisor.setInstance(this);
 
-		// load config from file
-		FVConfig.readFromFile(this.configFile);
-
-		// init polling loop
+				// init polling loop
 		FVLog.log(LogLevel.INFO, null, "initializing poll loop");
 		FVEventLoop pollLoop = new FVEventLoop();
 
@@ -187,6 +184,9 @@ public class FlowVisor {
 			fv.parseArgs(args);
 
 			try {
+				// load config from file
+				FVConfig.readFromFile(fv.configFile);
+
 				JettyServer.spawnJettyServer();
 				fv.run();
 			} catch (Throwable e) {
