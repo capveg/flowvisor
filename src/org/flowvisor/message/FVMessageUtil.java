@@ -63,7 +63,8 @@ public class FVMessageUtil {
 		if (pair == null)
 			return null;
 		msg.setXid(pair.getXid());
-		return pair.getFvSlicer();
+		String sliceName = pair.getSliceName();
+		return fvClassifier.getSlicerByName(sliceName);
 	}
 
 	/**

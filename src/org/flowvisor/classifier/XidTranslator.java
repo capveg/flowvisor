@@ -34,7 +34,7 @@ public class XidTranslator {
 		int ret = this.nextID++;
 		if (nextID < MIN_XID)
 			nextID = MIN_XID;
-		xidMap.put(Integer.valueOf(ret), new XidPair(xid, fvSlicer));
+		xidMap.put(Integer.valueOf(ret), new XidPair(xid, fvSlicer.getSliceName()));
 		return ret;
 	}
 }

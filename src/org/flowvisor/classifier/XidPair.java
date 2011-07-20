@@ -3,7 +3,6 @@
  */
 package org.flowvisor.classifier;
 
-import org.flowvisor.slicer.FVSlicer;
 
 /**
  * @author capveg
@@ -11,11 +10,11 @@ import org.flowvisor.slicer.FVSlicer;
  */
 public class XidPair {
 	int xid;
-	FVSlicer fvSlicer;
+	String sliceName;
 
-	public XidPair(int xid, FVSlicer fvSlicer) {
+	public XidPair(int xid, String sliceName) {
 		this.xid = xid;
-		this.fvSlicer = fvSlicer;
+		this.sliceName = sliceName;
 	}
 
 	public int getXid() {
@@ -26,11 +25,18 @@ public class XidPair {
 		this.xid = xid;
 	}
 
-	public FVSlicer getFvSlicer() {
-		return fvSlicer;
+	/**
+	 * @return the sliceName
+	 */
+	public String getSliceName() {
+		return sliceName;
 	}
 
-	public void setFvSlicer(FVSlicer fvSlicer) {
-		this.fvSlicer = fvSlicer;
+	/**
+	 * @param sliceName the sliceName to set
+	 */
+	public void setSliceName(String sliceName) {
+		this.sliceName = sliceName;
 	}
+
 }
