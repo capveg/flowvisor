@@ -16,7 +16,7 @@ else
     exit 1
 fi
 
-default_jvm_args="-server -Xms100M -Xmx1000M -XX:OnError=flowvisor-crash-logger"
+default_jvm_args="-server -Xms100M -Xmx1000M -XX:OnError=flowvisor-crash-logger -XX:+UseConcMarkSweepGC"
 
 if [ -z $FV_JVM_ARGS ]; then
     export FV_JVM_ARGS="$default_jvm_args"
