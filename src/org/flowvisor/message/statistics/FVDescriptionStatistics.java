@@ -32,7 +32,7 @@ public class FVDescriptionStatistics extends OFDescriptionStatistics implements
 			InetSocketAddress remote = (InetSocketAddress) fvClassifier
 					.getSocketChannel().socket().getRemoteSocketAddress();
 
-			this.datapathDescription += " (" + remote.getHostName() + ":"
+			this.datapathDescription += " (" + remote.getAddress().getHostAddress() + ":"
 					+ remote.getPort() + ")";
 
 			if (this.datapathDescription.length() > FVDescriptionStatistics.DESCRIPTION_STRING_LENGTH)
