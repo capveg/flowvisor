@@ -2,7 +2,7 @@ GENI APT REPOSITORY:
 
 add
 
-deb http://openflow.org/downloads/GENI/DEB unstable/binary-$(ARCH)/
+deb http://updates/flowvisor.org/openflow/downloads/GENI/DEB unstable/binary-$(ARCH)/
 
 to your /etc/sources.list
 
