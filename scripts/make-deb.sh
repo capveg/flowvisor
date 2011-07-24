@@ -53,6 +53,7 @@ arch=$(grep "^Architecture:" ${ctlfile} | awk '{print $2}')
 tgtfile="${pkgname}_${version}_${arch}.deb"
 dpkg -b root $tgtfile
 dir=unstable/binary-${ARCH}
+mkdir -p $base/scripts/DEB/$dir
 cp $tgtfile $base/scripts/DEB/$dir
 cd  $base/scripts/DEB
 make
