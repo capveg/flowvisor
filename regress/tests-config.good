@@ -38,4 +38,4 @@
 !slices!fvadmin!passwd_crypt::STR : 435d3c53031597e76f05a11d8ad3ddd8
 !slices!fvadmin!passwd_salt::STR : sillysalt
 !switches!default!flood_perm::STR : fvadmin
-!version::STR : flowvisor-0.8.0
+!version::STR : flowvisor-0.8.1

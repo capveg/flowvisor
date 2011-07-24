@@ -14,7 +14,7 @@ if [ `id -u` != 0 ]; then
 fi
 
 version=$1
-ARCH=`uname -i`
+ARCH=`dpkg --print-architecture`
 
 base=`pwd`
  rm -rf $base/pkgbuild/root
@@ -47,12 +47,13 @@ cd ..
 # chmod u+w DEBIAN
 
 cd ..
+dir=unstable/binary-${ARCH}
+mkdir -p $base/scripts/DEB/$dir
 ctlfile="root/DEBIAN/control"
 pkgname=$(grep "^Package:" ${ctlfile} | awk '{print $2}')
 arch=$(grep "^Architecture:" ${ctlfile} | awk '{print $2}')
 tgtfile="${pkgname}_${version}_${arch}.deb"
 dpkg -b root $tgtfile
-dir=unstable/binary-${ARCH}
 cp $tgtfile $base/scripts/DEB/$dir
 cd  $base/scripts/DEB
 make
