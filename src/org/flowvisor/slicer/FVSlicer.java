@@ -9,6 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +40,18 @@ import org.flowvisor.log.LogLevel;
 import org.flowvisor.log.SendRecvDropStats;
 import org.flowvisor.log.SendRecvDropStats.FVStatsType;
 import org.flowvisor.message.FVMessageFactory;
+import org.flowvisor.message.FVPacketOut;
 import org.flowvisor.message.SanityCheckable;
 import org.flowvisor.message.Slicable;
 import org.openflow.protocol.OFHello;
 import org.openflow.protocol.OFMessage;
 import org.openflow.protocol.OFPhysicalPort;
 import org.openflow.protocol.OFPort;
+import org.openflow.util.LRULinkedHashMap;
 
 /**
  * @author capveg
- * 
+ *
  */
 public class FVSlicer implements FVEventHandler, FVSendMsg {
 
@@ -73,6 +76,9 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	boolean floodPerms;
 	Map<Short, Boolean> allowedPorts; // ports in this slice and whether they
 	boolean reconnectEventScheduled = false;
+	LinkedHashMap<Integer,Integer> allowedBufferIDs; // LRU cached list of buffer-IDs
+												// that this slice can address
+	final private int MAX_ALLOWED_BUFFER_IDS = 256; // max cache size
 
 	// get OFPP_FLOOD'd
 
@@ -89,6 +95,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 		this.isShutdown = false;
 		this.floodPerms = false;
 		this.allowedPorts = new HashMap<Short, Boolean>();
+		this.allowedBufferIDs = new LRULinkedHashMap<Integer,Integer>(10, MAX_ALLOWED_BUFFER_IDS);
 		this.stats = SendRecvDropStats.createSharedStats(sliceName);
 		FVConfig.watch(this, FVConfig.FLOW_TRACKING);
 		updateFlowTrackingConfig();
@@ -171,7 +178,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Return the list of ports in this slice on this switch
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<Short> getPorts() {
@@ -180,7 +187,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Return the list of ports that have flooding enabled for OFPP_FLOOD
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<Short> getFloodPorts() {
@@ -213,7 +220,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	/**
 	 * Set the OFPP_FLOOD flag for this port silently fail if this port is not
 	 * in the slice
-	 * 
+	 *
 	 * @param port
 	 * @param status
 	 */
@@ -225,7 +232,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * Is this port in this slice on this switch?
-	 * 
+	 *
 	 * @param port
 	 * @return true is yes, false is no.. durh
 	 */
@@ -289,7 +296,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getName()
 	 */
 	@Override
@@ -300,7 +307,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#getThreadContext()
 	 */
 	@Override
@@ -311,7 +318,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.flowvisor.events.FVEventHandler#tearDown()
 	 */
 	@Override
@@ -348,7 +355,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.flowvisor.events.FVEventHandler#handleEvent(org.flowvisor.events.
 	 * FVEvent)
@@ -399,7 +406,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * We got a signal that something in the config changed
-	 * 
+	 *
 	 * @param e
 	 */
 
@@ -416,7 +423,7 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 
 	/**
 	 * The FlowSpace just changed; update all cached dependencies
-	 * 
+	 *
 	 * @param e
 	 */
 
@@ -607,6 +614,41 @@ public class FVSlicer implements FVEventHandler, FVSendMsg {
 	 */
 	public void setFloodPerms(boolean floodPerms) {
 		this.floodPerms = floodPerms;
+	}
+
+	/**
+	 * Check to see if this buffer_id is in the list of IDs
+	 * that this slice is allowed to address
+	 *
+	 * if bufferID==NONE, then always allow
+	 *
+	 * if yes, for fun, increment a counter to see how often
+	 * the buffer is referenced
+	 *
+	 * @param bufferID from, e.g.,  FVPacketOut->bufferID
+	 * @return
+	 */
+
+	public boolean isBufferIDAllowed(int bufferID) {
+		if (bufferID == FVPacketOut.BUFFER_ID_NONE)
+			return true;		// always allowed
+		Integer count = this.allowedBufferIDs.get(bufferID);
+		if (count == null)
+			return false;	// not allowed
+		this.allowedBufferIDs.put(bufferID, count + 1);
+		return true;
+	}
+
+	/**
+	 * Mark this bufferID as allowed and init its access
+	 * count to zero
+	 *
+	 * @param bufferID from, e.g.,  FVPacketIn->bufferID
+	 */
+
+	public void setBufferIDAllowed(int bufferID) {
+		FVLog.log(LogLevel.DEBUG, this, "allowing bufferID: ", bufferID);
+		this.allowedBufferIDs.put(bufferID, 0);
 	}
 
 }

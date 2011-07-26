@@ -9,9 +9,10 @@ import org.flowvisor.flows.SliceAction;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
 import org.flowvisor.slicer.FVSlicer;
-import org.openflow.protocol.OFError.OFBadActionCode;
-import org.openflow.protocol.OFError.OFFlowModFailedCode;
 import org.openflow.protocol.OFFlowMod;
+import org.openflow.protocol.OFError.OFBadActionCode;
+import org.openflow.protocol.OFError.OFBadRequestCode;
+import org.openflow.protocol.OFError.OFFlowModFailedCode;
 import org.openflow.protocol.action.OFAction;
 
 public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
@@ -36,7 +37,15 @@ public class FVFlowMod extends org.openflow.protocol.OFFlowMod implements
 		FVLog.log(LogLevel.DEBUG, fvSlicer, "recv from controller: ", this);
 		FVMessageUtil.translateXid(this, fvClassifier, fvSlicer);
 
-		// FIXME: sanity check buffer id
+		// make sure that this slice can access this bufferID
+		if (! fvSlicer.isBufferIDAllowed(this.getBufferId())) {
+			FVLog.log(LogLevel.WARN, fvSlicer,
+					"EPERM buffer_id ", this.getBufferId(), " disallowed: "
+							, this);
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+						OFBadRequestCode.OFPBRC_BUFFER_UNKNOWN, this), fvSlicer);
+			return;
+		}
 
 		// make sure the list of actions is kosher
 		List<OFAction> actionsList = this.getActions();

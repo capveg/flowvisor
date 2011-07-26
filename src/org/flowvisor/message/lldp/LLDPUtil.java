@@ -100,6 +100,11 @@ public class LLDPUtil {
 				if (fvSlicer.isConnected()) {
 					FVLog.log(LogLevel.DEBUG, fvSlicer, "undoing lldp hack: "
 							+ pi);
+					// TODO decide if we should call:
+					// fvSlicer.setBufferIDAllowed(pi.getBufferId());
+					// the pro is it allows controllers to do stuff their LLDPs
+					// e.g., send them another hop
+					// the con is that we would have to track more BUFFER_IDS
 					fvSlicer.sendMsg(pi, fvClassifier);
 				}
 				return true;
