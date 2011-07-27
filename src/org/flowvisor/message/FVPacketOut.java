@@ -38,8 +38,16 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	@Override
 	public void sliceFromController(FVClassifier fvClassifier, FVSlicer fvSlicer) {
-		// TODO verify the buffer_id is one we're allowed to use from a
-		// packet_in that went to us
+
+		// make sure that this slice can access this bufferID
+		if (! fvSlicer.isBufferIDAllowed(this.getBufferId())) {
+			FVLog.log(LogLevel.WARN, fvSlicer,
+					"EPERM buffer_id ", this.getBufferId(), " disallowed: "
+							, this.toVerboseString());
+			fvSlicer.sendMsg(FVMessageUtil.makeErrorMsg(
+						OFBadRequestCode.OFPBRC_BUFFER_UNKNOWN, this), fvSlicer);
+			return;
+		}
 
 		// if it's LLDP, pass off to the LLDP hack
 		if (LLDPUtil.handleLLDPFromController(this, fvClassifier, fvSlicer))
@@ -125,7 +133,7 @@ public class FVPacketOut extends OFPacketOut implements Classifiable, Slicable {
 
 	private String toVerboseString() {
 		String pkt;
-		if (this.packetData != null)
+		if (this.packetData != null && (this.packetData.length > 0))
 			pkt = new OFMatch().loadFromPacket(this.packetData, this.inPort)
 					.toString();
 		else

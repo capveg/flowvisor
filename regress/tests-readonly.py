@@ -45,12 +45,12 @@ try:
     18 07 67 87 00 0d b9 15 c0 44 ff ff 08 00 11 00
     c0 a8 02 fe c0 a8 02 02 00 43 00 44 00 00 00 05
     00 00 80 00 00 17 70 97 40 6f 98 02 00 00 00 00
-    00 00 00 08 00 01 00 00'''
+    ff ff ff ff 00 01 00 00'''
     err1 =  FvRegress.OFVERSION + '''01 00 54 00 00 00 00 00 03 00 02 01 0e 00 48
         00 00 01 03 00 00 00 00 00 02 00 10 18 07 67 87
         00 0d b9 15 c0 44 ff ff 08 00 11 00 c0 a8 00 00
         c0 a8 02 02 00 43 00 44 00 00 00 05 00 00 80 00
-        00 17 70 97 40 6f 98 02 00 00 00 00 00 00 00 08
+        00 17 70 97 40 6f 98 02 00 00 00 00 ff ff ff ff
         00 01 00 00'''
     h.runTest(name="bad flow_mod write",timeout=timeout,  events= [
             TestEvent( "send","guest","alice", bad_flow_mod),
@@ -74,12 +74,12 @@ try:
     41 fa 73 01 00 1c f0 ed 98 5a ff ff 08 00 01 00
     c0 a8 02 7c c0 a8 02 8c 00 08 00 00 00 00 00 05
     00 00 80 00 ff ff ff ff ff ff 00 00 00 00 00 00
-    00 00 00 08 00 01 00 00 00 00 00 08 00 00 00 00'''
+    ff ff ff ff 00 01 00 00 00 00 00 08 00 00 00 00'''
     err =  FvRegress.OFVERSION + '''01 00 5c 00 00 00 00 00 03 00 02 01 0e 00 50
     00 00 01 04 00 00 00 00 00 01 00 22 41 fa 73 01
     00 1c f0 ed 98 5a ff ff 08 00 01 00 c0 a8 00 00
     c0 a8 02 8c 00 08 00 00 00 00 00 05 00 00 80 00
-    ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 08
+    ff ff ff ff ff ff 00 00 00 00 00 00 ff ff ff ff
     00 01 00 00 00 00 00 08 00 00 00 00'''
     h.runTest(name="bad flow_mod2",timeout=timeout,  events= [
             TestEvent( "send","guest","alice", legit_flow_mod2),
@@ -104,6 +104,7 @@ try:
             TestEvent( "send","guest","alice", lldp_packet_out),
             TestEvent( "recv","switch","switch1", lldp_after_fv),
             ])
+######################################
     # note this looks like an lldp packet, but is not: dl_type == 88aa instead
     bad_packet_out = FvRegress.OFVERSION + '''0d 00 3a 00 00 00 00 ff ff ff ff ff fd 00 08
     00 00 00 08 00 00 00 00 f1 23 20 00 00 01 00 21
@@ -114,7 +115,22 @@ try:
     00 00 00 00 f1 23 20 00 00 01 00 21 5c 54 a6 a1
     88 aa 02 07 04 00 12 e2 98 a5 ce 04 03 02 00 00
     06 02 00 78 00 00'''
-    h.runTest(name="bad packet_out",timeout=timeout,  events= [
+    h.runTest(name="bad packet_out by payload",timeout=timeout,  events= [
+            TestEvent( "send","guest","alice", bad_packet_out),
+            TestEvent( "recv","guest","alice", err),
+            ])
+######################################
+    # note this looks like an lldp packet, but is not: dl_type == 88aa instead
+    bad_packet_out = FvRegress.OFVERSION + '''0d 00 3a 00 00 00 00 01 02 03 04 ff fd 00 08
+    00 00 00 08 00 00 00 00 f1 23 20 00 00 01 00 21
+    5c 54 a6 a1 88 aa 02 07 04 00 12 e2 98 a5 ce 04
+    03 02 00 00 06 02 00 78 00 00'''
+    err = FvRegress.OFVERSION + '''01 00 46 00 00 00 00 00 01 00 08 01 0d 00 3a
+    00 00 00 00 01 02 03 04 ff fd 00 08 00 00 00 08
+    00 00 00 00 f1 23 20 00 00 01 00 21 5c 54 a6 a1
+    88 aa 02 07 04 00 12 e2 98 a5 ce 04 03 02 00 00
+    06 02 00 78 00 00'''
+    h.runTest(name="bad packet_out by buffer_id",timeout=timeout,  events= [
             TestEvent( "send","guest","alice", bad_packet_out),
             TestEvent( "recv","guest","alice", err),
             ])

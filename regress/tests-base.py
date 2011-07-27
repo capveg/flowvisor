@@ -358,14 +358,39 @@ try:
             TestEvent( "recv","switch",'switch1', packet_out2_flood_aftr),
             ])
 
-
-    short_test = FvRegress.OFVERSION + '''0d 00 18 00 00 00 00 00 00 04 7a 00 0b 00 08
+########################################
+    short_test = FvRegress.OFVERSION + '''0d 00 18 00 00 00 00 ff ff ff ff 00 0b 00 08
         00 00 00 08 00 02 00 00'''
     h.runTest(name="packet_out short ", timeout=timeout, events= [
             TestEvent( "send","guest",'alice', short_test),
             TestEvent( "recv","switch",'switch1', short_test),
             ])
 
+########################################
+    packet_to_alice =  FvRegress.OFVERSION + '''0a 0052 0000 0000 0102 0304
+                0040 0003 0000 0000 0000 0001 0000 0000
+                0002 0800 4500 0032 0000 0000 40ff f72c
+                c0a8 0028 c0a8 0128 7a18 586b 1108 97f5
+                19e2 657e 07cc 31c3 11c7 c40c 8b95 5151
+                3354 51d5 0036'''
+    buffer_id_test = FvRegress.OFVERSION + '''0d 00 18 00 00 00 00 01 02 03 04 00 0b 00 08
+        00 00 00 08 00 02 00 00'''
+    buffer_id_err  = FvRegress.OFVERSION + '''01 00 24 00 00 00 00 00 01 00 08 01 0d 00 18
+        00 00 00 00 01 02 03 04 00 0b 00 08 00 00 00 08
+        00 02 00 00
+        '''
+    # send a packet_out with a buffer_id that is has been referenced in a packet_in
+    # make sure we get an error in reply
+    h.runTest(name="packet_out buffer_id test ", timeout=timeout, events= [
+            TestEvent( "send","switch",'switch1', packet_to_alice),
+            TestEvent( "recv","guest",'alice', packet_to_alice),
+            TestEvent( "send","guest",'alice', buffer_id_test),
+            TestEvent( "recv","switch", 'switch1', buffer_id_test),
+            TestEvent( "send","guest",'bob', buffer_id_test),
+            TestEvent( "recv","guest",'bob', buffer_id_err),
+            ])
+
+########################################
     vendor_test = FvRegress.OFVERSION + '''04 00 18 00 00 00 00 00 00 23 20 00 00 00 08
             00 00 00 00 00 00 00 00'''
     h.runTest(name="vendor test ", timeout=timeout, events= [

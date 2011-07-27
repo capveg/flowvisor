@@ -29,7 +29,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 
 	/**
 	 * route and rewrite packet_in messages from switch to controller
-	 * 
+	 *
 	 * if it's lldp, do the lldp decode stuff else, look up the embedded
 	 * packet's controller(s) by flowspace and send to them
 	 */
@@ -75,14 +75,16 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 					continue;
 				}
 				if (fvSlicer.isConnected()) {
+					if ((perms & SliceAction.WRITE) != 0)
+						fvSlicer.setBufferIDAllowed(this.getBufferId());
 					fvSlicer.sendMsg(this, fvClassifier);
 					/**
 					 * TODO : come back and decide if we should uncomment this
 					 * i.e., should a rule get squashed if it's only recipient
 					 * is read only
-					 * 
+					 *
 					 * if yes, then tests-readonly.py needs to be changed
-					 * 
+					 *
 					 */
 
 					// if ((perms & SliceAction.WRITE) != 0)
@@ -97,7 +99,7 @@ public class FVPacketIn extends OFPacketIn implements Classifiable, Slicable,
 
 	/**
 	 * Tell the classifier to drop packets that look like this
-	 * 
+	 *
 	 * @param fvClassifier
 	 * @param flowEntry
 	 * @param hardTimeout
