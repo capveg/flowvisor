@@ -30,7 +30,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-
 import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.FVConfig;
@@ -79,7 +78,7 @@ public class FVCtl {
 		new APICmd("getConfig", 1, "<configEntry>"),
 		new APICmd("setConfig", 2, "<configEntry> <value>"),
 
-		new APICmd("registerCallback", 2, "<URL> <cookie>"),
+		new APICmd("registerCallback", 3, "<URL> <methodName> <cookie>"),
 		new APICmd("unregisterCallback", 0), };
 
 	static class APICmd {
@@ -562,11 +561,12 @@ public class FVCtl {
 		}
 	}
 
-	public void run_registerCallback(String URL, String cookie)
-	throws IOException, XmlRpcException, MalformedURLException {
+	public void run_registerCallback(String URL, String methodName,
+			String cookie) throws IOException, XmlRpcException,
+			MalformedURLException {
 		Boolean reply = (Boolean) this.client.execute(
 				"api.registerTopologyChangeCallback", new Object[] { URL,
-						cookie });
+						methodName, cookie });
 		if (reply == null) {
 			System.err.println("Got 'null' for reply :-(");
 			System.exit(-1);
