@@ -3,9 +3,8 @@ package org.flowvisor.flows;
 import java.util.List;
 import java.util.SortedSet;
 
-import org.openflow.protocol.OFMatch;
-
 import org.flowvisor.exceptions.FlowEntryNotFound;
+import org.openflow.protocol.OFMatch;
 
 /**
  * Interface for computing intersections in flowspace.

@@ -7,6 +7,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
+import org.apache.xmlrpc.server.XmlRpcStreamServer;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.flowvisor.config.ConfigError;
 import org.flowvisor.config.FVConfig;
@@ -59,6 +60,11 @@ public class APIServer {
 		WebServer webServer = new SSLWebServer(port);
 
 		XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
+
+		// set the server to use flowvisor logging
+		if(xmlRpcServer instanceof XmlRpcStreamServer) {
+			((XmlRpcStreamServer)xmlRpcServer).setErrorLogger(new FVRpcErrorLogger());
+		}
 
 		PropertyHandlerMapping phm = new PropertyHandlerMapping();
 
