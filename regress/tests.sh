@@ -20,6 +20,7 @@ tests-stats.py \
 tests-flowdb.py \
 tests-config.sh \
 tests-flood.py \
+tests-no-reply.py\
 "
 
     

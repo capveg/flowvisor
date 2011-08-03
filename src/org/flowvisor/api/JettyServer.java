@@ -150,12 +150,14 @@ public class JettyServer implements Runnable{
 		return security;
 	}
 
-	public static void spawnJettyServer(){
-		int port;
-		try {
-			port = FVConfig.getInt(FVConfig.API_JETTY_WEBSERVER_PORT);
-		} catch (ConfigError e) {
-			port = default_jetty_port; // not explicitly configured
+	public static void spawnJettyServer(int port){
+
+		if(port == -1){
+			try {
+				port = FVConfig.getInt(FVConfig.API_JETTY_WEBSERVER_PORT);
+			} catch (ConfigError e) {
+				port = default_jetty_port; // not explicitly configured
+			}
 		}
 
 		if (port == -1) {

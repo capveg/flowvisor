@@ -17,21 +17,18 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.jetty.http.HttpHeaders;
-import org.flowvisor.FlowVisor;
 import org.flowvisor.exceptions.RPCException;
-import org.flowvisor.flows.SliceAction;
+import org.flowvisor.flows.FlowEntry;
+import org.json.JSONDeserializers;
 import org.json.JSONParam;
 import org.json.JSONRequest;
 import org.json.JSONResponse;
+import org.json.JSONSerializers;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 
 
 public class AuthorizedServiceProxy  implements MethodInterceptor{
@@ -45,8 +42,12 @@ public class AuthorizedServiceProxy  implements MethodInterceptor{
 	private int nextId =0;
 
 	private static final Gson gson =
-		new GsonBuilder().registerTypeAdapter(OFAction.class, new OFActionDeserializer())
-		.registerTypeAdapter(OFMatch.class, new OFMatchDeserializer()).create();
+		new GsonBuilder().registerTypeAdapter(OFAction.class, new JSONSerializers.OFActionSerializer())
+		.registerTypeAdapter(OFAction.class, new JSONDeserializers.OFActionDeserializer())
+		.registerTypeAdapter(OFMatch.class, new JSONSerializers.OFActionSerializer())
+		.registerTypeAdapter(OFMatch.class, new JSONDeserializers.OFMatchDeserializer())
+		.registerTypeAdapter(FlowEntry.class, new JSONSerializers.FlowEntrySerializer())
+		.registerTypeAdapter(FlowEntry.class, new JSONDeserializers.FlowEntryDeserializer()).create();
 
 	/** The e. */
 	Enhancer e = null;
@@ -243,23 +244,5 @@ public class AuthorizedServiceProxy  implements MethodInterceptor{
 		return params;
 	}
 
-	private static class OFActionDeserializer implements JsonDeserializer<OFAction> {
-		public OFAction deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-		throws JsonParseException {
-			int vendor = json.getAsJsonObject().get("vendor").getAsJsonPrimitive().getAsInt();
-			if(vendor == FlowVisor.FLOWVISOR_VENDOR_EXTENSION){
-				return context.deserialize(json, SliceAction.class);
-			}
-			return context.deserialize(json, OFAction.class);
-		}
-	}
 
-	private static class OFMatchDeserializer implements JsonDeserializer<OFMatch>{
-		public OFMatch deserialize(JsonElement json, Type typeOft, JsonDeserializationContext context)
-		throws JsonParseException{
-			OFMatch match = new OFMatch();
-			match.fromString(json.getAsString());
-			return match;
-		}
-	}
 }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.flowvisor.FlowVisor;
-import org.flowvisor.api.FlowChange.FlowChangeOp;
 import org.flowvisor.classifier.FVClassifier;
 import org.flowvisor.config.BracketParse;
 import org.flowvisor.config.ConfigError;
@@ -23,10 +22,8 @@ import org.flowvisor.config.InvalidSliceName;
 import org.flowvisor.events.FVEventHandler;
 import org.flowvisor.exceptions.DPIDNotFound;
 import org.flowvisor.exceptions.DuplicateControllerException;
-import org.flowvisor.exceptions.FlowEntryNotFound;
 import org.flowvisor.exceptions.InvalidUserInfoKey;
 import org.flowvisor.exceptions.MalformedControllerURL;
-import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.exceptions.PermissionDeniedException;
 import org.flowvisor.exceptions.SliceNotFound;
 import org.flowvisor.flows.FlowDBEntry;
@@ -426,70 +423,7 @@ public class FVUserAPIImpl extends BasicJSONRPCService implements FVUserAPI {
 		return true;
 	}
 
-	/**
-	 * Implements {@link org.flowvisor.api.FVUserAPI#changeFlowSpace}
-	 *
-	 * Allow this change if it affectst the flowspace delagated to this slice.
-	 *
-	 * @throws PermissionDeniedException
-	 *
-	 */
 
-	@Override
-	public Collection<String> changeFlowSpace(List<Map<String, String>> changes)
-			throws MalformedFlowChange, PermissionDeniedException,
-			FlowEntryNotFound {
-		String user = APIUserCred.getUserName();
-		List<String> returnIDs = new LinkedList<String>();
-
-		// TODO: implement the "delegate" bit; for now only root can change FS
-		if (!FVConfig.isSupervisor(APIUserCred.getUserName()))
-			throw new PermissionDeniedException(
-					"only superusers can add/remove/change the flowspace");
-
-		synchronized (FVConfig.class) { // prevent multiple API clients from
-			// stomping
-			// on each other
-			FlowMap flowSpace = FVConfig.getFlowSpaceFlowMap();
-			String logMsg;
-			for (int i = 0; i < changes.size(); i++) {
-				FlowChange change = FlowChange.fromMap(changes.get(i));
-				FlowChangeOp operation = change.getOperation();
-				logMsg = "user " + user + " " + operation;
-				if (operation != FlowChangeOp.ADD) {
-					logMsg += " id=" + change.getId();
-					flowSpace.removeRule(change.getId());
-					returnIDs.add(String.valueOf(change.getId()));
-				}
-				if (operation != FlowChangeOp.REMOVE) {
-					logMsg += " for dpid="
-							+ FlowSpaceUtil.dpidToString(change.getDpid())
-							+ " match=" + change.getMatch() + " priority="
-							+ change.getPriority() + " actions="
-							+ FlowSpaceUtil.toString(change.getActions());
-
-					FlowEntry flowEntry = new FlowEntry(change.getDpid(),
-							change.getMatch(), change.getPriority(),
-							change.getActions());
-
-					if (operation == FlowChangeOp.ADD)
-						returnIDs.add(String.valueOf(flowEntry.getId()));
-					else
-						flowEntry.setId(change.getId()); // keep id on change
-					flowSpace.addRule(flowEntry);
-
-				}
-				FVLog.log(LogLevel.INFO, null, logMsg);
-			}
-			// update the indexes at the end, not with each rule
-			FlowVisor.getInstance().checkPointConfig();
-			FVLog.log(LogLevel.INFO, null,
-					"Signalling FlowSpace Update to all event handlers");
-			FVConfig.sendUpdates(FVConfig.FLOWSPACE); // signal that FS has
-			// changed
-		}
-		return returnIDs;
-	}
 
 	@Override
 	public Collection<String> listSlices() throws PermissionDeniedException {

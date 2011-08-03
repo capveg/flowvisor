@@ -43,6 +43,7 @@ public class FlowVisor {
 	List<FVEventHandler> handlers;
 
 	private int port;
+	private int jettyPort = -1;
 
 	private WebServer apiServer;
 	static FlowVisor instance;
@@ -55,6 +56,7 @@ public class FlowVisor {
 			new Option("l", "logging", "Log to stderr instead of syslog"),
 			new Option("p", "port", 0, "Override port from config"),
 			new Option("h", "help", "Print help"),
+			new Option("j", "jetty port",-1, "Override jetty port from config"),
 
 	});
 
@@ -90,12 +92,19 @@ public class FlowVisor {
 		return port;
 	}
 
+	public int getJettyPort(){
+		return jettyPort;
+	}
 	/**
 	 * @param port
 	 *            the port to set
 	 */
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	public void setJettyPort(int port){
+		this.jettyPort = port;
 	}
 
 	/**
@@ -127,6 +136,8 @@ public class FlowVisor {
 				// init polling loop
 		FVLog.log(LogLevel.INFO, null, "initializing poll loop");
 		FVEventLoop pollLoop = new FVEventLoop();
+
+		JettyServer.spawnJettyServer(jettyPort);
 
 		if (port == 0)
 			port = FVConfig.getInt(FVConfig.LISTEN_PORT);
@@ -187,7 +198,6 @@ public class FlowVisor {
 				// load config from file
 				FVConfig.readFromFile(fv.configFile);
 
-				JettyServer.spawnJettyServer();
 				fv.run();
 			} catch (Throwable e) {
 				FVLog.log(LogLevel.CRIT, null, "MAIN THREAD DIED!!!");
@@ -242,6 +252,12 @@ public class FlowVisor {
 			setPort(p);
 			System.err.println("Overriding port from config: setting to "
 					+ getPort());
+		}
+		if(cmd.hasOption("j")){
+			int jp = Integer.valueOf(cmd.getOptionValue("j"));
+			setJettyPort(jp);
+			System.err.println("Overriding jetty port from config: setting to "
+					+ getJettyPort());
 		}
 
 	}

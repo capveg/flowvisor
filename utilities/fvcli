@@ -12,8 +12,16 @@ import os
 from optparse import OptionParser
 import socket
 import exceptions
-from jsonrpc import ServiceProxy
+from jsonrpc import ServiceProxy, JSONParam
 from math import pow
+
+def parse_quoted_slice_name (arglist):
+  cmd_str = " ".join(arglist)
+  last_quote = cmd_str.index('"', 1)
+  slname = cmd_str[1:last_quote]
+  last_arg = cmd_str[last_quote+1:].strip()
+
+  return (slname, last_arg)
 
 class SubinterpreterExit(Exception):
   def __init__ (self):
@@ -53,11 +61,7 @@ class FlowSpaceEntry(object):
       self.parse_fsdict(fsdict)
 
   def parse_fsdict(self, fsdict):
-    dpid = fsdict['dpid']
-    if dpid == - pow(2, 63):
-      self.dpid = "All"
-    else:
-      self.dpid = dpid
+    self.dpid = fsdict['dpid']
     self.priority = fsdict['priority']
 
     self.id = fsdict['id']
@@ -106,6 +110,17 @@ class FlowSpaceEntry(object):
           ",".join(str(x) for x in self.actions))
 
 
+class FlowSpaceChangeRequest(object):
+  def __init__ (self, flowentry, changetype):
+    self.entry = flowentry
+    self.changetype = changetype
+
+  def getEntry(self):
+    return self.entry
+
+  def getChangeType(self):
+    return self.changetype
+
 class CmdRegex(object):
   def __init__ (self, regex):
     self.pattern = regex
@@ -143,6 +158,31 @@ class Commands(object):
         if regex.match(element):
           return cmd
 
+class JSONParamEncoder(json.JSONEncoder):
+    def default(self, obj):
+      if isinstance(obj, JSONParam):
+        return obj.getValueAsJson()
+      elif isinstance(obj, FlowSpaceChangeRequest):
+        return {'entry': obj.getEntry(), 'changeType': obj.getChangeType()}
+      elif isinstance(obj, FlowSpaceEntry):
+        ruleMatchStr = "OFMatch["
+        for rule in obj.rules:
+          ruleMatchStr = "%s%s=%s," % (ruleMatchStr, rule.key, rule.val)
+        ruleMatchStr = ruleMatchStr[0:len(ruleMatchStr)-1] + "]"
+        actionsList = []
+        for action in obj.actions:
+          actionDict = {}
+          actionsList.append(actionDict)
+          if action.type == 'Slice':
+            actionDict['vendor'] = (1 - pow(2, 31))
+          actionDict['type'] = "VENDOR"
+          actionDict['length'] = 8
+          actionDict['sliceName'] = action.key
+          actionDict['slicePerms'] = action.val
+        return {'id':obj.id, 'ruleMatch':ruleMatchStr, 'actionsList':actionsList, 'dpid':obj.dpid, 'priority':obj.priority}
+      else:
+        return json.JSONEncoder.default(self, obj)
+
 class Connection(object):
   def __init__ (self, user, passwd, host, port, json_port):
     self.nocache = False
@@ -150,7 +190,7 @@ class Connection(object):
     self.host = host
     self.port = int(port)
     self.conn = xmlrpclib.ServerProxy("https://%s:%s@%s:%d/xmlrpc" % (user, passwd, host, self.port))
-    self.jsonconn = ServiceProxy("https://%s:%s@%s:%d" % (user, passwd, host, json_port))
+    self.jsonconn = ServiceProxy("https://%s:%s@%s:%d" % (user, passwd, host, json_port), JSONParamEncoder)
     self.infopath = os.path.expanduser("~/.fvcli/%s.info" % (self.host))
     if not os.path.exists(os.path.split(self.infopath)[0]):
       os.makedirs(os.path.split(self.infopath)[0])
@@ -257,9 +297,10 @@ class FlowspaceCtl(Cmd):
     self.commit_flowspace()
 
   def get_flowspace (self, live = True, deleted = True):
-    fs = self.conn.getFlowspace()
+    fs = self.conn.jsonconn.listFlowSpace()
+    fslist = json.loads(fs['valueAsJson'])
     pfs = []
-    for x in fs:
+    for x in fslist:
       e = FlowSpaceEntry(x, show_ids = True)
       pfs.append(e)
     return pfs
@@ -272,6 +313,15 @@ class FlowspaceCtl(Cmd):
       dpid = raw_input("DPID(s): ")
       priority = raw_input("Priority: ")
       match = raw_input("Match: ")
+      fe = FlowSpaceEntry()
+      fe.dpid = "all_dpids"
+      fe.priority = 32000
+      match = FlowSpaceRule("in_port", 0)
+      fe.rules = [match]
+      action = FlowSpaceAction("Slice", "alice", 4)
+      fe.actions = [action]
+      fsr = FlowSpaceChangeRequest(fe, "ADD")
+      print self.conn.jsonconn.changeFlowSpace([fsr])
     except KeyboardInterrupt:
       return
 
@@ -416,20 +466,19 @@ class FVCtl(Cmd):
     arglist = arg.split()
     if arglist[0] == "slice":
       if arglist[1].count('"') > 0:
-        slname = arglist[1][1:-1]
-        if len(arglist) == 2:
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
+        if lastarg == "": 
           self.change_slice(slname)
           return
-        elif len(arglist) == 3:
-          if arglist[2] == "flowspace":
-            self.change_slice_flowspace(slname)
-            return
+        if lastarg == "flowspace":
+          self.change_slice_flowspace(slname)
+          return
 
   def do_delete (self, arg):
     arglist = arg.split()
     if arglist[0] == "slice":
       if arglist[1].count('"') > 0:
-        slname = arglist[1][1:-1]
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
         self.delete_slice(slname)
 
   def do_reset (self, arg):
@@ -570,17 +619,14 @@ class FVCtl(Cmd):
         self.show_slice_list()
         return
       elif arglist[1].count('"') > 0:
-        cmd_str = " ".join(arglist[1:])
-        last_quote = cmd_str.index('"', 1)
-        slname = cmd_str[1:last_quote]
-        last_arg = cmd_str[last_quote+1:].strip()
-        if last_arg == "detail":
+        (slname, lastarg) = parse_quoted_slice_name(arglist[1:])
+        if lastarg == "detail":
           self.show_slice_info(slname)
           return
-        elif last_arg == "stats":
+        elif lastarg == "stats":
           self.show_slice_stats(slname)
           return
-        elif last_arg  == "flowspace":
+        elif lastarg  == "flowspace":
           self.show_slice_flowspace(slname)
           return
     print "Unknown command: show %s" % (" ".join(arglist))
@@ -599,7 +645,7 @@ def parse_args (args):
   parser.add_option("-p", "--port", dest="rpcport", type="int", default="8080")
   parser.add_option("-q", "--jetty_port", dest="jettyport", type="int", default="8081")
   parser.add_option("-u", "--user", dest="user", default="fvadmin")
-  parser.add_option("-n", "--name", dest="host")
+  parser.add_option("-n", "--name", dest="host", default="localhost")
 
   (options, args) = parser.parse_args()
   return options

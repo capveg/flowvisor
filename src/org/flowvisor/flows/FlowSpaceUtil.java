@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.flowvisor.config.FVConfig;
+import org.flowvisor.exceptions.MalformedFlowChange;
 import org.flowvisor.ofswitch.TopologyController;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.OFPort;
@@ -272,6 +273,24 @@ public class FlowSpaceUtil {
 		return HexString.toHexString(dpid);
 	}
 
+	public static OFMatch ofMatchFromString(String ofMatchStr) throws MalformedFlowChange{
+		OFMatch tmp = new OFMatch();
+
+		// try as is first
+		try {
+			tmp.fromString(ofMatchStr);
+		} catch (IllegalArgumentException e) {
+			// if that doesn't work, try wrapping with "OFMatch["
+			try {
+				tmp.fromString("OFMatch[" + ofMatchStr + "]");
+			} catch (IllegalArgumentException e1) {
+				throw new MalformedFlowChange("could not parse match: '"
+						+ ofMatchStr + "'");
+			}
+		}
+
+		return tmp;
+	}
 	/**
 	 * Remove all of the flowSpace associated with a slice
 	 *
