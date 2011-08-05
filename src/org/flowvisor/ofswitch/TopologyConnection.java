@@ -390,6 +390,8 @@ public class TopologyConnection implements FVEventHandler, FVSendMsg {
 		// schedule timer
 		this.pollLoop.addTimer(new FVTimerEvent(System.currentTimeMillis()
 				+ this.fastProbeRate, this, this, null));
+
+		topologyController.topoConnectionJustConnected(HexString.toHexString(this.featuresReply.getDatapathId()));
 	}
 
 	synchronized public void addPort(OFPhysicalPort port) {

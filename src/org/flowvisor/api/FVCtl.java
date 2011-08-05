@@ -84,6 +84,8 @@ public class FVCtl {
 		new APICmd("setConfig", 2, "<configEntry> <value>"),
 
 		new APICmd("registerCallback", 3, "<URL> <methodName> <cookie>"),
+		new APICmd("registerTopologyEventCallback", 3, "<URL> <methodName> <eventType>"),
+		new APICmd("deregisterTopologyEventCallback", 2, "<method> <eventType>"),
 		new APICmd("unregisterCallback", 0), };
 
 	static class APICmd {

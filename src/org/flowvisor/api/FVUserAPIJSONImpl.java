@@ -1,5 +1,7 @@
 package org.flowvisor.api;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.flowvisor.flows.FlowMap;
 import org.flowvisor.flows.FlowSpaceUtil;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.flowvisor.ofswitch.TopologyController;
 import org.openflow.protocol.OFMatch;
 import org.openflow.protocol.action.OFAction;
 
@@ -78,5 +81,29 @@ public class FVUserAPIJSONImpl extends FVUserAPIImpl implements FVUserAPIJSON {
 	private static String flowspaceAddChangeLogMessage(long dpid, OFMatch match, int priority, List<OFAction> actions ){
 		return " for dpid=" + FlowSpaceUtil.dpidToString(dpid) + " match=" + match +
 		" priority=" + priority + " actions=" + FlowSpaceUtil.toString(actions);
+	}
+
+	@Override
+	public Boolean registerTopologyEventCallback(String URL, String method, String eventType)
+	throws MalformedURLException {
+		// this will throw MalformedURL back to the client if the URL is bad
+		new URL(URL);
+		TopologyController tc = TopologyController.getRunningInstance();
+		if (tc != null) {
+			tc.registerCallBack("", URL, method, "", eventType);
+			return true;
+		} else
+			return false; // topology server not running
+	}
+
+	@Override
+	public boolean deregisterTopologyEventCallback(String method,
+			String eventType) {
+		TopologyController tc = TopologyController.getRunningInstance();
+		if (tc != null) {
+			tc.deregisterCallback(method, eventType);
+			return true;
+		} else
+			return false; // topology server not running
 	}
 }

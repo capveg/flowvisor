@@ -585,7 +585,7 @@ public class FVUserAPIImpl extends BasicJSONRPCService implements FVUserAPI {
 		new URL(URL);
 		TopologyController tc = TopologyController.getRunningInstance();
 		if (tc != null) {
-			tc.registerCallBack(APIUserCred.getUserName(), URL, methodName, cookie);
+			tc.registerCallBack(APIUserCred.getUserName(), URL, methodName, cookie, "GENERAL");
 			return true;
 		} else
 			return false; // topology server not running

@@ -5,6 +5,7 @@ package org.flowvisor.ofswitch;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -25,6 +26,7 @@ import org.flowvisor.events.FVTimerEvent;
 import org.flowvisor.exceptions.UnhandledEvent;
 import org.flowvisor.log.FVLog;
 import org.flowvisor.log.LogLevel;
+import org.json.JSONParam;
 
 /**
  * A simple OpenFlow controller that runs inside the flowvisor to discover and
@@ -49,7 +51,8 @@ public class TopologyController extends OFSwitchAcceptor {
 	static long defaultUpdatePeriod = 5000; // in milliseconds
 	static long defaultTimeoutPeriod = 10000; // in milliseconds
 
-	private final Map<String, TopologyCallback> callBackDB;
+	private final Map<String, TopologyCallback> generalCallBackDB;
+	private Map<TopologyCallback.EventType, List<TopologyCallback>> eventCallbacks;
 
 	public static TopologyController getRunningInstance() {
 		return TopologyController.runningInstance;
@@ -65,7 +68,9 @@ public class TopologyController extends OFSwitchAcceptor {
 		this.topologyConnections = new LinkedList<TopologyConnection>();
 		this.latestProbes = new HashMap<LinkAdvertisement, Long>();
 		this.doCallback = false;
-		this.callBackDB = new HashMap<String, TopologyCallback>();
+		this.generalCallBackDB = new HashMap<String, TopologyCallback>();
+		this.eventCallbacks = new HashMap<TopologyCallback.EventType, List<TopologyCallback>>();
+		this.eventCallbacks.put(TopologyCallback.EventType.DEVICE_CONNECTED, new ArrayList<TopologyCallback>());
 		this.setUpdatePeriod(TopologyController.defaultUpdatePeriod);
 		this.setTimeoutPeriod(TopologyController.defaultTimeoutPeriod);
 		// schedule the update timer
@@ -113,23 +118,38 @@ public class TopologyController extends OFSwitchAcceptor {
 	 *            Some state locally meaningful to user
 	 */
 	public synchronized void registerCallBack(String user, String URL,String methodName,
-			String cookie) {
-		this.callBackDB.put(user, new TopologyCallback(URL,methodName, cookie));
+			String cookie, String callbackType) {
+		TopologyCallback.EventType eventType = TopologyCallback.EventType.valueOf(callbackType);
+		if(eventType == TopologyCallback.EventType.GENERAL)
+			this.generalCallBackDB.put(user, new TopologyCallback(URL,methodName, cookie));
+		else{
+			this.eventCallbacks.get(eventType).add(new TopologyCallback(URL, methodName, eventType));
+		}
+
+	}
+
+	public synchronized void deregisterCallback(String method, String callbackType){
+
+		for(TopologyCallback callback : this.eventCallbacks.get(TopologyCallback.EventType.valueOf(callbackType))){
+			if (callback.getMethodName().equals(method)){
+				eventCallbacks.get(TopologyCallback.EventType.valueOf(callbackType)).remove(callback);
+			}
+		}
 	}
 
 	public synchronized String getTopologyCallback(String user){
-		TopologyCallback tempTopologyCallback=(TopologyCallback)this.callBackDB.get(user);
+		TopologyCallback tempTopologyCallback=(TopologyCallback)this.generalCallBackDB.get(user);
 		String tempString;
 		String tempMethodName;
 
 		if (tempTopologyCallback!=null){
 			tempString=tempTopologyCallback.getURL();
-			tempMethodName=tempTopologyCallback.getMethodName();		
+			tempMethodName=tempTopologyCallback.getMethodName();
 		}
 		else{
 			return null;
-		} 
-				
+		}
+
 		if (tempString!=null && tempMethodName!=null){
  			return	tempString+" -- XMLRPC method name="+tempMethodName;
 		}
@@ -139,7 +159,7 @@ public class TopologyController extends OFSwitchAcceptor {
 	}
 
 	public synchronized void unregisterCallBack(String user) {
-		this.callBackDB.remove(user);
+		this.generalCallBackDB.remove(user);
 	}
 
 	@Override
@@ -186,7 +206,7 @@ public class TopologyController extends OFSwitchAcceptor {
 
 	private synchronized void processCallback() {
 		FVLog.log(LogLevel.INFO, this, "topology changed: doing callbacks");
-		for (TopologyCallback topologyCallback : this.callBackDB.values())
+		for (TopologyCallback topologyCallback : this.generalCallBackDB.values())
 			topologyCallback.spawn();
 		this.doCallback = false;
 	}
@@ -207,6 +227,7 @@ public class TopologyController extends OFSwitchAcceptor {
 			TopologyConnection tc = new TopologyConnection(this, pollLoop, sock);
 			tc.init();
 			topologyConnections.add(tc);
+
 			this.doCallback = true; // signal that we need a call back when a
 			// new switch comes
 		} catch (IOException e) // ignore IOExceptions -- is this the right
@@ -215,6 +236,17 @@ public class TopologyController extends OFSwitchAcceptor {
 			System.err.println("Got IOException for " + sock != null ? sock
 					: "unknown socket");
 			System.err.println(e);
+		}
+	}
+
+	public void topoConnectionJustConnected(String dpidHex){
+		JSONParam param = new JSONParam(dpidHex);
+		ArrayList<JSONParam> params = new ArrayList<JSONParam>();
+		params.add(param);
+		for(TopologyCallback callback : eventCallbacks.get(TopologyCallback.EventType.DEVICE_CONNECTED)){
+			callback.setParams(params);
+			callback.run();
+			callback.clearParams();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package org.flowvisor.api;
 
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,4 +20,7 @@ public interface FVUserAPIJSON extends FVUserAPI {
 	Collection<Integer> changeFlowSpace(List<FlowSpaceChangeRequest> changes)
 			throws PermissionDeniedException, FlowEntryNotFound;
 
+	public Boolean registerTopologyEventCallback(String URL, String method, String eventType) throws MalformedURLException;
+
+	public boolean deregisterTopologyEventCallback(String method, String eventType);
 }
