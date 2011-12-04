@@ -14,15 +14,23 @@ distpath=$(TOP)/dist
 install=install
 
 MYCFLAGS=-Wall
+MYLDFLAGS=-Wall
 
+ARCH=$(shell uname -s)
 
-# Sun's default location on linux, for convenience
-MYCFLAGS+=-I/usr/lib/jvm/java-6-sun/include/ -I/usr/lib/jvm/java-6-sun/include/linux -I/usr/lib/jvm/java-6-openjdk/include/linux -I/usr/lib/jvm/java-6-openjdk/include
+ifeq ($(ARCH), Darwin)
+	MYCFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	MYLDFLAGS="-dynamiclib"
+else
+	# Sun's default location on linux, for convenience
+	MYCFLAGS+=-I/usr/lib/jvm/java-6-sun/include/ -I/usr/lib/jvm/java-6-sun/include/linux -I/usr/lib/jvm/java-6-openjdk/include/linux -I/usr/lib/jvm/java-6-openjdk/include
+	MYLDFLAGS+=-fPIC -shared -Wl,-soname,libsyslog_jni.so
+endif
 
 all: libsyslog_jni.so
 
 libsyslog_jni.so: syslog_jni.o
-	gcc $(LDFLAGS) -fPIC -shared -Wl,-soname,libsyslog_jni.so -o $@ syslog_jni.o -lc
+	gcc $(LDFLAGS) $(MYLDFLAGS) -o $@ syslog_jni.o -lc
 	cp $@ $(distpath)
 
 
@@ -50,3 +58,4 @@ install:
 debug:
 	@echo classfile=$(classfile)
 	@echo headerfile=$(headerfile)
+	@echo arch=$(ARCH)
